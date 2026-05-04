@@ -17479,7 +17479,8 @@ class TeamScoringService {
                 groups.get(value).push(girl);
             }
             for (const [traitValue, groupGirls] of groups) {
-                const avgStats = groupGirls.reduce((sum, g) => sum + TeamScoringService.getStatSum(g), 0) / groupGirls.length;
+                // Use blessed stats (includes blessing multiplier) for fair comparison
+                const avgStats = groupGirls.reduce((sum, g) => sum + TeamScoringService.scoreCurrentBest(g), 0) / groupGirls.length;
                 let score = groupGirls.length * avgStats;
                 // Position trait penalty (reduces attack stats via equipment)
                 if (pair.trait === 'position') {
@@ -17682,6 +17683,7 @@ class TeamBuilderService {
      * @returns TeamResult with the selected 7 girls, or null if not enough girls
      */
     static buildTeam(allGirls, mode, playerLevel) {
+        var _a;
         // Phase 1: Filter to Mythic + Legendary only (both modes)
         const candidates = TeamScoringService.filterHighRarity(allGirls);
         if (candidates.length < TEAM_SIZE) {
@@ -17699,68 +17701,77 @@ class TeamBuilderService {
         const sorted = [...candidates].sort((a, b) => (scoreMap.get(b.id_girl) || 0) - (scoreMap.get(a.id_girl) || 0));
         const pool = sorted.slice(0, CANDIDATE_POOL_SIZE);
         const maxStat = scoreMap.get(pool[0].id_girl) || 1;
-        // Phase 2b: Detect active blessings
-        const { blessedCategories, blessedGirlCount } = TeamScoringService.detectBlessedTraits(candidates);
-        // Phase 3: Build teams for multiple trait groups, pick highest effective power
-        // Resolve blessed values from names to hex codes using girl data
+        // Phase 2b: Detect active blessings from BlessingService cache (reliable)
+        // detectBlessedTraits() cannot work because blessingBonuses keys are 'pvp_v3', not trait names
+        const cachedBlessingForTraits = BlessingService.getCached();
+        let blessedCategories;
+        let blessedGirlCount;
+        if (cachedBlessingForTraits && cachedBlessingForTraits.blessedTraits && cachedBlessingForTraits.blessedTraits.length > 0) {
+            blessedCategories = new Set(cachedBlessingForTraits.blessedTraits);
+            // Count girls with any pvp_v3 bonus as blessed
+            blessedGirlCount = candidates.filter(g => { var _a, _b, _c; return ((_c = (_b = (_a = g.blessingBonuses) === null || _a === void 0 ? void 0 : _a.pvp_v3) === null || _b === void 0 ? void 0 : _b.carac1) === null || _c === void 0 ? void 0 : _c.length) > 0; }).length;
+            LogUtils_logHHAuto('TeamBuilder: blessedCategories from cache = ' + JSON.stringify(Array.from(blessedCategories)) + ', blessedGirlCount = ' + blessedGirlCount);
+        }
+        else {
+            // Fallback to detection (may not work but better than nothing)
+            const detected = TeamScoringService.detectBlessedTraits(candidates);
+            blessedCategories = detected.blessedCategories;
+            blessedGirlCount = detected.blessedGirlCount;
+            LogUtils_logHHAuto('TeamBuilder: blessedCategories from detection (fallback) = ' + JSON.stringify(Array.from(blessedCategories)));
+        }
+        // Phase 3: Build team based on blessing (simple logic)
+        // The blessing determines which trait group to use. Period.
+        // No multi-group evaluation needed - blessed girls have +25-40% stats.
         const cachedBlessing = BlessingService.getCached();
         const blessedNames = (cachedBlessing === null || cachedBlessing === void 0 ? void 0 : cachedBlessing.blessedValues) || {};
         const blessedValues = {};
         for (const [category, name] of Object.entries(blessedNames)) {
-            // Try to resolve the name to a hex code using blessing_bonuses on girls
             const percent = (cachedBlessing === null || cachedBlessing === void 0 ? void 0 : cachedBlessing.raw) ? BlessingService.parseBlessingPercent(cachedBlessing.raw, category) : undefined;
             const hex = BlessingService.resolveHexForBlessing(candidates.map(g => ({ eye_color1: g.eyeColor, hair_color1: g.hairColor, position_img: g.position ? g.position + '.png' : undefined, blessing_bonuses: g.blessingBonuses })), category, percent);
             if (hex) {
-                // For position, strip .png suffix to match GirlData.position format
                 blessedValues[category] = category === 'position' ? hex.replace('.png', '') : hex;
             }
-            // If resolution failed, leave empty (fallback behavior in findTraitGroups)
         }
-        // Log resolved blessed values and top girls
-        LogUtils_logHHAuto('TeamBuilder: blessedValues resolved = ' + JSON.stringify(blessedValues) + ', pool size = ' + pool.length);
+        LogUtils_logHHAuto('TeamBuilder: blessedCategories = ' + JSON.stringify(Array.from(blessedCategories)));
+        LogUtils_logHHAuto('TeamBuilder: blessedValues resolved = ' + JSON.stringify(blessedValues));
         if (sorted.length >= 5) {
             LogUtils_logHHAuto('TeamBuilder: top 5 by score: ' + sorted.slice(0, 5).map(g => g.name + '(' + Math.round(scoreMap.get(g.id_girl) || 0) + ', bls=' + (TeamScoringService.getBlessingMultiplier(g).toFixed(2)) + ')').join(', '));
         }
-        const traitGroups = TeamScoringService.findTraitGroups(pool, blessedCategories, blessedValues);
-        // Evaluate top groups + all blessed groups
-        const groupsToEvaluate = [];
-        const seenKeys = new Set();
-        for (const g of traitGroups.slice(0, 5)) {
-            const key = g.traitCategory + '=' + g.traitValue;
-            if (!seenKeys.has(key)) {
-                groupsToEvaluate.push(g);
-                seenKeys.add(key);
+        // Determine which trait group to use: ALWAYS prefer the blessed group
+        let chosenCategory = null;
+        let chosenValue = null;
+        // Pick the first blessed category that has a resolved hex value
+        for (const cat of Array.from(blessedCategories)) {
+            const val = blessedValues[cat];
+            if (val) {
+                chosenCategory = cat;
+                chosenValue = val;
+                LogUtils_logHHAuto('TeamBuilder: using blessed group: ' + cat + ' = ' + val);
+                break;
             }
         }
-        for (const g of traitGroups) {
-            const key = g.traitCategory + '=' + g.traitValue;
-            if (seenKeys.has(key))
-                continue;
-            if (blessedCategories.has(g.traitCategory)) {
-                groupsToEvaluate.push(g);
-                seenKeys.add(key);
+        // Fallback: if no blessing resolved, use highest-stat group
+        if (!chosenCategory || !chosenValue) {
+            LogUtils_logHHAuto('TeamBuilder: no blessing resolved, falling back to stat-based group selection');
+            const traitGroups = TeamScoringService.findTraitGroups(pool, blessedCategories, blessedValues);
+            if (traitGroups.length > 0) {
+                chosenCategory = traitGroups[0].traitCategory;
+                chosenValue = traitGroups[0].traitValue;
+            }
+            else {
+                chosenCategory = 'eyeColor';
+                chosenValue = ((_a = pool[0]) === null || _a === void 0 ? void 0 : _a.eyeColor) || '';
             }
         }
-        if (groupsToEvaluate.length === 0 && traitGroups.length > 0) {
-            groupsToEvaluate.push(traitGroups[0]);
-        }
-        // Build a team for each group and compare effective power
-        let bestBuilt = null;
-        const alternatives = [];
-        for (const group of groupsToEvaluate) {
-            const builtTeam = TeamBuilderService._buildTeamForGroup(group.traitCategory, group.traitValue, pool, scoreMap);
-            if (!builtTeam || builtTeam.length < TEAM_SIZE)
-                continue;
-            const statSum = builtTeam.reduce((s, g) => s + (scoreMap.get(g.id_girl) || 0), 0);
-            // Power = pure stat sum (with blessing multiplier already applied in scoring)
-            const power = Math.round(statSum);
-            alternatives.push({ traitCategory: group.traitCategory, traitValue: group.traitValue, effectivePower: power });
-            if (!bestBuilt || power > bestBuilt.power) {
-                bestBuilt = { team: builtTeam, cat: group.traitCategory, val: group.traitValue, power };
-            }
-        }
-        if (!bestBuilt)
+        // Build the team for the chosen (blessed) group
+        const builtTeam = TeamBuilderService._buildTeamForGroup(chosenCategory, chosenValue, pool, scoreMap);
+        if (!builtTeam || builtTeam.length < TEAM_SIZE)
             return null;
+        const statSum = builtTeam.reduce((s, g) => s + (scoreMap.get(g.id_girl) || 0), 0);
+        const power = Math.round(statSum);
+        const bestBuilt = { team: builtTeam, cat: chosenCategory, val: chosenValue, power };
+        const alternatives = [];
+        LogUtils_logHHAuto('TeamBuilder: chosen team power = ' + power + ' (' + chosenCategory + '=' + chosenValue + ')');
         const team = bestBuilt.team;
         const teamElements = team.map(g => g.element);
         const leader = team[0];

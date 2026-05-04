@@ -346,7 +346,8 @@ export class TeamScoringService {
             }
 
             for (const [traitValue, groupGirls] of groups) {
-                const avgStats = groupGirls.reduce((sum, g) => sum + TeamScoringService.getStatSum(g), 0) / groupGirls.length;
+                // Use blessed stats (includes blessing multiplier) for fair comparison
+                const avgStats = groupGirls.reduce((sum, g) => sum + TeamScoringService.scoreCurrentBest(g), 0) / groupGirls.length;
                 let score = groupGirls.length * avgStats;
 
                 // Position trait penalty (reduces attack stats via equipment)
