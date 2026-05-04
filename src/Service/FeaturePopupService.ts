@@ -46,12 +46,12 @@ const FEATURE_POPUP_CLOSE_LABEL: string = "OK";
  * Set to a specific version (e.g. "7.34.2") to activate the feature popup
  * for that version. Set to "0" to deactivate (default).
  */
-const FEATURE_POPUP_VERSION: string = "7.35.19";
+const FEATURE_POPUP_VERSION: string = "7.35.20";
 
 /**
  * Title shown in the popup header.
  */
-const FEATURE_POPUP_TITLE = "HHAuto v7.35.19";
+const FEATURE_POPUP_TITLE = "HHAuto v7.35.20";
 
 /**
  * HTML content for the feature popup.
@@ -62,7 +62,7 @@ const FEATURE_POPUP_CONTENT = `
     <p style="font-size:15px; font-weight:bold; margin-bottom:10px; color:#090;">Repository transfer complete</p>
     <p style="margin-bottom:10px;">HHAuto now lives at <b style="color:#090;">github.com/OldRon1977/HHauto</b>.</p>
     <p style="margin-bottom:10px;">The old Roukys/HHauto URL redirects automatically &mdash; no action needed on your side. Tampermonkey picks up updates from the new location. Your settings remain untouched.</p>
-    <p style="margin-bottom:6px;"><b>What's new in v7.35.19:</b></p>
+    <p style="margin-bottom:6px;"><b>What's new in v7.35.20:</b></p>
     <ul style="margin-bottom:10px; font-size:12px;">
       <li>Team selection: blessing boost now works correctly (hex color codes no longer break matching)</li>
       <li>Info box shows "#A55" instead of raw hex when no blessing name is available</li>

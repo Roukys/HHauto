@@ -315,12 +315,18 @@ export class TeamScoringService {
                     score *= POSITION_TRAIT_PENALTY;
                 }
 
-                // Blessing boost: boost all groups in blessed category equally.
-                // Hex codes (e.g. '00F') cannot be matched to names (e.g. 'golden'),
-                // but blessed girls already have +25-40% higher stats from the game
-                // which naturally surfaces them via effective power comparison.
+                // Blessing boost: only boost the specific group that matches the blessed value.
+                // blessedValues maps category -> hex code (resolved at runtime from girl data).
                 if (blessedCategories && blessedCategories.has(pair.trait)) {
-                    score *= 1.5;
+                    const blessedHex = blessedValues?.[pair.trait];
+                    if (blessedHex && traitValue === blessedHex) {
+                        // Exact match: this is THE blessed group
+                        score *= 2.0;
+                    } else if (!blessedHex) {
+                        // Fallback: could not resolve hex, boost entire category (old behavior)
+                        score *= 1.5;
+                    }
+                    // If blessedHex exists but doesn't match: no boost (intentional)
                 }
 
                 results.push({

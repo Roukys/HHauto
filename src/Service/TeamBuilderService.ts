@@ -95,7 +95,24 @@ export class TeamBuilderService {
         const { blessedCategories, blessedGirlCount } = TeamScoringService.detectBlessedTraits(candidates);
 
         // Phase 3: Build teams for multiple trait groups, pick highest effective power
-        const blessedValues: Record<string, string> = (BlessingService.getCached()?.blessedValues) || {};
+        // Resolve blessed values from names to hex codes using girl data
+        const cachedBlessing = BlessingService.getCached();
+        const blessedNames: Record<string, string> = cachedBlessing?.blessedValues || {};
+        const blessedValues: Record<string, string> = {};
+        for (const [category, name] of Object.entries(blessedNames)) {
+            // Try to resolve the name to a hex code using blessing_bonuses on girls
+            const percent = cachedBlessing?.raw ? BlessingService.parseBlessingPercent(cachedBlessing.raw, category) : undefined;
+            const hex = BlessingService.resolveHexForBlessing(
+                candidates.map(g => ({ eye_color1: g.eyeColor, hair_color1: g.hairColor, position_img: g.position ? g.position + '.png' : undefined, blessing_bonuses: g.blessingBonuses })),
+                category,
+                percent
+            );
+            if (hex) {
+                // For position, strip .png suffix to match GirlData.position format
+                blessedValues[category] = category === 'position' ? hex.replace('.png', '') : hex;
+            }
+            // If resolution failed, leave empty (fallback behavior in findTraitGroups)
+        }
         const traitGroups = TeamScoringService.findTraitGroups(pool, blessedCategories, blessedValues);
 
         // Evaluate top groups + all blessed groups

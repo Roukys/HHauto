@@ -650,7 +650,10 @@ export class TeamModule {
                     + (cachedBlessings.blessedElement ? ' + ' + (TeamModule.CLASS_NAME[cachedBlessings.blessedElement] || cachedBlessings.blessedElement) : '')
                 : (cachedBlessings ? 'none parsed (check logs)' : 'not loaded yet (visit Home)');
             const blessedIsActive = cachedBlessings && cachedBlessings.blessedTraits.includes(teamResult.traitCategory);
-            const blessedValueMatch = blessedIsActive && blessedVals[teamResult.traitCategory] && teamResult.traitValue.toLowerCase() === blessedVals[teamResult.traitCategory].toLowerCase();
+            const blessedValueMatch = blessedIsActive && blessedVals[teamResult.traitCategory] && (
+                teamResult.traitValue.toLowerCase() === blessedVals[teamResult.traitCategory].toLowerCase() ||
+                teamResult.traitValue === (cachedBlessings?.blessedValues?.[teamResult.traitCategory] || '')
+            );
             const blessedNote = blessedValueMatch ? ' (PERFECT match!)' : (blessedIsActive ? ' (category match, value differs)' : (cachedBlessings ? ' (not matching)' : ''));
 
             const synergyInfo = $(`<div class="hhTeamSynergyInfo" style="
@@ -660,7 +663,7 @@ export class TeamModule {
             ">
                 <div style="font-weight:bold; margin-bottom: 3px; color: #ffb827;">Team Selection Info</div>
                 <div style="color:#aaa; font-size:10px; margin-bottom:3px;">Why this team was chosen:</div>
-                <div><b>Trait optimized:</b> ${traitEmoji} ${teamResult.traitCategory} = "${blessedVals[teamResult.traitCategory] || ('#' + teamResult.traitValue) || '?'}" (${teamResult.traitMatchCount}/7 girls match)</div>
+                <div><b>Trait optimized:</b> ${traitEmoji} ${teamResult.traitCategory} = "${teamResult.traitValue}" (${teamResult.traitMatchCount}/7 girls match)</div>
                 <div style="color:#aaa; font-size:10px;">Tier 3 gives +stat% per teammate sharing this trait</div>
                 <div><b>Tier 3 bonus:</b> +${tier3Pct}% total stat boost</div>
                 <div><b>Leader:</b> ${teamResult.girls[0].name} (${teamResult.leaderTier5.name} / ${TeamModule.CLASS_NAME[teamResult.girls[0].element] || teamResult.girls[0].element})</div>
@@ -669,7 +672,7 @@ export class TeamModule {
                 <hr style="border-color:#555; margin:4px 0"/>
                 <div><b>Active Blessings:</b> ${blessedStr}${blessedNote}</div>
                 <div style="color:#aaa; font-size:10px;">${cachedBlessings ? "Cache: " + new Date(cachedBlessings.timestamp).toLocaleString() : "No cache - go to Home page to load"}</div>
-                <div style="color:#aaa; font-size:10px; margin-top:2px;">${teamResult.alternatives && teamResult.alternatives.length > 1 ? '<b>Compared:</b> ' + teamResult.alternatives.map(a => a.traitCategory + '=' + (blessedVals[a.traitCategory] || a.traitValue) + ' (' + a.effectivePower.toLocaleString() + ')').join(' | ') : ''}</div>
+                <div style="color:#aaa; font-size:10px; margin-top:2px;">${teamResult.alternatives && teamResult.alternatives.length > 1 ? '<b>Compared:</b> ' + teamResult.alternatives.map(a => a.traitCategory + '=' + a.traitValue + ' (' + a.effectivePower.toLocaleString() + ')').join(' | ') : ''}</div>
                 <div style="color:#aaa; font-size:10px; margin-top:2px;">Mode 1 (Current Best): stats already include blessings</div>
                 <div style="color:#aaa; font-size:10px;">Mode 2 (Best Possible): projects to max level/grades</div>
             </div>`);

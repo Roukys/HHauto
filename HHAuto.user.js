@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      7.35.19
+// @version      7.35.20
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -17103,6 +17103,106 @@ class BlessingService {
         }
         return undefined;
     }
+    /**
+     * Resolve the hex code for a blessed trait by analyzing blessing_bonuses on girls.
+     *
+     * Strategy: The Blessing API gives us names (e.g. "grey", "dolphin") but girl data
+     * uses hex codes (e.g. "888") or filenames (e.g. "2.png"). This method finds the
+     * mapping by looking at which girls have the blessing bonus and what trait value
+     * they share uniformly.
+     *
+     * @param girls - All available girls with their raw data
+     * @param blessedCategory - The trait category (eyeColor, hairColor, position)
+     * @param blessingPercent - The bonus percentage from the blessing (e.g. 30, 40)
+     * @returns The hex code / filename that corresponds to the blessed value, or undefined
+     */
+    static resolveHexForBlessing(girls, blessedCategory, blessingPercent) {
+        var _a;
+        // Find girls that have pvp_v3 blessing bonuses
+        const blessedGirls = girls.filter(g => {
+            if (!g.blessing_bonuses || typeof g.blessing_bonuses !== 'object')
+                return false;
+            if (Array.isArray(g.blessing_bonuses) && g.blessing_bonuses.length === 0)
+                return false;
+            return g.blessing_bonuses.pvp_v3 !== undefined;
+        });
+        if (blessedGirls.length === 0)
+            return undefined;
+        // Group blessed girls by their bonus percentage
+        const byPercent = new Map();
+        for (const g of blessedGirls) {
+            const pcts = (_a = g.blessing_bonuses.pvp_v3) === null || _a === void 0 ? void 0 : _a.carac1;
+            if (!Array.isArray(pcts))
+                continue;
+            for (const pct of pcts) {
+                if (!byPercent.has(pct))
+                    byPercent.set(pct, []);
+                byPercent.get(pct).push(g);
+            }
+        }
+        // For each percentage group, check if the target trait has a uniform value
+        const fieldMap = {
+            eyeColor: 'eye_color1',
+            hairColor: 'hair_color1',
+            position: 'position_img',
+        };
+        const field = fieldMap[blessedCategory];
+        if (!field)
+            return undefined;
+        // If we know the exact percentage, check that group first
+        const groupsToCheck = blessingPercent
+            ? [byPercent.get(blessingPercent), ...Array.from(byPercent.values())]
+            : Array.from(byPercent.values());
+        for (const group of groupsToCheck) {
+            if (!group || group.length < 3)
+                continue;
+            // Count trait values in this group
+            const valueCounts = new Map();
+            for (const g of group) {
+                const val = g[field];
+                if (val && val !== '') {
+                    valueCounts.set(val, (valueCounts.get(val) || 0) + 1);
+                }
+            }
+            // Check if one value dominates (>90% of the group)
+            for (const [val, count] of valueCounts) {
+                if (count / group.length >= 0.9) {
+                    LogUtils_logHHAuto('BlessingService: resolved ' + blessedCategory + ' -> hex="' + val + '" (' + count + '/' + group.length + ' girls)');
+                    return val;
+                }
+            }
+        }
+        return undefined;
+    }
+    /**
+     * Parse the blessing bonus percentage for a given trait category.
+     * E.g. "Eye Color Grey" with "+ 40%" -> 40
+     */
+    static parseBlessingPercent(response, category) {
+        const active = (response === null || response === void 0 ? void 0 : response.active) || [];
+        if (!Array.isArray(active))
+            return undefined;
+        const categoryKeywords = {
+            eyeColor: ['eye color'],
+            hairColor: ['hair color', 'hair colour'],
+            position: ['favourite position', 'favorite position'],
+            zodiac: ['zodiac', 'astrological', 'sign'],
+        };
+        const keywords = categoryKeywords[category];
+        if (!keywords)
+            return undefined;
+        for (const blessing of active) {
+            const desc = (blessing.description || '').toLowerCase();
+            if (!desc.includes('bonus on all attributes') || desc.includes('labyrinth'))
+                continue;
+            if (keywords.some(kw => desc.includes(kw))) {
+                const pctMatch = desc.match(/\+\s*(\d+)\s*%/);
+                if (pctMatch)
+                    return Number(pctMatch[1]);
+            }
+        }
+        return undefined;
+    }
 }
 
 ;// CONCATENATED MODULE: ./src/Service/TeamScoringService.ts
@@ -17347,12 +17447,19 @@ class TeamScoringService {
                 if (pair.trait === 'position') {
                     score *= POSITION_TRAIT_PENALTY;
                 }
-                // Blessing boost: boost all groups in blessed category equally.
-                // Hex codes (e.g. '00F') cannot be matched to names (e.g. 'golden'),
-                // but blessed girls already have +25-40% higher stats from the game
-                // which naturally surfaces them via effective power comparison.
+                // Blessing boost: only boost the specific group that matches the blessed value.
+                // blessedValues maps category -> hex code (resolved at runtime from girl data).
                 if (blessedCategories && blessedCategories.has(pair.trait)) {
-                    score *= 1.5;
+                    const blessedHex = blessedValues === null || blessedValues === void 0 ? void 0 : blessedValues[pair.trait];
+                    if (blessedHex && traitValue === blessedHex) {
+                        // Exact match: this is THE blessed group
+                        score *= 2.0;
+                    }
+                    else if (!blessedHex) {
+                        // Fallback: could not resolve hex, boost entire category (old behavior)
+                        score *= 1.5;
+                    }
+                    // If blessedHex exists but doesn't match: no boost (intentional)
                 }
                 results.push({
                     traitCategory: pair.trait,
@@ -17542,7 +17649,6 @@ class TeamBuilderService {
      * @returns TeamResult with the selected 7 girls, or null if not enough girls
      */
     static buildTeam(allGirls, mode, playerLevel) {
-        var _a;
         // Phase 1: Filter to Mythic + Legendary only (both modes)
         const candidates = TeamScoringService.filterHighRarity(allGirls);
         if (candidates.length < TEAM_SIZE) {
@@ -17563,7 +17669,20 @@ class TeamBuilderService {
         // Phase 2b: Detect active blessings
         const { blessedCategories, blessedGirlCount } = TeamScoringService.detectBlessedTraits(candidates);
         // Phase 3: Build teams for multiple trait groups, pick highest effective power
-        const blessedValues = ((_a = BlessingService.getCached()) === null || _a === void 0 ? void 0 : _a.blessedValues) || {};
+        // Resolve blessed values from names to hex codes using girl data
+        const cachedBlessing = BlessingService.getCached();
+        const blessedNames = (cachedBlessing === null || cachedBlessing === void 0 ? void 0 : cachedBlessing.blessedValues) || {};
+        const blessedValues = {};
+        for (const [category, name] of Object.entries(blessedNames)) {
+            // Try to resolve the name to a hex code using blessing_bonuses on girls
+            const percent = (cachedBlessing === null || cachedBlessing === void 0 ? void 0 : cachedBlessing.raw) ? BlessingService.parseBlessingPercent(cachedBlessing.raw, category) : undefined;
+            const hex = BlessingService.resolveHexForBlessing(candidates.map(g => ({ eye_color1: g.eyeColor, hair_color1: g.hairColor, position_img: g.position ? g.position + '.png' : undefined, blessing_bonuses: g.blessingBonuses })), category, percent);
+            if (hex) {
+                // For position, strip .png suffix to match GirlData.position format
+                blessedValues[category] = category === 'position' ? hex.replace('.png', '') : hex;
+            }
+            // If resolution failed, leave empty (fallback behavior in findTraitGroups)
+        }
         const traitGroups = TeamScoringService.findTraitGroups(pool, blessedCategories, blessedValues);
         // Evaluate top groups + all blessed groups
         const groupsToEvaluate = [];
@@ -18202,7 +18321,7 @@ class TeamModule {
         TeamModule.updateTeamUI(deckID);
     }
     static updateTeamUI(deckID, teamResult) {
-        var _a;
+        var _a, _b;
         const arr = $('div[id_girl]');
         // Remove all existing topNumber elements to prevent stale entries
         // from a previous team calculation (e.g. Current Best) interfering
@@ -18263,14 +18382,15 @@ class TeamModule {
             try {
                 cachedBlessings = BlessingService.getCached();
             }
-            catch ( /* cache not ready */_b) { /* cache not ready */ }
+            catch ( /* cache not ready */_c) { /* cache not ready */ }
             const blessedVals = (cachedBlessings === null || cachedBlessings === void 0 ? void 0 : cachedBlessings.blessedValues) || {};
             const blessedStr = cachedBlessings && cachedBlessings.blessedTraits.length > 0
                 ? cachedBlessings.blessedTraits.map(c => (TeamModule.TRAIT_EMOJI[c] || '') + ' ' + c + (blessedVals[c] ? '=' + blessedVals[c] : '')).join(', ')
                     + (cachedBlessings.blessedElement ? ' + ' + (TeamModule.CLASS_NAME[cachedBlessings.blessedElement] || cachedBlessings.blessedElement) : '')
                 : (cachedBlessings ? 'none parsed (check logs)' : 'not loaded yet (visit Home)');
             const blessedIsActive = cachedBlessings && cachedBlessings.blessedTraits.includes(teamResult.traitCategory);
-            const blessedValueMatch = blessedIsActive && blessedVals[teamResult.traitCategory] && teamResult.traitValue.toLowerCase() === blessedVals[teamResult.traitCategory].toLowerCase();
+            const blessedValueMatch = blessedIsActive && blessedVals[teamResult.traitCategory] && (teamResult.traitValue.toLowerCase() === blessedVals[teamResult.traitCategory].toLowerCase() ||
+                teamResult.traitValue === (((_a = cachedBlessings === null || cachedBlessings === void 0 ? void 0 : cachedBlessings.blessedValues) === null || _a === void 0 ? void 0 : _a[teamResult.traitCategory]) || ''));
             const blessedNote = blessedValueMatch ? ' (PERFECT match!)' : (blessedIsActive ? ' (category match, value differs)' : (cachedBlessings ? ' (not matching)' : ''));
             const synergyInfo = $(`<div class="hhTeamSynergyInfo" style="
                 position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 280px; z-index: 10;
@@ -18279,16 +18399,16 @@ class TeamModule {
             ">
                 <div style="font-weight:bold; margin-bottom: 3px; color: #ffb827;">Team Selection Info</div>
                 <div style="color:#aaa; font-size:10px; margin-bottom:3px;">Why this team was chosen:</div>
-                <div><b>Trait optimized:</b> ${traitEmoji} ${teamResult.traitCategory} = "${blessedVals[teamResult.traitCategory] || ('#' + teamResult.traitValue) || 0}" (${teamResult.traitMatchCount}/7 girls match)</div>
+                <div><b>Trait optimized:</b> ${traitEmoji} ${teamResult.traitCategory} = "${teamResult.traitValue}" (${teamResult.traitMatchCount}/7 girls match)</div>
                 <div style="color:#aaa; font-size:10px;">Tier 3 gives +stat% per teammate sharing this trait</div>
                 <div><b>Tier 3 bonus:</b> +${tier3Pct}% total stat boost</div>
                 <div><b>Leader:</b> ${teamResult.girls[0].name} (${teamResult.leaderTier5.name} / ${TeamModule.CLASS_NAME[teamResult.girls[0].element] || teamResult.girls[0].element})</div>
                 <div><b>Elements:</b> ${distHtml}</div>
-                <div><b>Effective Power:</b> ${((_a = teamResult.effectivePower) === null || _a === void 0 ? void 0 : _a.toLocaleString()) || 'N/A'}</div>
+                <div><b>Effective Power:</b> ${((_b = teamResult.effectivePower) === null || _b === void 0 ? void 0 : _b.toLocaleString()) || 'N/A'}</div>
                 <hr style="border-color:#555; margin:4px 0"/>
                 <div><b>Active Blessings:</b> ${blessedStr}${blessedNote}</div>
                 <div style="color:#aaa; font-size:10px;">${cachedBlessings ? "Cache: " + new Date(cachedBlessings.timestamp).toLocaleString() : "No cache - go to Home page to load"}</div>
-                <div style="color:#aaa; font-size:10px; margin-top:2px;">${teamResult.alternatives && teamResult.alternatives.length > 1 ? '<b>Compared:</b> ' + teamResult.alternatives.map(a => a.traitCategory + '=' + (blessedVals[a.traitCategory] || a.traitValue) + ' (' + a.effectivePower.toLocaleString() + ')').join(' | ') : ''}</div>
+                <div style="color:#aaa; font-size:10px; margin-top:2px;">${teamResult.alternatives && teamResult.alternatives.length > 1 ? '<b>Compared:</b> ' + teamResult.alternatives.map(a => a.traitCategory + '=' + a.traitValue + ' (' + a.effectivePower.toLocaleString() + ')').join(' | ') : ''}</div>
                 <div style="color:#aaa; font-size:10px; margin-top:2px;">Mode 1 (Current Best): stats already include blessings</div>
                 <div style="color:#aaa; font-size:10px;">Mode 2 (Best Possible): projects to max level/grades</div>
             </div>`);
@@ -24498,11 +24618,11 @@ const FEATURE_POPUP_CLOSE_LABEL = "OK";
  * Set to a specific version (e.g. "7.34.2") to activate the feature popup
  * for that version. Set to "0" to deactivate (default).
  */
-const FEATURE_POPUP_VERSION = "7.35.19";
+const FEATURE_POPUP_VERSION = "7.35.20";
 /**
  * Title shown in the popup header.
  */
-const FEATURE_POPUP_TITLE = "HHAuto v7.35.19";
+const FEATURE_POPUP_TITLE = "HHAuto v7.35.20";
 /**
  * HTML content for the feature popup.
  * Update this each time you activate the popup for a new version.
@@ -24512,7 +24632,7 @@ const FEATURE_POPUP_CONTENT = `
     <p style="font-size:15px; font-weight:bold; margin-bottom:10px; color:#090;">Repository transfer complete</p>
     <p style="margin-bottom:10px;">HHAuto now lives at <b style="color:#090;">github.com/OldRon1977/HHauto</b>.</p>
     <p style="margin-bottom:10px;">The old Roukys/HHauto URL redirects automatically &mdash; no action needed on your side. Tampermonkey picks up updates from the new location. Your settings remain untouched.</p>
-    <p style="margin-bottom:6px;"><b>What's new in v7.35.19:</b></p>
+    <p style="margin-bottom:6px;"><b>What's new in v7.35.20:</b></p>
     <ul style="margin-bottom:10px; font-size:12px;">
       <li>Team selection: blessing boost now works correctly (hex color codes no longer break matching)</li>
       <li>Info box shows "#A55" instead of raw hex when no blessing name is available</li>
