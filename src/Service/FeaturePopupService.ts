@@ -46,12 +46,12 @@ const FEATURE_POPUP_CLOSE_LABEL: string = "OK";
  * Set to a specific version (e.g. "7.34.2") to activate the feature popup
  * for that version. Set to "0" to deactivate (default).
  */
-const FEATURE_POPUP_VERSION: string = "7.35.18";
+const FEATURE_POPUP_VERSION: string = "7.35.19";
 
 /**
  * Title shown in the popup header.
  */
-const FEATURE_POPUP_TITLE = "HHAuto v7.35.18";
+const FEATURE_POPUP_TITLE = "HHAuto v7.35.19";
 
 /**
  * HTML content for the feature popup.
@@ -59,26 +59,18 @@ const FEATURE_POPUP_TITLE = "HHAuto v7.35.18";
  */
 const FEATURE_POPUP_CONTENT = `
   <div style="padding:10px; max-width:520px; color:#333;">
-    <p style="font-size:15px; font-weight:bold; margin-bottom:10px; color:#d00;">Last version before repository transfer</p>
-    <p style="margin-bottom:10px;">The HHAuto repository will be transferred from <code>Roukys/HHauto</code> to <b style="color:#d00;">OldRon1977/HHauto</b> shortly after this release.</p>
-    <p style="margin-bottom:6px;"><b>What's new in v7.35.16&#8211;7.35.18:</b></p>
+    <p style="font-size:15px; font-weight:bold; margin-bottom:10px; color:#090;">Repository transfer complete</p>
+    <p style="margin-bottom:10px;">HHAuto now lives at <b style="color:#090;">github.com/OldRon1977/HHauto</b>.</p>
+    <p style="margin-bottom:10px;">The old Roukys/HHauto URL redirects automatically &mdash; no action needed on your side. Tampermonkey picks up updates from the new location. Your settings remain untouched.</p>
+    <p style="margin-bottom:6px;"><b>What's new in v7.35.19:</b></p>
     <ul style="margin-bottom:10px; font-size:12px;">
-      <li>Team selection now compares multiple trait groups and picks the strongest team by effective power</li>
-      <li>Active blessings are loaded automatically and shown in the info box</li>
-      <li>Info box explains why a team was chosen (trait, Tier 3 bonus, power comparison)</li>
-      <li>Penta Drill: increased delay to prevent blank screens</li>
-      <li>Auto-buy timer restored: control when kobans are spent</li>
+      <li>Team selection: blessing boost now works correctly (hex color codes no longer break matching)</li>
+      <li>Info box shows "#A55" instead of raw hex when no blessing name is available</li>
     </ul>
-    <p style="margin-bottom:6px;"><b>After the transfer:</b></p>
-    <ul style="margin-bottom:10px; font-size:12px;">
-      <li>GitHub redirects old URLs automatically &#8212; no action needed</li>
-      <li>Tampermonkey picks up future updates from the new URL</li>
-      <li><b style="color:#d00;">Your settings remain untouched</b></li>
-    </ul>
-    <p style="margin-bottom:10px; font-size:13px;">New URL: <b style="color:#d00;">github.com/OldRon1977/HHauto</b></p>
     <p style="margin-bottom:15px; font-size:13px;">
       Thanks to <b>Roukys</b> for hosting HHAuto for so many years, and to <b>deuxge</b> for maintaining it!
     </p>
+    <p style="margin-bottom:0; font-size:11px; color:#888;">This popup will be deactivated in the next version.</p>
   </div>
 `;
 

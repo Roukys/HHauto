@@ -17,7 +17,7 @@ target-version: 7.36.0
 | Phase | 1 — Prototyp Scheduler (Session 5 complete) |
 | Letzte Aktualisierung | 2026-04-29 |
 | Branch | `refactor/v7.36.0` (lokal + auf `origin/refactor/v7.36.0` gepusht für Multi-Laptop-Sync) |
-| Code-Basis | rebased auf v7.35.15 (upstream/main Stand 2026-04-29) |
+| Code-Basis | rebased auf v7.35.15 (origin/main Stand 2026-04-29) |
 | Nächster Schritt | Phase 1 Session 6 (Cross-Game-Validation HH/CH/PH) |
 | Blocker | keiner |
 | Doku-Stand | `docs-internal/*.md` auf v7.35.14 verifiziert (deep-verify gegen v7.35.10, Delta minimal — siehe Frontmatter-Notizen) |
@@ -33,17 +33,15 @@ INDEX.md komplett. Aktueller Stand klären, nächsten Schritt identifizieren.
 
 ### Schritt 2 — Upstream-Sync prüfen
 ```bash
-git fetch upstream  # Roukys/HHauto
-git fetch origin    # OldRon1977/HHauto_OldRon
-git log refactor/v7.36.0..upstream/main --oneline
+git fetch origin    # OldRon1977/HHauto
 git log refactor/v7.36.0..origin/main --oneline
 ```
 
-### Schritt 3 — Wenn neue Commits in upstream/main oder origin/main
+### Schritt 3 — Wenn neue Commits in origin/main
 Diese Commits MÜSSEN auf den Refactor-Branch übernommen werden:
 ```bash
 git checkout refactor/v7.36.0
-git rebase upstream/main   # oder origin/main
+git rebase origin/main
 ```
 - Konflikte sauber lösen
 - Bei Konflikt in einer schon refactored Datei: prüfen ob das Refactor-Design noch valide ist
@@ -78,13 +76,12 @@ Memory-File `feedback_subagent_model_selection.md` ist verbindlich. Kurz:
 Bei jedem `Agent`-Tool-Call den `model`-Param explizit setzen. Im Zweifel: Sonnet 4.6.
 
 ### Branch-Strategie
-- Long-running Branch in OldRon1977/HHauto_OldRon: `refactor/v7.36.0` (lokal angelegt 2026-04-27, auf `origin` gepusht 2026-04-29)
-- Mindestens wöchentlich gegen `main` (oder `upstream/main`) rebasen
+- Long-running Branch in OldRon1977/HHauto: `refactor/v7.36.0` (lokal angelegt 2026-04-27, auf `origin` gepusht 2026-04-29)
+- Mindestens wöchentlich gegen `origin/main` rebasen
 - **PUSH-POLICY während Refactor:**
-  - **Erlaubt:** `git push origin refactor/v7.36.0` — der Branch wird auf `origin` (OldRon1977/HHauto_OldRon) synchronisiert für Multi-Laptop-Arbeit.
-  - **VERBOTEN:** Push zu `upstream` (Roukys) — solange der Refactor läuft, geht NICHTS zu Roukys. Auch keine PRs.
+  - **Erlaubt:** `git push origin refactor/v7.36.0` — der Branch wird auf `origin` (OldRon1977/HHauto) synchronisiert für Multi-Laptop-Arbeit.
   - **VERBOTEN:** Push in `origin/main` — der Refactor-Branch bleibt strikt getrennt von `main` bis er final mergebereit ist.
-- Wenn Refactor fertig: erst dann User-Entscheidung über Merge-Pfad (origin/main → ggf. PR zu Roukys/HHauto via rebase)
+- Wenn Refactor fertig: Merge nach origin/main
 - Falls Refactor scheitert: Branch behalten oder taggen, NICHT löschen
 
 ### Anti-Drift
@@ -167,4 +164,4 @@ Wenn der Refactor abgebrochen werden muss (Prototyp-Erfolgskriterien verfehlt, e
 4. Pop-Up-Sequenz vorbereiten (Vor-Update-Warnung + Nach-Update-Info via FeaturePopupService)
 5. `docs-internal/architecture.md` und `page-mapping.md` durch neue Versionen ablösen, alte Versionen archivieren
 6. INDEX.md `Status` auf `Completed` setzen
-7. Merge OldRon1977/main → PR zu Roukys/HHauto (rebase-Workflow)
+7. Merge refactor/v7.36.0 nach origin/main

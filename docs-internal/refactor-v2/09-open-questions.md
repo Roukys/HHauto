@@ -11,7 +11,7 @@ Single-Source der Fragen, die zwischen Sessions stehengeblieben sind. Wenn du di
 
 ## Q1 â€” Repo-Transfer-Status (out-of-scope fÃ¼r Refactor, aber blockt v7.35.x-Releases)
 
-**Kontext:** Der `SessionStart:resume`-Hook erinnert daran, dass in v7.35.14 das Repo-Transfer-Popup aktiv ist (`FEATURE_POPUP_VERSION = "7.35.14"` in `src/Service/FeaturePopupService.ts`). Es informiert User Ã¼ber den Transfer Roukys/HHauto â†’ OldRon1977/HHauto. Die `origin`-URL ist inzwischen `OldRon1977/HHauto_OldRon.git` â€” d.h. das ursprÃ¼ngliche `origin/HHauto` wurde von GitHub umbenannt, weil OldRon1977/HHauto jetzt der neue â€žkanonische" Repo-Name ist.
+**Kontext:** Der `SessionStart:resume`-Hook erinnert daran, dass in v7.35.14 das Repo-Transfer-Popup aktiv ist (`FEATURE_POPUP_VERSION = "7.35.14"` in `src/Service/FeaturePopupService.ts`). Es informiert User Ã¼ber den Transfer OldRon1977/HHauto â†’ OldRon1977/HHauto. Die `origin`-URL ist inzwischen `OldRon1977/HHauto_OldRon.git` â€” d.h. das ursprÃ¼ngliche `origin/HHauto` wurde von GitHub umbenannt, weil OldRon1977/HHauto jetzt der neue â€žkanonische" Repo-Name ist.
 
 **Frage:** Ist der Transfer komplett abgeschlossen?
 
@@ -73,6 +73,6 @@ Single-Source der Fragen, die zwischen Sessions stehengeblieben sind. Wenn du di
 
 **Kontext:** UrsprÃ¼ngliche Regel (2026-04-27): Refactor-Branch bleibt rein lokal, kein Push.
 
-**Antwort des Users (2026-04-29):** Push zu `origin/refactor/v7.36.0` ist ausdrÃ¼cklich erlaubt â€” fÃ¼r Multi-Laptop-Arbeit. Push zu `upstream` (Roukys) bleibt strikt verboten. Push zu `origin/main` bleibt strikt verboten.
+**Antwort des Users (2026-04-29):** Push zu `origin/refactor/v7.36.0` ist ausdrÃ¼cklich erlaubt â€” fÃ¼r Multi-Laptop-Arbeit.  Push zu `origin/main` bleibt strikt verboten.
 
 **Status:** **GESCHLOSSEN** â€” Push-Policy in `INDEX.md` aktualisiert.

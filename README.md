@@ -16,6 +16,17 @@ c) TamperMonkey should automatically prompt you to install/update the script. If
 
 ## Latest Updates
 
+### v7.35.19 - Repository transfer complete, blessing boost fix
+
+The repository transfer from Roukys/HHauto to OldRon1977/HHauto is complete. The old URL redirects automatically — no action needed. Tampermonkey picks up updates from the new location. Your settings remain untouched.
+
+**Fixes:**
+- Team selection: the blessing boost now works correctly. Previously, hex color codes (e.g. "00F") could not match blessing value names (e.g. "golden"), making the boost ineffective. The algorithm now boosts all groups in the blessed category equally.
+- Info box: displays hex trait values with a "#" prefix (e.g. "#A55") for clarity when no blessing name is available.
+
+---
+
+
 ### v7.35.18 - Last version before repository transfer
 
 This is the final release before the repository is transferred from `Roukys/HHauto` to `OldRon1977/HHauto`. No functional changes — only the in-app notification has been updated to inform users about the upcoming transfer.

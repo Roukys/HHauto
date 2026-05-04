@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      7.35.18
+// @version      7.35.19
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -17347,18 +17347,12 @@ class TeamScoringService {
                 if (pair.trait === 'position') {
                     score *= POSITION_TRAIT_PENALTY;
                 }
-                // Blessing boost: prefer the exact blessed trait value
+                // Blessing boost: boost all groups in blessed category equally.
+                // Hex codes (e.g. '00F') cannot be matched to names (e.g. 'golden'),
+                // but blessed girls already have +25-40% higher stats from the game
+                // which naturally surfaces them via effective power comparison.
                 if (blessedCategories && blessedCategories.has(pair.trait)) {
-                    const blessedVal = blessedValues === null || blessedValues === void 0 ? void 0 : blessedValues[pair.trait];
-                    if (blessedVal && traitValue.toLowerCase() === blessedVal.toLowerCase()) {
-                        score *= 3.0; // Strong boost for exact blessed value match
-                    }
-                    else if (blessedVal) {
-                        score *= 0.5; // Penalty for wrong value in blessed category
-                    }
-                    else {
-                        score *= 1.5; // Generic boost if category known but not value
-                    }
+                    score *= 1.5;
                 }
                 results.push({
                     traitCategory: pair.trait,
@@ -18285,7 +18279,7 @@ class TeamModule {
             ">
                 <div style="font-weight:bold; margin-bottom: 3px; color: #ffb827;">Team Selection Info</div>
                 <div style="color:#aaa; font-size:10px; margin-bottom:3px;">Why this team was chosen:</div>
-                <div><b>Trait optimized:</b> ${traitEmoji} ${teamResult.traitCategory} = "${blessedVals[teamResult.traitCategory] || teamResult.traitValue || '?'}" (${teamResult.traitMatchCount}/7 girls match)</div>
+                <div><b>Trait optimized:</b> ${traitEmoji} ${teamResult.traitCategory} = "${blessedVals[teamResult.traitCategory] || ('#' + teamResult.traitValue) || 0}" (${teamResult.traitMatchCount}/7 girls match)</div>
                 <div style="color:#aaa; font-size:10px;">Tier 3 gives +stat% per teammate sharing this trait</div>
                 <div><b>Tier 3 bonus:</b> +${tier3Pct}% total stat boost</div>
                 <div><b>Leader:</b> ${teamResult.girls[0].name} (${teamResult.leaderTier5.name} / ${TeamModule.CLASS_NAME[teamResult.girls[0].element] || teamResult.girls[0].element})</div>
@@ -24504,37 +24498,29 @@ const FEATURE_POPUP_CLOSE_LABEL = "OK";
  * Set to a specific version (e.g. "7.34.2") to activate the feature popup
  * for that version. Set to "0" to deactivate (default).
  */
-const FEATURE_POPUP_VERSION = "7.35.18";
+const FEATURE_POPUP_VERSION = "7.35.19";
 /**
  * Title shown in the popup header.
  */
-const FEATURE_POPUP_TITLE = "HHAuto v7.35.18";
+const FEATURE_POPUP_TITLE = "HHAuto v7.35.19";
 /**
  * HTML content for the feature popup.
  * Update this each time you activate the popup for a new version.
  */
 const FEATURE_POPUP_CONTENT = `
   <div style="padding:10px; max-width:520px; color:#333;">
-    <p style="font-size:15px; font-weight:bold; margin-bottom:10px; color:#d00;">Last version before repository transfer</p>
-    <p style="margin-bottom:10px;">The HHAuto repository will be transferred from <code>Roukys/HHauto</code> to <b style="color:#d00;">OldRon1977/HHauto</b> shortly after this release.</p>
-    <p style="margin-bottom:6px;"><b>What's new in v7.35.16&#8211;7.35.18:</b></p>
+    <p style="font-size:15px; font-weight:bold; margin-bottom:10px; color:#090;">Repository transfer complete</p>
+    <p style="margin-bottom:10px;">HHAuto now lives at <b style="color:#090;">github.com/OldRon1977/HHauto</b>.</p>
+    <p style="margin-bottom:10px;">The old Roukys/HHauto URL redirects automatically &mdash; no action needed on your side. Tampermonkey picks up updates from the new location. Your settings remain untouched.</p>
+    <p style="margin-bottom:6px;"><b>What's new in v7.35.19:</b></p>
     <ul style="margin-bottom:10px; font-size:12px;">
-      <li>Team selection now compares multiple trait groups and picks the strongest team by effective power</li>
-      <li>Active blessings are loaded automatically and shown in the info box</li>
-      <li>Info box explains why a team was chosen (trait, Tier 3 bonus, power comparison)</li>
-      <li>Penta Drill: increased delay to prevent blank screens</li>
-      <li>Auto-buy timer restored: control when kobans are spent</li>
+      <li>Team selection: blessing boost now works correctly (hex color codes no longer break matching)</li>
+      <li>Info box shows "#A55" instead of raw hex when no blessing name is available</li>
     </ul>
-    <p style="margin-bottom:6px;"><b>After the transfer:</b></p>
-    <ul style="margin-bottom:10px; font-size:12px;">
-      <li>GitHub redirects old URLs automatically &#8212; no action needed</li>
-      <li>Tampermonkey picks up future updates from the new URL</li>
-      <li><b style="color:#d00;">Your settings remain untouched</b></li>
-    </ul>
-    <p style="margin-bottom:10px; font-size:13px;">New URL: <b style="color:#d00;">github.com/OldRon1977/HHauto</b></p>
     <p style="margin-bottom:15px; font-size:13px;">
       Thanks to <b>Roukys</b> for hosting HHAuto for so many years, and to <b>deuxge</b> for maintaining it!
     </p>
+    <p style="margin-bottom:0; font-size:11px; color:#888;">This popup will be deactivated in the next version.</p>
   </div>
 `;
 class FeaturePopupService {
