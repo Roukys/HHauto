@@ -35,10 +35,6 @@ The team selection algorithm has been completely rewritten. The previous version
 - Element-cluster optimization only kicks in as tiebreaker when multiple girls have identical scores
 - Blessing categories are read from the BlessingService cache (loaded on Home page visit)
 
-**Result:** The algorithm now matches what experienced players do manually - pick the 7 girls with the highest effective power. Blessed girls naturally rise to the top because their multiplier is included in the score.
-
-**Note:** Visit the Home page at least once per week so the blessing data gets cached.
-
 ---
 
 ### v7.35.19 - Repository transfer complete, blessing boost fix
