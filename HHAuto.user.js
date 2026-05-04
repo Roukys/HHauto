@@ -17268,11 +17268,28 @@ class TeamScoringService {
      * Get the raw stat sum for a girl (carac1 + carac2 + carac3).
      * Uses caracs sub-object if available, falls back to direct fields.
      */
+    /**
+     * Get the BASE stat sum for a girl, EXCLUDING equipment (armor) bonuses.
+     * The game API includes armor stats in carac1/2/3, which must be subtracted
+     * to get the true girl power for fair comparison across differently-equipped girls.
+     */
     static getStatSum(girl) {
+        let total;
         if (girl.caracs) {
-            return girl.caracs.carac1 + girl.caracs.carac2 + girl.caracs.carac3;
+            total = girl.caracs.carac1 + girl.caracs.carac2 + girl.caracs.carac3;
         }
-        return girl.carac1 + girl.carac2 + girl.carac3;
+        else {
+            total = girl.carac1 + girl.carac2 + girl.carac3;
+        }
+        // Subtract armor/equipment bonuses if present
+        if (girl.armor && Array.isArray(girl.armor)) {
+            for (const piece of girl.armor) {
+                if (piece.caracs) {
+                    total -= (piece.caracs.carac1 || 0) + (piece.caracs.carac2 || 0) + (piece.caracs.carac3 || 0);
+                }
+            }
+        }
+        return total;
     }
     /**
      * Get the blessing multiplier for a girl from her blessing_bonuses.
@@ -18272,6 +18289,7 @@ class TeamModule {
                 eyeColor: g.eye_color1 || undefined,
                 position: g.position_img ? String(g.position_img).replace('.png', '') : undefined,
                 blessingBonuses: g.blessing_bonuses || undefined,
+                armor: g.armor || undefined,
             });
         });
         const result = TeamBuilderService.buildTeam(girls, mode, playerLevel);

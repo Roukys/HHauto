@@ -491,6 +491,7 @@ export class TeamModule {
             eyeColor: g.eye_color1 || undefined,
             position: g.position_img ? String(g.position_img).replace('.png', '') : undefined,
             blessingBonuses: g.blessing_bonuses || undefined,
+            armor: g.armor || undefined,
         }));
 
         const result = TeamBuilderService.buildTeam(girls, mode, playerLevel);
