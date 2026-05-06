@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      7.35.21
+// @version      7.35.22
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13116,13 +13116,26 @@ function getPage(checkUnknown = false, checkPop = false) {
 // Before navigating, AutoLoop is disabled to prevent firing during
 // the page transition. It re-enables after the new page loads.
 //
-// Used by: Every module that needs to navigate to a game page.
+// Navigation mutex: only one navigation can be scheduled at a time.
+// Subsequent calls within the same tick are dropped to prevent the
+// browser from firing two window.location changes a few ms apart
+// (which the game rejects with HTTP Forbidden). The flag resets
+// automatically once the page has loaded and the script restarts.
+//
+// Used by: Every module that needs to navigate to a page.
 
 
 
 
+// Module-level mutex: true while a navigation has been scheduled but the
+// browser hasn't fully transitioned yet. Reset implicitly on page reload.
+let navInFlight = false;
 // Returns true if on correct page.
 function gotoPage(page, inArgs = {}, delay = -1) {
+    if (navInFlight) {
+        LogUtils_logHHAuto('gotoPage: navigation already in flight, ignoring ' + page);
+        return false;
+    }
     var cp = getPage();
     LogUtils_logHHAuto('going ' + cp + '->' + page);
     if (typeof delay != 'number' || delay === -1) {
@@ -13273,10 +13286,12 @@ function gotoPage(page, inArgs = {}, delay = -1) {
         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
         LogUtils_logHHAuto("setting autoloop to false");
         LogUtils_logHHAuto('GotoPage : ' + togoto + ' in ' + delay + 'ms.');
+        navInFlight = true;
         setTimeout(function () { window.location.href = window.location.origin + togoto; }, delay);
     }
     else {
         LogUtils_logHHAuto("Couldn't find page path. Page was undefined...");
+        navInFlight = true;
         setTimeout(function () { location.reload(); }, delay);
     }
 }
@@ -17668,6 +17683,106 @@ class BlessingService {
             for (const [className, element] of Object.entries(elementMap)) {
                 if (desc.includes(className))
                     return element;
+            }
+        }
+        return undefined;
+    }
+    /**
+     * Resolve the hex code for a blessed trait by analyzing blessing_bonuses on girls.
+     *
+     * Strategy: The Blessing API gives us names (e.g. "grey", "dolphin") but girl data
+     * uses hex codes (e.g. "888") or filenames (e.g. "2.png"). This method finds the
+     * mapping by looking at which girls have the blessing bonus and what trait value
+     * they share uniformly.
+     *
+     * @param girls - All available girls with their raw data
+     * @param blessedCategory - The trait category (eyeColor, hairColor, position)
+     * @param blessingPercent - The bonus percentage from the blessing (e.g. 30, 40)
+     * @returns The hex code / filename that corresponds to the blessed value, or undefined
+     */
+    static resolveHexForBlessing(girls, blessedCategory, blessingPercent) {
+        var _a;
+        // Find girls that have pvp_v3 blessing bonuses
+        const blessedGirls = girls.filter(g => {
+            if (!g.blessing_bonuses || typeof g.blessing_bonuses !== 'object')
+                return false;
+            if (Array.isArray(g.blessing_bonuses) && g.blessing_bonuses.length === 0)
+                return false;
+            return g.blessing_bonuses.pvp_v3 !== undefined;
+        });
+        if (blessedGirls.length === 0)
+            return undefined;
+        // Group blessed girls by their bonus percentage
+        const byPercent = new Map();
+        for (const g of blessedGirls) {
+            const pcts = (_a = g.blessing_bonuses.pvp_v3) === null || _a === void 0 ? void 0 : _a.carac1;
+            if (!Array.isArray(pcts))
+                continue;
+            for (const pct of pcts) {
+                if (!byPercent.has(pct))
+                    byPercent.set(pct, []);
+                byPercent.get(pct).push(g);
+            }
+        }
+        // For each percentage group, check if the target trait has a uniform value
+        const fieldMap = {
+            eyeColor: 'eye_color1',
+            hairColor: 'hair_color1',
+            position: 'position_img',
+        };
+        const field = fieldMap[blessedCategory];
+        if (!field)
+            return undefined;
+        // If we know the exact percentage, check that group first
+        const groupsToCheck = blessingPercent
+            ? [byPercent.get(blessingPercent), ...Array.from(byPercent.values())]
+            : Array.from(byPercent.values());
+        for (const group of groupsToCheck) {
+            if (!group || group.length < 1)
+                continue;
+            // Count trait values in this group
+            const valueCounts = new Map();
+            for (const g of group) {
+                const val = g[field];
+                if (val && val !== '') {
+                    valueCounts.set(val, (valueCounts.get(val) || 0) + 1);
+                }
+            }
+            // Check if one value dominates (>90% of the group)
+            for (const [val, count] of valueCounts) {
+                if (count / group.length >= 0.9) {
+                    LogUtils_logHHAuto('BlessingService: resolved ' + blessedCategory + ' -> hex="' + val + '" (' + count + '/' + group.length + ' girls)');
+                    return val;
+                }
+            }
+        }
+        return undefined;
+    }
+    /**
+     * Parse the blessing bonus percentage for a given trait category.
+     * E.g. "Eye Color Grey" with "+ 40%" -> 40
+     */
+    static parseBlessingPercent(response, category) {
+        const active = (response === null || response === void 0 ? void 0 : response.active) || [];
+        if (!Array.isArray(active))
+            return undefined;
+        const categoryKeywords = {
+            eyeColor: ['eye color'],
+            hairColor: ['hair color', 'hair colour'],
+            position: ['favourite position', 'favorite position'],
+            zodiac: ['zodiac', 'astrological', 'sign'],
+        };
+        const keywords = categoryKeywords[category];
+        if (!keywords)
+            return undefined;
+        for (const blessing of active) {
+            const desc = (blessing.description || '').toLowerCase();
+            if (!desc.includes('bonus on all attributes') || desc.includes('labyrinth'))
+                continue;
+            if (keywords.some(kw => desc.includes(kw))) {
+                const pctMatch = desc.match(/\+\s*(\d+)\s*%/);
+                if (pctMatch)
+                    return Number(pctMatch[1]);
             }
         }
         return undefined;
@@ -23993,7 +24108,31 @@ const handleEventParsing = {
     interruptible: 'always',
     precondition: () => {
         // Events feature must be enabled
-        return ConfigHelper.getHHScriptVars('isEnabledEvents', false) === true;
+        if (ConfigHelper.getHHScriptVars('isEnabledEvents', false) !== true)
+            return false;
+        // Skip if no event has reached its next_refresh window. Otherwise the
+        // handler navigates to the event page on every tick even though the
+        // event data is still fresh, which collides with handleLeague (and any
+        // other navigation-triggering handler) and produces a ping-pong loop
+        // between the leagues and the event pages.
+        try {
+            const storedList = getStoredValue(HHStoredVarPrefixKey + TK.eventsList);
+            const eventList = storedList ? JSON.parse(storedList) : {};
+            const now = Date.now();
+            return Object.keys(eventList).some(id => {
+                const ev = eventList[id];
+                if (!ev || ev.isCompleted)
+                    return false;
+                const nextRefresh = Number(ev.next_refresh);
+                // Trigger if next_refresh is missing/0 (first run) or in the past.
+                return !Number.isFinite(nextRefresh) || nextRefresh <= now;
+            });
+        }
+        catch (_a) {
+            // On unexpected storage shape, fall back to the previous behaviour
+            // (always trigger) so we don't accidentally skip a parse cycle.
+            return true;
+        }
     },
     steps: [
         {
@@ -24175,12 +24314,17 @@ class Scheduler {
         });
     }
     /**
-     * SOFT-interrupt conditions: user activity, master off, paranoia rest.
+     * SOFT-interrupt conditions: user activity, master off, paranoia rest,
+     * or autoLoop disabled (e.g. because a previous handler in the same tick
+     * already triggered a navigation). The autoLoop check prevents the
+     * scheduler from starting a second navigation while one is already in
+     * flight, which the game rejects with HTTP Forbidden.
      * These ALWAYS cause abort, even for atomic chains (at safe point).
      */
     shouldSoftAbort() {
         const masterOff = getStoredValue(HHStoredVarPrefixKey + SK.master) !== 'true';
-        return masterOff || mouseBusy;
+        const autoLoopOff = getStoredValue(HHStoredVarPrefixKey + TK.autoLoop) !== 'true';
+        return masterOff || mouseBusy || autoLoopOff;
     }
     /**
      * Find the highest-priority handler that is ready to run.
@@ -24642,11 +24786,11 @@ const FEATURE_POPUP_CLOSE_LABEL = "OK";
  * Set to a specific version (e.g. "7.34.2") to activate the feature popup
  * for that version. Set to "0" to deactivate (default).
  */
-const FEATURE_POPUP_VERSION = "7.35.21";
+const FEATURE_POPUP_VERSION = "0";
 /**
  * Title shown in the popup header.
  */
-const FEATURE_POPUP_TITLE = "HHAuto v7.35.21";
+const FEATURE_POPUP_TITLE = "HHAuto v7.35.22";
 /**
  * HTML content for the feature popup.
  * Update this each time you activate the popup for a new version.

@@ -11,7 +11,7 @@
 import { HandlerConfig, StepResult, pipeline } from './Pipeline.config';
 import { mouseBusy } from './MouseService';
 import { getStoredValue } from '../Helper/index';
-import { HHStoredVarPrefixKey, SK } from '../config/index';
+import { HHStoredVarPrefixKey, SK, TK } from '../config/index';
 import { logHHAuto } from '../Utils/index';
 
 /** Possible states for each handler in the pipeline */
@@ -84,12 +84,17 @@ export class Scheduler {
   }
 
   /**
-   * SOFT-interrupt conditions: user activity, master off, paranoia rest.
+   * SOFT-interrupt conditions: user activity, master off, paranoia rest,
+   * or autoLoop disabled (e.g. because a previous handler in the same tick
+   * already triggered a navigation). The autoLoop check prevents the
+   * scheduler from starting a second navigation while one is already in
+   * flight, which the game rejects with HTTP Forbidden.
    * These ALWAYS cause abort, even for atomic chains (at safe point).
    */
   private shouldSoftAbort(): boolean {
     const masterOff = getStoredValue(HHStoredVarPrefixKey + SK.master) !== 'true';
-    return masterOff || mouseBusy;
+    const autoLoopOff = getStoredValue(HHStoredVarPrefixKey + TK.autoLoop) !== 'true';
+    return masterOff || mouseBusy || autoLoopOff;
   }
 
   /**

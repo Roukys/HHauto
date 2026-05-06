@@ -8,16 +8,30 @@
 // Before navigating, AutoLoop is disabled to prevent firing during
 // the page transition. It re-enables after the new page loads.
 //
-// Used by: Every module that needs to navigate to a game page.
+// Navigation mutex: only one navigation can be scheduled at a time.
+// Subsequent calls within the same tick are dropped to prevent the
+// browser from firing two window.location changes a few ms apart
+// (which the game rejects with HTTP Forbidden). The flag resets
+// automatically once the page has loaded and the script restarts.
+//
+// Used by: Every module that needs to navigate to a page.
 
 import { ConfigHelper, getPage, queryStringGetParam, randomInterval, setStoredValue, setTimer, url_add_param } from '../Helper/index';
 import { QuestHelper } from '../Module/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey, SK, TK } from '../config/index';
 
+// Module-level mutex: true while a navigation has been scheduled but the
+// browser hasn't fully transitioned yet. Reset implicitly on page reload.
+let navInFlight = false;
+
 // Returns true if on correct page.
 export function gotoPage(page,inArgs={},delay = -1)
 {
+    if (navInFlight) {
+        logHHAuto('gotoPage: navigation already in flight, ignoring '+page);
+        return false;
+    }
     var cp=getPage();
     logHHAuto('going '+cp+'->'+page);
 
@@ -178,11 +192,13 @@ export function gotoPage(page,inArgs={},delay = -1)
         setStoredValue(HHStoredVarPrefixKey+TK.autoLoop, "false");
         logHHAuto("setting autoloop to false");
         logHHAuto('GotoPage : '+togoto+' in '+delay+'ms.');
+        navInFlight = true;
         setTimeout(function () {window.location.href = window.location.origin + togoto;},delay);
     }
     else
     {
         logHHAuto("Couldn't find page path. Page was undefined...");
+        navInFlight = true;
         setTimeout(function () {location.reload();},delay);
     }
 }

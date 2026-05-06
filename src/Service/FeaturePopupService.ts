@@ -46,12 +46,12 @@ const FEATURE_POPUP_CLOSE_LABEL: string = "OK";
  * Set to a specific version (e.g. "7.34.2") to activate the feature popup
  * for that version. Set to "0" to deactivate (default).
  */
-const FEATURE_POPUP_VERSION: string = "7.35.21";
+const FEATURE_POPUP_VERSION: string = "0";
 
 /**
  * Title shown in the popup header.
  */
-const FEATURE_POPUP_TITLE = "HHAuto v7.35.21";
+const FEATURE_POPUP_TITLE = "HHAuto v7.35.22";
 
 /**
  * HTML content for the feature popup.

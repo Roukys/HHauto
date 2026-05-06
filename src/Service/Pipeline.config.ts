@@ -76,7 +76,29 @@ const handleEventParsing: HandlerConfig = {
   interruptible: 'always',
   precondition: () => {
     // Events feature must be enabled
-    return ConfigHelper.getHHScriptVars('isEnabledEvents', false) === true;
+    if (ConfigHelper.getHHScriptVars('isEnabledEvents', false) !== true) return false;
+
+    // Skip if no event has reached its next_refresh window. Otherwise the
+    // handler navigates to the event page on every tick even though the
+    // event data is still fresh, which collides with handleLeague (and any
+    // other navigation-triggering handler) and produces a ping-pong loop
+    // between the leagues and the event pages.
+    try {
+      const storedList = getStoredValue(HHStoredVarPrefixKey + TK.eventsList);
+      const eventList = storedList ? JSON.parse(storedList) : {};
+      const now = Date.now();
+      return Object.keys(eventList).some(id => {
+        const ev = eventList[id];
+        if (!ev || ev.isCompleted) return false;
+        const nextRefresh = Number(ev.next_refresh);
+        // Trigger if next_refresh is missing/0 (first run) or in the past.
+        return !Number.isFinite(nextRefresh) || nextRefresh <= now;
+      });
+    } catch {
+      // On unexpected storage shape, fall back to the previous behaviour
+      // (always trigger) so we don't accidentally skip a parse cycle.
+      return true;
+    }
   },
   steps: [
     {

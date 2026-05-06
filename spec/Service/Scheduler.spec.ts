@@ -16,6 +16,7 @@ jest.mock('../../src/Helper/index', () => ({
 jest.mock('../../src/config/index', () => ({
   HHStoredVarPrefixKey: 'HHAuto_',
   SK: { master: 'master' },
+  TK: { autoLoop: 'Temp_autoLoop' },
 }));
 
 jest.mock('../../src/Utils/index', () => ({

@@ -16,6 +16,20 @@ c) TamperMonkey should automatically prompt you to install/update the script. If
 
 ## Latest Updates
 
+### v7.35.22 - Fix: "Forbidden" errors and event/league loop
+
+Two related fixes that address the wave of "Access forbidden" reports (issue #1598).
+
+**What changed:**
+- Page navigation is now serialised. The script no longer fires two page changes within the same tick, which was the actual cause of the Forbidden responses.
+- The auto-loop pipeline aborts cleanly as soon as one of its handlers has triggered a navigation, so it doesn't queue up a second one before the first has happened.
+- The event parsing handler now respects each event's own refresh window (e.g. Path of Attraction's six-hour refresh). It no longer pulls the script back to the event page on every single tick when there is nothing new to parse, which was producing a ping-pong loop with active leagues.
+- The "What's New" popup is deactivated for this version.
+
+Addresses #1598.
+
+---
+
 ### v7.35.21 - League team selection rebuilt
 
 The "Current Best" and "Best Possible" buttons now pick teams using a wider community-knowledge base (Kinkoid forum performance and elements topics, HH Wiki, Tom-208 userscript, plus Frank's input on issues #1340 and #1573).
