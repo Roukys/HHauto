@@ -9,7 +9,7 @@ Older entries below were migrated 1:1 from `README.md`.
 
 ### v8.1.0 - Auto-clear temporary data on update
 
-- **New:** whenever the script updates to a new version, it now clears its
+- Whenever the script updates to a new version, it now clears its
   temporary working data **once**, automatically (issue #1784). This is the
   same operation as the manual "Delete Temp Storage" button: your settings and
   preferences are fully preserved — only the internal timing/rotation state and
