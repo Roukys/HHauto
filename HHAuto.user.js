@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.0.0
+// @version      8.1.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -27518,6 +27518,22 @@ class StartService {
                 deleteStoredValue(HHStoredVarPrefixKey + SK.SeasonMaskRewards);
                 deleteStoredValue(HHStoredVarPrefixKey + SK.SeasonalEventMaskRewards);
             }
+            // Issue #1784: clear the temporary working data once whenever a
+            // new script version is installed. Some updates leave stale
+            // timing/rotation state behind that glitches the loop; wiping the
+            // Temp vars forces the script to rebuild them from scratch on the
+            // fresh version. This is the same operation as the manual "Delete
+            // Temp Storage" button (debugDeleteTempVars), which preserves all
+            // Settings and only resets Temp vars.
+            //
+            // Runs AFTER the per-version migrations above so it cannot clobber
+            // a migration mid-flight. scriptversion is itself a Temp var, so
+            // the wipe resets it to its "0" default; we MUST re-write it after
+            // the wipe, otherwise the next page load would see "0" != current
+            // version, detect a "new version" again and re-wipe on every load
+            // (exactly the update loop this feature is meant to prevent).
+            debugDeleteTempVars();
+            setStoredValue(HHStoredVarPrefixKey + TK.scriptversion, GM.info.script.version);
         }
     }
 }
