@@ -119,6 +119,23 @@ export class StartService {
                 deleteStoredValue(HHStoredVarPrefixKey + SK.SeasonMaskRewards);
                 deleteStoredValue(HHStoredVarPrefixKey + SK.SeasonalEventMaskRewards);
             }
+
+            // Issue #1784: clear the temporary working data once whenever a
+            // new script version is installed. Some updates leave stale
+            // timing/rotation state behind that glitches the loop; wiping the
+            // Temp vars forces the script to rebuild them from scratch on the
+            // fresh version. This is the same operation as the manual "Delete
+            // Temp Storage" button (debugDeleteTempVars), which preserves all
+            // Settings and only resets Temp vars.
+            //
+            // Runs AFTER the per-version migrations above so it cannot clobber
+            // a migration mid-flight. scriptversion is itself a Temp var, so
+            // the wipe resets it to its "0" default; we MUST re-write it after
+            // the wipe, otherwise the next page load would see "0" != current
+            // version, detect a "new version" again and re-wipe on every load
+            // (exactly the update loop this feature is meant to prevent).
+            debugDeleteTempVars();
+            setStoredValue(HHStoredVarPrefixKey + TK.scriptversion, GM.info.script.version);
         }
     }
 }
