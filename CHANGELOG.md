@@ -7,6 +7,16 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.1.0 - Auto-clear temporary data on update
+
+- **New:** whenever the script updates to a new version, it now clears its
+  temporary working data **once**, automatically (issue #1784). This is the
+  same operation as the manual "Delete Temp Storage" button: your settings and
+  preferences are fully preserved — only the internal timing/rotation state and
+  caches are reset, so the script rebuilds them fresh on the new version. This
+  avoids the post-update rotation loops that some updates could trigger (as seen
+  with v8.0.0), without anyone having to press the button by hand.
+
 ### v8.0.0 - Major release: stability overhaul and smarter automation
 
 This is the first public release since **v7.29.19**. It bundles a large
