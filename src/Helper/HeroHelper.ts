@@ -101,7 +101,6 @@ export function doStatUpgrades()
                 });
                 setTimeout(doStatUpgrades, randomInterval(300,500));
                 return;
-                break;
             }
         }
         carac=(carac+1)%3+1;

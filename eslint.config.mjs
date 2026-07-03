@@ -158,10 +158,13 @@ export default [
     },
   },
   {
+    // Spec files execute under ts-jest in Node's CommonJS runtime, so the
+    // Node globals (__dirname, require, process, ...) genuinely exist there.
     files: ['spec/**/*.ts'],
     languageOptions: {
       globals: {
         ...globals.jest,
+        ...globals.node,
       },
     },
   },

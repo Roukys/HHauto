@@ -10805,7 +10805,7 @@ class HHMenu {
             trollOptions.add(this._createHtmlOption('0', getTextForUI("latestTroll", "elementText")));
             const trollz = ConfigHelper.getHHScriptVars("trollzList");
             for (var i = 1; i <= lastTrollIdAvailable; i++) {
-                var option = this._createHtmlOption(i + '', trollz[i]);
+                const option = this._createHtmlOption(i + '', trollz[i]);
                 if (option.text !== 'EMPTY' && trollz[i]) {
                     // Supports for PH and missing trols or parallel advantures (id world "missing")
                     trollOptions.add(option);
@@ -10815,7 +10815,7 @@ class HHMenu {
             if (Object.keys(sideTrollz).length > 0) {
                 trollOptions.add(this._createHtmlSeparator(getTextForUI("sideAdventure", "elementText")));
                 for (let i of Object.keys(sideTrollz)) {
-                    var option = this._createHtmlOption(i + '', sideTrollz[i]);
+                    const option = this._createHtmlOption(i + '', sideTrollz[i]);
                     if (option.text !== 'EMPTY' && sideTrollz[i]) {
                         trollOptions.add(option);
                     }
@@ -13331,8 +13331,8 @@ class Champion {
                 // Build team
                 if (keepSecondLineGirls) {
                     var teamGirlIndex = 0;
-                    for (var i = 0; i < 10; i++) {
-                        var expectedPose = championRequiredPoses[i % 5];
+                    for (let i = 0; i < 10; i++) {
+                        const expectedPose = championRequiredPoses[i % 5];
                         if (girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0 && teamGirlIndex < 5) {
                             if ((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
                                 teamGirls[teamGirlIndex++] = girlsPerPose[expectedPose][0].data.id_girl;
@@ -13342,8 +13342,8 @@ class Champion {
                     }
                 }
                 else {
-                    for (var i = 0; i < 5; i++) {
-                        var expectedPose = championRequiredPoses[i % 5];
+                    for (let i = 0; i < 5; i++) {
+                        const expectedPose = championRequiredPoses[i % 5];
                         teamGirls[i] = -1;
                         if (girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0) {
                             if ((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
@@ -13371,7 +13371,7 @@ class Champion {
                     }
                 });
                 // Select girls
-                for (var i = 0; i < 5; i++) {
+                for (let i = 0; i < 5; i++) {
                     if (teamGirls[i] >= 0) {
                         var girlDraggable = $('.girl-box__draggable[id_girl="' + teamGirls[i] + '"]');
                         if (!girlDraggable.hasClass('selected')) {
@@ -14274,7 +14274,7 @@ const supportedGames = [
 const HHKnownEnvironnements = {};
 supportedGames.forEach(game => {
     if (game.hasOwnProperty('getEnv')) {
-        for (var key in game.getEnv()) {
+        for (const key in game.getEnv()) {
             HHKnownEnvironnements[key] = game.getEnv()[key];
         }
     }
@@ -14620,7 +14620,7 @@ HHEnvVariables["global"].isEnabledSpreadsheets = true;
 HHEnvVariables["global"].spreadsheet = ''; // zoopokemon, Bella, Cuervos & Sandor. spreadsheets
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false; // to remove if daily rewards arrives in test
 HHEnvVariables["HH_test"].isEnabledFreeBundles = false; // to remove if bundles arrives in test
-for (var key in HentaiHeroes.getEnv()) {
+for (const key in HentaiHeroes.getEnv()) {
     const element = HentaiHeroes.getEnv()[key].name;
     HHEnvVariables[element].spreadsheet = HentaiHeroes.spreadsheet;
     HHEnvVariables[element].trollIdMapping = HentaiHeroes.trollIdMapping;
@@ -14629,7 +14629,7 @@ for (var key in HentaiHeroes.getEnv()) {
     HHEnvVariables[element].sideTrollGirlsID = HentaiHeroes.getSideTrollGirlsId();
     HHEnvVariables[element].lastQuestId = HentaiHeroes.lastQuestId;
 }
-for (var key in GayHarem.getEnv()) {
+for (const key in GayHarem.getEnv()) {
     const element = GayHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = GayHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollGirlsID = GayHarem.getTrollGirlsId();
@@ -14637,7 +14637,7 @@ for (var key in GayHarem.getEnv()) {
     HHEnvVariables[element].lastQuestId = GayHarem.lastQuestId;
 }
 ;
-for (var key in ComixHarem.getEnv()) {
+for (const key in ComixHarem.getEnv()) {
     const element = ComixHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = ComixHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollGirlsID = ComixHarem.getTrollGirlsId();
@@ -14658,7 +14658,7 @@ HHEnvVariables["SH_prod"].isEnabledLabyrinth = false; // to remove when Pantheon
 HHEnvVariables["SH_prod"].isEnabledPoV = false; // to remove when PoV arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoG = false; // to remove when PoG arrives in hornyheroes
 HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
-for (var key in MangaRpg.getEnv()) {
+for (const key in MangaRpg.getEnv()) {
     const element = MangaRpg.getEnv()[key].name;
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].trollzList = MangaRpg.getTrolls(getLanguageCode());
@@ -14668,7 +14668,7 @@ for (var key in MangaRpg.getEnv()) {
     MangaRpg.updateFeatures(HHEnvVariables[element]);
 }
 ;
-for (var key in AmourAgent.getEnv()) {
+for (const key in AmourAgent.getEnv()) {
     const element = AmourAgent.getEnv()[key].name;
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].trollzList = AmourAgent.getTrolls(getLanguageCode());
@@ -14677,7 +14677,7 @@ for (var key in AmourAgent.getEnv()) {
     AmourAgent.updateFeatures(HHEnvVariables[element]);
 }
 ;
-for (var key in PornstarHarem.getEnv()) {
+for (const key in PornstarHarem.getEnv()) {
     const element = PornstarHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollIdMapping = PornstarHarem.trollIdMapping;
@@ -14686,7 +14686,7 @@ for (var key in PornstarHarem.getEnv()) {
     HHEnvVariables[element].trollGirlsID = PornstarHarem.getTrollGirlsId();
 }
 ;
-for (var key in TransPornstarHarem.getEnv()) {
+for (const key in TransPornstarHarem.getEnv()) {
     const element = TransPornstarHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = TransPornstarHarem.getTrolls(getLanguageCode());
     TransPornstarHarem.updateFeatures(HHEnvVariables[element]);
@@ -14696,7 +14696,7 @@ for (var key in TransPornstarHarem.getEnv()) {
     HHEnvVariables[element].boosterId_MB1 = 2619;
 }
 ;
-for (var key in GayPornstarHarem.getEnv()) {
+for (const key in GayPornstarHarem.getEnv()) {
     const element = GayPornstarHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = GayPornstarHarem.getTrolls(getLanguageCode());
     GayPornstarHarem.updateFeatures(HHEnvVariables[element]);
@@ -19940,8 +19940,6 @@ function doStatUpgrades() {
                 });
                 setTimeout(doStatUpgrades, randomInterval(300, 500));
                 return;
-                // removed by dead control flow
-
             }
         }
         carac = (carac + 1) % 3 + 1;
@@ -25853,7 +25851,7 @@ class Market {
                 //logHHAuto('gifts');
                 Was = shop[2].length;
                 var allGiftsPriceSc = 0;
-                for (var n2 = shop[2].length - 1; n2 >= 0; n2--) {
+                for (let n2 = shop[2].length - 1; n2 >= 0; n2--) {
                     if (shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                      {
                         allGiftsPriceSc += Number(shop[2][n2].price_buy);
@@ -25876,7 +25874,7 @@ class Market {
                         // change referer
                         window.history.replaceState(null, '', addNutakuSession('/home.html'));
                     });
-                    for (var n2 = shop[2].length - 1; n2 >= 0; n2--) {
+                    for (let n2 = shop[2].length - 1; n2 >= 0; n2--) {
                         if (shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                          {
                             shop[2].splice(n2, 1);
@@ -25885,7 +25883,7 @@ class Market {
                     setStoredValue(HHStoredVarPrefixKey + TK.storeContents, JSON.stringify(shop));
                 }
                 else {
-                    for (var n2 = shop[2].length - 1; n2 >= 0; n2--) {
+                    for (let n2 = shop[2].length - 1; n2 >= 0; n2--) {
                         //logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
                         if (money >= Aff + Number(shop[2][n2].price_buy) && money >= Number(shop[2][n2].price_buy) && shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                          {
@@ -25922,7 +25920,7 @@ class Market {
                 //logHHAuto('books');
                 Was = shop[3].length;
                 var allPotionPriceSc = 0;
-                for (var n3 = shop[3].length - 1; n3 >= 0; n3--) {
+                for (let n3 = shop[3].length - 1; n3 >= 0; n3--) {
                     if (shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                      {
                         allPotionPriceSc += Number(shop[3][n3].price_buy);
@@ -25945,7 +25943,7 @@ class Market {
                         // change referer
                         window.history.replaceState(null, '', addNutakuSession('/home.html'));
                     });
-                    for (var n3 = shop[3].length - 1; n3 >= 0; n3--) {
+                    for (let n3 = shop[3].length - 1; n3 >= 0; n3--) {
                         if (shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                          {
                             shop[3].splice(n3, 1);
@@ -25954,7 +25952,7 @@ class Market {
                     setStoredValue(HHStoredVarPrefixKey + TK.storeContents, JSON.stringify(shop));
                 }
                 else {
-                    for (var n3 = shop[3].length - 1; n3 >= 0; n3--) {
+                    for (let n3 = shop[3].length - 1; n3 >= 0; n3--) {
                         //logHHAuto('wanna buy ',shop[3][n3]);
                         if (money >= Exp + Number(shop[3][n3].price_buy) && money >= Number(shop[3][n3].price_buy) && shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                          {
@@ -28383,7 +28381,7 @@ class BlockScheduler {
 
 // Key computed at call-time, never at module top level (TDZ-safety;
 // lesson zirkulaerer-import-tdz-crash).
-function BlockRunStore_key() { return HHStoredVarPrefixKey + TK.activeBlockRun; }
+function key() { return HHStoredVarPrefixKey + TK.activeBlockRun; }
 /** Narrow an unknown parsed value to a structurally valid BlockRun. */
 function isBlockRun(v) {
     if (typeof v !== "object" || v === null)
@@ -28398,7 +28396,7 @@ function isBlockRun(v) {
 }
 /** Persist the active BlockRun (write-through to sessionStorage). */
 function saveBlockRun(run) {
-    setStoredValue(BlockRunStore_key(), JSON.stringify(run));
+    setStoredValue(key(), JSON.stringify(run));
 }
 /**
  * Restore the active BlockRun after a (planned or unplanned) reload. Returns
@@ -28406,7 +28404,7 @@ function saveBlockRun(run) {
  * then starts fresh rather than resuming an invalid run.
  */
 function loadBlockRun() {
-    const raw = getStoredValue(BlockRunStore_key());
+    const raw = getStoredValue(key());
     if (raw === undefined || raw === null || raw === "")
         return null;
     let parsed;
@@ -28420,7 +28418,7 @@ function loadBlockRun() {
 }
 /** Drop the active BlockRun (run finished, aborted, or master-off). */
 function clearBlockRun() {
-    deleteStoredValue(BlockRunStore_key());
+    deleteStoredValue(key());
 }
 
 ;// ./src/Service/PipeLogger.ts
