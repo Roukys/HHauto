@@ -1,6 +1,8 @@
 /* eslint-env node */
 const path = require('path')
 const webpack = require('webpack')
+// const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const TerserPlugin = require("terser-webpack-plugin");
 const BannerBuilder = require('./build/BannerBuilder')
 
 const bannerBuiled = BannerBuilder.buildBanner();
@@ -13,7 +15,7 @@ module.exports = {
         path: path.resolve(__dirname, '.'),
     },
     resolve: {
-        extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".jsx"],
+        extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".jsx"],
     },
     module: {
         rules: [
@@ -28,10 +30,15 @@ module.exports = {
         ],
     },
     optimization: {
-        // The shipped userscript is intentionally NOT minified: userscript
-        // platforms and users must be able to read the distributed code,
-        // and readable stack traces make user bug reports diagnosable.
         minimize: false,
+        minimizer: [new TerserPlugin({
+            terserOptions: {
+                output: {
+                  preamble: bannerBuiled,
+                  comments: false
+                }
+              }
+        })],
     },
     performance: {
         hints: false,

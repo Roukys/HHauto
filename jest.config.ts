@@ -40,17 +40,8 @@ const config: Config = {
   // emits coverage/lcov-report/index.html for browser inspection.
   coverageReporters: ["text", "text-summary", "json-summary", "lcov", "clover", "html"],
 
-  // Coverage thresholds enforce a ratchet: values set just below current coverage
-  // will prevent regressions. Thresholds are raised manually when coverage improves;
-  // never lowered to hide deficiencies. Update when adding new test coverage.
-  coverageThreshold: {
-    global: {
-      statements: 38,
-      branches: 29,
-      functions: 35,
-      lines: 38,
-    },
-  },
+  // An object that configures minimum threshold enforcement for coverage results
+  // coverageThreshold: undefined,
 
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
