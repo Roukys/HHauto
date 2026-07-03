@@ -16,7 +16,9 @@ refactoring with a long run of feature work:
 - **Complete internal refactoring of the script** — large parts of the
   codebase rebuilt for stability:
   - Strict **TypeScript** type-checking (compiles with zero type errors)
-  - **ESLint** integrated into the dev workflow
+  - **ESLint** integrated into the dev workflow and CI — the full lint run
+    blocks the build; the warning ratchet (`lint:ci` in package.json) may
+    only ever be lowered
   - Automated **test suite** expanded to 1000+ tests, run on every build
   - Old **dependency cycles** broken up
   - **Centralized navigation** and an **AJAX-mutex** against race conditions
