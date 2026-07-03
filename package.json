@@ -1,7 +1,7 @@
 {
   "name": "hhauto",
   "version": "8.1.2",
-  "description": "[English](https://github.com/OldRon1977/HHauto/wiki/English)",
+  "description": "Tampermonkey userscript automating the Harem Heroes game family",
   "main": "HHAuto.user.js",
   "scripts": {
     "test": "jest",
@@ -22,7 +22,8 @@
     "type": "git",
     "url": "git+https://github.com/OldRon1977/HHauto.git"
   },
-  "author": "",
+  "author": "OldRon1977 and contributors",
+  "engines": { "node": ">=22" },
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/OldRon1977/HHauto/issues"
