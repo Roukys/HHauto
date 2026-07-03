@@ -17,6 +17,8 @@
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
+// @grant        GM_xmlhttpRequest
+// @grant        GM_setClipboard
 // @license      GPL-3.0
 // @updateURL    https://github.com/OldRon1977/HHauto/raw/main/HHAuto.user.js
 // @downloadURL  https://github.com/OldRon1977/HHauto/raw/main/HHAuto.user.js
