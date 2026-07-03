@@ -75,6 +75,14 @@ jobs:
       - name: Typecheck (blocking)
         run: npm run typecheck
 
+      # Full lint over src/ and spec/, blocking on push AND pull request.
+      # Errors always fail; --max-warnings acts as a ratchet: lower the
+      # number in package.json (lint:ci) as warnings get cleaned up, never
+      # raise it. The reviewdog step below stays for inline PR annotations
+      # on changed lines only.
+      - name: ESLint full run with warning ratchet (blocking)
+        run: npm run lint:ci
+
       - name: ESLint on changed lines (blocking on errors)
         if: github.event_name == 'pull_request'
         uses: reviewdog/action-eslint@v1.34.0
