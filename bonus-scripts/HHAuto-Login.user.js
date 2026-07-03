@@ -1,22 +1,40 @@
 // ==UserScript==
 // @name         HHAuto Login
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      1.0
+// @version      1.1
 // @description  HHAuto Login
 // @author       Zary
-// @match        http*://*.haremheroes.com/*
-// @match        http*://*.hentaiheroes.com/*
-// @match        http*://*.gayharem.com/*
-// @match        http*://*.comixharem.com/*
-// @match        http*://*.hornyheroes.com/*
-// @match        http*://*.pornstarharem.com/*
-// @match        http*://*.transpornstarharem.com/*
-// @match        http*://*.gaypornstarharem.com/*
-// @match        http*://*.mangarpg.com/*
-// @match        http*://*.amouragent.com/*
 // @match        https://connect.chibipass.com/*
+// @match        http*://*.haremheroes.com/
+// @match        http*://*.hentaiheroes.com/
+// @match        http*://*.gayharem.com/
+// @match        http*://*.comixharem.com/
+// @match        http*://*.hornyheroes.com/
+// @match        http*://*.pornstarharem.com/
+// @match        http*://*.transpornstarharem.com/
+// @match        http*://*.gaypornstarharem.com/
+// @match        http*://*.mangarpg.com/
+// @match        http*://*.amouragent.com/
 // @grant        none
 // ==/UserScript==
+
+// ============================== SECURITY WARNING ==============================
+// This script stores your game credentials IN PLAIN TEXT inside the userscript
+// source. Anyone with access to your browser profile, your userscript manager,
+// or a synced copy of either (Tampermonkey sync, browser sync, backups) can
+// read them and take over your account.
+//
+// Only use this script if you understand and accept that risk:
+//   - use it on private, single-user machines only
+//   - never share, sync, or commit this file once you filled in credentials
+//   - use a unique password for the game so a leak cannot spread further
+//
+// The @match list is intentionally minimal: the ChibiPass login page (where
+// the credentials are entered) plus the landing page ("/") of each game
+// domain, where the "enter game" button lives. Do not widen it; every extra
+// page a credential-bearing script runs on increases exposure. Remove the
+// game domains you do not play.
+// ==============================================================================
 
 const userEmail = "YOUR_EMAIL";
 const userPass = "YOUR_PASSWORD";
@@ -106,7 +124,8 @@ function isGamePage() {
 
 // INIT
 function init() {
-    if (!userEmail || !userPass) {
+    if (!userEmail || !userPass
+        || userEmail === "YOUR_EMAIL" || userPass === "YOUR_PASSWORD") {
         console.warn("Credentials not defined");
         return;
     }
