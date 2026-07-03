@@ -15,7 +15,6 @@
 // (Bélier), so she cannot lead. Kira and Andra match the trait, so one
 // of them must lead.
 
-/* global __dirname */
 import { readFileSync } from 'fs';
 import { join } from 'path';
 

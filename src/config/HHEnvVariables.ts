@@ -27,7 +27,7 @@ const supportedGames = [
 export const HHKnownEnvironnements: Record<string, any> = {};
 supportedGames.forEach(game => {
     if (game.hasOwnProperty('getEnv')) {
-        for (var key in game.getEnv()) {
+        for (const key in game.getEnv()) {
             HHKnownEnvironnements[key] = (game.getEnv() as any)[key];
         }
     }
@@ -451,7 +451,7 @@ HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily re
 HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles arrives in test
 
 
-for (var key in HentaiHeroes.getEnv()) {
+for (const key in HentaiHeroes.getEnv()) {
     const element = (HentaiHeroes.getEnv() as any)[key].name;
     HHEnvVariables[element].spreadsheet = HentaiHeroes.spreadsheet;
     HHEnvVariables[element].trollIdMapping = HentaiHeroes.trollIdMapping;
@@ -461,7 +461,7 @@ for (var key in HentaiHeroes.getEnv()) {
     HHEnvVariables[element].lastQuestId = HentaiHeroes.lastQuestId;
 }
 
-for (var key in GayHarem.getEnv()) {
+for (const key in GayHarem.getEnv()) {
     const element = (GayHarem.getEnv() as any)[key].name;
     HHEnvVariables[element].trollzList = GayHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollGirlsID = GayHarem.getTrollGirlsId();
@@ -469,7 +469,7 @@ for (var key in GayHarem.getEnv()) {
     HHEnvVariables[element].lastQuestId = GayHarem.lastQuestId;
 };
 
-for (var key in ComixHarem.getEnv()) {
+for (const key in ComixHarem.getEnv()) {
     const element = (ComixHarem.getEnv() as any)[key].name;
     HHEnvVariables[element].trollzList = ComixHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollGirlsID = ComixHarem.getTrollGirlsId();
@@ -491,7 +491,7 @@ HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in 
 HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
 HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
 
-for (var key in MangaRpg.getEnv()) {
+for (const key in MangaRpg.getEnv()) {
     const element = (MangaRpg.getEnv() as any)[key].name;
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].trollzList = MangaRpg.getTrolls(getLanguageCode());
@@ -501,7 +501,7 @@ for (var key in MangaRpg.getEnv()) {
     MangaRpg.updateFeatures(HHEnvVariables[element]);
 };
 
-for (var key in AmourAgent.getEnv()) {
+for (const key in AmourAgent.getEnv()) {
     const element = (AmourAgent.getEnv() as any)[key].name;
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].trollzList = AmourAgent.getTrolls(getLanguageCode());
@@ -510,7 +510,7 @@ for (var key in AmourAgent.getEnv()) {
     AmourAgent.updateFeatures(HHEnvVariables[element]);
 };
 
-for (var key in PornstarHarem.getEnv()) {
+for (const key in PornstarHarem.getEnv()) {
     const element = (PornstarHarem.getEnv() as any)[key].name;
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollIdMapping = PornstarHarem.trollIdMapping;
@@ -519,7 +519,7 @@ for (var key in PornstarHarem.getEnv()) {
     HHEnvVariables[element].trollGirlsID = PornstarHarem.getTrollGirlsId();
 };
 
-for (var key in TransPornstarHarem.getEnv()) {
+for (const key in TransPornstarHarem.getEnv()) {
     const element = (TransPornstarHarem.getEnv() as any)[key].name;
     HHEnvVariables[element].trollzList = TransPornstarHarem.getTrolls(getLanguageCode());
     TransPornstarHarem.updateFeatures(HHEnvVariables[element]);
@@ -529,7 +529,7 @@ for (var key in TransPornstarHarem.getEnv()) {
     HHEnvVariables[element].boosterId_MB1 = 2619;
 };
 
-for (var key in GayPornstarHarem.getEnv()) {
+for (const key in GayPornstarHarem.getEnv()) {
     const element = (GayPornstarHarem.getEnv() as any)[key].name;
     HHEnvVariables[element].trollzList = GayPornstarHarem.getTrolls(getLanguageCode());
     GayPornstarHarem.updateFeatures(HHEnvVariables[element]);

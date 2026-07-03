@@ -157,7 +157,6 @@ describe("ConfigHelper", function() {
     it("DOMAIN_CASES covers all hostnames in HHKnownEnvironnements", () => {
         // Sanity: if a new hostname is added to a getEnv() block, this
         // assertion fails until the smoke table is extended.
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { HHKnownEnvironnements } = require("../../src/config/HHEnvVariables");
         const registryHosts = Object.keys(HHKnownEnvironnements);
         const tableHosts = DOMAIN_CASES.map((c) => c.hostname);

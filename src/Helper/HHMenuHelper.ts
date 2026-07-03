@@ -111,7 +111,7 @@ export class HHMenu {
             trollOptions.add(this._createHtmlOption('0', getTextForUI("latestTroll", "elementText")));
             const trollz = ConfigHelper.getHHScriptVars("trollzList");
             for (var i = 1; i <= lastTrollIdAvailable; i++) {
-                var option = this._createHtmlOption(i + '', trollz[i]);
+                const option = this._createHtmlOption(i + '', trollz[i]);
                 if (option.text !== 'EMPTY' && trollz[i]) {
                     // Supports for PH and missing trols or parallel advantures (id world "missing")
                     trollOptions.add(option);
@@ -121,7 +121,7 @@ export class HHMenu {
             if (Object.keys(sideTrollz).length > 0) {
                 trollOptions.add(this._createHtmlSeparator(getTextForUI("sideAdventure", "elementText")));
                 for (let i of Object.keys(sideTrollz)) {
-                    var option = this._createHtmlOption(i + '', sideTrollz[i]);
+                    const option = this._createHtmlOption(i + '', sideTrollz[i]);
                     if (option.text !== 'EMPTY' && sideTrollz[i]) {
                         trollOptions.add(option);
                     }

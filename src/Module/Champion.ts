@@ -181,8 +181,8 @@ export class Champion {
             // Build team
             if (keepSecondLineGirls) {
                 var teamGirlIndex = 0;
-                for(var i=0;i<10;i++) {
-                    var expectedPose = championRequiredPoses[i%5];
+                for(let i=0;i<10;i++) {
+                    const expectedPose = championRequiredPoses[i%5];
                     if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0 && teamGirlIndex < 5){
                         if((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
                             teamGirls[teamGirlIndex++] = girlsPerPose[expectedPose][0].data.id_girl;
@@ -191,8 +191,8 @@ export class Champion {
                     }
                 }
             } else {
-                for(var i=0;i<5;i++) {
-                    var expectedPose = championRequiredPoses[i%5];
+                for(let i=0;i<5;i++) {
+                    const expectedPose = championRequiredPoses[i%5];
                     teamGirls[i] = -1;
                     if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0){
                         if((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
@@ -222,7 +222,7 @@ export class Champion {
             });
 
             // Select girls
-            for(var i=0;i<5;i++) {
+            for(let i=0;i<5;i++) {
                 if(teamGirls[i] >=0) {
                     var girlDraggable = $('.girl-box__draggable[id_girl="'+teamGirls[i]+'"]');
                     if(!girlDraggable.hasClass('selected')) {

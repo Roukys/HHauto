@@ -114,7 +114,7 @@ export class Market {
                 //logHHAuto('gifts');
                 Was=shop[2].length;
                 var allGiftsPriceSc = 0;
-                for (var n2=shop[2].length-1;n2>=0;n2--)
+                for (let n2=shop[2].length-1;n2>=0;n2--)
                 {
                     if (shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                     {
@@ -139,7 +139,7 @@ export class Market {
                         // change referer
                         window.history.replaceState(null, '', addNutakuSession('/home.html') as string);
                     });
-                    for (var n2=shop[2].length-1;n2>=0;n2--)
+                    for (let n2=shop[2].length-1;n2>=0;n2--)
                     {
                         if (shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                         {
@@ -148,7 +148,7 @@ export class Market {
                     }
                     setStoredValue(HHStoredVarPrefixKey+TK.storeContents, JSON.stringify(shop));
                 } else {
-                    for (var n2=shop[2].length-1;n2>=0;n2--)
+                    for (let n2=shop[2].length-1;n2>=0;n2--)
                     {
                         //logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
                         if (money>=Aff+Number(shop[2][n2].price_buy) && money>=Number(shop[2][n2].price_buy) && shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
@@ -189,7 +189,7 @@ export class Market {
                 //logHHAuto('books');
                 Was=shop[3].length;
                 var allPotionPriceSc = 0;
-                for (var n3=shop[3].length-1;n3>=0;n3--)
+                for (let n3=shop[3].length-1;n3>=0;n3--)
                 {
                     if (shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                     {
@@ -214,7 +214,7 @@ export class Market {
                         // change referer
                         window.history.replaceState(null, '', addNutakuSession('/home.html') as string);
                     });
-                    for (var n3=shop[3].length-1;n3>=0;n3--)
+                    for (let n3=shop[3].length-1;n3>=0;n3--)
                     {
                         if (shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                         {
@@ -223,7 +223,7 @@ export class Market {
                     }
                     setStoredValue(HHStoredVarPrefixKey+TK.storeContents, JSON.stringify(shop));
                 } else {
-                    for (var n3=shop[3].length-1;n3>=0;n3--)
+                    for (let n3=shop[3].length-1;n3>=0;n3--)
                     {
                         //logHHAuto('wanna buy ',shop[3][n3]);
                         if (money>=Exp+Number(shop[3][n3].price_buy) && money>=Number(shop[3][n3].price_buy) && shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
