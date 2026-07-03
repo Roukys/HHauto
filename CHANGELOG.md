@@ -7,6 +7,12 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.1.1 - Fix inconsistent license metadata
+
+- `package.json` claimed ISC and the userscript header claimed MIT, while the
+  actual `LICENSE` file has been GPL-3.0 since 2020. Both now correctly
+  declare GPL-3.0.
+
 ### v8.1.0 - Auto-clear temporary data on update
 
 - Whenever the script updates to a new version, it now clears its
