@@ -1,0 +1,87 @@
+{
+    "trollGirl": {
+        "id_girl": 101,
+        "name": "Troll Girl",
+        "shards": 40,
+        "source": {
+            "name": "event_troll",
+            "anchor_source": {
+                "url": "/troll-pre-battle.html?id_opponent=12",
+                "disabled": false
+            }
+        }
+    },
+    "trollGirlDisabled": {
+        "id_girl": 102,
+        "name": "Disabled Troll Girl",
+        "shards": 0,
+        "source": {
+            "name": "event_troll",
+            "anchor_source": {
+                "url": "/troll-pre-battle.html?id_opponent=13",
+                "disabled": true
+            }
+        }
+    },
+    "trollGirlWinFrom": {
+        "id_girl": 103,
+        "name": "WinFrom Troll Girl",
+        "shards": 55,
+        "source": {
+            "name": "event_troll",
+            "anchor_win_from": [
+                {
+                    "url": "/troll-pre-battle.html?id_opponent=7",
+                    "disabled": false
+                }
+            ]
+        }
+    },
+    "champGirl": {
+        "id_girl": 104,
+        "name": "Champ Girl",
+        "shards": 20,
+        "source": {
+            "name": "event_champion_girl",
+            "anchor_source": {
+                "url": "https://www.hentaiheroes.com/champions/4",
+                "disabled": false
+            }
+        }
+    },
+    "champGirlWinFrom": {
+        "id_girl": 105,
+        "name": "WinFrom Champ Girl",
+        "shards": 90,
+        "source": {
+            "name": "event_champion_girl",
+            "anchor_win_from": [
+                {
+                    "url": "https://www.hentaiheroes.com/champions/6",
+                    "disabled": false
+                }
+            ]
+        }
+    },
+    "dailyMissionGirl": {
+        "id_girl": 106,
+        "name": "DM Girl",
+        "shards": 10,
+        "source": {
+            "name": "event_dm"
+        }
+    },
+    "pachinkoGirl": {
+        "id_girl": 107,
+        "name": "Pachinko Girl",
+        "shards": 0,
+        "source": {
+            "name": "pachinko_event"
+        }
+    },
+    "noSourceGirl": {
+        "id_girl": 108,
+        "name": "Sourceless Girl",
+        "shards": 100
+    }
+}

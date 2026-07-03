@@ -1,0 +1,55 @@
+{
+    "1": [
+        {
+            "index": 0,
+            "id_item": "316",
+            "price_buy": "1000",
+            "item": { "currency": "hc", "identifier": "B1", "rarity": "legendary" }
+        },
+        {
+            "index": 1,
+            "id_item": "317",
+            "price_buy": "50",
+            "item": { "currency": "hc", "identifier": "B2", "rarity": "rare" }
+        }
+    ],
+    "2": [
+        {
+            "index": 2,
+            "id_item": "401",
+            "price_buy": "500",
+            "price": "500",
+            "item": { "currency": "sc" }
+        },
+        {
+            "index": 3,
+            "id_item": "402",
+            "price_buy": "90",
+            "price": "90",
+            "item": { "currency": "hc" }
+        },
+        {
+            "index": 4,
+            "id_item": "403",
+            "price_buy": "200",
+            "price": "200",
+            "item": { "currency": "sc" }
+        }
+    ],
+    "3": [
+        {
+            "index": 5,
+            "id_item": "501",
+            "price_buy": "300",
+            "price": "300",
+            "item": { "currency": "sc" }
+        },
+        {
+            "index": 6,
+            "id_item": "502",
+            "price_buy": "150",
+            "price": "150",
+            "item": { "currency": "sc" }
+        }
+    ]
+}

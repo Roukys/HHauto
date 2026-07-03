@@ -45,10 +45,10 @@ const config: Config = {
   // never lowered to hide deficiencies. Update when adding new test coverage.
   coverageThreshold: {
     global: {
-      statements: 38,
-      branches: 29,
+      statements: 39,
+      branches: 30,
       functions: 35,
-      lines: 38,
+      lines: 40,
     },
   },
 
