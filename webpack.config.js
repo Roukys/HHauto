@@ -17,10 +17,6 @@ module.exports = {
     },
     module: {
         rules: [
-            {
-                test: /\.jsx?$/,
-                use: ['babel-loader'],
-              },
           // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
           { test: /\.tsx?$/, loader: "ts-loader" },
           // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
