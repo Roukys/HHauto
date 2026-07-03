@@ -92,6 +92,9 @@ jobs:
       - name: Top-level storage-key TDZ guard (blocking)
         run: npm run deps:toplevel-key
 
+      - name: GM grant list matches GM API usage (blocking)
+        run: npm run check:gm-grants
+
       - name: Knip dead exports (advisory)
         continue-on-error: true
         run: npm run deps:dead
