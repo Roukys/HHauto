@@ -132,7 +132,9 @@ export class Labyrinth {
         logHHAuto("setting autoloop to false");
 
         $(`.${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled','disabled');
-        if ($(Labyrinth.HAREM_SELECTED_GIRLS).length === 0) {
+        // Fill any empty slots via the game's auto-fill first, then optimize
+        // positions below; class swaps alone cannot guarantee a full team.
+        if ($(Labyrinth.HAREM_SELECTED_GIRLS).length < 7) {
             $('#auto-fill-team:not([disabled])').trigger('click');
             await TimeHelper.sleep(randomInterval(200, 500));
         }
