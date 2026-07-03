@@ -51,3 +51,8 @@ docs-internal/SESSION_HANDOVER_*.md
 docs-internal/RELEASE_RUNBOOK_*.md
 # Lokales Archiv abgeschlossener Notizen (nicht syncen)
 docs-internal/_archive/
+
+# Lokaler KI-Code-Review-Bericht (nicht syncen, wird lokal abgearbeitet)
+/REVIEW.md
+/BACKLOG.md
+/REVIEW_SUMMARY.md
