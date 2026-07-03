@@ -63,6 +63,12 @@ import {
     FORBIDDEN_COUNT_KEY,
     FORBIDDEN_LAST_AT_KEY,
 } from './ForbiddenBackoff';
+import {
+    HERO_GIVEUP_MAX_RELOADS,
+    nextHeroGiveupReloadCount,
+    sanitizeHeroGiveupReloadCount,
+    shouldReloadAfterHeroGiveup,
+} from './HeroBootRecovery';
 
 var started=false;
 var debugMenuID;
@@ -70,6 +76,13 @@ var heroRetryTimer: ReturnType<typeof setTimeout> | null = null;
 var heroRetryCount = 0;
 var heroRetryFirstAt = 0;
 const HERO_MAX_RETRIES = 15;
+
+// sessionStorage key for the Hero-giveup auto-reload counter (issue #1788).
+// Built at call time (never at module top level) to avoid the HHStoredVars
+// TDZ/import-cycle hazard and the top-level-storage-key CI gate.
+function heroGiveupReloadKey(): string {
+    return HHStoredVarPrefixKey + 'Temp_heroGiveupReloads';
+}
 
 // Persistent Forbidden backoff (issue #1598).
 //
@@ -269,7 +282,26 @@ export function start() {
         // visible in the DevTools console context).
         const elapsed = Date.now() - heroRetryFirstAt;
         if (heroRetryCount > HERO_MAX_RETRIES) {
-            logHHAuto('Hero object not available after ' + HERO_MAX_RETRIES + ' retries. Giving up. Try reloading the page. (page=' + location.pathname + ', elapsed=' + elapsed + 'ms)');
+            // Issue #1788: the page loaded but never populated the game data
+            // object (window.shared.Hero). Instead of freezing until the user
+            // reloads by hand, try a bounded number of automatic reloads. The
+            // counter lives in sessionStorage (survives reload, resets on tab
+            // close) and is cleared once a boot succeeds, so an isolated slow
+            // load does not eat into a later, unrelated load's reload budget.
+            // A page that never loads its script at all cannot be recovered
+            // this way -- there is no HHAuto code running on it.
+            let prevReloads = 0;
+            try {
+                prevReloads = sanitizeHeroGiveupReloadCount(sessionStorage.getItem(heroGiveupReloadKey()));
+            } catch (e) { /* sessionStorage unavailable */ }
+            if (shouldReloadAfterHeroGiveup(prevReloads)) {
+                const nextReloads = nextHeroGiveupReloadCount(prevReloads);
+                try { sessionStorage.setItem(heroGiveupReloadKey(), String(nextReloads)); } catch (e) { /* sessionStorage unavailable */ }
+                logHHAuto('Hero object not available after ' + HERO_MAX_RETRIES + ' retries. Auto-reloading (attempt ' + nextReloads + '/' + HERO_GIVEUP_MAX_RELOADS + ', page=' + location.pathname + ', elapsed=' + elapsed + 'ms).');
+                safeReload();
+            } else {
+                logHHAuto('Hero object not available after ' + HERO_MAX_RETRIES + ' retries and ' + HERO_GIVEUP_MAX_RELOADS + ' auto-reloads. Giving up. Try reloading the page. (page=' + location.pathname + ', elapsed=' + elapsed + 'ms)');
+            }
             return;
         }
         logHHAuto('???no Hero??? (attempt ' + heroRetryCount + '/' + HERO_MAX_RETRIES + ', page=' + location.pathname + ', elapsed=' + elapsed + 'ms)');
@@ -293,6 +325,9 @@ export function start() {
     }
     heroRetryCount = 0;
     heroRetryFirstAt = 0;
+    // Boot succeeded: reset the auto-reload budget so a later, unrelated slow
+    // load starts fresh (issue #1788).
+    try { sessionStorage.removeItem(heroGiveupReloadKey()); } catch (e) { /* sessionStorage unavailable */ }
     if($("a[rel='phoenix_member_login']").length > 0)
     {    
         logHHAuto('Not logged in, please login first!');

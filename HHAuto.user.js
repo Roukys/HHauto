@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.1.1
+// @version      8.1.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -27408,6 +27408,63 @@ function defaultStorage() {
     return null;
 }
 
+;// CONCATENATED MODULE: ./src/Service/HeroBootRecovery.ts
+// HeroBootRecovery.ts
+//
+// Self-heal for the boot path when a game page loads but never
+// populates the game data object (window.shared.Hero). Issue #1788:
+// after a target page fails to build its game data, start() exhausts
+// its Hero retry loop and used to only log "give up, reload manually",
+// leaving the automation frozen until the user reloaded by hand.
+//
+// This module holds the pure decision + counter math so it can be
+// unit-tested in isolation. The side effects (reading the counter from
+// sessionStorage, calling safeReload) stay in StartService.
+//
+// The counter lives in sessionStorage so it survives location.reload()
+// but resets when the tab is closed. It is also cleared the moment a
+// boot succeeds (Hero found), so a single slow load does not eat into
+// the reload budget of a later, unrelated slow load.
+//
+// NOTE: the sessionStorage key is built at call time in StartService,
+// never at module top level, to keep this module free of the
+// HHStoredVars TDZ/import-cycle hazard (lesson zirkulaerer-import-tdz-crash)
+// and the top-level-storage-key CI gate.
+// How many automatic reloads to attempt before giving up for real and
+// asking the user to reload manually. Each reload costs one full Hero
+// retry window (~75s) before it fires, so a small cap keeps the total
+// self-heal time bounded to a few minutes.
+const HERO_GIVEUP_MAX_RELOADS = 3;
+/**
+ * Sanitise a raw stored reload count into a non-negative integer.
+ * Non-numeric / negative / fractional inputs collapse to 0.
+ */
+function sanitizeHeroGiveupReloadCount(raw) {
+    const n = typeof raw === "string" ? parseInt(raw, 10) : raw;
+    if (typeof n !== "number" || !Number.isFinite(n) || n < 0)
+        return 0;
+    return Math.floor(n);
+}
+/**
+ * Decide whether the boot path should auto-reload after the Hero retry
+ * loop has been exhausted.
+ *
+ * @param prevReloadCount  how many auto-reloads already happened in this
+ *                         tab session (>= 0 after sanitising)
+ * @param max              reload budget (defaults to HERO_GIVEUP_MAX_RELOADS)
+ * @returns true if another reload is within budget, false if the budget
+ *          is spent and the script should give up until manual reload.
+ */
+function shouldReloadAfterHeroGiveup(prevReloadCount, max = HERO_GIVEUP_MAX_RELOADS) {
+    return sanitizeHeroGiveupReloadCount(prevReloadCount) < max;
+}
+/**
+ * Next counter value to store before triggering an auto-reload.
+ */
+function nextHeroGiveupReloadCount(prevReloadCount) {
+    return sanitizeHeroGiveupReloadCount(prevReloadCount) + 1;
+}
+
 ;// CONCATENATED MODULE: ./src/Service/StartService.ts
 // StartService.ts
 //
@@ -27465,12 +27522,19 @@ function defaultStorage() {
 
 
 
+
 var started = false;
 var debugMenuID;
 var heroRetryTimer = null;
 var heroRetryCount = 0;
 var heroRetryFirstAt = 0;
 const HERO_MAX_RETRIES = 15;
+// sessionStorage key for the Hero-giveup auto-reload counter (issue #1788).
+// Built at call time (never at module top level) to avoid the HHStoredVars
+// TDZ/import-cycle hazard and the top-level-storage-key CI gate.
+function heroGiveupReloadKey() {
+    return HHStoredVarPrefixKey + 'Temp_heroGiveupReloads';
+}
 // Persistent Forbidden backoff (issue #1598).
 //
 // The reload-delay formula lives in ForbiddenBackoff.ts so it can be
@@ -27654,7 +27718,31 @@ function start() {
         // visible in the DevTools console context).
         const elapsed = Date.now() - heroRetryFirstAt;
         if (heroRetryCount > HERO_MAX_RETRIES) {
-            LogUtils_logHHAuto('Hero object not available after ' + HERO_MAX_RETRIES + ' retries. Giving up. Try reloading the page. (page=' + location.pathname + ', elapsed=' + elapsed + 'ms)');
+            // Issue #1788: the page loaded but never populated the game data
+            // object (window.shared.Hero). Instead of freezing until the user
+            // reloads by hand, try a bounded number of automatic reloads. The
+            // counter lives in sessionStorage (survives reload, resets on tab
+            // close) and is cleared once a boot succeeds, so an isolated slow
+            // load does not eat into a later, unrelated load's reload budget.
+            // A page that never loads its script at all cannot be recovered
+            // this way -- there is no HHAuto code running on it.
+            let prevReloads = 0;
+            try {
+                prevReloads = sanitizeHeroGiveupReloadCount(sessionStorage.getItem(heroGiveupReloadKey()));
+            }
+            catch (e) { /* sessionStorage unavailable */ }
+            if (shouldReloadAfterHeroGiveup(prevReloads)) {
+                const nextReloads = nextHeroGiveupReloadCount(prevReloads);
+                try {
+                    sessionStorage.setItem(heroGiveupReloadKey(), String(nextReloads));
+                }
+                catch (e) { /* sessionStorage unavailable */ }
+                LogUtils_logHHAuto('Hero object not available after ' + HERO_MAX_RETRIES + ' retries. Auto-reloading (attempt ' + nextReloads + '/' + HERO_GIVEUP_MAX_RELOADS + ', page=' + location.pathname + ', elapsed=' + elapsed + 'ms).');
+                safeReload();
+            }
+            else {
+                LogUtils_logHHAuto('Hero object not available after ' + HERO_MAX_RETRIES + ' retries and ' + HERO_GIVEUP_MAX_RELOADS + ' auto-reloads. Giving up. Try reloading the page. (page=' + location.pathname + ', elapsed=' + elapsed + 'ms)');
+            }
             return;
         }
         LogUtils_logHHAuto('???no Hero??? (attempt ' + heroRetryCount + '/' + HERO_MAX_RETRIES + ', page=' + location.pathname + ', elapsed=' + elapsed + 'ms)');
@@ -27679,6 +27767,12 @@ function start() {
     }
     heroRetryCount = 0;
     heroRetryFirstAt = 0;
+    // Boot succeeded: reset the auto-reload budget so a later, unrelated slow
+    // load starts fresh (issue #1788).
+    try {
+        sessionStorage.removeItem(heroGiveupReloadKey());
+    }
+    catch (e) { /* sessionStorage unavailable */ }
     if ($("a[rel='phoenix_member_login']").length > 0) {
         LogUtils_logHHAuto('Not logged in, please login first!');
         return;
