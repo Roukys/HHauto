@@ -7,6 +7,9 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.1.2 - Recover automatically when a page stalls on load
+- If a game page opens but its data never finishes loading, the script now reloads that page automatically a few times to recover, instead of staying paused until you reload it by hand. A page that fails to load the scripts entirely still needs a manual reload.
+
 ### v8.1.1 - Fix inconsistent license metadata
 
 - `package.json` claimed ISC and the userscript header claimed MIT, while the
