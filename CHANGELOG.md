@@ -7,6 +7,19 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.1.4 - Fix missing survey permissions, toolchain hardening
+
+- The userscript header now grants `GM_xmlhttpRequest` and `GM_setClipboard`,
+  which the survey feature's share/copy buttons need; without them both
+  buttons would fail on the next survey activation. A new CI check keeps the
+  grant list in sync with the GM APIs the code actually uses.
+- Internal housekeeping: all `npm audit` findings in the build/test toolchain
+  resolved and Dependabot enabled, dead Babel configuration removed, all
+  ESLint errors fixed and a full blocking lint run added to CI, the bonus
+  login script hardened (minimal `@match` list, security warning), and new
+  tests for event girls, champions, league opponents and market shopping
+  (coverage ratchet raised).
+
 ### v8.1.3 - Labyrinth: fill incomplete teams via auto-fill
 
 - The labyrinth custom team builder now triggers the game's auto-fill
