@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.1.2
+// @version      8.1.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3335,7 +3335,9 @@ class Labyrinth {
             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
             LogUtils_logHHAuto("setting autoloop to false");
             $(`.${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled', 'disabled');
-            if ($(Labyrinth.HAREM_SELECTED_GIRLS).length === 0) {
+            // Fill any empty slots via the game's auto-fill first, then optimize
+            // positions below; class swaps alone cannot guarantee a full team.
+            if ($(Labyrinth.HAREM_SELECTED_GIRLS).length < 7) {
                 $('#auto-fill-team:not([disabled])').trigger('click');
                 yield TimeHelper.sleep(randomInterval(200, 500));
             }
