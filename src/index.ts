@@ -13,11 +13,18 @@
 // error pages, and delegates to start() which sets up the full menu,
 // timers, and auto-loop.
 
-import { hardened_start } from "./Service/StartService";
+import { hardened_start, setDefaults } from "./Service/StartService";
 import { autoLoop, setBlockTick } from "./Service/AutoLoop";
 import { getBlockScheduler, buildRegistryAndOrder } from "./Service/BlockPipeline";
 import { setPipelineRegistryProvider } from "./Service/PipelineOrderService";
 import { setPachinkoAutoLoopKick } from "./Module/Pachinko";
+import { setMenuPorts } from "./Helper/menu/MenuPorts";
+import { ConfigHelper } from "./Helper/ConfigHelper";
+import { getTextForUI } from "./Helper/LanguageHelper";
+import { getStorageItem, getStoredValue, setStoredValue } from "./Helper/StorageHelper";
+import { HHStoredVarPrefixKey, HHStoredVars } from "./config/HHStoredVars";
+import { isDisplayedHHPopUp } from "./Utils/HHPopup";
+import { logHHAuto } from "./Utils/LogUtils";
 import { KKLoveRaid } from "./model/KK/KKLoveRaid";
 import { KKPentaDrillOpponents } from "./model/KK/KKPentaDrillOpponents";
 import { KKHero } from "./model/KK/KKHero";
@@ -113,5 +120,26 @@ setBlockTick((ctx) => getBlockScheduler().tick(ctx));
 // Wire the Block-Order popup's registry provider (avoids a static
 // PipelineOrderService->BlockPipeline import cycle).
 setPipelineRegistryProvider(buildRegistryAndOrder);
+
+// Inject the SCC-bound helpers the menu modules need. The menu/* files read
+// these from MenuPorts instead of importing them statically, which keeps them
+// as graph leaves and out of the circular-dependency baseline (WART-002,
+// lesson zirkulaerer-import-tdz-crash). Wrapped in a function so the
+// HHStoredVarPrefixKey reference is not evaluated at module top level.
+function wireMenuPorts() {
+    setMenuPorts({
+        getTextForUI,
+        getHHScriptVars: (id: string) => ConfigHelper.getHHScriptVars(id),
+        getStoredValue,
+        getStorageItem,
+        setStoredValue,
+        HHStoredVars,
+        storedVarPrefix: HHStoredVarPrefixKey,
+        logHHAuto,
+        setDefaults,
+        isDisplayedHHPopUp,
+    });
+}
+wireMenuPorts();
 
 hardened_start();

@@ -10712,25 +10712,888 @@ LeagueHelper.SORT_DISPLAYED = '0';
 LeagueHelper.SORT_POWER = '1';
 LeagueHelper.SORT_POWERCALC = '2';
 
+;// ./src/Helper/menu/MenuPorts.ts
+// MenuPorts.ts
+//
+// Dependency-injection "ports" for the extracted menu leaf modules
+// (MenuWidgets, MenuTemplate, MenuSettings). Those files need a handful of
+// helpers (translations, config lookups, storage access, popup/default
+// helpers) that all live inside the project's large import cycle ("SCC").
+// Importing them statically would drag every menu/* file back into that cycle
+// and grow the circular-dependency baseline.
+//
+// To keep the menu/* files as graph leaves, they read those helpers from this
+// module instead. src/index.ts imports the real implementations (it sits
+// outside every cycle) and calls setMenuPorts(...) once at boot, before any
+// menu function runs. See lesson zirkulaerer-import-tdz-crash and the
+// setPachinkoAutoLoopKick / setBlockTick wiring in src/index.ts.
+//
+// This module deliberately imports NOTHING from the project so it stays a leaf.
+// `storedVarPrefix` is a plain string set at call time (never evaluated at
+// module top level), so it does not trip the top-level-key TDZ guard.
+function notWired(name) {
+    throw new Error(`MenuPorts.${name} used before setMenuPorts() was called`);
+}
+// Mutable singleton. Populated by setMenuPorts() at boot. Initialised with
+// guards so an accidental early call fails loudly instead of silently.
+const MenuPorts = {
+    getTextForUI: () => notWired("getTextForUI"),
+    getHHScriptVars: () => notWired("getHHScriptVars"),
+    getStoredValue: () => notWired("getStoredValue"),
+    getStorageItem: () => notWired("getStorageItem"),
+    setStoredValue: () => notWired("setStoredValue"),
+    HHStoredVars: {},
+    storedVarPrefix: "",
+    logHHAuto: () => notWired("logHHAuto"),
+    setDefaults: () => notWired("setDefaults"),
+    isDisplayedHHPopUp: () => notWired("isDisplayedHHPopUp"),
+};
+function setMenuPorts(ports) {
+    Object.assign(MenuPorts, ports);
+}
+
+;// ./src/Helper/menu/MenuSettings.ts
+// MenuSettings.ts
+//
+// Settings binding: moves values between the DOM menu inputs and persistent
+// storage. `setMenuValues` writes stored settings into the inputs, `getMenuValues`
+// reads inputs back into storage, and `addEventsOnMenuItems` wires the change/keyup
+// listeners declared on each HHStoredVars entry. `preventKobanUsingSwitchUnauthorized`
+// is the guard used by koban-spending toggles.
+//
+// Split out of HHMenuHelper as part of WART-002 (behavior-neutral). Reads its
+// SCC-bound dependencies (storage, HHStoredVars, popup/default helpers) from
+// MenuPorts so this file stays a graph leaf (see MenuPorts.ts). NumberHelper is
+// a dependency-free leaf module, so it is imported directly.
+
+
+function setMenuValues() {
+    const { setDefaults, getStorageItem, HHStoredVars, storedVarPrefix, logHHAuto } = MenuPorts;
+    if (document.getElementById("sMenu") === null) {
+        return;
+    }
+    setDefaults();
+    for (let i of Object.keys(HHStoredVars)) {
+        if (HHStoredVars[i].storage !== undefined && HHStoredVars[i].HHType !== undefined) {
+            let storageItem = getStorageItem(HHStoredVars[i].storage);
+            let menuID = HHStoredVars[i].customMenuID !== undefined ? HHStoredVars[i].customMenuID : i.replace(storedVarPrefix + HHStoredVars[i].HHType + "_", "");
+            const menuElement = document.getElementById(menuID);
+            if (HHStoredVars[i].setMenu !== undefined
+                && storageItem[i] !== undefined
+                && HHStoredVars[i].setMenu
+                && HHStoredVars[i].valueType !== undefined
+                && HHStoredVars[i].menuType !== undefined
+                && menuElement != null) {
+                let itemValue = storageItem[i];
+                switch (HHStoredVars[i].valueType) {
+                    case "Long Integer":
+                        itemValue = NumberHelper.add1000sSeparator(itemValue);
+                        break;
+                    case "Boolean":
+                        itemValue = itemValue === "true";
+                        break;
+                }
+                //console.log(menuID,HHStoredVars[i].menuType,itemValue);
+                menuElement[HHStoredVars[i].menuType] = itemValue;
+            }
+            else if (menuElement == null) {
+                // logHHAuto('ERROR: Element with ID "'+menuID+'" not found');
+            }
+        }
+        else {
+            logHHAuto("HHStoredVar " + i + " has no storage or type defined.");
+        }
+    }
+}
+function getMenuValues() {
+    const { setDefaults, getStorageItem, HHStoredVars, storedVarPrefix, logHHAuto, isDisplayedHHPopUp } = MenuPorts;
+    if (document.getElementById("sMenu") === null) {
+        return;
+    }
+    if (isDisplayedHHPopUp() === 'loadConfig') {
+        return;
+    }
+    for (let i of Object.keys(HHStoredVars)) {
+        if (HHStoredVars[i].storage !== undefined && HHStoredVars[i].HHType !== undefined) {
+            let storageItem = getStorageItem(HHStoredVars[i].storage);
+            let menuID = HHStoredVars[i].customMenuID !== undefined ? HHStoredVars[i].customMenuID : i.replace(storedVarPrefix + HHStoredVars[i].HHType + "_", "");
+            const menuElement = document.getElementById(menuID);
+            if (HHStoredVars[i].getMenu !== undefined
+                && document.getElementById(menuID) !== null
+                && HHStoredVars[i].getMenu
+                && HHStoredVars[i].valueType !== undefined
+                && HHStoredVars[i].menuType !== undefined
+                && menuElement != null) {
+                let currentValue = storageItem[i];
+                let menuValue = String(menuElement[HHStoredVars[i].menuType]);
+                switch (HHStoredVars[i].valueType) {
+                    case "Long Integer":
+                        menuValue = String(NumberHelper.remove1000sSeparator(menuValue));
+                        break;
+                }
+                //console.log(menuID,HHStoredVars[i].menuType,menuValue,document.getElementById(menuID),HHStoredVars[i].valueType);
+                storageItem[i] = menuValue;
+                //console.log(i,currentValue, menuValue);
+                if (currentValue !== menuValue && HHStoredVars[i].newValueFunction !== undefined) {
+                    //console.log(currentValue,menuValue);
+                    HHStoredVars[i].newValueFunction.apply();
+                }
+            }
+        }
+        else {
+            logHHAuto("HHStoredVar " + i + " has no storage or type defined.");
+        }
+    }
+    setDefaults();
+}
+function preventKobanUsingSwitchUnauthorized() {
+    if (this.checked && !document.getElementById("spendKobans0").checked) {
+        let idToDisable = this.id;
+        setTimeout(function () { document.getElementById(idToDisable).checked = false; }, 500);
+    }
+}
+function addEventsOnMenuItems() {
+    const { HHStoredVars, storedVarPrefix, setStoredValue } = MenuPorts;
+    for (let i of Object.keys(HHStoredVars)) {
+        //console.log(i);
+        if (HHStoredVars[i].HHType !== undefined) {
+            let menuID = HHStoredVars[i].customMenuID !== undefined ? HHStoredVars[i].customMenuID : i.replace(storedVarPrefix + HHStoredVars[i].HHType + "_", "");
+            const menuElement = document.getElementById(menuID);
+            if (menuElement != null) {
+                if (HHStoredVars[i].valueType === "Long Integer") {
+                    menuElement.addEventListener("keyup", add1000sSeparator1);
+                }
+                if (HHStoredVars[i].events !== undefined) {
+                    for (let event of Object.keys(HHStoredVars[i].events)) {
+                        menuElement.addEventListener(event, HHStoredVars[i].events[event]);
+                    }
+                }
+                if (HHStoredVars[i].kobanUsing !== undefined && HHStoredVars[i].kobanUsing) {
+                    menuElement.addEventListener("change", preventKobanUsingSwitchUnauthorized);
+                }
+                if (HHStoredVars[i].menuType !== undefined && HHStoredVars[i].menuType === "checked") {
+                    menuElement.addEventListener("change", function () {
+                        if (HHStoredVars[i].newValueFunction !== undefined) {
+                            HHStoredVars[i].newValueFunction.apply();
+                        }
+                        setStoredValue(i, this.checked);
+                    });
+                }
+            }
+        }
+    }
+}
+
+;// ./src/Helper/menu/MenuWidgets.ts
+// MenuWidgets.ts
+//
+// Options rendering: small, reusable HTML builders that turn a text/input id
+// into a labelled menu row (button, toggle switch, dropdown, text input,
+// optionally with an icon). These are pure string-producing helpers shared by
+// the menu DOM template (MenuTemplate) and by feature modules that inject their
+// own rows (Champion, Pachinko, Labyrinth, TeamModule).
+//
+// Split out of HHMenuHelper as part of WART-002 (behavior-neutral). Reads
+// getTextForUI / config lookups from MenuPorts so this file stays a graph leaf
+// (see MenuPorts.ts).
+
+function hhButton(textKeyId, buttonId, mainStyle = '', labelSyle = '') {
+    const { getTextForUI } = MenuPorts;
+    return `<div ${mainStyle ? 'style="' + mainStyle + '"' : ''} class="tooltipHH" >`
+        + `<span class="tooltipHHtext">${getTextForUI(textKeyId, "tooltip")}</span>`
+        + `<label ${labelSyle ? 'style="' + labelSyle + '"' : ''} class="myButton" id="${buttonId}">${getTextForUI(textKeyId, "elementText")}</label>`
+        + `</div>`;
+}
+function hhMenuSwitch(textKeyAndInputId, isEnabledDivId = '', isKobanSwitch = false, isStylingSwitch = false) {
+    const { getTextForUI } = MenuPorts;
+    return `<div ${isEnabledDivId ? 'id="' + isEnabledDivId + '"' : ''} class="labelAndButton">`
+        + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
+        + `<div class="tooltipHH">`
+        + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
+        + `<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''} ${isStylingSwitch ? 'styling' : ''}"></span></label>`
+        + `</div>`
+        + `</div>`;
+}
+function hhMenuSwitchWithImg(textKeyAndInputId, imgPath, isKobanSwitch = false) {
+    const { getTextForUI, getHHScriptVars } = MenuPorts;
+    return `<div class="labelAndButton">`
+        + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
+        + `<div class="imgAndObjectRow">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
+        + `<div style="padding-left:5px">`
+        + `<div class="tooltipHH">`
+        + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
+        + `<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`;
+}
+function hhMenuSelect(textKeyAndInputId, inputStyle = '', options = '') {
+    const { getTextForUI } = MenuPorts;
+    return `<div class="labelAndButton">`
+        + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
+        + `<div class="tooltipHH">`
+        + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
+        + `<select id="${textKeyAndInputId}" style="${inputStyle}" >${options}</select>`
+        + `</div>`
+        + `</div>`;
+}
+function hhMenuInput(textKeyAndInputId, inputPattern, inputStyle = '', inputClass = '', inputMode = 'text') {
+    const { getTextForUI } = MenuPorts;
+    return `<div class="labelAndButton">`
+        + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
+        + `<div class="tooltipHH">`
+        + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
+        + `<input id="${textKeyAndInputId}" class="${inputClass}" style="${inputStyle}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
+        + `</div>`
+        + `</div>`;
+}
+function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath, inputMode = 'text') {
+    const { getTextForUI, getHHScriptVars } = MenuPorts;
+    let htmlRet = `<div class="labelAndButton">`
+        + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
+        + `<div class="imgAndObjectRow">`;
+    if (imgPath && imgPath.indexOf('images/') >= 0) {
+        htmlRet += `<img class="iconImg" src="/${imgPath}" />`;
+    }
+    else {
+        htmlRet += `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`;
+    }
+    htmlRet +=
+        `<div style="padding-left:5px">`
+            + `<div class="tooltipHH">`
+            + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
+            + `<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
+            + `</div>`
+            + `</div>`
+            + `</div>`
+            + `</div>`;
+    return htmlRet;
+}
+
+;// ./src/Helper/menu/MenuColumnLeft.ts
+// MenuColumnLeft.ts
+//
+// DOM construction (layout): the left column of the #sMenu panel — script
+// header buttons, global options, kobans, display toggles, PoV/PoG and harem.
+// Pure string production from MenuWidgets rows.
+//
+// Split out of HHMenuHelper/MenuTemplate as part of WART-002 (behavior-neutral).
+
+
+
+function buildLeftColumn() {
+    const { getTextForUI, getHHScriptVars } = MenuPorts;
+    return `<div class="optionsColumn" style="min-width: 185px;">`
+        + `<div style="padding:3px; display:flex; flex-direction:column;">`
+        + `<span>HH Automatic ++</span>`
+        + `<span style="font-size:smaller;">Version ${GM.info.script.version}</span>`
+        + `<div class="internalOptionsRow" style="padding:3px">`
+        + hhButton('gitHub', 'git')
+        + hhButton('ReportBugs', 'ReportBugs')
+        + hhButton('DebugMenu', 'DebugMenu')
+        + `</div>`
+        + `<div class="internalOptionsRow" style="padding:3px">`
+        + hhButton('saveConfig', 'saveConfig')
+        + hhButton('loadConfig', 'loadConfig')
+        + `</div>`
+        + `<div class="internalOptionsRow" style="padding:3px">`
+        + hhButton('saveDefaults', 'saveDefaults')
+        + hhButton('settingsSurvey', 'settingsSurvey')
+        + hhButton('blockOrder', 'blockOrder')
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/panel.svg" />`
+        + `<span class="optionsBoxTitle">${getTextForUI("globalTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="rowOptionsBox" style="display:grid;grid-auto-flow: column;">`
+        + `<div class="optionsColumn">`
+        + hhMenuSwitch('master') // Master switch
+        + hhMenuSwitch('paranoia')
+        + `<div id="isEnabledMousePause" class="labelAndButton">`
+        + `<span class="HHMenuItemName">${getTextForUI("mousePause", "elementText")}</span>`
+        + `<div class="tooltipHH">`
+        + `<span class="tooltipHHtext">${getTextForUI("mousePause", "tooltip")}</span>`
+        + `<label class="switch">`
+        + `<input id="mousePause" type="checkbox">`
+        + `<span class="slider round">`
+        + `</span>`
+        + `</label>`
+        + `<input style="text-align:center; width:40px" id="mousePauseTimeout" required pattern="${HHAuto_inputPattern.mousePauseTimeout}" type="text">`
+        + `</div>`
+        + `</div>`
+        + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
+        + hhMenuSwitch('showTooltips')
+        + `</div>`
+        + `<div class="optionsColumn">`
+        + `<div class="labelAndButton">`
+        + `<span class="HHMenuItemName">${getTextForUI("waitforContest", "elementText")}</span>`
+        + `<div class="tooltipHH">`
+        + `<span class="tooltipHHtext">${getTextForUI("waitforContest", "tooltip")}</span>`
+        + `<label class="switch">`
+        + `<input id="waitforContest" type="checkbox">`
+        + `<span class="slider round">`
+        + `</span>`
+        + `</label>`
+        + `<input style="text-align:center; width:30px" id="safeSecondsForContest" required pattern="${HHAuto_inputPattern.safeSecondsForContest}" type="text">`
+        + `</div>`
+        + `</div>`
+        + hhMenuSwitch('settPerTab')
+        + hhMenuSwitch('pipelineDiagnose')
+        + hhMenuSwitch('paranoiaSpendsBefore')
+        + hhMenuSwitch('autoFreeBundlesCollect', 'isEnabledFreeBundles')
+        + hhMenuSwitch('collectEventChest')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_hard_currency.png" />`
+        + `<span class="optionsBoxTitle">Kobans</span>`
+        + `</div>`
+        + `<div class="rowOptionsBox">`
+        + hhMenuSwitchWithImg('spendKobans0', 'design/menu/affil_prog.svg', true)
+        + hhMenuInputWithImg('kobanBank', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:50px', 'pictures/design/ic_hard_currency.png')
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/sex_friends.svg" />`
+        + `<span class="optionsBoxTitle">${getTextForUI("displayTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="rowOptionsBox">`
+        + `<div class="optionsColumn">`
+        + hhMenuSwitch('showInfo')
+        + hhMenuSwitch('showInfoLeft', '', false, true)
+        + `</div>`
+        + `<div class="optionsColumn">`
+        + hhMenuSwitch('showCalculatePower')
+        + hhMenuSwitch('showAdsBack', '', false, true)
+        + `</div>`
+        + `<div class="optionsColumn">`
+        + hhMenuSwitch('showRewardsRecap')
+        + hhMenuSwitch('AllMaskRewards', '', false, true)
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="rowOptionsBox">`
+        + `<div id="isEnabledPoV" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("povTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitch('autoPoVCollect')
+        + hhMenuSwitch('autoPoVCollectAll')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div id="isEnabledPoG" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("pogTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitch('autoPoGCollect')
+        + hhMenuSwitch('autoPoGCollectAll')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/harem.svg" />`
+        + `<span class="optionsBoxTitle">${getTextForUI("haremTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="rowOptionsBox">`
+        + hhMenuSwitch('showHaremAvatarMissingGirls', '', false, true)
+        + hhMenuSwitchWithImg('showHaremTools', 'design/menu/panel.svg')
+        + hhMenuSwitchWithImg('showHaremSkillsButtons', 'design/menu/panel.svg')
+        + `</div>`
+        + `</div>`
+        + `</div>`;
+}
+
+;// ./src/Helper/menu/MenuColumnMiddle.ts
+// MenuColumnMiddle.ts
+//
+// DOM construction (layout): the middle column of the #sMenu panel — missions,
+// power places, daily goals, labyrinth, quests, season, leagues, troll battle,
+// penta-drill and the seasonal event. `debugEnabled` gates survey-hidden rows.
+// Pure string production from MenuWidgets rows.
+//
+// Split out of HHMenuHelper/MenuTemplate as part of WART-002 (behavior-neutral).
+
+
+
+function buildMiddleColumn(debugEnabled) {
+    const { getTextForUI, getHHScriptVars } = MenuPorts;
+    return `<div class="optionsColumn" style="min-width: 520px;">`
+        + `<div class="optionsRow">`
+        + `<div class="optionsColumn">`
+        + `<div class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
+        + `<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox" style="border:none;padding:0">`
+        + `<div class="internalOptionsRow">`
+        + `<div id="isEnabledMission" class="internalOptionsRow optionsBox" style="padding:0;margin:0 3px 0 0;">`
+        + hhMenuSwitch('autoMission')
+        + hhMenuSwitch('autoMissionCollect')
+        + hhMenuSwitch('autoMissionKFirst')
+        + hhMenuSwitch('compactMissions', '', false, true)
+        + hhMenuSwitch('invertMissions', '', false, true)
+        + `</div>`
+        + `<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
+        + hhMenuSwitch('autoContest')
+        + hhMenuSwitch('compactEndedContests', '', false, true)
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsBox" style="border:none;padding:0">`
+        + `<div class="internalOptionsRow">`
+        + `<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("powerPlacesTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitch('autoPowerPlaces')
+        + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, 'width: 100px;')
+        + hhMenuSwitch('autoPowerPlacesAll')
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitch('autoPowerPlacesPrecision')
+        + hhMenuSwitch('autoPowerPlacesInverted')
+        + hhMenuSwitch('autoPowerPlacesWaitMax')
+        + hhMenuSwitch('compactPowerPlace', '', false, true)
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div id="isEnabledDailyGoals" class="rowOptionsBox">`
+        + `<div class="internalOptionsRow">`
+        + `<div style="${debugEnabled ? '' : 'display:none;'}">` + hhMenuSwitch('autoDailyGoals') + `</div>`
+        + hhMenuSwitch('autoDailyGoalsCollect')
+        + hhMenuSwitch('compactDailyGoals', '', false, true)
+        + `</div>`
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + `<div class="rowOptionsBox">`
+        + `<div id="isEnabledPachinko" class="internalOptionsRow">`
+        + hhMenuSwitch('autoFreePachinko')
+        + `</div>`
+        + `</div>`
+        + `<div class="rowOptionsBox">`
+        + `<div id="isEnabledSalary" class="internalOptionsRow">`
+        + hhMenuSwitch('autoSalary')
+        + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsColumn">`
+        + `<div class="optionsBoxTitle">` // Empty box to align with left column
+        + `</div>`
+        + `<div id="isEnabledLabyrinth" class="optionsBox">`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + hhMenuSwitch('autoLabyrinth')
+        + hhMenuSelect('autoLabyDifficulty', 'width:60px;')
+        + `</div>`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + hhMenuSwitch('autoLabyHard')
+        + hhMenuSwitch('autoLabySweep')
+        + hhMenuSwitch('autoLabyCustomTeamBuilder')
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsRow">`
+        + `<div id="isEnabledQuest" class="rowOptionsBox">`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitch('autoQuest')
+        + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
+        + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsRow" style="justify-content: space-evenly">`
+        + `<div id="isEnabledSeason" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
+        + `<span class="optionsBoxTitle">${getTextForUI("autoSeasonTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitch('autoSeason')
+        + hhMenuSwitch('autoSeasonCollect')
+        + hhMenuSwitch('autoSeasonCollectAll')
+        + hhMenuSwitch('autoSeasonIgnoreNoGirls')
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + `<div style="${debugEnabled ? '' : 'display:none;'}">` // #1533 hidden: 0% usage in survey (168 responses). Remove div wrapper to restore.
+        + hhMenuSwitch('autoSeasonPassReds', '', true)
+        + `</div>`
+        + hhMenuSwitch('autoSeasonBoostedOnly')
+        + hhMenuSwitch('autoSeasonSkipLowMojo')
+        + `<div class="labelAndButton" style="width: 70px;">`
+        + `<span class="HHMenuItemName">${getTextForUI("autoSeasonMaxTier", "elementText")}</span>`
+        + `<div class="tooltipHH">`
+        + `<span class="tooltipHHtext">${getTextForUI("autoSeasonMaxTier", "tooltip")}</span>`
+        + `<label class="switch">`
+        + `<input id="autoSeasonMaxTier" type="checkbox">`
+        + `<span class="slider round">`
+        + `</span>`
+        + `</label>`
+        + `<input style="text-align:center; width:20px" id="autoSeasonMaxTierNb" required pattern="${HHAuto_inputPattern.autoSeasonMaxTierNb}" type="text">`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:30px', 'pictures/design/ic_kiss.png', 'numeric')
+        + hhMenuSwitch('seasonDisplayPowerCalc')
+        + hhMenuInputWithImg('autoSeasonRunThreshold', HHAuto_inputPattern.autoSeasonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div id="isEnabledLeagues" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/leaderboard.svg" />`
+        + `<span class="optionsBoxTitle">${getTextForUI("autoLeaguesTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitch('autoLeagues')
+        + hhMenuSelect('autoLeaguesSortMode', 'width:85px;')
+        + hhMenuSwitch('autoLeaguesCollect')
+        + hhMenuSwitch('autoLeaguesBoostedOnly')
+        + hhMenuSwitch('leagueListDisplayPowerCalc')
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSelect('autoLeaguesSelector')
+        + hhMenuSwitch('autoLeaguesAllowWinCurrent')
+        + hhMenuSwitch('autoLeaguesForceOneFight')
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric')
+        + hhMenuInputWithImg('autoLeaguesRunThreshold', HHAuto_inputPattern.autoLeaguesRunThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric')
+        + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px', '', 'numeric')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
+        + `<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow" style="justify-content: space-between">`
+        + hhMenuSwitch('autoTrollBattle')
+        + hhMenuSelect('autoTrollSelector')
+        + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric')
+        + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric')
+        + `<div style="border-left:1px solid #ffa23e;height:36px;"> </div>`
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + `<div style="${debugEnabled ? '' : 'display:none;'}">` // #1533 hidden: 0% usage in survey (168 responses). Remove div wrapper to restore.
+        + hhMenuSwitch('useX10Fights', '', true)
+        + hhMenuSwitch('useX10FightsAllowNormalEvent')
+        + hhMenuInput('minShardsX10', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
+        + hhMenuSwitch('useX50Fights', '', true)
+        + hhMenuSwitch('useX50FightsAllowNormalEvent')
+        + hhMenuInput('minShardsX50', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
+        + `</div>`
+        + hhMenuSwitch('plusGirlSkins')
+        + hhMenuInput('sandalwoodMinShardsThreshold', HHAuto_inputPattern.sandalwoodLimit, 'text-align:center; width:7em')
+        + `</div>`
+        + `<div class="internalOptionsRow separator">`
+        + hhMenuSwitch('plusEvent')
+        + hhMenuInput('eventTrollOrder', HHAuto_inputPattern.eventTrollOrder, 'width:150px')
+        + hhMenuSwitch('buyCombat', '', true)
+        + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:40px', '', 'numeric')
+        + hhMenuInput('autoBuyTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
+        + hhMenuSwitch('plusEventSandalWood')
+        + `</div>`
+        + `<div class="internalOptionsRow separator">`
+        + hhMenuSwitch('plusEventMythic')
+        + hhMenuSwitch('autoTrollMythicByPassParanoia')
+        + hhMenuSwitch('buyMythicCombat', '', true)
+        + hhMenuInput('autoBuyMythicTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
+        + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:40px', '', 'numeric')
+        + hhMenuSwitch('plusEventMythicSandalWood')
+        + `</div>`
+        + `<div class="internalOptionsRow separator">`
+        + hhMenuSwitch('plusLoveRaid')
+        + hhMenuSelect('loveRaidSelector')
+        + hhMenuSwitch('autoTrollLoveRaidByPassThreshold')
+        + hhMenuSelect('raidStarsSelector', 'width:75px;')
+        + hhMenuSwitch('buyLoveRaidCombat', '', true)
+        + hhMenuInput('autoBuyLoveRaidTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
+        + hhMenuSwitch('plusEventLoveRaidSandalWood')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsRow" style="justify-content: space-evenly">`
+        + `<div id="isEnabledPentaDrill" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("autoPentaDrillTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitch('autoPentaDrill')
+        + hhMenuSwitch('autoPentaDrillCollect')
+        + hhMenuSwitch('autoPentaDrillCollectAll')
+        + hhMenuSwitch('autoPentaDrillBoostedOnly')
+        + hhMenuInputWithImg('autoPentaDrillThreshold', HHAuto_inputPattern.autoPentaDrillThreshold, 'text-align:center; width:30px', 'images/penta_drill/penta_drill.png', 'numeric')
+        + hhMenuInputWithImg('autoPentaDrillRunThreshold', HHAuto_inputPattern.autoPentaDrillRunThreshold, 'text-align:center; width:25px', 'images/penta_drill/penta_drill.png', 'numeric')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitch('autoSeasonalEventCollect')
+        + hhMenuSwitch('autoSeasonalEventCollectAll')
+        + hhMenuSwitch('autoSeasonalBuyFreeCard')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`;
+}
+
+;// ./src/Helper/menu/MenuColumnRight.ts
+// MenuColumnRight.ts
+//
+// DOM construction (layout): the right column of the #sMenu panel — champions
+// and club champion, pantheon, shop/auto-buy and the events box. Pure string
+// production from MenuWidgets rows.
+//
+// Split out of HHMenuHelper/MenuTemplate as part of WART-002 (behavior-neutral).
+
+
+
+function buildRightColumn() {
+    const { getTextForUI, getHHScriptVars } = MenuPorts;
+    return `<div class="optionsColumn" style="width: 340px;">`
+        + `<div id="isEnabledAllChamps" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+        + `<span class="optionsBoxTitle">${getTextForUI("autoChampsTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div id="isEnabledChamps" class="internalOptionsRow">`
+        + hhMenuSwitch('autoChamps')
+        + hhMenuSwitch('autoChampsForceStart')
+        + hhMenuSwitchWithImg('autoChampsUseEne', 'pictures/design/ic_energy_quest.png')
+        + hhMenuInput('autoChampsFilter', HHAuto_inputPattern.autoChampsFilter, 'text-align:center; width:55px')
+        + hhMenuSwitch('autoChampsForceStartEventGirl')
+        + `</div>`
+        + `<div id="isEnabledClubChamp" class="internalOptionsRow separator">`
+        + hhMenuSwitch('autoClubChamp')
+        + hhMenuSwitch('autoClubForceStart')
+        + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png', 'numeric')
+        + hhMenuSwitch('showClubButtonInPoa')
+        + hhMenuSwitch('autoChampAlignTimer')
+        + `</div>`
+        + `<div class="internalOptionsRow separator">`
+        + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
+        + hhMenuInput('autoChampsGirlThreshold', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:center; width:45px')
+        + hhMenuSwitch('autoChampsTeamKeepSecondLine')
+        + hhMenuSwitch('autoBuildChampsTeam')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div id="isEnabledPantheon" class="">` // optionsBoxWithTitle
+        // +`<div class="optionsBoxTitle">`
+        //     +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+        //     +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
+        // +`</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + hhMenuSwitch('autoPantheon')
+        + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg', 'numeric')
+        + hhMenuInputWithImg('autoPantheonRunThreshold', HHAuto_inputPattern.autoPantheonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg', 'numeric')
+        + hhMenuSwitch('autoPantheonBoostedOnly')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div id="isEnabledShop" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`
+        + `<span class="optionsBoxTitle">${getTextForUI("autoBuy", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitchWithImg('autoStatsSwitch', 'design/ic_plus.svg')
+        + hhMenuInput('autoStats', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitchWithImg('autoExpW', 'design/ic_books_gray.svg')
+        + hhMenuInput('maxExp', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+        + hhMenuInput('autoExp', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitchWithImg('autoAffW', 'design/ic_gifts_gray.svg')
+        + hhMenuInput('maxAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+        + hhMenuInput('autoAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitchWithImg('autoBuyBoosters', 'design/ic_boosters_gray.svg', true)
+        + hhMenuInput('maxBooster', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+        + hhMenuInput('autoBuyBoostersFilter', HHAuto_inputPattern.autoBuyBoostersFilter, 'text-align:center; width:70px')
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitch('autoEquipBoosters')
+        + hhMenuInput('autoEquipBoostersSlots', HHAuto_inputPattern.autoEquipBoostersSlots, 'text-align:center; width:70px')
+        + `</div>`
+        + `<div class="internalOptionsRow">`
+        + hhMenuSwitchWithImg('showMarketTools', 'design/menu/panel.svg')
+        + hhMenuSwitch('updateMarket')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="optionsRow" style="display:block">`
+        + `<div id="isEnabledEvents" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("eventTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox" style="border-style: dotted;">`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + hhMenuSwitch('hideOwnedGirls', '', false, true)
+        + `</div>`
+        + `</div>`
+        + `<div id="isEnabledDPEvent" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("doublePenetrationEventTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + hhMenuSwitch('autodpEventCollect')
+        + hhMenuSwitch('autodpEventCollectAll')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div id="isEnabledLivelySceneEvent" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("livelySceneEventTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + hhMenuSwitch('autoLivelySceneEventCollect')
+        + hhMenuSwitch('autoLivelySceneEventCollectAll')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + `<div id="isEnabledSultryMysteriesEvent" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("sultryMysteriesEventTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + hhMenuSwitch('sultryMysteriesEventRefreshShop')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div id="isEnabledBossBangEvent" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("bossBangEventTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + hhMenuSwitch('bossBangEvent')
+        + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px', '', 'numeric')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `<div id="isEnabledPoa" class="optionsBoxWithTitle">`
+        + `<div class="optionsBoxTitle">`
+        + `<span class="optionsBoxTitle">${getTextForUI("poaTitle", "elementText")}</span>`
+        + `</div>`
+        + `<div class="optionsBox">`
+        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+        + hhMenuSwitch('autoPoACollect')
+        + hhMenuSwitch('autoPoACollectAll')
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`
+        + `</div>`;
+}
+
+;// ./src/Helper/menu/MenuTemplate.ts
+// MenuTemplate.ts
+//
+// DOM construction (layout): assembles the full settings panel (div#sMenu) from
+// the three column builders. `debugEnabled` (read from storage) gates rows that
+// were hidden by survey feedback. Pure string production; the returned markup is
+// injected by StartService.
+//
+// Split out of HHMenuHelper as part of WART-002 (behavior-neutral). Reads its
+// storage/translation helpers from MenuPorts so this file stays a graph leaf
+// (see MenuPorts.ts).
+
+
+
+
+
+function getMenu() {
+    const { getTextForUI, getStoredValue, storedVarPrefix } = MenuPorts;
+    const debugEnabled = getStoredValue(storedVarPrefix + TK.Debug) === 'true';
+    // Add UI buttons.
+    return `<div id="sMenu" class="HHAutoScriptMenu" style="display: none;">`
+        + `<div style="position: absolute;left: 380px;color: #F00">${getTextForUI("noOtherScripts", "elementText")}</div>`
+        + `<div class="optionsRow">`
+        + buildLeftColumn()
+        + buildMiddleColumn(debugEnabled)
+        + buildRightColumn()
+        + `</div>`
+        + `</div>`;
+}
+
 ;// ./src/Helper/HHMenuHelper.ts
 // HHMenuHelper.ts
 //
-// Builds and manages the HHAuto settings menu injected into the game page.
-// The menu is a floating panel (div#sMenu) with toggles, dropdowns, and
-// inputs for every automation feature. Responsibilities:
+// The HHAuto settings menu. Historically one ~1000-line class; split by
+// responsibility into src/Helper/menu/ (WART-002, behavior-neutral):
 //
-//   - Creating the menu toggle button and positioning it per page
-//   - Generating the full HTML menu with sections for each module
-//   - Reading user settings from inputs into storage (getMenuValues)
-//   - Writing stored settings back into inputs (setMenuValues)
-//   - Populating dynamic dropdowns (troll targets, league sort, labyrinth)
-//   - Masking sections that depend on disabled parent features
+//   - menu/MenuWidgets  — options rendering: labelled row builders (button,
+//                         switch, select, input, image variants)
+//   - menu/MenuTemplate — DOM construction (layout): the full #sMenu HTML
+//   - menu/MenuSettings — settings binding: reading/writing stored settings
+//                         from the menu inputs and wiring input events
+//   - menu/MenuPorts    — dependency-injection ports that let the leaf menu
+//                         files reach cycle-bound helpers without importing them
 //
-// Why one large class: The menu is tightly coupled to storage keys
-// (SK/TK) and input patterns. Splitting further would scatter the
-// HTML template across many files without real benefit.
+// This module keeps the pieces that are tightly bound to many feature modules
+// (the toggle button + dynamic <select> population, section masking and the
+// button colour state) and re-exports the extracted symbols so existing
+// importers keep working.
 //
-// Used by: StartService (on init), AutoLoop (button state refresh)
+// Used by: StartService (on init), AutoLoop (button state refresh),
+// StorageHelper (getMenuValues), and feature modules that inject menu rows.
 
 
 
@@ -10910,74 +11773,6 @@ function maskInactiveMenus() {
         }
     }
 }
-function hhButton(textKeyId, buttonId, mainStyle = '', labelSyle = '') {
-    return `<div ${mainStyle ? 'style="' + mainStyle + '"' : ''} class="tooltipHH" >`
-        + `<span class="tooltipHHtext">${getTextForUI(textKeyId, "tooltip")}</span>`
-        + `<label ${labelSyle ? 'style="' + labelSyle + '"' : ''} class="myButton" id="${buttonId}">${getTextForUI(textKeyId, "elementText")}</label>`
-        + `</div>`;
-}
-function hhMenuSwitch(textKeyAndInputId, isEnabledDivId = '', isKobanSwitch = false, isStylingSwitch = false) {
-    return `<div ${isEnabledDivId ? 'id="' + isEnabledDivId + '"' : ''} class="labelAndButton">`
-        + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
-        + `<div class="tooltipHH">`
-        + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
-        + `<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''} ${isStylingSwitch ? 'styling' : ''}"></span></label>`
-        + `</div>`
-        + `</div>`;
-}
-function hhMenuSwitchWithImg(textKeyAndInputId, imgPath, isKobanSwitch = false) {
-    return `<div class="labelAndButton">`
-        + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
-        + `<div class="imgAndObjectRow">`
-        + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/${imgPath}" />`
-        + `<div style="padding-left:5px">`
-        + `<div class="tooltipHH">`
-        + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
-        + `<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
-        + `</div>`
-        + `</div>`
-        + `</div>`
-        + `</div>`;
-}
-function hhMenuSelect(textKeyAndInputId, inputStyle = '', options = '') {
-    return `<div class="labelAndButton">`
-        + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
-        + `<div class="tooltipHH">`
-        + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
-        + `<select id="${textKeyAndInputId}" style="${inputStyle}" >${options}</select>`
-        + `</div>`
-        + `</div>`;
-}
-function hhMenuInput(textKeyAndInputId, inputPattern, inputStyle = '', inputClass = '', inputMode = 'text') {
-    return `<div class="labelAndButton">`
-        + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
-        + `<div class="tooltipHH">`
-        + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
-        + `<input id="${textKeyAndInputId}" class="${inputClass}" style="${inputStyle}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
-        + `</div>`
-        + `</div>`;
-}
-function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath, inputMode = 'text') {
-    let htmlRet = `<div class="labelAndButton">`
-        + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
-        + `<div class="imgAndObjectRow">`;
-    if (imgPath && imgPath.indexOf('images/') >= 0) {
-        htmlRet += `<img class="iconImg" src="/${imgPath}" />`;
-    }
-    else {
-        htmlRet += `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/${imgPath}" />`;
-    }
-    htmlRet +=
-        `<div style="padding-left:5px">`
-            + `<div class="tooltipHH">`
-            + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
-            + `<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`;
-    return htmlRet;
-}
 function switchHHMenuButton(isActive) {
     var element = document.getElementById("sMenuButton");
     if (element !== null) {
@@ -10994,662 +11789,6 @@ function switchHHMenuButton(isActive) {
             element.style.removeProperty('background-image');
         }
     }
-}
-function setMenuValues() {
-    if (document.getElementById("sMenu") === null) {
-        return;
-    }
-    setDefaults();
-    for (let i of Object.keys(HHStoredVars)) {
-        if (HHStoredVars[i].storage !== undefined && HHStoredVars[i].HHType !== undefined) {
-            let storageItem = getStorageItem(HHStoredVars[i].storage);
-            let menuID = HHStoredVars[i].customMenuID !== undefined ? HHStoredVars[i].customMenuID : i.replace(HHStoredVarPrefixKey + HHStoredVars[i].HHType + "_", "");
-            const menuElement = document.getElementById(menuID);
-            if (HHStoredVars[i].setMenu !== undefined
-                && storageItem[i] !== undefined
-                && HHStoredVars[i].setMenu
-                && HHStoredVars[i].valueType !== undefined
-                && HHStoredVars[i].menuType !== undefined
-                && menuElement != null) {
-                let itemValue = storageItem[i];
-                switch (HHStoredVars[i].valueType) {
-                    case "Long Integer":
-                        itemValue = NumberHelper.add1000sSeparator(itemValue);
-                        break;
-                    case "Boolean":
-                        itemValue = itemValue === "true";
-                        break;
-                }
-                //console.log(menuID,HHStoredVars[i].menuType,itemValue);
-                menuElement[HHStoredVars[i].menuType] = itemValue;
-            }
-            else if (menuElement == null) {
-                // logHHAuto('ERROR: Element with ID "'+menuID+'" not found');
-            }
-        }
-        else {
-            logHHAuto("HHStoredVar " + i + " has no storage or type defined.");
-        }
-    }
-}
-function getMenuValues() {
-    if (document.getElementById("sMenu") === null) {
-        return;
-    }
-    if (isDisplayedHHPopUp() === 'loadConfig') {
-        return;
-    }
-    for (let i of Object.keys(HHStoredVars)) {
-        if (HHStoredVars[i].storage !== undefined && HHStoredVars[i].HHType !== undefined) {
-            let storageItem = getStorageItem(HHStoredVars[i].storage);
-            let menuID = HHStoredVars[i].customMenuID !== undefined ? HHStoredVars[i].customMenuID : i.replace(HHStoredVarPrefixKey + HHStoredVars[i].HHType + "_", "");
-            const menuElement = document.getElementById(menuID);
-            if (HHStoredVars[i].getMenu !== undefined
-                && document.getElementById(menuID) !== null
-                && HHStoredVars[i].getMenu
-                && HHStoredVars[i].valueType !== undefined
-                && HHStoredVars[i].menuType !== undefined
-                && menuElement != null) {
-                let currentValue = storageItem[i];
-                let menuValue = String(menuElement[HHStoredVars[i].menuType]);
-                switch (HHStoredVars[i].valueType) {
-                    case "Long Integer":
-                        menuValue = String(NumberHelper.remove1000sSeparator(menuValue));
-                        break;
-                }
-                //console.log(menuID,HHStoredVars[i].menuType,menuValue,document.getElementById(menuID),HHStoredVars[i].valueType);
-                storageItem[i] = menuValue;
-                //console.log(i,currentValue, menuValue);
-                if (currentValue !== menuValue && HHStoredVars[i].newValueFunction !== undefined) {
-                    //console.log(currentValue,menuValue);
-                    HHStoredVars[i].newValueFunction.apply();
-                }
-            }
-        }
-        else {
-            logHHAuto("HHStoredVar " + i + " has no storage or type defined.");
-        }
-    }
-    setDefaults();
-}
-function preventKobanUsingSwitchUnauthorized() {
-    if (this.checked && !document.getElementById("spendKobans0").checked) {
-        let idToDisable = this.id;
-        setTimeout(function () { document.getElementById(idToDisable).checked = false; }, 500);
-    }
-}
-function addEventsOnMenuItems() {
-    for (let i of Object.keys(HHStoredVars)) {
-        //console.log(i);
-        if (HHStoredVars[i].HHType !== undefined) {
-            let menuID = HHStoredVars[i].customMenuID !== undefined ? HHStoredVars[i].customMenuID : i.replace(HHStoredVarPrefixKey + HHStoredVars[i].HHType + "_", "");
-            const menuElement = document.getElementById(menuID);
-            if (menuElement != null) {
-                if (HHStoredVars[i].valueType === "Long Integer") {
-                    menuElement.addEventListener("keyup", add1000sSeparator1);
-                }
-                if (HHStoredVars[i].events !== undefined) {
-                    for (let event of Object.keys(HHStoredVars[i].events)) {
-                        menuElement.addEventListener(event, HHStoredVars[i].events[event]);
-                    }
-                }
-                if (HHStoredVars[i].kobanUsing !== undefined && HHStoredVars[i].kobanUsing) {
-                    menuElement.addEventListener("change", preventKobanUsingSwitchUnauthorized);
-                }
-                if (HHStoredVars[i].menuType !== undefined && HHStoredVars[i].menuType === "checked") {
-                    menuElement.addEventListener("change", function () {
-                        if (HHStoredVars[i].newValueFunction !== undefined) {
-                            HHStoredVars[i].newValueFunction.apply();
-                        }
-                        setStoredValue(i, this.checked);
-                    });
-                }
-            }
-        }
-    }
-}
-function getMenu() {
-    const debugEnabled = getStoredValue(HHStoredVarPrefixKey + TK.Debug) === 'true';
-    const getLeftColumn = () => {
-        return `<div class="optionsColumn" style="min-width: 185px;">`
-            + `<div style="padding:3px; display:flex; flex-direction:column;">`
-            + `<span>HH Automatic ++</span>`
-            + `<span style="font-size:smaller;">Version ${GM.info.script.version}</span>`
-            + `<div class="internalOptionsRow" style="padding:3px">`
-            + hhButton('gitHub', 'git')
-            + hhButton('ReportBugs', 'ReportBugs')
-            + hhButton('DebugMenu', 'DebugMenu')
-            + `</div>`
-            + `<div class="internalOptionsRow" style="padding:3px">`
-            + hhButton('saveConfig', 'saveConfig')
-            + hhButton('loadConfig', 'loadConfig')
-            + `</div>`
-            + `<div class="internalOptionsRow" style="padding:3px">`
-            + hhButton('saveDefaults', 'saveDefaults')
-            + hhButton('settingsSurvey', 'settingsSurvey')
-            + hhButton('blockOrder', 'blockOrder')
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/panel.svg" />`
-            + `<span class="optionsBoxTitle">${getTextForUI("globalTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="rowOptionsBox" style="display:grid;grid-auto-flow: column;">`
-            + `<div class="optionsColumn">`
-            + hhMenuSwitch('master') // Master switch
-            + hhMenuSwitch('paranoia')
-            + `<div id="isEnabledMousePause" class="labelAndButton">`
-            + `<span class="HHMenuItemName">${getTextForUI("mousePause", "elementText")}</span>`
-            + `<div class="tooltipHH">`
-            + `<span class="tooltipHHtext">${getTextForUI("mousePause", "tooltip")}</span>`
-            + `<label class="switch">`
-            + `<input id="mousePause" type="checkbox">`
-            + `<span class="slider round">`
-            + `</span>`
-            + `</label>`
-            + `<input style="text-align:center; width:40px" id="mousePauseTimeout" required pattern="${HHAuto_inputPattern.mousePauseTimeout}" type="text">`
-            + `</div>`
-            + `</div>`
-            + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
-            + hhMenuSwitch('showTooltips')
-            + `</div>`
-            + `<div class="optionsColumn">`
-            + `<div class="labelAndButton">`
-            + `<span class="HHMenuItemName">${getTextForUI("waitforContest", "elementText")}</span>`
-            + `<div class="tooltipHH">`
-            + `<span class="tooltipHHtext">${getTextForUI("waitforContest", "tooltip")}</span>`
-            + `<label class="switch">`
-            + `<input id="waitforContest" type="checkbox">`
-            + `<span class="slider round">`
-            + `</span>`
-            + `</label>`
-            + `<input style="text-align:center; width:30px" id="safeSecondsForContest" required pattern="${HHAuto_inputPattern.safeSecondsForContest}" type="text">`
-            + `</div>`
-            + `</div>`
-            + hhMenuSwitch('settPerTab')
-            + hhMenuSwitch('pipelineDiagnose')
-            + hhMenuSwitch('paranoiaSpendsBefore')
-            + hhMenuSwitch('autoFreeBundlesCollect', 'isEnabledFreeBundles')
-            + hhMenuSwitch('collectEventChest')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/pictures/design/ic_hard_currency.png" />`
-            + `<span class="optionsBoxTitle">Kobans</span>`
-            + `</div>`
-            + `<div class="rowOptionsBox">`
-            + hhMenuSwitchWithImg('spendKobans0', 'design/menu/affil_prog.svg', true)
-            + hhMenuInputWithImg('kobanBank', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:50px', 'pictures/design/ic_hard_currency.png')
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/sex_friends.svg" />`
-            + `<span class="optionsBoxTitle">${getTextForUI("displayTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="rowOptionsBox">`
-            + `<div class="optionsColumn">`
-            + hhMenuSwitch('showInfo')
-            + hhMenuSwitch('showInfoLeft', '', false, true)
-            + `</div>`
-            + `<div class="optionsColumn">`
-            + hhMenuSwitch('showCalculatePower')
-            + hhMenuSwitch('showAdsBack', '', false, true)
-            + `</div>`
-            + `<div class="optionsColumn">`
-            + hhMenuSwitch('showRewardsRecap')
-            + hhMenuSwitch('AllMaskRewards', '', false, true)
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="rowOptionsBox">`
-            + `<div id="isEnabledPoV" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("povTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('autoPoVCollect')
-            + hhMenuSwitch('autoPoVCollectAll')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledPoG" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("pogTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('autoPoGCollect')
-            + hhMenuSwitch('autoPoGCollectAll')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/pictures/design/harem.svg" />`
-            + `<span class="optionsBoxTitle">${getTextForUI("haremTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="rowOptionsBox">`
-            + hhMenuSwitch('showHaremAvatarMissingGirls', '', false, true)
-            + hhMenuSwitchWithImg('showHaremTools', 'design/menu/panel.svg')
-            + hhMenuSwitchWithImg('showHaremSkillsButtons', 'design/menu/panel.svg')
-            + `</div>`
-            + `</div>`
-            + `</div>`;
-    };
-    const getMiddleColumn = () => {
-        return `<div class="optionsColumn" style="min-width: 520px;">`
-            + `<div class="optionsRow">`
-            + `<div class="optionsColumn">`
-            + `<div class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
-            + `<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox" style="border:none;padding:0">`
-            + `<div class="internalOptionsRow">`
-            + `<div id="isEnabledMission" class="internalOptionsRow optionsBox" style="padding:0;margin:0 3px 0 0;">`
-            + hhMenuSwitch('autoMission')
-            + hhMenuSwitch('autoMissionCollect')
-            + hhMenuSwitch('autoMissionKFirst')
-            + hhMenuSwitch('compactMissions', '', false, true)
-            + hhMenuSwitch('invertMissions', '', false, true)
-            + `</div>`
-            + `<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
-            + hhMenuSwitch('autoContest')
-            + hhMenuSwitch('compactEndedContests', '', false, true)
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsBox" style="border:none;padding:0">`
-            + `<div class="internalOptionsRow">`
-            + `<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("powerPlacesTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('autoPowerPlaces')
-            + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, 'width: 100px;')
-            + hhMenuSwitch('autoPowerPlacesAll')
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('autoPowerPlacesPrecision')
-            + hhMenuSwitch('autoPowerPlacesInverted')
-            + hhMenuSwitch('autoPowerPlacesWaitMax')
-            + hhMenuSwitch('compactPowerPlace', '', false, true)
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div id="isEnabledDailyGoals" class="rowOptionsBox">`
-            + `<div class="internalOptionsRow">`
-            + `<div style="${debugEnabled ? '' : 'display:none;'}">` + hhMenuSwitch('autoDailyGoals') + `</div>`
-            + hhMenuSwitch('autoDailyGoalsCollect')
-            + hhMenuSwitch('compactDailyGoals', '', false, true)
-            + `</div>`
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + `<div class="rowOptionsBox">`
-            + `<div id="isEnabledPachinko" class="internalOptionsRow">`
-            + hhMenuSwitch('autoFreePachinko')
-            + `</div>`
-            + `</div>`
-            + `<div class="rowOptionsBox">`
-            + `<div id="isEnabledSalary" class="internalOptionsRow">`
-            + hhMenuSwitch('autoSalary')
-            + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsColumn">`
-            + `<div class="optionsBoxTitle">` // Empty box to align with left column
-            + `</div>`
-            + `<div id="isEnabledLabyrinth" class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('autoLabyrinth')
-            + hhMenuSelect('autoLabyDifficulty', 'width:60px;')
-            + `</div>`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('autoLabyHard')
-            + hhMenuSwitch('autoLabySweep')
-            + hhMenuSwitch('autoLabyCustomTeamBuilder')
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsRow">`
-            + `<div id="isEnabledQuest" class="rowOptionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('autoQuest')
-            + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
-            + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsRow" style="justify-content: space-evenly">`
-            + `<div id="isEnabledSeason" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
-            + `<span class="optionsBoxTitle">${getTextForUI("autoSeasonTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('autoSeason')
-            + hhMenuSwitch('autoSeasonCollect')
-            + hhMenuSwitch('autoSeasonCollectAll')
-            + hhMenuSwitch('autoSeasonIgnoreNoGirls')
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + `<div style="${debugEnabled ? '' : 'display:none;'}">` // #1533 hidden: 0% usage in survey (168 responses). Remove div wrapper to restore.
-            + hhMenuSwitch('autoSeasonPassReds', '', true)
-            + `</div>`
-            + hhMenuSwitch('autoSeasonBoostedOnly')
-            + hhMenuSwitch('autoSeasonSkipLowMojo')
-            + `<div class="labelAndButton" style="width: 70px;">`
-            + `<span class="HHMenuItemName">${getTextForUI("autoSeasonMaxTier", "elementText")}</span>`
-            + `<div class="tooltipHH">`
-            + `<span class="tooltipHHtext">${getTextForUI("autoSeasonMaxTier", "tooltip")}</span>`
-            + `<label class="switch">`
-            + `<input id="autoSeasonMaxTier" type="checkbox">`
-            + `<span class="slider round">`
-            + `</span>`
-            + `</label>`
-            + `<input style="text-align:center; width:20px" id="autoSeasonMaxTierNb" required pattern="${HHAuto_inputPattern.autoSeasonMaxTierNb}" type="text">`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:30px', 'pictures/design/ic_kiss.png', 'numeric')
-            + hhMenuSwitch('seasonDisplayPowerCalc')
-            + hhMenuInputWithImg('autoSeasonRunThreshold', HHAuto_inputPattern.autoSeasonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledLeagues" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/leaderboard.svg" />`
-            + `<span class="optionsBoxTitle">${getTextForUI("autoLeaguesTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('autoLeagues')
-            + hhMenuSelect('autoLeaguesSortMode', 'width:85px;')
-            + hhMenuSwitch('autoLeaguesCollect')
-            + hhMenuSwitch('autoLeaguesBoostedOnly')
-            + hhMenuSwitch('leagueListDisplayPowerCalc')
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSelect('autoLeaguesSelector')
-            + hhMenuSwitch('autoLeaguesAllowWinCurrent')
-            + hhMenuSwitch('autoLeaguesForceOneFight')
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric')
-            + hhMenuInputWithImg('autoLeaguesRunThreshold', HHAuto_inputPattern.autoLeaguesRunThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric')
-            + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px', '', 'numeric')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
-            + `<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-between">`
-            + hhMenuSwitch('autoTrollBattle')
-            + hhMenuSelect('autoTrollSelector')
-            + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric')
-            + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric')
-            + `<div style="border-left:1px solid #ffa23e;height:36px;"> </div>`
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + `<div style="${debugEnabled ? '' : 'display:none;'}">` // #1533 hidden: 0% usage in survey (168 responses). Remove div wrapper to restore.
-            + hhMenuSwitch('useX10Fights', '', true)
-            + hhMenuSwitch('useX10FightsAllowNormalEvent')
-            + hhMenuInput('minShardsX10', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
-            + hhMenuSwitch('useX50Fights', '', true)
-            + hhMenuSwitch('useX50FightsAllowNormalEvent')
-            + hhMenuInput('minShardsX50', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
-            + `</div>`
-            + hhMenuSwitch('plusGirlSkins')
-            + hhMenuInput('sandalwoodMinShardsThreshold', HHAuto_inputPattern.sandalwoodLimit, 'text-align:center; width:7em')
-            + `</div>`
-            + `<div class="internalOptionsRow separator">`
-            + hhMenuSwitch('plusEvent')
-            + hhMenuInput('eventTrollOrder', HHAuto_inputPattern.eventTrollOrder, 'width:150px')
-            + hhMenuSwitch('buyCombat', '', true)
-            + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:40px', '', 'numeric')
-            + hhMenuInput('autoBuyTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
-            + hhMenuSwitch('plusEventSandalWood')
-            + `</div>`
-            + `<div class="internalOptionsRow separator">`
-            + hhMenuSwitch('plusEventMythic')
-            + hhMenuSwitch('autoTrollMythicByPassParanoia')
-            + hhMenuSwitch('buyMythicCombat', '', true)
-            + hhMenuInput('autoBuyMythicTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
-            + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:40px', '', 'numeric')
-            + hhMenuSwitch('plusEventMythicSandalWood')
-            + `</div>`
-            + `<div class="internalOptionsRow separator">`
-            + hhMenuSwitch('plusLoveRaid')
-            + hhMenuSelect('loveRaidSelector')
-            + hhMenuSwitch('autoTrollLoveRaidByPassThreshold')
-            + hhMenuSelect('raidStarsSelector', 'width:75px;')
-            + hhMenuSwitch('buyLoveRaidCombat', '', true)
-            + hhMenuInput('autoBuyLoveRaidTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
-            + hhMenuSwitch('plusEventLoveRaidSandalWood')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsRow" style="justify-content: space-evenly">`
-            + `<div id="isEnabledPentaDrill" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("autoPentaDrillTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('autoPentaDrill')
-            + hhMenuSwitch('autoPentaDrillCollect')
-            + hhMenuSwitch('autoPentaDrillCollectAll')
-            + hhMenuSwitch('autoPentaDrillBoostedOnly')
-            + hhMenuInputWithImg('autoPentaDrillThreshold', HHAuto_inputPattern.autoPentaDrillThreshold, 'text-align:center; width:30px', 'images/penta_drill/penta_drill.png', 'numeric')
-            + hhMenuInputWithImg('autoPentaDrillRunThreshold', HHAuto_inputPattern.autoPentaDrillRunThreshold, 'text-align:center; width:25px', 'images/penta_drill/penta_drill.png', 'numeric')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('autoSeasonalEventCollect')
-            + hhMenuSwitch('autoSeasonalEventCollectAll')
-            + hhMenuSwitch('autoSeasonalBuyFreeCard')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`;
-    };
-    const getRightColumn = () => {
-        return `<div class="optionsColumn" style="width: 340px;">`
-            + `<div id="isEnabledAllChamps" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
-            + `<span class="optionsBoxTitle">${getTextForUI("autoChampsTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div id="isEnabledChamps" class="internalOptionsRow">`
-            + hhMenuSwitch('autoChamps')
-            + hhMenuSwitch('autoChampsForceStart')
-            + hhMenuSwitchWithImg('autoChampsUseEne', 'pictures/design/ic_energy_quest.png')
-            + hhMenuInput('autoChampsFilter', HHAuto_inputPattern.autoChampsFilter, 'text-align:center; width:55px')
-            + hhMenuSwitch('autoChampsForceStartEventGirl')
-            + `</div>`
-            + `<div id="isEnabledClubChamp" class="internalOptionsRow separator">`
-            + hhMenuSwitch('autoClubChamp')
-            + hhMenuSwitch('autoClubForceStart')
-            + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png', 'numeric')
-            + hhMenuSwitch('showClubButtonInPoa')
-            + hhMenuSwitch('autoChampAlignTimer')
-            + `</div>`
-            + `<div class="internalOptionsRow separator">`
-            + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
-            + hhMenuInput('autoChampsGirlThreshold', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:center; width:45px')
-            + hhMenuSwitch('autoChampsTeamKeepSecondLine')
-            + hhMenuSwitch('autoBuildChampsTeam')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledPantheon" class="">` // optionsBoxWithTitle
-            // +`<div class="optionsBoxTitle">`
-            //     +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
-            //     +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
-            // +`</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('autoPantheon')
-            + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg', 'numeric')
-            + hhMenuInputWithImg('autoPantheonRunThreshold', HHAuto_inputPattern.autoPantheonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg', 'numeric')
-            + hhMenuSwitch('autoPantheonBoostedOnly')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledShop" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`
-            + `<span class="optionsBoxTitle">${getTextForUI("autoBuy", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitchWithImg('autoStatsSwitch', 'design/ic_plus.svg')
-            + hhMenuInput('autoStats', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitchWithImg('autoExpW', 'design/ic_books_gray.svg')
-            + hhMenuInput('maxExp', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-            + hhMenuInput('autoExp', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitchWithImg('autoAffW', 'design/ic_gifts_gray.svg')
-            + hhMenuInput('maxAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-            + hhMenuInput('autoAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitchWithImg('autoBuyBoosters', 'design/ic_boosters_gray.svg', true)
-            + hhMenuInput('maxBooster', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
-            + hhMenuInput('autoBuyBoostersFilter', HHAuto_inputPattern.autoBuyBoostersFilter, 'text-align:center; width:70px')
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('autoEquipBoosters')
-            + hhMenuInput('autoEquipBoostersSlots', HHAuto_inputPattern.autoEquipBoostersSlots, 'text-align:center; width:70px')
-            + `</div>`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitchWithImg('showMarketTools', 'design/menu/panel.svg')
-            + hhMenuSwitch('updateMarket')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsRow" style="display:block">`
-            + `<div id="isEnabledEvents" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("eventTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox" style="border-style: dotted;">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('hideOwnedGirls', '', false, true)
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledDPEvent" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("doublePenetrationEventTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('autodpEventCollect')
-            + hhMenuSwitch('autodpEventCollectAll')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledLivelySceneEvent" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("livelySceneEventTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('autoLivelySceneEventCollect')
-            + hhMenuSwitch('autoLivelySceneEventCollectAll')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + `<div id="isEnabledSultryMysteriesEvent" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("sultryMysteriesEventTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('sultryMysteriesEventRefreshShop')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledBossBangEvent" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("bossBangEventTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('bossBangEvent')
-            + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px', '', 'numeric')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledPoa" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("poaTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('autoPoACollect')
-            + hhMenuSwitch('autoPoACollectAll')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `</div>`;
-    };
-    // Add UI buttons.
-    return `<div id="sMenu" class="HHAutoScriptMenu" style="display: none;">`
-        + `<div style="position: absolute;left: 380px;color: #F00">${getTextForUI("noOtherScripts", "elementText")}</div>`
-        + `<div class="optionsRow">`
-        + getLeftColumn()
-        + getMiddleColumn()
-        + getRightColumn()
-        + `</div>`
-        + `</div>`;
 }
 
 ;// ./src/Module/PentaDrill.ts
@@ -30814,6 +30953,13 @@ function getBlockScheduler() {
 
 
 
+
+
+
+
+
+
+
 // Inject the autoLoop kick into Pachinko so it can restart the loop after a
 // run without a static Module->Service import (lesson zirkulaerer-import-tdz-crash).
 setPachinkoAutoLoopKick(autoLoop);
@@ -30824,6 +30970,26 @@ setBlockTick((ctx) => getBlockScheduler().tick(ctx));
 // Wire the Block-Order popup's registry provider (avoids a static
 // PipelineOrderService->BlockPipeline import cycle).
 setPipelineRegistryProvider(buildRegistryAndOrder);
+// Inject the SCC-bound helpers the menu modules need. The menu/* files read
+// these from MenuPorts instead of importing them statically, which keeps them
+// as graph leaves and out of the circular-dependency baseline (WART-002,
+// lesson zirkulaerer-import-tdz-crash). Wrapped in a function so the
+// HHStoredVarPrefixKey reference is not evaluated at module top level.
+function wireMenuPorts() {
+    setMenuPorts({
+        getTextForUI: getTextForUI,
+        getHHScriptVars: (id) => ConfigHelper.getHHScriptVars(id),
+        getStoredValue: getStoredValue,
+        getStorageItem: getStorageItem,
+        setStoredValue: setStoredValue,
+        HHStoredVars: HHStoredVars,
+        storedVarPrefix: HHStoredVarPrefixKey,
+        logHHAuto: logHHAuto,
+        setDefaults: setDefaults,
+        isDisplayedHHPopUp: isDisplayedHHPopUp,
+    });
+}
+wireMenuPorts();
 hardened_start();
 
 /******/ })()
