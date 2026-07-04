@@ -31,7 +31,10 @@ export function getHero():KKHero
         setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+TK.autoLoopTimeMili)) || 1000);
         //logHHAuto(window.wrappedJSObject)
     }
-    return unsafeWindow.shared?.Hero;
+    // Historic contract: callers treat a missing Hero as "page not ready"
+    // and bail out via the autoLoop retry above, so the declared return
+    // type stays non-optional (WART-001).
+    return unsafeWindow.shared?.Hero as KKHero;
 }
 
 // Tracks the last stat-buy attempt so a buy that does not advance the

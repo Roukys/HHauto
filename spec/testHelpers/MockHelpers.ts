@@ -1,5 +1,13 @@
 import { HHStoredVarPrefixKey } from '../../src/config/HHStoredVars';
 import { TK } from '../../src/config/StorageKeys';
+import type { KKHero } from '../../src/model/KK/KKHero';
+import type { KKEnergy } from '../../src/model/KK/KKEnergy';
+
+// Test fixtures assign deliberately partial game objects; the casts below
+// bridge them to the strict Window/KK types (WART-001).
+function partialEnergy(amount: number, max: number): KKEnergy {
+    return { amount: amount, max_regen_amount: max } as KKEnergy;
+}
 
 export class MockHelper{
 
@@ -63,49 +71,31 @@ export class MockHelper{
                 level: heroLevel
             },
             energies: {}
-        };
+        } as unknown as KKHero;
     }
-    
+
     static mockEnergiesFight(amount: number, max: number) {
-        unsafeWindow.shared!.Hero.energies.fight = {
-            amount: amount,
-            max_regen_amount: max
-        };
+        unsafeWindow.shared!.Hero!.energies.fight = partialEnergy(amount, max);
     }
 
     static mockEnergiesChallenge(amount: number, max: number) {
-        unsafeWindow.shared!.Hero.energies.challenge = {
-            amount: amount,
-            max_regen_amount: max
-        };
+        unsafeWindow.shared!.Hero!.energies.challenge = partialEnergy(amount, max);
     }
 
     static mockEnergiesKiss(amount: number, max: number) {
-        unsafeWindow.shared!.Hero.energies.kiss = {
-            amount: amount,
-            max_regen_amount: max
-        };
+        unsafeWindow.shared!.Hero!.energies.kiss = partialEnergy(amount, max);
     }
 
     static mockEnergiesQuest(amount: number, max: number) {
-        unsafeWindow.shared!.Hero.energies.quest = {
-            amount: amount,
-            max_regen_amount: max
-        };
+        unsafeWindow.shared!.Hero!.energies.quest = partialEnergy(amount, max);
     }
 
     static mockEnergiesWorship(amount: number, max: number) {
-        unsafeWindow.shared!.Hero.energies.worship = {
-            amount: amount,
-            max_regen_amount: max
-        };
+        unsafeWindow.shared!.Hero!.energies.worship = partialEnergy(amount, max);
     }
 
     static mockEnergiesDrill(amount: number, max: number) {
-        unsafeWindow.shared!.Hero.energies.drill = {
-            amount: amount,
-            max_regen_amount: max
-        };
+        unsafeWindow.shared!.Hero!.energies.drill = partialEnergy(amount, max);
     }
     /**
      * Mocks the booster status in localStorage.
@@ -177,9 +167,9 @@ export class MockHelper{
     static mockAjaxSuccess(response: any) {
         if (!unsafeWindow.shared) unsafeWindow.shared = {} as any;
         if (!unsafeWindow.shared!.general) unsafeWindow.shared!.general = {} as any;
-        unsafeWindow.shared!.general!.hh_ajax = (_params: any, successCb: (data: any) => void) => {
+        unsafeWindow.shared!.general!.hh_ajax = ((_params: any, successCb: (data: any) => void) => {
             successCb(response);
-        };
+        }) as (...args: unknown[]) => unknown;
     }
 
     /**

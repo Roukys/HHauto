@@ -25,7 +25,7 @@ describe("TeamModule.getSelectedGirlsId -- I1 regression (return type)", () => {
             "<div id=\"hh_hentai\" page=\"edit-team\">" +
             "<div class=\"team-slot-container selected-team\" data-team-index=\"0\"></div>" +
             "</div>";
-        unsafeWindow.teams_data = { 0: { girls_ids: [1, 2, 3] } };
+        unsafeWindow.teams_data = { 0: { girls_ids: [1, 2, 3] } } as unknown as typeof unsafeWindow.teams_data;
         const result = TeamModule.getSelectedGirlsId();
         expect(result).toEqual([]);
     });
@@ -35,7 +35,7 @@ describe("TeamModule.getSelectedGirlsId -- I1 regression (return type)", () => {
             "<div id=\"hh_hentai\" page=\"edit-team\">" +
             "<div class=\"team-slot-container selected-team\" data-team-index=\"2\"></div>" +
             "</div>";
-        unsafeWindow.teams_data = { 2: { girls_ids: [11, 22, 33, 44, 55, 66, 77] } };
+        unsafeWindow.teams_data = { 2: { girls_ids: [11, 22, 33, 44, 55, 66, 77] } } as unknown as typeof unsafeWindow.teams_data;
         const result = TeamModule.getSelectedGirlsId();
         expect(result).toEqual([11, 22, 33, 44, 55, 66, 77]);
     });

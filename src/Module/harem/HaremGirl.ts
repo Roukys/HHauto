@@ -61,7 +61,8 @@ export class HaremGirl {
     static SKILL_ORDER_PRIO = [2,5,4,8];
 
     static getCurrentGirl(): KKHaremGirl {
-        return unsafeWindow.girl;
+        // Only called on harem pages where the game defines window.girl.
+        return unsafeWindow.girl!;
     }
 
     static getMaxOutButton(haremItem:string){
