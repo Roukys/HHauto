@@ -7,6 +7,14 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.1.5 - Internal refactoring: typed globals, menu module split
+
+- No functional changes. The game globals the script reads are now properly
+  typed (so game API changes surface at compile time instead of at runtime),
+  every explicit `any` is tracked by a lint ratchet that may only go down,
+  and the 1000-line menu helper was split into seven focused modules without
+  adding a single import cycle (baseline actually shrank 349 -> 348).
+
 ### v8.1.4 - Fix quest hanging on girl reward, missing survey permissions
 
 - When a quest step awarded a girl, the reward popup stayed open and blocked
