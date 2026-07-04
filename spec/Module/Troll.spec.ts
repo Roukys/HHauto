@@ -7,6 +7,7 @@ import { LoveRaid } from '../../src/model/LoveRaid';
 import { EventModule } from '../../src/Module/Events/EventModule';
 import { LoveRaidManager } from '../../src/Module/Events/LoveRaidManager';
 import { MockHelper } from '../testHelpers/MockHelpers';
+import type { KKHero } from '../../src/model/KK/KKHero';
 
 describe("Troll module", function () {
 
@@ -29,7 +30,7 @@ describe("Troll module", function () {
                 }
             },
             currencies: { hard_currency: 500 }
-        };
+        } as unknown as KKHero;
         unsafeWindow.hh_prices = {
             fight_cost_per_minute: 0.36
         };
@@ -56,8 +57,8 @@ describe("Troll module", function () {
                 localStorage.setItem(HHStoredVarPrefixKey + SK.buyCombTimer, '1');
                 localStorage.setItem(HHStoredVarPrefixKey + SK.kobanBank, '0');
                 setTimer('eventGoing', 1000);
-                unsafeWindow.shared!.Hero.currencies = { hard_currency: 1000 };
-                unsafeWindow.shared!.Hero.energies.fight.amount = 0;
+                unsafeWindow.shared!.Hero!.currencies = { hard_currency: 1000 } as KKHero["currencies"];
+                unsafeWindow.shared!.Hero!.energies.fight.amount = 0;
 
                 const eventGirl = { girl_id: 1, is_mythic: false, shards: 90, troll_id: 1 } as EventGirl;
                 const canBuy = Troll.canBuyFight(eventGirl, false);
@@ -78,8 +79,8 @@ describe("Troll module", function () {
                 localStorage.setItem(HHStoredVarPrefixKey + SK.useX50FightsAllowNormalEvent, 'true');
                 localStorage.setItem(HHStoredVarPrefixKey + SK.kobanBank, '0');
                 setTimer('eventGoing', 1000);
-                unsafeWindow.shared!.Hero.currencies = { hard_currency: 1000 };
-                unsafeWindow.shared!.Hero.energies.fight.amount = 0;
+                unsafeWindow.shared!.Hero!.currencies = { hard_currency: 1000 } as KKHero["currencies"];
+                unsafeWindow.shared!.Hero!.energies.fight.amount = 0;
 
                 const eventGirl = { girl_id: 1, is_mythic: false, shards: 0, troll_id: 1 } as EventGirl;
                 const canBuy = Troll.canBuyFight(eventGirl);
@@ -99,8 +100,8 @@ describe("Troll module", function () {
                 // useX50FightsAllowNormalEvent intentionally NOT set.
                 localStorage.setItem(HHStoredVarPrefixKey + SK.kobanBank, '0');
                 setTimer('eventGoing', 1000);
-                unsafeWindow.shared!.Hero.currencies = { hard_currency: 1000 };
-                unsafeWindow.shared!.Hero.energies.fight.amount = 0;
+                unsafeWindow.shared!.Hero!.currencies = { hard_currency: 1000 } as KKHero["currencies"];
+                unsafeWindow.shared!.Hero!.energies.fight.amount = 0;
 
                 const eventGirl = { girl_id: 1, is_mythic: false, shards: 0, troll_id: 1 } as EventGirl;
                 const canBuy = Troll.canBuyFight(eventGirl);
@@ -119,8 +120,8 @@ describe("Troll module", function () {
                 localStorage.setItem(HHStoredVarPrefixKey + SK.buyMythicCombTimer, '1');
                 localStorage.setItem(HHStoredVarPrefixKey + SK.kobanBank, '0');
                 setTimer('eventMythicGoing', 1000);
-                unsafeWindow.shared!.Hero.currencies = { hard_currency: 1000 };
-                unsafeWindow.shared!.Hero.energies.fight.amount = 0;
+                unsafeWindow.shared!.Hero!.currencies = { hard_currency: 1000 } as KKHero["currencies"];
+                unsafeWindow.shared!.Hero!.energies.fight.amount = 0;
 
                 const eventGirl = { girl_id: 1, is_mythic: true, shards: 50, troll_id: 3 } as EventGirl;
                 const canBuy = Troll.canBuyFight(eventGirl);
@@ -141,8 +142,8 @@ describe("Troll module", function () {
                 // useX50FightsAllowNormalEvent NOT set: mythic must bypass that gate.
                 localStorage.setItem(HHStoredVarPrefixKey + SK.kobanBank, '0');
                 setTimer('eventMythicGoing', 1000);
-                unsafeWindow.shared!.Hero.currencies = { hard_currency: 1000 };
-                unsafeWindow.shared!.Hero.energies.fight.amount = 0;
+                unsafeWindow.shared!.Hero!.currencies = { hard_currency: 1000 } as KKHero["currencies"];
+                unsafeWindow.shared!.Hero!.energies.fight.amount = 0;
 
                 const eventGirl = { girl_id: 1, is_mythic: true, shards: 0, troll_id: 3 } as EventGirl;
                 const canBuy = Troll.canBuyFight(eventGirl);
@@ -160,7 +161,7 @@ describe("Troll module", function () {
                 localStorage.setItem(HHStoredVarPrefixKey + SK.buyCombTimer, '1');
                 localStorage.setItem(HHStoredVarPrefixKey + SK.kobanBank, '9999');
                 setTimer('eventGoing', 1000);
-                unsafeWindow.shared!.Hero.currencies = { hard_currency: 1 };
+                unsafeWindow.shared!.Hero!.currencies = { hard_currency: 1 } as KKHero["currencies"];
                 MockHelper.mockEnergiesFight(0, 15);
 
                 const eventGirl = { girl_id: 1, is_mythic: false, shards: 50, troll_id: 1 } as EventGirl;
@@ -191,8 +192,8 @@ describe("Troll module", function () {
             localStorage.setItem(HHStoredVarPrefixKey + SK.spendKobans0, 'true');
             localStorage.setItem(HHStoredVarPrefixKey + SK.buyLoveRaidCombat, 'true');
             localStorage.setItem(HHStoredVarPrefixKey + SK.kobanBank, '0');
-            unsafeWindow.shared!.Hero.currencies = { hard_currency: 1000 };
-            unsafeWindow.shared!.Hero.energies.fight.amount = 0;
+            unsafeWindow.shared!.Hero!.currencies = { hard_currency: 1000 } as KKHero["currencies"];
+            unsafeWindow.shared!.Hero!.energies.fight.amount = 0;
         }
 
         it("default", function () {
@@ -205,8 +206,8 @@ describe("Troll module", function () {
             jest.spyOn(LoveRaidManager, "isAnyActivated").mockReturnValue(true);
             localStorage.setItem(HHStoredVarPrefixKey + SK.spendKobans0, 'true');
             localStorage.setItem(HHStoredVarPrefixKey + SK.kobanBank, '0');
-            unsafeWindow.shared!.Hero.currencies = { hard_currency: 1000 };
-            unsafeWindow.shared!.Hero.energies.fight.amount = 0;
+            unsafeWindow.shared!.Hero!.currencies = { hard_currency: 1000 } as KKHero["currencies"];
+            unsafeWindow.shared!.Hero!.energies.fight.amount = 0;
 
             const canBuy = Troll.canBuyFightForRaid(baseRaid(), false);
             expect(canBuy.canBuy).toBeFalsy();
@@ -217,8 +218,8 @@ describe("Troll module", function () {
             localStorage.setItem(HHStoredVarPrefixKey + SK.spendKobans0, 'true');
             localStorage.setItem(HHStoredVarPrefixKey + SK.buyLoveRaidCombat, 'true');
             localStorage.setItem(HHStoredVarPrefixKey + SK.kobanBank, '0');
-            unsafeWindow.shared!.Hero.currencies = { hard_currency: 1000 };
-            unsafeWindow.shared!.Hero.energies.fight.amount = 0;
+            unsafeWindow.shared!.Hero!.currencies = { hard_currency: 1000 } as KKHero["currencies"];
+            unsafeWindow.shared!.Hero!.energies.fight.amount = 0;
 
             const canBuy = Troll.canBuyFightForRaid(baseRaid(), false);
             expect(canBuy.canBuy).toBeFalsy();
@@ -254,7 +255,7 @@ describe("Troll module", function () {
 
         it("returns false when kobans are insufficient", function () {
             enableRaidBuying();
-            unsafeWindow.shared!.Hero.currencies = { hard_currency: 1 };
+            unsafeWindow.shared!.Hero!.currencies = { hard_currency: 1 } as KKHero["currencies"];
 
             const canBuy = Troll.canBuyFightForRaid(baseRaid({ girl_shards: 0 }));
             expect(canBuy.canBuy).toBeFalsy();
@@ -294,7 +295,7 @@ describe("Troll module", function () {
 
     describe("getLastTrollIdAvailable", function () {
         it("returns world - 1 for main adventure when no mapping", function () {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 5, choices_adventure: 0 },
                 hc_confirm: false
@@ -304,7 +305,7 @@ describe("Troll module", function () {
         });
 
         it("returns world - 1 for different world levels", function () {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 10, choices_adventure: 0 },
                 hc_confirm: false
@@ -314,7 +315,7 @@ describe("Troll module", function () {
         });
 
         it("returns 0 for world 1", function () {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 1, choices_adventure: 0 },
                 hc_confirm: false
@@ -329,7 +330,7 @@ describe("Troll module", function () {
         });
 
         it("falls back to Hero id_world when explicit id_world is 0 or negative", function () {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 6, choices_adventure: 0 },
                 hc_confirm: false
@@ -360,7 +361,7 @@ describe("Troll module", function () {
 
     describe("isEnabled", function () {
         it("returns true when isEnabledTrollBattle is true and id_world > 0", function () {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 5, choices_adventure: 0 },
                 hc_confirm: false
@@ -370,7 +371,7 @@ describe("Troll module", function () {
         });
 
         it("returns false when id_world is 0", function () {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 0, choices_adventure: 0 },
                 hc_confirm: false
@@ -381,7 +382,7 @@ describe("Troll module", function () {
 
     describe("isTrollFightActivated", function () {
         it("returns false when no battle settings are enabled", function () {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 5, choices_adventure: 0 },
                 hc_confirm: false
@@ -390,7 +391,7 @@ describe("Troll module", function () {
         });
 
         it("returns true when autoTrollBattle is enabled", function () {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 5, choices_adventure: 0 },
                 hc_confirm: false
@@ -400,7 +401,7 @@ describe("Troll module", function () {
         });
 
         it("returns true when plusEvent is enabled", function () {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 5, choices_adventure: 0 },
                 hc_confirm: false
@@ -410,7 +411,7 @@ describe("Troll module", function () {
         });
 
         it("returns true when plusEventMythic is enabled", function () {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 5, choices_adventure: 0 },
                 hc_confirm: false
@@ -422,7 +423,7 @@ describe("Troll module", function () {
 
     describe("getTrollIdToFight", function () {
         beforeEach(() => {
-            unsafeWindow.shared!.Hero.infos = {
+            unsafeWindow.shared!.Hero!.infos = {
                 level: 500,
                 questing: { id_world: 5, choices_adventure: 0 },
                 hc_confirm: false
@@ -531,7 +532,7 @@ describe("Troll module", function () {
         it("falls back to 1 when autoTrollBattle enabled but troll not in trollzList", function () {
             localStorage.setItem(HHStoredVarPrefixKey + SK.autoTrollBattle, 'true');
             // Set world very high so troll index won't be in trollzList
-            unsafeWindow.shared!.Hero.infos.questing.id_world = 999;
+            (unsafeWindow.shared!.Hero!.infos.questing as { id_world: number }).id_world = 999;
             const TTF = Troll.getTrollIdToFight(false);
             // Should fallback to 1 because troll 998 is not in trollzList
             expect(TTF).toBe(1);

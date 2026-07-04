@@ -232,7 +232,10 @@ export class EventModule {
                 }
             }
             queryEventTabCheck[0].setAttribute('parsed', 'true');
-            const hhEventData: HHEventData = unsafeWindow.event_data || unsafeWindow.current_event;
+            // Can be undefined at runtime (logged below); the parse()
+            // functions have always received it as-is, so keep the historic
+            // non-optional type at the call sites (WART-001).
+            const hhEventData = (unsafeWindow.event_data || unsafeWindow.current_event) as HHEventData;
             logHHAuto(`On event page : ${eventID} (${hhEventData?.event_name || ''})`);
             EventModule.clearEventData(eventID);
             //let eventsGirlz=[];

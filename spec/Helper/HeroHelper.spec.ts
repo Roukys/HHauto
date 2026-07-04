@@ -4,6 +4,7 @@ import { SK } from "../../src/config/StorageKeys";
 import { Booster } from "../../src/Module/Booster";
 import { HHStoredVarPrefixKey } from "../../src/config/HHStoredVars";
 import { MockHelper } from "../testHelpers/MockHelpers";
+import type { KKHero } from "../../src/model/KK/KKHero";
 
 // Test fixtures — no longer using hardcoded static objects from Booster class
 const TEST_GINSENG = {id_item: "316", identifier: "B1", name: "Ginseng root", rarity: "legendary"};
@@ -21,13 +22,13 @@ describe("HeroHelper", function() {
       expect(getHero()).toBeUndefined();
     });
     it("Test with string", function() {
-        unsafeWindow.shared!.Hero = "TOTO";
+        unsafeWindow.shared!.Hero = "TOTO" as unknown as KKHero;
       expect(getHero()).toBe("TOTO");
     });
     it("Test with object", function() {
         unsafeWindow.shared!.Hero = {
             name:"TOTO"
-        };
+        } as unknown as KKHero;
       expect(getHero()).toBeDefined();
       expect(getHero().name).toBe("TOTO");
     });
@@ -113,7 +114,7 @@ describe("HeroHelper", function() {
 
     // Fixed mock: hh_ajax(params, successCb, errorCb) must invoke the callback
     function mockEquipeResponse(success:boolean) {
-      unsafeWindow.shared!.general!.hh_ajax = jest.fn((params, successCb, errorCb) => {
+      unsafeWindow.shared!.general!.hh_ajax = jest.fn((params: any, successCb: any, errorCb: any) => {
             const fakeResponse = {
                 success: success
             };
@@ -122,7 +123,7 @@ describe("HeroHelper", function() {
     }
 
     function mockEquipeError() {
-      unsafeWindow.shared!.general!.hh_ajax = jest.fn((params, successCb, errorCb) => {
+      unsafeWindow.shared!.general!.hh_ajax = jest.fn((params: any, successCb: any, errorCb: any) => {
             errorCb(new Error('AJAX network error'));
         });
     }

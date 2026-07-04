@@ -22,70 +22,83 @@ import { KKLoveRaid } from "./model/KK/KKLoveRaid";
 import { KKPentaDrillOpponents } from "./model/KK/KKPentaDrillOpponents";
 import { KKHero } from "./model/KK/KKHero";
 import { KKDailyGoal } from "./model/KK/kkDailyGoal";
+import type { KKTeamGirl } from "./model/KK/KKTeamGirl";
+import type { KKHaremGirl } from "./model/KK/KKHaremGirl";
+import type { HHEventData } from "./model/HHEvent";
 
 declare global {
     var love_raids: KKLoveRaid[] | undefined;
     interface Window {
-        // Below just informs IDE and/or TS-compiler (it's set in `.js` file).
-        championData: any;
+        // Game globals injected by the page, read via unsafeWindow. These
+        // declarations only inform the TS compiler; the shapes are the
+        // minimal subset the script actually reads (WART-001). Globals the
+        // script only passes through or truth-tests stay `unknown` -- widen
+        // to a real interface when a new property access appears.
+        championData: unknown;
         contests_timer?: {
             next_contest: number;
             duration: number;
             remaining_time: number;
-            [key: string]: any;
+            [key: string]: unknown;
         };
-        Collect: any;
+        Collect: unknown;
         current_tier_number?: number;
         daily_goals_list?: KKDailyGoal[];
-        event_data?: any;
-        current_event?: any;
-        girl?: any;
-        // GirlSalaryManager: any;
-        harem: any;
-        has_contests_datas?: any;
-        hero_data?: any;
+        event_data?: HHEventData;
+        current_event?: HHEventData;
+        girl?: KKHaremGirl;
+        harem: unknown;
+        has_contests_datas?: unknown;
+        // Raw season-arena fighter payload; only forwarded into
+        // BDSMHelper.getBdsmPlayersData.
+        hero_data?: unknown;
         shared?: {
-            Hero?: any;
+            Hero?: KKHero;
             general?: {
-                hh_ajax?: (...args: any[]) => any;
-                is_cheat_click?: (...args: any[]) => any;
-                [key: string]: any;
+                hh_ajax?: (...args: unknown[]) => unknown;
+                is_cheat_click?: (...args: unknown[]) => unknown;
+                [key: string]: unknown;
             };
             animations?: {
                 loadingAnimation?: {
                     start: () => void;
                     stop: () => void;
                 };
-                [key: string]: any;
+                [key: string]: unknown;
             };
-            [key: string]: any;
+            [key: string]: unknown;
         }
-        // Hero: any;
-        // hh_ajax: any;
-        hh_nutaku?: any;
-        hh_prices?: any;
-        HHTimers: any;
-        is_cheat_click: any;
-        league_tag: any;
-        // loadingAnimation: any;
-        opponents: any;
-        player_gems_amount: any;
-        season_sec_untill_event_end: any;
-        seasonal_event_active: any;
-        seasonal_time_remaining: any;
-        mega_event_data: any;
-        penta_drill_data: any;
+        hh_nutaku?: unknown;
+        hh_prices: Record<string, number>;
+        HHTimers: unknown;
+        is_cheat_click: unknown;
+        league_tag: unknown;
+        // Season-arena opponent array; consumers guard with Array.isArray.
+        opponents: unknown;
+        player_gems_amount?: Record<string, { amount: number } | undefined>;
+        season_sec_untill_event_end: number | undefined;
+        seasonal_event_active: boolean;
+        seasonal_time_remaining: number;
+        mega_event_data: unknown;
+        penta_drill_data?: {
+            cycle_data?: { seconds_until_event_end?: number; [key: string]: unknown };
+            [key: string]: unknown;
+        };
         opponents_list: KKPentaDrillOpponents[] | undefined;
-        mega_event_active: any;
-        mega_event_time_remaining: any;
-        server_now_ts?: any;
-        id_girl?: any;
-        girl_squad?: any;
-        teams_data?: any;
+        mega_event_active: boolean;
+        mega_event_time_remaining: number;
+        server_now_ts?: number;
+        id_girl?: number | string;
+        girl_squad?: { remaining_ego_percent: number; [key: string]: unknown }[];
+        teams_data: Record<string, {
+            girls_ids: number[];
+            girls: KKTeamGirl[];
+            [key: string]: unknown;
+        }>;
         //pop
-        pop_list?:boolean;
-        pop_index?:number;
-        love_raids:KKLoveRaid[]|undefined;
+        pop_list?: unknown[];
+        pop_index?: number;
+        love_raids: KKLoveRaid[] | undefined;
     }
 }
 

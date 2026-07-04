@@ -7044,6 +7044,7 @@ var HaremGirl_awaiter = (undefined && undefined.__awaiter) || function (thisArg,
 
 class HaremGirl {
     static getCurrentGirl() {
+        // Only called on harem pages where the game defines window.girl.
         return unsafeWindow.girl;
     }
     static getMaxOutButton(haremItem) {
@@ -19889,6 +19890,9 @@ function getHero() {
         setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + TK.autoLoopTimeMili)) || 1000);
         //logHHAuto(window.wrappedJSObject)
     }
+    // Historic contract: callers treat a missing Hero as "page not ready"
+    // and bail out via the autoLoop retry above, so the declared return
+    // type stays non-optional (WART-001).
     return (_b = unsafeWindow.shared) === null || _b === void 0 ? void 0 : _b.Hero;
 }
 // Tracks the last stat-buy attempt so a buy that does not advance the
@@ -20786,7 +20790,10 @@ class EventModule {
                     }
                 }
                 queryEventTabCheck[0].setAttribute('parsed', 'true');
-                const hhEventData = unsafeWindow.event_data || unsafeWindow.current_event;
+                // Can be undefined at runtime (logged below); the parse()
+                // functions have always received it as-is, so keep the historic
+                // non-optional type at the call sites (WART-001).
+                const hhEventData = (unsafeWindow.event_data || unsafeWindow.current_event);
                 logHHAuto(`On event page : ${eventID} (${(hhEventData === null || hhEventData === void 0 ? void 0 : hhEventData.event_name) || ''})`);
                 EventModule.clearEventData(eventID);
                 //let eventsGirlz=[];
