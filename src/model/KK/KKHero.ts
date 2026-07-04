@@ -12,7 +12,8 @@ export class KKHero {
         challenge: KKEnergy,
         kiss: KKEnergy,
         worship: KKEnergy,
-        reply: KKEnergy
+        reply: KKEnergy,
+        drill: KKEnergy
     };
     energy_fields: Record<string, unknown>;
     caracs: Record<string, number>;

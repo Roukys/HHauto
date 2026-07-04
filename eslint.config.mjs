@@ -66,6 +66,10 @@ export default [
     rules: {
       // Start conservative. Error on real bugs, warn on style issues.
       'no-unused-vars': 'off',
+      // WART-001: surface every explicit `any` as a warning so the count can
+      // only ratchet down (see lint:ci --max-warnings). New code should use
+      // concrete types or `unknown`; do not silence with eslint-disable.
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': ['warn', {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_',

@@ -245,7 +245,7 @@ describe("Booster", function() {
     beforeEach(function() {
       MockHelper.mockDomain();
       // Fixed mock: hh_ajax(params, successCb, errorCb) must invoke the callback
-      unsafeWindow.shared!.general!.hh_ajax = jest.fn((params, successCb, errorCb) => {
+      unsafeWindow.shared!.general!.hh_ajax = jest.fn((params: any, successCb: any, errorCb: any) => {
           const fakeResponse = { success: true };
           successCb(fakeResponse);
       });
@@ -324,7 +324,7 @@ describe("Booster", function() {
 
       beforeEach(function() {
         // Mock failure case: server returns success:false
-        unsafeWindow.shared!.general!.hh_ajax = jest.fn((params, successCb, errorCb) => {
+        unsafeWindow.shared!.general!.hh_ajax = jest.fn((params: any, successCb: any, errorCb: any) => {
             const fakeResponse = { success: false };
             successCb(fakeResponse);
         });
