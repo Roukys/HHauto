@@ -107,6 +107,18 @@ export class QuestHelper {
         }
         $("#popup_message close").trigger('click');
         $("#level_up close").trigger('click');
+        // A rewards popup (e.g. a girl earned at the end of a quest) overlays
+        // the quest UI; the proceed button underneath then never advances the
+        // quest and the loop repeats forever. Claim/close it before looking
+        // for a proceed button. Selectors mirror RewardHelper.closeRewardPopupIfAny
+        // / closeGirlRewardPopupIfAny; importing RewardHelper here would add
+        // new import cycles (RewardHelper -> EventModule -> ... -> Quest).
+        const rewardConfirm = $('div#rewards_popup button.blue_button_L:not([disabled]):visible, div#rewards_popup button.purple_button_L:not([disabled]):visible');
+        if (rewardConfirm.length > 0) {
+            logHHAuto("Close reward popup blocking the quest.");
+            rewardConfirm.first().trigger('click');
+            return true;
+        }
         // Get the proceed button type
         var proceedButtonMatch = $("#controls button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0)

@@ -7,8 +7,13 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
-### v8.1.4 - Fix missing survey permissions, toolchain hardening
+### v8.1.4 - Fix quest hanging on girl reward, missing survey permissions
 
+- When a quest step awarded a girl, the reward popup stayed open and blocked
+  the quest screen: the script kept clicking the proceed button underneath
+  without ever advancing — and the stuck quest block starved the whole
+  automation pipeline (no league/season/troll runs). Auto-quest now
+  claims/closes an open reward popup first, then continues with the quest.
 - The userscript header now grants `GM_xmlhttpRequest` and `GM_setClipboard`,
   which the survey feature's share/copy buttons need; without them both
   buttons would fail on the next survey activation. A new CI check keeps the
