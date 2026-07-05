@@ -146,6 +146,7 @@ export const SK = {
     autoBuyBoostersFilter: "Setting_autoBuyBoostersFilter",
     autoEquipBoosters: "Setting_autoEquipBoosters",
     autoEquipBoostersSlots: "Setting_autoEquipBoostersSlots",
+    autoEquipMythicBooster: "Setting_autoEquipMythicBooster",
     updateMarket: "Setting_updateMarket",
     showMarketTools: "Setting_showMarketTools",
 
@@ -374,6 +375,7 @@ export const TK = {
     // Misc
     sandalwoodFailure: "Temp_sandalwoodFailure",
     sandalwoodMaxUsages: "Temp_sandalwoodMaxUsages",
+    mythicEquipConflicts: "Temp_mythicEquipConflicts",
     unknownPagesList: "Temp_unknownPagesList",
     userLink: "Temp_userLink",
 

@@ -525,7 +525,11 @@ const handleAutoEquipBoosters: HandlerConfig = {
   interruptible: 'always',
   precondition: (ctx) => {
     if (ctx.busy) return false;
-    if (getStoredValue(HHStoredVarPrefixKey + SK.autoEquipBoosters) !== 'true') return false;
+    // Runs when either the normal-slot auto-equip is on, or the mythic-slot
+    // priority list is non-empty (both handled by autoEquipBoosters).
+    const normalOn = getStoredValue(HHStoredVarPrefixKey + SK.autoEquipBoosters) === 'true';
+    const mythicOn = Booster.parseMythicBoosterList().length > 0;
+    if (!normalOn && !mythicOn) return false;
     if (!checkTimer('nextAutoEquipBoosterTime')) return false;
     if (getStoredValue(HHStoredVarPrefixKey + TK.autoLoop) !== 'true') return false;
     // No lastActionPerformed gate in the legacy handler.

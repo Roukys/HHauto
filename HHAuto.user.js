@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.2.0
+// @version      8.3.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -152,6 +152,7 @@ HHAuto_ToolTips.en['autoBuyBoosters'] = { version: "5.6.25", elementText: "Myth.
 HHAuto_ToolTips.en['autoBuyBoostersFilter'] = { version: "5.37.0", elementText: "Filter", tooltip: "(values separated by ;)<br>Set list of codes of booster to buy, order is respected.<br>Code:Name<br>B1:Ginseng<br>B2:Jujubes<br>B3:Chlorella<br>B4:Cordyceps<br>MB1:Sandalwood perfume<br>MB2:All Mastery's Emblem<br>MB3:Headband of determination<br>MB4:Luxurious Watch<br>MB5:Combative Cinnamon<br>MB6:Alban's travel memories<br>MB7:Angels' semen scent<br>MB8:Leagues mastery emblem<br>MB9:Seasons mastery emblem<br>MB10:Gem Detector<br>MB11:Banger<br>MB12:Shiny Aura" };
 HHAuto_ToolTips.en['autoEquipBoosters'] = { version: "7.30.0", elementText: "Auto-Equip", tooltip: "Automatically equip legendary boosters from inventory when a slot is empty or expired.<br>Does NOT buy boosters, only equips from existing inventory." };
 HHAuto_ToolTips.en['autoEquipBoostersSlots'] = { version: "7.30.0", elementText: "Slot Config", tooltip: "(1-4 values separated by ;)<br>Define which booster to equip for each normal booster slot.<br>B1:Ginseng<br>B2:Jujubes<br>B3:Chlorella<br>B4:Cordyceps<br>Example: B1;B1;B2;B4" };
+HHAuto_ToolTips.en['autoEquipMythicBooster'] = { version: "8.3.0", elementText: "Mythic Slot", tooltip: "(up to 5 codes separated by ;)<br>Mythic boosters to keep equipped. The game offers 5 mythic slots (one equipped booster per kind): every listed booster you own that is not equipped yet is placed into a free slot, in list order (order = priority). Empty field = off.<br>Example: MB1;MB2;MB5;MB8;MB12<br>Code:Name<br>MB1:Sandalwood perfume<br>MB2:All Mastery's Emblem<br>MB3:Headband of determination<br>MB4:Luxurious Watch<br>MB5:Combative Cinnamon<br>MB6:Alban's travel memories<br>MB7:Angels' semen scent<br>MB8:Leagues mastery emblem<br>MB9:Seasons mastery emblem<br>MB10:Gem Detector<br>MB11:Banger<br>MB12:Shiny Aura<br>Equipped boosters are never replaced and nothing is bought (only equips from inventory).<br>The Sandalwood auto-equip (+Event / +Mythic / +Raid Sandalwood) keeps control of MB1: while active, MB1 on this list is skipped and one slot is kept free for Sandalwood." };
 HHAuto_ToolTips.en['autoSeasonPassReds'] = { version: "5.6.24", elementText: "Pass 3 reds", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>(" + HHAuto_ToolTips.en['spendKobans0'].elementText + " must be ON)</p>Use kobans to renew Season opponents if 3 reds" };
 HHAuto_ToolTips.en['showCalculatePower'] = { version: "6.8.0", elementText: "PowerCalc", tooltip: "Display battle simulation indicator for Leagues, battle, Seasons " };
 HHAuto_ToolTips.en['showAdsBack'] = { version: "5.34.15", elementText: "Move ads to the back", tooltip: "Move the ads section to the background." };
@@ -652,6 +653,7 @@ HHAuto_ToolTips.fr['latestTroll'] = { version: "7.23.0", elementText: "Dernier t
 HHAuto_ToolTips.en['mainAdventure'] = { version: "7.23.0", elementText: "Aventure principale", tooltip: "" };
 HHAuto_ToolTips.en['sideAdventure'] = { version: "7.23.0", elementText: "Aventure secondaire", tooltip: "" };
 HHAuto_ToolTips.en['otherTrollOption'] = { version: "7.23.0", elementText: "Autre options", tooltip: "" };
+HHAuto_ToolTips.fr['autoEquipMythicBooster'] = { version: "8.3.0", elementText: "Mythic Slot", tooltip: "(up to 5 codes separated by ;)<br>Mythic boosters to keep equipped. The game offers 5 mythic slots (one equipped booster per kind): every listed booster you own that is not equipped yet is placed into a free slot, in list order (order = priority). Empty field = off.<br>Example: MB1;MB2;MB5;MB8;MB12<br>Equipped boosters are never replaced and nothing is bought (only equips from inventory).<br>The Sandalwood auto-equip keeps control of MB1: while active, MB1 on this list is skipped and one slot is kept free for Sandalwood." };
 
 ;// ./src/i18n/de.ts
 
@@ -688,6 +690,7 @@ HHAuto_ToolTips.de['plusEvent'] = { version: "5.6.24", elementText: "+Event", to
 HHAuto_ToolTips.de['plusEventMythic'] = { version: "5.6.24", elementText: "+Mythisches Event", tooltip: "Erlaubt es Mädels beim mystischen Event abzugreifen, sollte sie nur versuchen wenn auch Teile vorhanden sind" };
 HHAuto_ToolTips.de['raidStarsSelector'] = { version: "7.35.27", elementText: "+Raid Sterne", tooltip: "Kämpfe Love Raids nach Mädchen-Grad. Unabhängig von +Raid und Auto Troll.<br>Wählt automatisch den als nächstes endenden Raid mit passendem Grad (ignoriert das Raid selector-Dropdown).<br>Passende Raids werden von +Raid Sterne beansprucht; übrige Raids gehen an +Raid (falls aktiv).<br>Die Energie-Schwelle wird über den Schalter Reserve umgehen gesteuert." };
 HHAuto_ToolTips.de['raidStarsOff'] = { version: "7.35.5", elementText: "Aus" };
+HHAuto_ToolTips.de['autoEquipMythicBooster'] = { version: "8.3.0", elementText: "Mythic Slot", tooltip: "(up to 5 codes separated by ;)<br>Mythic boosters to keep equipped. The game offers 5 mythic slots (one equipped booster per kind): every listed booster you own that is not equipped yet is placed into a free slot, in list order (order = priority). Empty field = off.<br>Example: MB1;MB2;MB5;MB8;MB12<br>Equipped boosters are never replaced and nothing is bought (only equips from inventory).<br>The Sandalwood auto-equip keeps control of MB1: while active, MB1 on this list is skipped and one slot is kept free for Sandalwood." };
 HHAuto_ToolTips.de['raidStarsExact3'] = { version: "7.35.5", elementText: "=3 ★★★" };
 HHAuto_ToolTips.de['raidStarsMin3'] = { version: "7.35.5", elementText: "≥3 ★★★" };
 HHAuto_ToolTips.de['raidStarsExact5'] = { version: "7.35.5", elementText: "=5 ★★★★★" };
@@ -809,6 +812,7 @@ HHAuto_ToolTips.es['timerResetButton'] = { version: "5.6.24", elementText: "Rest
 HHAuto_ToolTips.es['timerLeftTime'] = { version: "5.6.24", elementText: "", tooltip: "Tiempo restante" };
 HHAuto_ToolTips.es['timerResetNoTimer'] = { version: "5.6.24", elementText: "No hay temporizador seleccionado", tooltip: "" };
 HHAuto_ToolTips.es['povTitle'] = { version: "5.20.3", elementText: "Camino del Valor" };
+HHAuto_ToolTips.es['autoEquipMythicBooster'] = { version: "8.3.0", elementText: "Mythic Slot", tooltip: "(up to 5 codes separated by ;)<br>Mythic boosters to keep equipped. The game offers 5 mythic slots (one equipped booster per kind): every listed booster you own that is not equipped yet is placed into a free slot, in list order (order = priority). Empty field = off.<br>Example: MB1;MB2;MB5;MB8;MB12<br>Equipped boosters are never replaced and nothing is bought (only equips from inventory).<br>The Sandalwood auto-equip keeps control of MB1: while active, MB1 on this list is skipped and one slot is kept free for Sandalwood." };
 HHAuto_ToolTips.es['pogTitle'] = { version: "5.20.3", elementText: "Camino de la Gloria" };
 
 ;// ./src/Helper/LanguageHelper.ts
@@ -1149,6 +1153,7 @@ const SK = {
     autoBuyBoostersFilter: "Setting_autoBuyBoostersFilter",
     autoEquipBoosters: "Setting_autoEquipBoosters",
     autoEquipBoostersSlots: "Setting_autoEquipBoostersSlots",
+    autoEquipMythicBooster: "Setting_autoEquipMythicBooster",
     updateMarket: "Setting_updateMarket",
     showMarketTools: "Setting_showMarketTools",
     // Harem / Salary
@@ -1345,6 +1350,7 @@ const TK = {
     // Misc
     sandalwoodFailure: "Temp_sandalwoodFailure",
     sandalwoodMaxUsages: "Temp_sandalwoodMaxUsages",
+    mythicEquipConflicts: "Temp_mythicEquipConflicts",
     unknownPagesList: "Temp_unknownPagesList",
     userLink: "Temp_userLink",
     // Survey
@@ -1679,6 +1685,18 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoEquipBoostersSlots] =
         setMenu: true,
         menuType: "value",
         kobanUsing: false
+    };
+HHStoredVars[HHStoredVarPrefixKey + SK.autoEquipMythicBooster] =
+    {
+        default: "",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "List",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false,
+        isValid: /^(\s*(MB[1-9]|MB1[0-2])\s*(;\s*(MB[1-9]|MB1[0-2])\s*){0,4})?$/
     };
 HHStoredVars[HHStoredVarPrefixKey + SK.autoChamps] =
     {
@@ -2816,6 +2834,16 @@ HHStoredVars[HHStoredVarPrefixKey + TK.sandalwoodMaxUsages] =
         setMenu: false,
         menuType: "value",
         kobanUsing: false
+    };
+// Mythic boosters the game refused with a "conflicts with another mythic
+// booster" popup, keyed by identifier with the equipped-mythic signature at
+// refusal time. Survives page navigations (the userscript restarts on every
+// page) so a permanently conflicting booster is not re-tried every cycle --
+// it is re-tried as soon as the equipped mythic loadout changes.
+HHStoredVars[HHStoredVarPrefixKey + TK.mythicEquipConflicts] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
     };
 HHStoredVars[HHStoredVarPrefixKey + SK.updateMarket] =
     {
@@ -6588,6 +6616,7 @@ const HHAuto_inputPattern = {
     buyMythicCombTimer: "[0-9]+",
     autoBuyBoostersFilter: "(B[1-4]|MB[1-9]|MB1[1-2])(;B[1-4]|;MB[1-9]|;MB1[1-2])*",
     autoEquipBoostersSlots: "B[1-4](;B[1-4]){0,3}",
+    autoEquipMythicBooster: "(\\s*(MB[1-9]|MB1[0-2])\\s*(;\\s*(MB[1-9]|MB1[0-2])\\s*){0,4})?",
     //calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
     mousePauseTimeout: "[0-9]+",
     safeSecondsForContest: "[0-9]+",
@@ -10489,36 +10518,7 @@ class Booster {
                     }
                     let mythicUpdated = false;
                     let sandalwoodEnded = false;
-                    let sandalwood, allMastery, leagueMastery, seasonMastery, headband, watch, cinnamon, perfume;
-                    boosterStatus.mythic.forEach(booster => {
-                        switch (booster.item.identifier) {
-                            case 'MB1':
-                                sandalwood = booster;
-                                break;
-                            /*
-                        case 'MB2':
-                            allMastery = booster;
-                            break;
-                        case 'MB3':
-                            headband = booster;
-                            break;
-                        case 'MB4':
-                            watch = booster;
-                            break;
-                        case 'MB5':
-                            cinnamon = booster;
-                            break;
-                        case 'MB7':
-                            perfume = booster;
-                            break;
-                        case 'MB8':
-                            leagueMastery = booster;
-                            break;
-                        case 'MB9':
-                            seasonMastery = booster;
-                            break;*/
-                        }
-                    });
+                    const sandalwood = boosterStatus.mythic.find((booster) => { var _a; return ((_a = booster.item) === null || _a === void 0 ? void 0 : _a.identifier) === 'MB1'; });
                     if (sandalwood && action === 'do_battles_trolls') {
                         const isMultibattle = parseInt(number_of_battles || '') > 1;
                         const dosesBeforeFight = sandalwood.usages_remaining;
@@ -10558,42 +10558,9 @@ class Booster {
                             sandalwoodEnded = sandalwood.usages_remaining <= 0;
                         }
                     }
-                    /*
-                                        if (allMastery && (action === 'do_battles_leagues' || action === 'do_battles_seasons')) {
-                                            allMastery.usages_remaining -= parseInt(number_of_battles)
-                                            mythicUpdated = true
-                                        }
-                    
-                                        if (leagueMastery && (action === 'do_battles_leagues')) {
-                                            leagueMastery.usages_remaining -= parseInt(number_of_battles)
-                                            mythicUpdated = true
-                                        }
-                    
-                                        if (seasonMastery && (action === 'do_battles_seasons')) {
-                                            seasonMastery.usages_remaining -= parseInt(number_of_battles)
-                                            mythicUpdated = true
-                                        }
-                    
-                                        if (headband && (action === 'do_battles_pantheon' || action === 'do_battles_trolls')) {
-                                            headband.usages_remaining -= parseInt(number_of_battles)
-                                            mythicUpdated = true
-                                        }
-                    
-                                        if (watch && className === 'TeamBattle') {
-                                            watch.usages_remaining -= parseInt(battles_amount)
-                                            mythicUpdated = true
-                                        }
-                    
-                                        if (cinnamon && action === 'do_battles_seasons') {
-                                            cinnamon.usages_remaining -= parseInt(number_of_battles)
-                                            mythicUpdated = true
-                                        }
-                    
-                                        if (perfume && action === 'start' && className === 'TempPlaceOfPower') {
-                                            perfume.usages_remaining--
-                                            mythicUpdated = true
-                                        }
-                    */
+                    if (Booster.applyMythicUsageDecrements(boosterStatus, { action, className, number_of_battles, battles_amount })) {
+                        mythicUpdated = true;
+                    }
                     boosterStatus.mythic = boosterStatus.mythic.filter(({ usages_remaining }) => usages_remaining > 0);
                     setStoredValue(HHStoredVarPrefixKey + TK.boosterStatus, JSON.stringify(boosterStatus));
                     /*if (mythicUpdated) {
@@ -10624,6 +10591,57 @@ class Booster {
             })();
         });
     }
+    /**
+     * Live usage tracking for the mythic boosters whose consumption is a
+     * plain per-action decrement (issue #1781). Unlike Sandalwood -- whose
+     * consumption has to be derived from the shard drops in the battle
+     * response, see collectBoostersFromAjaxResponses -- these boosters burn
+     * one usage per battle of their game mode. Keeping the counters current
+     * means an expired booster drops out of boosterStatus WITHOUT a market
+     * visit: the equip logic sees the freed slot (and a remembered bonus
+     * conflict clears) right away. MB6/MB10-MB12 have no known per-action
+     * rule and stay market-scrape-only. Only entries with a numeric
+     * usages_remaining are touched; everything else waits for the next
+     * market scrape. Returns true when any counter changed.
+     */
+    static applyMythicUsageDecrements(boosterStatus, params) {
+        var _a, _b, _c;
+        const { action, className } = params;
+        const battles = parseInt(params.number_of_battles || '');
+        const teamBattles = parseInt(params.battles_amount || '');
+        const costFor = (identifier) => {
+            switch (identifier) {
+                case 'MB2': // All Mastery's Emblem: league AND season fights
+                    return (action === 'do_battles_leagues' || action === 'do_battles_seasons') ? battles : 0;
+                case 'MB3': // Headband of determination: pantheon + troll fights
+                    return (action === 'do_battles_pantheon' || action === 'do_battles_trolls') ? battles : 0;
+                case 'MB4': // Luxurious Watch: team battles
+                    return className === 'TeamBattle' ? teamBattles : 0;
+                case 'MB5': // Combative Cinnamon: season fights
+                    return action === 'do_battles_seasons' ? battles : 0;
+                case 'MB7': // Angels' semen scent: Place of Power starts
+                    return (action === 'start' && className === 'TempPlaceOfPower') ? 1 : 0;
+                case 'MB8': // Leagues mastery emblem: league fights
+                    return action === 'do_battles_leagues' ? battles : 0;
+                case 'MB9': // Seasons mastery emblem: season fights
+                    return action === 'do_battles_seasons' ? battles : 0;
+                default: // MB1 is shard-tracked; MB6/MB10-MB12 market-only.
+                    return 0;
+            }
+        };
+        let changed = false;
+        for (const booster of boosterStatus.mythic) {
+            if (typeof booster.usages_remaining !== 'number')
+                continue;
+            const cost = costFor((_b = (_a = booster.item) === null || _a === void 0 ? void 0 : _a.identifier) !== null && _b !== void 0 ? _b : '');
+            if (!Number.isFinite(cost) || cost <= 0)
+                continue;
+            booster.usages_remaining -= cost;
+            changed = true;
+            logHHAuto("Mythic usage tracking: " + ((_c = booster.item) === null || _c === void 0 ? void 0 : _c.identifier) + " -" + cost + " -> " + booster.usages_remaining + " uses left.");
+        }
+        return changed;
+    }
     static needBoosterStatusFromStore() {
         const isEventAutoSandalWood = getStoredValue(HHStoredVarPrefixKey + SK.plusEventSandalWood) === "true";
         const isMythicAutoSandalWood = getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythicSandalWood) === "true";
@@ -10632,7 +10650,8 @@ class Booster {
         const isSeasonWithBooster = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonBoostedOnly) === "true";
         const isPantheonWithBooster = getStoredValue(HHStoredVarPrefixKey + SK.autoPantheonBoostedOnly) === "true";
         const isAutoEquipBoosters = getStoredValue(HHStoredVarPrefixKey + SK.autoEquipBoosters) === "true";
-        return isLeagueWithBooster || isSeasonWithBooster || isPantheonWithBooster || isEventAutoSandalWood || isMythicAutoSandalWood || isLoveRaidAutoSandalWood || isAutoEquipBoosters;
+        const isAutoEquipMythicBooster = Booster.parseMythicBoosterList().length > 0;
+        return isLeagueWithBooster || isSeasonWithBooster || isPantheonWithBooster || isEventAutoSandalWood || isMythicAutoSandalWood || isLoveRaidAutoSandalWood || isAutoEquipBoosters || isAutoEquipMythicBooster;
     }
     static getBoosterFromStorage() {
         return getStoredJSON(HHStoredVarPrefixKey + TK.boosterStatus, DEFAULT_BOOSTERS);
@@ -10795,17 +10814,53 @@ class Booster {
         return randomInterval(15 * 60, 45 * 60);
     }
     /**
+     * Short re-check window (seconds) for still-equippable wanted mythics. Kept
+     * above the 10-minute boosterStatus freshness TTL (see hasFreshBoosterStatus)
+     * so a re-check does not force a fresh market visit every time, but far below
+     * a normal booster's runtime so free mythic slots are filled promptly
+     * instead of waiting for the normal boosters to expire (issue #1781).
+     */
+    static getMythicRecheckDelay() {
+        return randomInterval(5 * 60, 8 * 60);
+    }
+    /**
      * Schedules the next auto-equip check based on the longest-running active booster
      * plus a random delay (15-45 min). If no boosters are active, schedules immediately
      * with just the random delay.
+     *
+     * When `mythicRecheckSoon` is true the delay is capped to a short window
+     * (getMythicRecheckDelay): the mythic slots are an independent goal and must
+     * not wait for the normal boosters to expire before they are filled.
+     *
+     * When `conflictWaiting` is true (a wanted mythic booster is blocked by a
+     * remembered bonus conflict) the delay is capped to ~45-60 min: each check
+     * refreshes boosterStatus from the market when stale, so an expired
+     * clashing booster is noticed within the hour even when its expiry is not
+     * live-tracked -- a safety net on top of applyMythicUsageDecrements.
      */
-    static scheduleNextEquipCheck() {
+    static scheduleNextEquipCheck(mythicRecheckSoon = false, conflictWaiting = false) {
         const longestRemaining = Booster.getLongestBoosterRemainingSeconds();
         const randomDelay = Booster.getRandomEquipDelay();
-        const totalDelay = longestRemaining + randomDelay;
-        const delayMin = Math.floor(totalDelay / 60);
-        logHHAuto("Auto-equip: Next check in " + delayMin + " min (booster expires in "
-            + Math.floor(longestRemaining / 60) + " min + " + Math.floor(randomDelay / 60) + " min random delay).");
+        const normalDelay = longestRemaining + randomDelay;
+        let totalDelay = normalDelay;
+        if (mythicRecheckSoon) {
+            totalDelay = Math.min(normalDelay, Booster.getMythicRecheckDelay());
+        }
+        else if (conflictWaiting) {
+            totalDelay = Math.min(normalDelay, randomInterval(45 * 60, 60 * 60));
+        }
+        if (mythicRecheckSoon && totalDelay < normalDelay) {
+            logHHAuto("Auto-equip: Next check in " + Math.floor(totalDelay / 60)
+                + " min (shortened: a wanted mythic booster is still equippable, not waiting for the normal boosters to expire).");
+        }
+        else if (conflictWaiting && totalDelay < normalDelay) {
+            logHHAuto("Auto-equip: Next check in " + Math.floor(totalDelay / 60)
+                + " min (capped: a wanted mythic booster waits on a bonus conflict; re-checking hourly).");
+        }
+        else {
+            logHHAuto("Auto-equip: Next check in " + Math.floor(totalDelay / 60) + " min (booster expires in "
+                + Math.floor(longestRemaining / 60) + " min + " + Math.floor(randomDelay / 60) + " min random delay).");
+        }
         setTimer('nextAutoEquipBoosterTime', totalDelay);
     }
     /**
@@ -10820,6 +10875,10 @@ class Booster {
             const cachedInventory = getStoredJSON(HHStoredVarPrefixKey + TK.haveBooster, {});
             logHHAuto("Auto-equip: Cached boosterIdMap = " + JSON.stringify(cachedIdMap));
             logHHAuto("Auto-equip: Cached haveBooster (qty) = " + JSON.stringify(cachedInventory));
+            // The normal-slot auto-equip only runs when its own master switch is on.
+            // The mythic-slot auto-equip is an independent setting (autoEquipMythicBooster).
+            const normalAutoEquipOn = getStoredValue(HHStoredVarPrefixKey + SK.autoEquipBoosters) === "true";
+            const mythicPriorityList = Booster.parseMythicBoosterList();
             // Ensure we have booster data from the market before trying to equip
             if (!Booster.hasBoosterDataFromMarket()) {
                 logHHAuto("Auto-equip: No booster data from market. Navigating to market first.");
@@ -10834,14 +10893,37 @@ class Booster {
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
                 return true; // Signal busy — market visit will refresh boosterStatus via collectBoostersFromMarket
             }
+            // Fill free mythic slots with the boosters from the user's priority
+            // list (one equipped booster per kind). This is independent of the
+            // normal-slot config: it only ever fills free slots, never replaces an
+            // equipped booster, and leaves MB1 plus one reserved slot to the
+            // Sandalwood automation while that is active (see autoEquipMythicBoosters).
+            const mythicEquipped = mythicPriorityList.length > 0 ? yield Booster.autoEquipMythicBoosters(mythicPriorityList) : false;
+            // The mythic slots are an independent goal. If a wanted booster is
+            // still equippable (owned, not equipped, and a usable free slot left
+            // after the Sandalwood reservation), the next check must come soon
+            // rather than being tied to the normal boosters' runtime (issue #1781).
+            // The inventory check keeps us from short-polling (and re-visiting the
+            // market) for boosters we do not own. Computed AFTER the equip pass so
+            // freshly equipped boosters count as done.
+            const mythicWantedStillEquippable = Booster.hasEquippableMythicWanted(mythicPriorityList);
+            // A wanted booster blocked by a remembered bonus conflict: cap the
+            // next check at ~1h so the market refresh notices the clashing
+            // booster's expiry even when it is not live-tracked.
+            const mythicConflictWaiting = mythicPriorityList.some((id) => Booster.isMythicConflictRemembered(id));
+            if (!normalAutoEquipOn) {
+                // Only the mythic-slot auto-equip was requested — skip normal slots.
+                Booster.scheduleNextEquipCheck(mythicWantedStillEquippable, mythicConflictWaiting);
+                return mythicEquipped;
+            }
             const boostersToEquip = Booster.getBoostersToEquip();
             if (boostersToEquip.length === 0) {
                 logHHAuto("Auto-equip: All booster slots active.");
-                Booster.scheduleNextEquipCheck();
-                return false;
+                Booster.scheduleNextEquipCheck(mythicWantedStillEquippable, mythicConflictWaiting);
+                return mythicEquipped;
             }
             logHHAuto("Auto-equip: Need to equip " + boostersToEquip.length + " booster(s): " + boostersToEquip.join(', '));
-            let anyEquipped = false;
+            let anyEquipped = mythicEquipped;
             try {
                 for (const nextBoosterId of boostersToEquip) {
                     const boosterObj = Booster.getBoosterByIdentifier(nextBoosterId);
@@ -10869,9 +10951,253 @@ class Booster {
             }
             finally {
                 // Always schedule next check, even on error
-                Booster.scheduleNextEquipCheck();
+                Booster.scheduleNextEquipCheck(mythicWantedStillEquippable, mythicConflictWaiting);
             }
             return anyEquipped;
+        });
+    }
+    /**
+     * Parses the mythic auto-equip setting into an ordered priority list of
+     * booster identifiers (e.g. ["MB9", "MB2"]). The stored value is a
+     * ";"-separated list of up to 5 codes (MB1..MB12); surrounding whitespace is
+     * trimmed. An empty field means "off" and yields an empty list. Invalid
+     * codes are dropped and the list is capped at 5 entries. Order = priority:
+     * every listed booster that fits a free mythic slot is equipped (the game
+     * offers MYTHIC_SLOT_COUNT slots, one equipped booster per kind).
+     */
+    static parseMythicBoosterList() {
+        const raw = getStoredValue(HHStoredVarPrefixKey + SK.autoEquipMythicBooster);
+        if (!raw || typeof raw !== "string" || raw.trim() === "") {
+            return [];
+        }
+        const parsed = raw
+            .split(";")
+            .map((s) => s.trim().toUpperCase())
+            .filter((s) => /^MB([1-9]|1[0-2])$/.test(s));
+        if (parsed.length === 0) {
+            logHHAuto("Auto-equip mythic: no valid codes in '" + raw + "', treating as off.");
+        }
+        return parsed.slice(0, 5);
+    }
+    /**
+     * True when any of the Sandalwood auto-equip automations is active. Mirrors
+     * the exact activation checks used by needSandalWoodEquipped /
+     * equipeSandalWoodIfNeeded. The Sandalwood automation keeps control of MB1,
+     * so the priority-list auto-equip skips MB1 and keeps one mythic slot free
+     * for Sandalwood while any of these automations is active.
+     */
+    static isSandalwoodAutomationActive() {
+        const activatedEvent = getStoredValue(HHStoredVarPrefixKey + SK.plusEvent) === "true" && getStoredValue(HHStoredVarPrefixKey + SK.plusEventSandalWood) === "true";
+        const activatedMythic = getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythic) === "true" && getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythicSandalWood) === "true";
+        const activatedLoveRaid = LoveRaidManager.isAnyActivated() && getStoredValue(HHStoredVarPrefixKey + SK.plusEventLoveRaidSandalWood) === "true";
+        return activatedEvent || activatedMythic || activatedLoveRaid;
+    }
+    /** Identifiers of the currently equipped mythic boosters (defensive against missing item data). */
+    static getEquippedMythicIdentifiers() {
+        const boosterStatus = Booster.getBoosterFromStorage();
+        return new Set(boosterStatus.mythic
+            .map((b) => { var _a; return (_a = b.item) === null || _a === void 0 ? void 0 : _a.identifier; })
+            .filter((id) => !!id));
+    }
+    /**
+     * Number of mythic slots the priority-list auto-equip may fill right now:
+     * MYTHIC_SLOT_COUNT minus the equipped mythics, minus one slot reserved for
+     * the Sandalwood automation when it is active and MB1 is not equipped yet
+     * (Sandalwood has priority for that slot).
+     */
+    static getFreeMythicSlots() {
+        const equipped = Booster.getEquippedMythicIdentifiers();
+        let free = Booster.MYTHIC_SLOT_COUNT - Booster.getBoosterFromStorage().mythic.length;
+        if (Booster.isSandalwoodAutomationActive() && !equipped.has(Booster.SANDALWOOD_IDENTIFIER)) {
+            free -= 1; // keep one slot free for the Sandalwood automation
+        }
+        return Math.max(0, free);
+    }
+    /**
+     * Signature of the currently equipped mythic loadout, used to key the
+     * conflict memory: a booster the game refused as conflicting stays
+     * skipped exactly as long as this signature is unchanged.
+     */
+    static getMythicLoadoutSignature() {
+        return Array.from(Booster.getEquippedMythicIdentifiers()).sort().join(",");
+    }
+    /** Conflict memory (identifier -> loadout signature at refusal time). */
+    static getMythicConflicts() {
+        return getStoredJSON(HHStoredVarPrefixKey + TK.mythicEquipConflicts, {});
+    }
+    /**
+     * True when the game refused this booster as conflicting while the SAME
+     * mythic loadout was equipped as now. Entries for outdated loadouts are
+     * pruned, so the booster is automatically re-tried once the equipped
+     * mythics change (e.g. the conflicting one expired).
+     */
+    static isMythicConflictRemembered(identifier) {
+        const conflicts = Booster.getMythicConflicts();
+        if (!(identifier in conflicts))
+            return false;
+        if (conflicts[identifier] === Booster.getMythicLoadoutSignature())
+            return true;
+        delete conflicts[identifier];
+        setStoredValue(HHStoredVarPrefixKey + TK.mythicEquipConflicts, JSON.stringify(conflicts));
+        return false;
+    }
+    /** Record a refused equip for the current loadout. */
+    static rememberMythicConflict(identifier) {
+        const conflicts = Booster.getMythicConflicts();
+        conflicts[identifier] = Booster.getMythicLoadoutSignature();
+        setStoredValue(HHStoredVarPrefixKey + TK.mythicEquipConflicts, JSON.stringify(conflicts));
+    }
+    /**
+     * True when at least one booster from the priority list could still be
+     * equipped: not equipped yet, present in inventory, not refused as
+     * conflicting under the current loadout, and a usable free mythic slot
+     * remains (after the Sandalwood reservation). MB1 does not count while
+     * the Sandalwood automation is active — it is handled there.
+     * Used to schedule a soon re-check instead of the long cooldown.
+     */
+    static hasEquippableMythicWanted(priorityList) {
+        if (priorityList.length === 0)
+            return false;
+        if (Booster.getFreeMythicSlots() <= 0)
+            return false;
+        const sandalwoodActive = Booster.isSandalwoodAutomationActive();
+        const equipped = Booster.getEquippedMythicIdentifiers();
+        return priorityList.some((id) => !(sandalwoodActive && id === Booster.SANDALWOOD_IDENTIFIER)
+            && !equipped.has(id)
+            && !Booster.isMythicConflictRemembered(id)
+            && HeroHelper.haveBoosterInInventory(id));
+    }
+    /**
+     * Equips the priority-list mythic boosters into free mythic slots. The game
+     * offers MYTHIC_SLOT_COUNT slots with at most one equipped booster per
+     * kind: every listed booster that is owned and not equipped yet is placed
+     * into a free slot, in list order (order = priority). While the Sandalwood
+     * automation is active it keeps control of MB1: the code is skipped here
+     * and one slot is kept free for Sandalwood as long as MB1 is not equipped.
+     * Equipped boosters are never replaced; equipping costs no Kobans and
+     * purchasing stays the responsibility of autoBuyBoostersFilter.
+     * Returns true when at least one booster was equipped.
+     */
+    static autoEquipMythicBoosters(priorityList) {
+        return Booster_awaiter(this, void 0, void 0, function* () {
+            if (priorityList.length === 0) {
+                return false;
+            }
+            const sandalwoodActive = Booster.isSandalwoodAutomationActive();
+            const equippedNow = Booster.getEquippedMythicIdentifiers();
+            let free = Booster.getFreeMythicSlots();
+            if (free <= 0) {
+                const reserved = sandalwoodActive && !equippedNow.has(Booster.SANDALWOOD_IDENTIFIER);
+                logHHAuto("Auto-equip mythic: no free mythic slot"
+                    + (reserved ? " (one slot is reserved for the Sandalwood automation)" : "")
+                    + ", leaving equipped boosters untouched.");
+                return false;
+            }
+            // Don't fight a recent equip failure.
+            if (Booster.isEquipOnCooldown()) {
+                logHHAuto("Auto-equip mythic: equip on cooldown, skipping.");
+                return false;
+            }
+            let anyEquipped = false;
+            let conflictSeen = false;
+            for (const identifier of priorityList) {
+                if (free <= 0) {
+                    logHHAuto("Auto-equip mythic: no free slot left for the remaining list entries.");
+                    break;
+                }
+                if (sandalwoodActive && identifier === Booster.SANDALWOOD_IDENTIFIER) {
+                    logHHAuto("Auto-equip mythic: MB1 is managed by the Sandalwood automation, skipping.");
+                    continue;
+                }
+                if (equippedNow.has(identifier)) {
+                    logHHAuto("Auto-equip mythic: " + identifier + " already equipped, skipping.");
+                    continue;
+                }
+                if (Booster.isMythicConflictRemembered(identifier)) {
+                    logHHAuto("Auto-equip mythic: " + identifier + " conflicts with the current mythic loadout, skipping until the equipped mythics change.");
+                    continue;
+                }
+                if (!HeroHelper.haveBoosterInInventory(identifier)) {
+                    logHHAuto("Auto-equip mythic: " + identifier + " not in inventory, skipping.");
+                    continue;
+                }
+                const boosterObj = Booster.getBoosterByIdentifier(identifier);
+                if (!boosterObj) {
+                    logHHAuto("Auto-equip mythic: could not resolve " + identifier + " from market data, skipping.");
+                    continue;
+                }
+                const equipped = yield HeroHelper.equipBooster(boosterObj);
+                if (equipped) {
+                    logHHAuto("Auto-equip mythic: successfully equipped " + boosterObj.name);
+                    anyEquipped = true;
+                    free--;
+                    equippedNow.add(identifier);
+                    // boosterStatus in storage only refreshes on the next market
+                    // visit; record the fresh equip immediately so this pass and
+                    // the follow-up scheduling see the slot as taken.
+                    Booster.markBoosterAsEquippedInStorage(boosterObj);
+                }
+                else if (yield Booster.dismissMythicConflictPopup()) {
+                    // Differently named boosters can carry the SAME in-game bonus;
+                    // the game then refuses the equip with a conflict popup. Not an
+                    // error state: remember the refusal for the current loadout
+                    // (re-tried automatically once the equipped mythics change)
+                    // and keep equipping the rest of the list.
+                    Booster.rememberMythicConflict(identifier);
+                    conflictSeen = true;
+                    logHHAuto("Auto-equip mythic: " + boosterObj.name + " conflicts with an already equipped mythic booster, skipping it until the equipped mythics change.");
+                    continue;
+                }
+                else {
+                    logHHAuto("Auto-equip mythic: failed to equip " + boosterObj.name + ". Slot may be occupied server-side.");
+                    break;
+                }
+            }
+            if (conflictSeen) {
+                // The conflict popup ignores every synthetic close attempt (click,
+                // jQuery trigger, pointer sequence, DOM removal of the matched
+                // node) -- a reload is the one reliable way to clear it. Thanks to
+                // the conflict memory this happens at most once per loadout
+                // change, not every cycle. safeReload waits for in-flight AJAX
+                // (e.g. the equips above) to settle first.
+                logHHAuto("Auto-equip mythic: reloading the page to clear the conflict popup.");
+                safeReload();
+            }
+            return anyEquipped;
+        });
+    }
+    /**
+     * Detects the game's "you cannot equip this booster, it conflicts with
+     * another mythic booster already equipped" popup after a refused equip,
+     * dismisses it (so popups do not stack up) and reports whether the
+     * failure was such a conflict. Polls briefly because the popup renders
+     * asynchronously after the AJAX response.
+     */
+    static dismissMythicConflictPopup() {
+        return Booster_awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const deadline = Date.now() + Booster.MYTHIC_CONFLICT_POPUP_WAIT_MS;
+            for (;;) {
+                const textEl = Array.from(document.querySelectorAll("div.text"))
+                    .find((el) => Booster.MYTHIC_CONFLICT_TEXT.test(el.textContent || ""));
+                if (textEl) {
+                    // This popup cannot be closed with synthetic clicks: native
+                    // .click(), jQuery trigger('click'), a full pointer/mouse
+                    // event sequence and an overlay click were all verified
+                    // ineffective in the field (the game seems to accept only
+                    // trusted user events on its "X"). The refusal already
+                    // happened server-side and the window is purely
+                    // informational, so remove it from the DOM instead.
+                    const box = (_a = textEl.closest('[class*="popup"], [id*="popup"], #sliding-popups > *')) !== null && _a !== void 0 ? _a : textEl.parentElement;
+                    logHHAuto("Auto-equip mythic: removing conflict popup ("
+                        + (box ? box.tagName + (box.id ? "#" + box.id : "") + (box.className ? "." + String(box.className).split(" ").join(".") : "") : "?") + ").");
+                    box === null || box === void 0 ? void 0 : box.remove();
+                    return true;
+                }
+                if (Date.now() >= deadline)
+                    return false;
+                yield new Promise((resolve) => setTimeout(resolve, 400));
+            }
         });
     }
     /**
@@ -11121,12 +11447,20 @@ class Booster {
 }
 /** Sandalwood identifier constant — id_item is resolved from market data or env config at runtime. */
 Booster.SANDALWOOD_IDENTIFIER = "MB1";
+/** Number of mythic booster slots the game offers (one equipped booster per kind). */
+Booster.MYTHIC_SLOT_COUNT = 5;
 /** Flag: true if AJAX response arrived before waitForBattleResponse() was called */
 Booster._battleResponseReady = false;
 /** Resolver: set when waitForBattleResponse() is waiting; called by notifyBattleResponseProcessed() */
 Booster._battleResponseResolve = null;
 /** TTL for boosterStatus freshness in milliseconds (10 minutes). */
 Booster.BOOSTER_STATUS_TTL_MS = 10 * 60 * 1000;
+/** Text the game's error popup shows when a mythic booster clashes with an
+ *  equipped one that grants the same in-game bonus under another name. */
+Booster.MYTHIC_CONFLICT_TEXT = /conflicts? with another mythic booster/i;
+/** How long to wait for the conflict popup to render after a refused
+ *  equip. A class field so tests can shorten it. */
+Booster.MYTHIC_CONFLICT_POPUP_WAIT_MS = 2000;
 
 ;// ./src/Module/Events/Season.ts
 var Season_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -25705,6 +26039,9 @@ function buildRightColumn() {
         + hhMenuSwitch('autoEquipBoosters')
         + hhMenuInput('autoEquipBoostersSlots', HHAuto_inputPattern.autoEquipBoostersSlots, 'text-align:center; width:70px')
         + `</div>`
+        + `<div class="internalOptionsRow" style="justify-content: flex-end">`
+        + hhMenuInput('autoEquipMythicBooster', HHAuto_inputPattern.autoEquipMythicBooster, 'text-align:center; width:70px')
+        + `</div>`
         + `<div class="internalOptionsRow">`
         + hhMenuSwitchWithImg('showMarketTools', 'design/menu/panel.svg')
         + hhMenuSwitch('updateMarket')
@@ -29864,7 +30201,11 @@ const handleAutoEquipBoosters = {
     precondition: (ctx) => {
         if (ctx.busy)
             return false;
-        if (getStoredValue(HHStoredVarPrefixKey + SK.autoEquipBoosters) !== 'true')
+        // Runs when either the normal-slot auto-equip is on, or the mythic-slot
+        // priority list is non-empty (both handled by autoEquipBoosters).
+        const normalOn = getStoredValue(HHStoredVarPrefixKey + SK.autoEquipBoosters) === 'true';
+        const mythicOn = Booster.parseMythicBoosterList().length > 0;
+        if (!normalOn && !mythicOn)
             return false;
         if (!checkTimer('nextAutoEquipBoosterTime'))
             return false;

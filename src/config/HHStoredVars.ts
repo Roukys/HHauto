@@ -98,6 +98,18 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoEquipBoostersSlots] =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey + SK.autoEquipMythicBooster] =
+    {
+    default:"",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false,
+    isValid: /^(\s*(MB[1-9]|MB1[0-2])\s*(;\s*(MB[1-9]|MB1[0-2])\s*){0,4})?$/
+};
 HHStoredVars[HHStoredVarPrefixKey + SK.autoChamps] =
     {
     default:"false",
@@ -1251,6 +1263,16 @@ HHStoredVars[HHStoredVarPrefixKey + TK.sandalwoodMaxUsages] =
     setMenu:false,
     menuType:"value",
     kobanUsing:false
+};
+// Mythic boosters the game refused with a "conflicts with another mythic
+// booster" popup, keyed by identifier with the equipped-mythic signature at
+// refusal time. Survives page navigations (the userscript restarts on every
+// page) so a permanently conflicting booster is not re-tried every cycle --
+// it is re-tried as soon as the equipped mythic loadout changes.
+HHStoredVars[HHStoredVarPrefixKey + TK.mythicEquipConflicts] =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
 };
 HHStoredVars[HHStoredVarPrefixKey + SK.updateMarket] =
     {

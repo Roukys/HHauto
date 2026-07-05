@@ -3,8 +3,20 @@ import {
 } from '../../src/Module/Booster'
 import { HeroHelper } from '../../src/Helper/HeroHelper'
 import { HHStoredVarPrefixKey } from '../../src/config/HHStoredVars';
-import { Timers, setTimer, checkTimer } from '../../src/Helper/TimerHelper';
+import { Timers, setTimer, checkTimer, clearTimer, getSecondsLeft } from '../../src/Helper/TimerHelper';
+import { safeReload } from '../../src/Service/PageNavigationService';
 import { MockHelper } from "../testHelpers/MockHelpers";
+
+// Booster reloads the page after a mythic conflict (the game's conflict popup
+// cannot be closed programmatically); mock navigation so tests never touch
+// window.location.
+jest.mock('../../src/Service/PageNavigationService', () => ({
+    ...jest.requireActual('../../src/Service/PageNavigationService'),
+    gotoPage: jest.fn(),
+    safeReload: jest.fn(),
+    safeNavigateHref: jest.fn(),
+}));
+const safeReloadMock = safeReload as jest.Mock;
 
 // Test fixtures — booster objects are no longer hardcoded statics on Booster class
 const TEST_GINSENG = {id_item: "316", identifier: "B1", name: "Ginseng root", rarity: "legendary"};
@@ -377,6 +389,444 @@ describe("Booster", function() {
         // hh_ajax should NOT have been called
         expect(unsafeWindow.shared!.general!.hh_ajax).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("parseMythicBoosterList", function() {
+    it("returns empty list by default (off)", function() {
+      expect(Booster.parseMythicBoosterList()).toEqual([]);
+    });
+    it("returns empty list for an empty field", function() {
+      MockHelper.mockSetting('autoEquipMythicBooster', '');
+      expect(Booster.parseMythicBoosterList()).toEqual([]);
+    });
+    it("parses a single code", function() {
+      MockHelper.mockSetting('autoEquipMythicBooster', 'MB9');
+      expect(Booster.parseMythicBoosterList()).toEqual(['MB9']);
+    });
+    it("parses an ordered priority list", function() {
+      MockHelper.mockSetting('autoEquipMythicBooster', 'MB9;MB2;MB12');
+      expect(Booster.parseMythicBoosterList()).toEqual(['MB9', 'MB2', 'MB12']);
+    });
+    it("trims whitespace around codes", function() {
+      MockHelper.mockSetting('autoEquipMythicBooster', 'MB1; MB2 ;MB5');
+      expect(Booster.parseMythicBoosterList()).toEqual(['MB1', 'MB2', 'MB5']);
+    });
+    it("drops invalid codes", function() {
+      MockHelper.mockSetting('autoEquipMythicBooster', 'B1;MB2;MB13');
+      expect(Booster.parseMythicBoosterList()).toEqual(['MB2']);
+    });
+    it("caps the list at 5 entries", function() {
+      MockHelper.mockSetting('autoEquipMythicBooster', 'MB1;MB2;MB3;MB4;MB5;MB6');
+      expect(Booster.parseMythicBoosterList()).toEqual(['MB1', 'MB2', 'MB3', 'MB4', 'MB5']);
+    });
+  });
+
+  describe("isSandalwoodAutomationActive", function() {
+    it("false by default", function() {
+      expect(Booster.isSandalwoodAutomationActive()).toBeFalsy();
+    });
+    it("true when +Mythic Sandalwood active", function() {
+      MockHelper.mockSetting('plusEventMythic', 'true');
+      MockHelper.mockSetting('plusEventMythicSandalWood', 'true');
+      expect(Booster.isSandalwoodAutomationActive()).toBeTruthy();
+    });
+    it("false when only the trigger is on but Sandalwood toggle off", function() {
+      MockHelper.mockSetting('plusEventMythic', 'true');
+      MockHelper.mockSetting('plusEventMythicSandalWood', 'false');
+      expect(Booster.isSandalwoodAutomationActive()).toBeFalsy();
+    });
+  });
+
+  describe("autoEquipMythicBoosters", function() {
+    // 5 mythic slots, one equipped booster per kind: every listed booster that
+    // is owned and not equipped yet goes into a free slot (list order =
+    // priority). Sandalwood keeps MB1 plus one reserved slot while active.
+    const TEST_SEASON_MASTERY = {id_item: "638", identifier: "MB9", name: "Seasons mastery emblem", rarity: "mythic"};
+    const TEST_ALL_MASTERY = {id_item: "633", identifier: "MB2", name: "All Mastery's Emblem", rarity: "mythic"};
+    let ajaxSpy: jest.Mock;
+
+    function sentIdItems(): string[] {
+      return ajaxSpy.mock.calls.map((c) => c[0].id_item);
+    }
+
+    beforeEach(function() {
+      MockHelper.mockDomain();
+      ajaxSpy = jest.fn((_params: unknown, successCb: (data: unknown) => void) => {
+          successCb({ success: true });
+      });
+      unsafeWindow.shared!.general!.hh_ajax = ajaxSpy as (...args: unknown[]) => unknown;
+      // Market data so getBoosterByIdentifier can resolve MB9 / MB2 / MB1
+      setupBoosterIdMap([TEST_GINSENG, TEST_SANDALWOOD, TEST_SEASON_MASTERY, TEST_ALL_MASTERY]);
+      // Inventory holds one MB9
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{"MB9":1}');
+      // No mythic booster equipped
+      MockHelper.mockBoosterInventory({ mythic: [] });
+    });
+
+    it("empty list -> no-op", async function() {
+      const result = await Booster.autoEquipMythicBoosters([]);
+      expect(result).toBeFalsy();
+      expect(ajaxSpy).not.toHaveBeenCalled();
+    });
+
+    it("free slots + inventory present -> equips", async function() {
+      const result = await Booster.autoEquipMythicBoosters(['MB9']);
+      expect(result).toBeTruthy();
+      expect(sentIdItems()).toEqual(['638']);
+      // Fresh equip is tracked in storage right away (before the next market visit).
+      expect(Booster.haveBoosterEquiped('MB9')).toBeTruthy();
+    });
+
+    it("equips EVERY listed booster that is owned and fits a free slot", async function() {
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{"MB9":1,"MB2":1}');
+      const result = await Booster.autoEquipMythicBoosters(['MB9', 'MB2']);
+      expect(result).toBeTruthy();
+      // Both equipped, in priority order.
+      expect(sentIdItems()).toEqual(['638', '633']);
+      expect(Booster.haveBoosterEquiped('MB9')).toBeTruthy();
+      expect(Booster.haveBoosterEquiped('MB2')).toBeTruthy();
+    });
+
+    it("skips codes already equipped (one booster per kind)", async function() {
+      MockHelper.mockBoosterInventory({ mythic: ['MB9'] });
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{"MB9":1,"MB2":1}');
+      const result = await Booster.autoEquipMythicBoosters(['MB9', 'MB2']);
+      expect(result).toBeTruthy();
+      // Only MB2 equipped; MB9 was already active.
+      expect(sentIdItems()).toEqual(['633']);
+    });
+
+    it("skips codes not in inventory and continues down the list", async function() {
+      // MB9 is first in the list but not in inventory; MB2 is owned -> equip MB2 only.
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{"MB2":1}');
+      const result = await Booster.autoEquipMythicBoosters(['MB9', 'MB2']);
+      expect(result).toBeTruthy();
+      expect(sentIdItems()).toEqual(['633']);
+    });
+
+    it("all 5 mythic slots taken -> no-op (never replaces)", async function() {
+      MockHelper.mockBoosterInventory({ mythic: ['MB3', 'MB4', 'MB5', 'MB10', 'MB11'] });
+      const result = await Booster.autoEquipMythicBoosters(['MB9']);
+      expect(result).toBeFalsy();
+      expect(ajaxSpy).not.toHaveBeenCalled();
+    });
+
+    it("none of the list in inventory -> no-op", async function() {
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{}');
+      const result = await Booster.autoEquipMythicBoosters(['MB9', 'MB2']);
+      expect(result).toBeFalsy();
+      expect(ajaxSpy).not.toHaveBeenCalled();
+    });
+
+    it("Sandalwood active: MB1 on the list is skipped, others still equip", async function() {
+      MockHelper.mockSetting('plusEventMythic', 'true');
+      MockHelper.mockSetting('plusEventMythicSandalWood', 'true');
+      // MB1 already equipped by the Sandalwood automation; MB1 also listed.
+      MockHelper.mockBoosterInventory({ mythic: ['MB1'] });
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{"MB1":1,"MB2":1,"MB9":1}');
+      const result = await Booster.autoEquipMythicBoosters(['MB1', 'MB2', 'MB9']);
+      expect(result).toBeTruthy();
+      // MB1 left to the Sandalwood logic; MB2 and MB9 equipped alongside it.
+      expect(sentIdItems()).toEqual(['633', '638']);
+    });
+
+    it("Sandalwood active + MB1 not equipped: one slot stays reserved", async function() {
+      MockHelper.mockSetting('plusEventMythic', 'true');
+      MockHelper.mockSetting('plusEventMythicSandalWood', 'true');
+      // 4 of 5 slots taken, MB1 not among them -> the last slot is reserved
+      // for Sandalwood, so nothing from the list may be equipped.
+      MockHelper.mockBoosterInventory({ mythic: ['MB3', 'MB4', 'MB5', 'MB10'] });
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{"MB2":1}');
+      const result = await Booster.autoEquipMythicBoosters(['MB2']);
+      expect(result).toBeFalsy();
+      expect(ajaxSpy).not.toHaveBeenCalled();
+    });
+
+    it("stops equipping when the free slots run out", async function() {
+      // 4 of 5 slots taken, no Sandalwood -> exactly one usable slot for two
+      // owned codes: only the first is equipped.
+      MockHelper.mockBoosterInventory({ mythic: ['MB3', 'MB4', 'MB5', 'MB10'] });
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{"MB9":1,"MB2":1}');
+      const result = await Booster.autoEquipMythicBoosters(['MB9', 'MB2']);
+      expect(result).toBeTruthy();
+      expect(sentIdItems()).toEqual(['638']);
+    });
+
+    it("skips while the equip cooldown is armed", async function() {
+      Booster.setEquipCooldown(300);
+      const result = await Booster.autoEquipMythicBoosters(['MB9']);
+      expect(result).toBeFalsy();
+      expect(ajaxSpy).not.toHaveBeenCalled();
+      clearTimer('nextBoosterEquipTime');
+    });
+
+    it("a bonus conflict skips only that booster: popup dismissed, remembered until the loadout changes", async function() {
+      // Maintainer's real case: MB2 (All Mastery) equips fine; MB9 then
+      // clashes with it (same in-game bonus) -> server refuses, the game
+      // shows its conflict popup (no OK button, only the "X" close element).
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{"MB9":1,"MB2":1}');
+      ajaxSpy.mockImplementation((params: { id_item: string }, successCb: (data: unknown) => void) => {
+        if (params.id_item === '638') {
+          document.body.innerHTML =
+            `<div class="popup"><div class="text">You cannot equip this booster, it conflicts with another mythic booster already equipped.</div>`
+            + `<close id="conflictClose" class="closable"></close></div>`;
+          successCb({ success: false });
+        } else {
+          successCb({ success: true });
+        }
+      });
+      safeReloadMock.mockClear();
+      const result = await Booster.autoEquipMythicBoosters(['MB2', 'MB9']);
+
+      expect(result).toBeTruthy();
+      expect(sentIdItems()).toEqual(['633', '638']); // MB2 equipped, MB9 attempted
+      // The popup cannot be closed programmatically -> the page is reloaded
+      // once to clear it (at most once per loadout change).
+      expect(safeReloadMock).toHaveBeenCalledTimes(1);
+      expect(Booster.haveBoosterEquiped('MB2')).toBeTruthy();
+      expect(Booster.haveBoosterEquiped('MB9')).toBeFalsy();
+      document.body.innerHTML = "";
+
+      // The refusal is remembered for the current loadout: another pass does
+      // NOT re-attempt MB9 (no popup flashing / reload churn every cycle)...
+      ajaxSpy.mockClear();
+      safeReloadMock.mockClear();
+      await Booster.autoEquipMythicBoosters(['MB2', 'MB9']);
+      expect(sentIdItems()).toEqual([]); // MB2 equipped, MB9 conflict-remembered
+      expect(safeReloadMock).not.toHaveBeenCalled(); // no repeated reloads
+      // ...and the short re-check no longer counts MB9 as equippable.
+      expect(Booster.hasEquippableMythicWanted(['MB2', 'MB9'])).toBeFalsy();
+
+      // Once the equipped mythic loadout changes, MB9 is re-tried.
+      MockHelper.mockBoosterInventory({ mythic: ['MB5'] });
+      expect(Booster.isMythicConflictRemembered('MB9')).toBeFalsy(); // memory pruned
+      ajaxSpy.mockClear();
+      ajaxSpy.mockImplementation((_params: unknown, successCb: (data: unknown) => void) => {
+        successCb({ success: true });
+      });
+      await Booster.autoEquipMythicBoosters(['MB9']);
+      expect(sentIdItems()).toEqual(['638']); // re-attempted after loadout change
+    });
+
+    it("an unknown equip failure (no conflict popup) still stops the pass", async function() {
+      const savedWait = Booster.MYTHIC_CONFLICT_POPUP_WAIT_MS;
+      Booster.MYTHIC_CONFLICT_POPUP_WAIT_MS = 50; // don't wait 2s in the test
+      try {
+        sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{"MB9":1,"MB2":1}');
+        ajaxSpy.mockImplementation((params: { id_item: string }, successCb: (data: unknown) => void) => {
+          successCb({ success: params.id_item !== '638' });
+        });
+        const result = await Booster.autoEquipMythicBoosters(['MB9', 'MB2']);
+        expect(result).toBeFalsy();
+        expect(sentIdItems()).toEqual(['638']); // stopped, MB2 not attempted
+      } finally {
+        Booster.MYTHIC_CONFLICT_POPUP_WAIT_MS = savedWait;
+      }
+    });
+  });
+
+  describe("applyMythicUsageDecrements (live usage tracking, issue 1781)", function() {
+    function status(mythic: any[]) { return { mythic }; }
+    const entry = (id: string, uses: number | undefined) => ({ item: { identifier: id }, usages_remaining: uses });
+
+    it("burns league fights on MB8 and MB2, but not MB9", function() {
+      const s = status([entry('MB8', 10), entry('MB2', 5), entry('MB9', 7)]);
+      const changed = Booster.applyMythicUsageDecrements(s, { action: 'do_battles_leagues', number_of_battles: '3' });
+      expect(changed).toBe(true);
+      expect(s.mythic.map(b => b.usages_remaining)).toEqual([7, 2, 7]);
+    });
+
+    it("burns season fights on MB9, MB2 and MB5", function() {
+      const s = status([entry('MB9', 7), entry('MB2', 5), entry('MB5', 4), entry('MB8', 10)]);
+      Booster.applyMythicUsageDecrements(s, { action: 'do_battles_seasons', number_of_battles: '2' });
+      expect(s.mythic.map(b => b.usages_remaining)).toEqual([5, 3, 2, 10]);
+    });
+
+    it("burns one Place-of-Power start on MB7", function() {
+      const s = status([entry('MB7', 3)]);
+      Booster.applyMythicUsageDecrements(s, { action: 'start', className: 'TempPlaceOfPower' });
+      expect(s.mythic[0].usages_remaining).toBe(2);
+    });
+
+    it("never touches MB1 (shard-tracked) or unmapped boosters", function() {
+      const s = status([entry('MB1', 9), entry('MB10', 9)]);
+      const changed = Booster.applyMythicUsageDecrements(s, { action: 'do_battles_trolls', number_of_battles: '5' });
+      expect(changed).toBe(false);
+      expect(s.mythic.map(b => b.usages_remaining)).toEqual([9, 9]);
+    });
+
+    it("skips entries without a numeric counter and unparsable battle counts", function() {
+      const s = status([entry('MB8', undefined), entry('MB8', 10)]);
+      const changed = Booster.applyMythicUsageDecrements(s, { action: 'do_battles_leagues', number_of_battles: null });
+      expect(changed).toBe(false);
+      expect(s.mythic[1].usages_remaining).toBe(10);
+    });
+
+    it("an expired counter changes the loadout signature -> a remembered conflict clears", function() {
+      // MB2 equipped -> MB8 conflict remembered against that loadout.
+      MockHelper.mockBoosterInventory({ mythic: ['MB2'] });
+      Booster.rememberMythicConflict('MB8');
+      expect(Booster.isMythicConflictRemembered('MB8')).toBeTruthy();
+
+      // Battles burn MB2 down to 0; the interceptor's filter drops it. Here we
+      // mirror that end state in storage: MB2 gone.
+      MockHelper.mockBoosterInventory({ mythic: [] });
+      expect(Booster.isMythicConflictRemembered('MB8')).toBeFalsy(); // pruned -> MB8 re-tried
+    });
+  });
+
+  describe("scheduleNextEquipCheck conflict cap (issue 1781)", function() {
+    beforeEach(function() {
+      clearTimer('nextAutoEquipBoosterTime');
+      // Normal boosters with ~3h left -> the uncapped delay is hours.
+      MockHelper.mockBoosterInventory({ normal: [{ identifier: 'B1', secondsLeft: 3 * 3600 }] });
+    });
+    afterEach(function() {
+      clearTimer('nextAutoEquipBoosterTime');
+    });
+
+    it("caps at ~1h while a wanted mythic waits on a bonus conflict", function() {
+      Booster.scheduleNextEquipCheck(false, true);
+      const secondsLeft = getSecondsLeft('nextAutoEquipBoosterTime');
+      expect(secondsLeft).toBeGreaterThan(0);
+      expect(secondsLeft).toBeLessThanOrEqual(60 * 60);
+    });
+
+    it("keeps the full booster-runtime delay without a waiting conflict", function() {
+      Booster.scheduleNextEquipCheck(false, false);
+      expect(getSecondsLeft('nextAutoEquipBoosterTime')).toBeGreaterThan(60 * 60);
+    });
+
+    it("the short mythic re-check wins over the conflict cap", function() {
+      Booster.scheduleNextEquipCheck(true, true);
+      expect(getSecondsLeft('nextAutoEquipBoosterTime')).toBeLessThanOrEqual(8 * 60);
+    });
+  });
+
+  describe("scheduleNextEquipCheck mythic short re-check (issue 1781)", function() {
+    // The mythic slot is an independent goal: an empty slot must not wait for
+    // the normal boosters to expire before it is re-checked. When
+    // mythicRecheckSoon is true the delay is capped to the short window.
+    beforeEach(function() {
+      clearTimer('nextAutoEquipBoosterTime');
+      // One normal booster with ~3h left, so the normal delay would be far
+      // longer than the short mythic re-check window.
+      MockHelper.mockBoosterInventory({ normal: [{ identifier: 'B1', secondsLeft: 3 * 3600 }] });
+    });
+    afterEach(function() {
+      clearTimer('nextAutoEquipBoosterTime');
+    });
+
+    it("caps the next check to the short window when the mythic slot is still open", function() {
+      Booster.scheduleNextEquipCheck(true);
+      const secondsLeft = getSecondsLeft('nextAutoEquipBoosterTime');
+      // Short window is 5-8 min; must be far below the ~3h normal delay.
+      expect(secondsLeft).toBeGreaterThan(0);
+      expect(secondsLeft).toBeLessThanOrEqual(8 * 60);
+    });
+
+    it("uses the full booster-runtime delay when the mythic slot is not open", function() {
+      Booster.scheduleNextEquipCheck(false);
+      const secondsLeft = getSecondsLeft('nextAutoEquipBoosterTime');
+      // Normal delay = ~3h remaining + 15-45 min random, well over an hour.
+      expect(secondsLeft).toBeGreaterThan(60 * 60);
+    });
+
+    it("never lengthens the delay: with no active boosters the cap still applies", function() {
+      // No active normal boosters -> normal delay is just the 15-45 min random,
+      // but the short re-check must still shorten it to <= 8 min.
+      MockHelper.mockBoosterInventory({ normal: [] });
+      Booster.scheduleNextEquipCheck(true);
+      const secondsLeft = getSecondsLeft('nextAutoEquipBoosterTime');
+      expect(secondsLeft).toBeGreaterThan(0);
+      expect(secondsLeft).toBeLessThanOrEqual(8 * 60);
+    });
+  });
+
+  describe("autoEquipBoosters equippable-mythic scheduling (issue 1781)", function() {
+    // End-to-end: when a wanted mythic booster is still equippable (owned, not
+    // equipped, usable free slot) but was not equipped this cycle (e.g. equip
+    // cooldown), the next auto-equip check must be scheduled soon rather than
+    // tied to the normal boosters' 3h runtime.
+    const TEST_SEASON_MASTERY = {id_item: "638", identifier: "MB9", name: "Seasons mastery emblem", rarity: "mythic"};
+    let scheduleSpy: jest.SpyInstance;
+
+    beforeEach(function() {
+      MockHelper.mockDomain();
+      unsafeWindow.shared!.general!.hh_ajax = jest.fn((_p: unknown, cb: (d: unknown) => void) => cb({ success: true })) as (...args: unknown[]) => unknown;
+      // Market data present + fresh, so autoEquipBoosters does not bail out to
+      // the market-navigation guards.
+      setupBoosterIdMap([TEST_GINSENG, TEST_SANDALWOOD, TEST_SEASON_MASTERY]);
+      sessionStorage.setItem(HHStoredVarPrefixKey + "Temp_haveBooster", '{"MB9":1}');
+      sessionStorage.setItem(HHStoredVarPrefixKey + "Temp_boosterStatusLastUpdate", String(Date.now()));
+      // No mythic equipped, one normal booster with ~3h left.
+      MockHelper.mockBoosterInventory({ normal: [{ identifier: 'B1', secondsLeft: 3 * 3600 }], mythic: [] });
+      // Mythic wanted, normal-slot auto-equip off (mythic-only path).
+      MockHelper.mockSetting('autoEquipMythicBooster', 'MB9');
+      MockHelper.mockSetting('autoEquipBoosters', 'false');
+      scheduleSpy = jest.spyOn(Booster, 'scheduleNextEquipCheck').mockImplementation(() => {});
+    });
+    afterEach(function() {
+      scheduleSpy.mockRestore();
+      clearTimer('nextBoosterEquipTime');
+    });
+
+    it("schedules a soon re-check when the wanted mythic is only blocked by the equip cooldown", async function() {
+      Booster.setEquipCooldown(300); // equip on cooldown -> mythic not equipped this cycle
+      await Booster.autoEquipBoosters();
+      expect(scheduleSpy).toHaveBeenCalledWith(true, expect.any(Boolean));
+    });
+
+    it("does not shorten when the wanted booster is not in inventory", async function() {
+      sessionStorage.setItem(HHStoredVarPrefixKey + "Temp_haveBooster", '{}');
+      await Booster.autoEquipBoosters();
+      expect(scheduleSpy).toHaveBeenCalledWith(false, expect.any(Boolean));
+    });
+
+    it("does not shorten when all 5 mythic slots are taken", async function() {
+      Booster.setEquipCooldown(300); // block the equip so only slot accounting decides
+      MockHelper.mockBoosterInventory({ normal: [{ identifier: 'B1', secondsLeft: 3 * 3600 }], mythic: ['MB3', 'MB4', 'MB5', 'MB10', 'MB11'] });
+      await Booster.autoEquipBoosters();
+      expect(scheduleSpy).toHaveBeenCalledWith(false, expect.any(Boolean));
+    });
+
+    it("does not shorten when the only free slot is reserved for Sandalwood", async function() {
+      MockHelper.mockSetting('plusEventMythic', 'true');
+      MockHelper.mockSetting('plusEventMythicSandalWood', 'true');
+      // 4 of 5 slots taken, MB1 not equipped -> last slot reserved for Sandalwood.
+      MockHelper.mockBoosterInventory({ normal: [{ identifier: 'B1', secondsLeft: 3 * 3600 }], mythic: ['MB3', 'MB4', 'MB5', 'MB10'] });
+      await Booster.autoEquipBoosters();
+      expect(scheduleSpy).toHaveBeenCalledWith(false, expect.any(Boolean));
+    });
+
+    it("shortens under active Sandalwood when a free slot remains for the wanted booster", async function() {
+      MockHelper.mockSetting('plusEventMythic', 'true');
+      MockHelper.mockSetting('plusEventMythicSandalWood', 'true');
+      Booster.setEquipCooldown(300); // equip blocked this cycle -> MB9 stays wanted
+      // MB1 equipped by Sandalwood, plenty of free slots left for MB9.
+      MockHelper.mockBoosterInventory({ normal: [{ identifier: 'B1', secondsLeft: 3 * 3600 }], mythic: ['MB1'] });
+      await Booster.autoEquipBoosters();
+      expect(scheduleSpy).toHaveBeenCalledWith(true, expect.any(Boolean));
+    });
+
+    it("does not shorten once every wanted mythic has just been equipped", async function() {
+      // No cooldown: MB9 is owned and a slot is free, so it equips this
+      // cycle -> nothing wanted remains -> normal (long) schedule.
+      clearTimer('nextBoosterEquipTime');
+      await Booster.autoEquipBoosters();
+      expect(scheduleSpy).toHaveBeenCalledWith(false, expect.any(Boolean));
+    });
+
+    it("does not shorten when owned-but-wanted codes have no free slot left after the pass", async function() {
+      // 4 of 5 slots taken, list has two owned codes: MB9 fills the last
+      // slot, MB2 stays wanted but no usable slot remains -> long schedule.
+      clearTimer('nextBoosterEquipTime');
+      MockHelper.mockSetting('autoEquipMythicBooster', 'MB9;MB2');
+      sessionStorage.setItem(HHStoredVarPrefixKey + "Temp_haveBooster", '{"MB9":1,"MB2":1}');
+      MockHelper.mockBoosterInventory({ normal: [{ identifier: 'B1', secondsLeft: 3 * 3600 }], mythic: ['MB3', 'MB4', 'MB5', 'MB10'] });
+      await Booster.autoEquipBoosters();
+      expect(scheduleSpy).toHaveBeenCalledWith(false, expect.any(Boolean));
     });
   });
 
