@@ -12,7 +12,6 @@
 //
 // Used by: AutoLoop (stat upgrades on burst), Booster module (equip),
 //          BDSM simulator (hero stats for fight prediction)
-import { autoLoop } from "../Service/AutoLoop";
 import { addNutakuSession } from "../Service/PageNavigationService";
 import { logHHAuto } from "../Utils/LogUtils";
 import { getHHAjax, isJSON } from "../Utils/Utils";
@@ -24,11 +23,20 @@ import { getHHVars } from "./HHHelper";
 import { deleteStoredValue, getStoredJSON, getStoredValue, setStoredValue } from "./StorageHelper";
 import { randomInterval } from "./TimeHelper";
 
+// AutoLoop retry kick, injected from the boot path (src/index.ts) instead of
+// a static Helper -> Service/AutoLoop import: that edge routed HeroHelper
+// through 154 of the baseline import cycles (ARCH-001; same pattern as
+// setPachinkoAutoLoopKick, lesson zirkulaerer-import-tdz-crash).
+let autoLoopKick: () => void = () => {};
+export function setHeroAutoLoopKick(kick: () => void) {
+    autoLoopKick = kick;
+}
+
 export function getHero():KKHero
 {
     if(unsafeWindow.shared?.Hero === undefined)
     {
-        setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+TK.autoLoopTimeMili)) || 1000);
+        setTimeout(autoLoopKick, Number(getStoredValue(HHStoredVarPrefixKey+TK.autoLoopTimeMili)) || 1000);
         //logHHAuto(window.wrappedJSObject)
     }
     // Historic contract: callers treat a missing Hero as "page not ready"
@@ -170,7 +178,7 @@ export class HeroHelper {
                 settled = true;
                 if (timeoutId !== null) clearTimeout(timeoutId);
                 setStoredValue(HHStoredVarPrefixKey+TK.autoLoop, "true");
-                setTimeout(autoLoop,randomInterval(500,800));
+                setTimeout(autoLoopKick,randomInterval(500,800));
                 resolve(value);
             };
 
