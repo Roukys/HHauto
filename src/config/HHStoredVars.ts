@@ -1602,6 +1602,26 @@ HHStoredVars[HHStoredVarPrefixKey + SK.showAdsBack] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey + SK.autoAdsClick] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function(this: HTMLInputElement)
+            {
+                if (this.checked)
+                {
+                    // Re-check reward ads promptly once the user enables it.
+                    clearTimer('nextAdsTime');
+                }
+            }
+           }
+};
 HHStoredVars[HHStoredVarPrefixKey + SK.showRewardsRecap] =
     {
     default:"true",
