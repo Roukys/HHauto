@@ -238,6 +238,7 @@ export const SK = {
     showRewardsRecap: "Setting_showRewardsRecap",
     showTooltips: "Setting_showTooltips",
     showAdsBack: "Setting_showAdsBack",
+    autoAdsClick: "Setting_autoAdsClick",
     mousePause: "Setting_mousePause",
     mousePauseTimeout: "Setting_mousePauseTimeout",
     collectAllTimer: "Setting_collectAllTimer",

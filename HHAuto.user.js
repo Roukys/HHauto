@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.1.7
+// @version      8.4.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -101,9 +101,8 @@ GM_addStyle('#girl_preview_popup #poses-tab_container .pose-preview_wrapper.lock
 
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
-var __webpack_exports__ = {};
 
-;// CONCATENATED MODULE: ./src/i18n/empty.ts
+;// ./src/i18n/empty.ts
 const HHAuto_ToolTips = { en: {}, fr: {}, es: {}, de: {}, it: {} };
 const w = (typeof unsafeWindow == 'undefined') ? window : unsafeWindow;
 var hhTimerLocale = w.Phoenix ? w.Phoenix.language : null;
@@ -123,7 +122,7 @@ else {
     timerDefinitions = { 'en': { days: "d", hours: "h", minutes: "m", seconds: "s" } };
 }
 
-;// CONCATENATED MODULE: ./src/i18n/en.ts
+;// ./src/i18n/en.ts
 
 HHAuto_ToolTips.en['saveDebug'] = { version: "5.6.24", elementText: "Save Debug", tooltip: "Allow to produce a debug log file." };
 HHAuto_ToolTips.en['gitHub'] = { version: "5.6.24", elementText: "GitHub", tooltip: "Link to GitHub project." };
@@ -156,6 +155,7 @@ HHAuto_ToolTips.en['autoEquipBoostersSlots'] = { version: "7.30.0", elementText:
 HHAuto_ToolTips.en['autoSeasonPassReds'] = { version: "5.6.24", elementText: "Pass 3 reds", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>(" + HHAuto_ToolTips.en['spendKobans0'].elementText + " must be ON)</p>Use kobans to renew Season opponents if 3 reds" };
 HHAuto_ToolTips.en['showCalculatePower'] = { version: "6.8.0", elementText: "PowerCalc", tooltip: "Display battle simulation indicator for Leagues, battle, Seasons " };
 HHAuto_ToolTips.en['showAdsBack'] = { version: "5.34.15", elementText: "Move ads to the back", tooltip: "Move the ads section to the background." };
+HHAuto_ToolTips.en['autoAdsClick'] = { version: "8.4.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
 //HHAuto_ToolTips.en['calculatePowerLimits'] = { version: "5.6.24", elementText: "Own limits", tooltip: "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
 HHAuto_ToolTips.en['showInfo'] = { version: "5.6.24", elementText: "Show info", tooltip: "if enabled : show info on script values and next runs" };
 HHAuto_ToolTips.en['showInfoLeft'] = { version: "5.23.0", elementText: "Show info Left", tooltip: "Show info on left side vs on right side" };
@@ -501,7 +501,7 @@ HHAuto_ToolTips.en['sideAdventure'] = { version: "7.23.0", elementText: "Side ad
 HHAuto_ToolTips.en['otherTrollOption'] = { version: "7.23.0", elementText: "Others", tooltip: "" };
 //HHAuto_ToolTips.en['scriptWarning'] = { version: "7.4.0", elementText: "Warning", tooltip: "An issue is detected in bot execution, open menu and logs for more info"};
 
-;// CONCATENATED MODULE: ./src/i18n/fr.ts
+;// ./src/i18n/fr.ts
 
 HHAuto_ToolTips.fr['saveDebug'] = { version: "5.6.24", elementText: "Sauver log", tooltip: "Sauvegarder un fichier journal de débogage." };
 HHAuto_ToolTips.fr['gitHub'] = { version: "5.6.24", elementText: "GitHub", tooltip: "Lien vers le projet GitHub." };
@@ -520,6 +520,7 @@ HHAuto_ToolTips.fr['autoBuyBoostersFilter'] = { version: "5.6.24", elementText: 
 HHAuto_ToolTips.fr['autoSeasonPassReds'] = { version: "5.6.24", elementText: "Passer 3 rouges", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>(" + HHAuto_ToolTips.fr['spendKobans0'].elementText + " doit être activé)</p>Utilise des kobans pour renouveler les adversaires de la saison si PowerCalc détermine 3 combats rouges (perdus)." };
 HHAuto_ToolTips.fr['showCalculatePower'] = { version: "6.8.0", elementText: "PowerCalc", tooltip: "Si activé : affiche le résultat des calculs du module PowerCalc (Simulateur de combats pour Ligues, Trolls, Saisons)." };
 HHAuto_ToolTips.fr['showAdsBack'] = { version: "5.34.15", elementText: "Move ads to the back", tooltip: "Si activé : deplace les pubs à l'arrière plan." };
+HHAuto_ToolTips.fr['autoAdsClick'] = { version: "8.4.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
 //HHAuto_ToolTips.fr['calculatePowerLimits'] = { version: "5.6.24", elementText: "Limites perso", tooltip: "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
 HHAuto_ToolTips.fr['showInfo'] = { version: "5.6.24", elementText: "Infos", tooltip: "Si activé : affiche une fenêtre d'informations sur le script." };
 HHAuto_ToolTips.fr['showInfoLeft'] = { version: "5.23.0", elementText: "Infos à gauche", tooltip: "Affiche la fenêtre d'information à gauche plutot qu'à droite" };
@@ -652,13 +653,14 @@ HHAuto_ToolTips.en['mainAdventure'] = { version: "7.23.0", elementText: "Aventur
 HHAuto_ToolTips.en['sideAdventure'] = { version: "7.23.0", elementText: "Aventure secondaire", tooltip: "" };
 HHAuto_ToolTips.en['otherTrollOption'] = { version: "7.23.0", elementText: "Autre options", tooltip: "" };
 
-;// CONCATENATED MODULE: ./src/i18n/de.ts
+;// ./src/i18n/de.ts
 
 HHAuto_ToolTips.de['saveDebug'] = { version: "5.6.24", elementText: "Save Debug", tooltip: "Erlaube das Erstellen einer Debug Log Datei." };
 HHAuto_ToolTips.de['gitHub'] = { version: "5.6.24", elementText: "GitHub", tooltip: "Link zum GitHub Projekt." };
 HHAuto_ToolTips.de['saveConfig'] = { version: "5.6.24", elementText: "Save Config", tooltip: "Erlaube die Einstellung zu speichern." };
 HHAuto_ToolTips.de['loadConfig'] = { version: "5.6.24", elementText: "Load Config", tooltip: "Erlaube die Einstellung zu laden." };
 HHAuto_ToolTips.de['master'] = { version: "5.6.24", elementText: "Master Schalter", tooltip: "An/Aus Schalter für das Skript" };
+HHAuto_ToolTips.de['autoAdsClick'] = { version: "8.4.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
 HHAuto_ToolTips.de['settPerTab'] = { version: "5.6.24", elementText: "Einstellung per Tab", tooltip: "Erlaube die Einstellungen nur für diesen Tab zu setzen." };
 HHAuto_ToolTips.de['paranoia'] = { version: "5.6.24", elementText: "Paranoia Modus", tooltip: "Erlaube es Schlaf zu simulieren und einen menschlichen Nutzer (wird weiter dokumentiert)" };
 HHAuto_ToolTips.de['paranoiaSpendsBefore'] = { version: "5.6.24", elementText: "Gib Punkte aus vor...", tooltip: "Wenn gewollt, werden Punkte für Optionen ausgegeben (Quest, Troll, Liga und Season)<br> nur wenn sie aktiviert sind<br>und gibt Punkt aus die über dem maximal Limit sind<br> z.B.: Du hast die Power für Troll von 17, gehst aber für 4h45 in den Paranoia Modus,<br> dass heißt 17+10 Punkte (aufgerundet), welches über dem Max von 20 wäre.<br> Es würden dann 9 Punkte ausgegeben, sodass du nur bei 19 Punkten bleibst bis zum Ende des Paranoia Modus um einen Verlust zu verhindern." };
@@ -726,13 +728,14 @@ HHAuto_ToolTips.de['sandalwoodMinShardsThreshold'] = { version: "7.34.16", eleme
 HHAuto_ToolTips.de['povTitle'] = { version: "5.20.3", elementText: "Pfad der Tapferkeit (PoV)" };
 HHAuto_ToolTips.de['pogTitle'] = { version: "5.20.3", elementText: "Pfad des Ruhmes (PoG)" };
 
-;// CONCATENATED MODULE: ./src/i18n/es.ts
+;// ./src/i18n/es.ts
 
 HHAuto_ToolTips.es['saveDebug'] = { version: "5.6.24", elementText: "Salvar Debug", tooltip: "Permite generar un fichero log de depuración." };
 HHAuto_ToolTips.es['gitHub'] = { version: "5.6.24", elementText: "GitHub", tooltip: "Link al proyecto GitHub." };
 HHAuto_ToolTips.es['saveConfig'] = { version: "5.6.24", elementText: "Salvar config.", tooltip: "Permite salvar la configuración." };
 HHAuto_ToolTips.es['loadConfig'] = { version: "5.6.24", elementText: "Cargar config", tooltip: "Permite cargar la configuración." };
 HHAuto_ToolTips.es['master'] = { version: "5.6.24", elementText: "Switch maestro", tooltip: "Interruptor de Encendido/Apagado para el script completo" };
+HHAuto_ToolTips.es['autoAdsClick'] = { version: "8.4.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
 HHAuto_ToolTips.es['settPerTab'] = { version: "5.6.24", elementText: "Configuración por ventana", tooltip: "Aplica las opciones sólo a esta ventana" };
 HHAuto_ToolTips.es['paranoia'] = { version: "5.6.24", elementText: "Modo Paranoia", tooltip: "Permite simular sueño, y un usuario humano (Pendiente de documentación)" };
 HHAuto_ToolTips.es['paranoiaSpendsBefore'] = { version: "5.6.24", elementText: "Gasta puntos antes", tooltip: "\'On\' gastará puntos para opciones (aventura, villanos, ligas y temporada) sólo si éstos están habilitados y gasta puntos que estarían por encima de los límites máximos.<br>Ej : Tienes energia para 17 combates de villanos, pero estarás 4h45m en paranoia.<br> Esto es tener 17+10 combates (redondeado al entero superior), estando así por encima del máximo de 20<br> gastará 8 combates para quedar con 19 al final de la Paranoia, evitando perder puntos." };
@@ -808,7 +811,7 @@ HHAuto_ToolTips.es['timerResetNoTimer'] = { version: "5.6.24", elementText: "No 
 HHAuto_ToolTips.es['povTitle'] = { version: "5.20.3", elementText: "Camino del Valor" };
 HHAuto_ToolTips.es['pogTitle'] = { version: "5.20.3", elementText: "Camino de la Gloria" };
 
-;// CONCATENATED MODULE: ./src/Helper/LanguageHelper.ts
+;// ./src/Helper/LanguageHelper.ts
 // LanguageHelper.ts
 //
 // Handles UI text localization for the HHAuto menu and tooltips.
@@ -889,7 +892,7 @@ function getTextForUI(id, type) {
             return defaultLanguageText;
         }
         else {
-            LogUtils_logHHAuto("not found text for " + HHAuto_Lang + "/" + id + "/" + type);
+            logHHAuto("not found text for " + HHAuto_Lang + "/" + id + "/" + type);
             return HHAuto_Lang + "/" + id + "/" + type + " not found.";
         }
     }
@@ -1010,7 +1013,7 @@ function manageTranslationPopUp() {
     }
 }
 
-;// CONCATENATED MODULE: ./src/config/StorageKeys.ts
+;// ./src/config/StorageKeys.ts
 /**
  * Centralized storage key constants.
  * Use these instead of raw strings like HHStoredVarPrefixKey+"Setting_autoTrollBattle"
@@ -1223,6 +1226,7 @@ const SK = {
     showRewardsRecap: "Setting_showRewardsRecap",
     showTooltips: "Setting_showTooltips",
     showAdsBack: "Setting_showAdsBack",
+    autoAdsClick: "Setting_autoAdsClick",
     mousePause: "Setting_mousePause",
     mousePauseTimeout: "Setting_mousePauseTimeout",
     collectAllTimer: "Setting_collectAllTimer",
@@ -1368,7 +1372,7 @@ const TK = {
     trollWaitForEnergy: "Temp_trollWaitForEnergy",
 };
 
-;// CONCATENATED MODULE: ./src/Helper/TimeHelper.ts
+;// ./src/Helper/TimeHelper.ts
 // TimeHelper.ts
 //
 // Time-related utilities: converting between human-readable durations
@@ -1458,28 +1462,28 @@ function convertTimeToInt(remainingTimer, failSafe = true) {
                         newTimer += parseInt(splittedTime[i]);
                         break;
                     default:
-                        LogUtils_logHHAuto('Timer symbol not recognized: ' + timerSymbol);
+                        logHHAuto('Timer symbol not recognized: ' + timerSymbol);
                 }
             }
         }
         catch ({ errName, message }) {
             if (failSafe) {
-                LogUtils_logHHAuto(`ERROR: occured, reset to 15min: ${errName}, ${message}`);
+                logHHAuto(`ERROR: occured, reset to 15min: ${errName}, ${message}`);
                 newTimer = randomInterval(15 * 60, 17 * 60);
             }
             else {
-                LogUtils_logHHAuto(`ERROR: occured, return -1: ${errName}, ${message}`);
+                logHHAuto(`ERROR: occured, return -1: ${errName}, ${message}`);
                 newTimer = -1;
             }
         }
     }
     else {
         if (failSafe) {
-            LogUtils_logHHAuto('No valid timer definitions, reset to 15min');
+            logHHAuto('No valid timer definitions, reset to 15min');
             newTimer = randomInterval(15 * 60, 17 * 60);
         }
         else {
-            LogUtils_logHHAuto('No valid timer definitions, return -1');
+            logHHAuto('No valid timer definitions, return -1');
             newTimer = -1;
         }
     }
@@ -1492,7 +1496,7 @@ function randomInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-;// CONCATENATED MODULE: ./src/Helper/TimerHelper.ts
+;// ./src/Helper/TimerHelper.ts
 // TimerHelper.ts
 //
 // Manages named cooldown timers that prevent actions from running too
@@ -1523,7 +1527,7 @@ function setTimer(name, seconds) {
     var ND = new Date().getTime() + seconds * 1000;
     Timers[name] = ND;
     setStoredValue(HHStoredVarPrefixKey + TK.Timers, JSON.stringify(Timers));
-    LogUtils_logHHAuto(name + " set to " + TimeHelper.toHHMMSS(ND / 1000 - new Date().getTimezoneOffset() * 60) + ' (' + TimeHelper.toHHMMSS(seconds) + ')');
+    logHHAuto(name + " set to " + TimeHelper.toHHMMSS(ND / 1000 - new Date().getTimezoneOffset() * 60) + ' (' + TimeHelper.toHHMMSS(seconds) + ')');
 }
 function clearTimer(name) {
     delete Timers[name];
@@ -1577,7 +1581,7 @@ function getTimeLeft(name) {
     return TimeHelper.toHHMMSS(diff);
 }
 
-;// CONCATENATED MODULE: ./src/config/HHStoredVars.ts
+;// ./src/config/HHStoredVars.ts
 // Registry of all stored variables (settings and temporary state) for HHAuto.
 // Defines each variable's storage type (setting vs. temp), default value,
 // validation regex, UI label, and type. Used by the settings menu and storage layer.
@@ -1594,11 +1598,11 @@ function cleanTempPopToStart() {
     deleteStoredValue(HHStoredVarPrefixKey + TK.PopUnableToStart);
     deleteStoredValue(HHStoredVarPrefixKey + TK.PopToStart);
 }
-const HHStoredVars_HHStoredVars = {};
+const HHStoredVars = {};
 //Settings Vars
 const HHStoredVarPrefixKey = "HHAuto_"; // default HHAuto_
 //Do not move, has to be first one
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.settPerTab] =
+HHStoredVars[HHStoredVarPrefixKey + SK.settPerTab] =
     {
         default: "false",
         storage: "localStorage",
@@ -1610,7 +1614,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.settPerTab] =
         kobanUsing: false
     };
 // Rest of settings vars
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoAff] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoAff] =
     {
         default: "500000000",
         storage: "Storage()",
@@ -1621,7 +1625,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoAff] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoAffW] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoAffW] =
     {
         default: "false",
         storage: "Storage()",
@@ -1632,7 +1636,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoAffW] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyBoosters] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyBoosters] =
     {
         default: "false",
         storage: "Storage()",
@@ -1643,7 +1647,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyBoosters] =
         menuType: "checked",
         kobanUsing: true
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyBoostersFilter] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyBoostersFilter] =
     {
         default: "B1;B2;B3;B4",
         storage: "Storage()",
@@ -1654,7 +1658,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyBoostersFilter] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoEquipBoosters] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoEquipBoosters] =
     {
         default: "false",
         storage: "Storage()",
@@ -1665,7 +1669,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoEquipBoosters] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoEquipBoostersSlots] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoEquipBoostersSlots] =
     {
         default: "B1;B2;B3;B4",
         storage: "Storage()",
@@ -1676,7 +1680,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoEquipBoostersSlots] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChamps] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoChamps] =
     {
         default: "false",
         storage: "Storage()",
@@ -1690,7 +1694,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChamps] =
             clearTimer('nextChampionTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampAlignTimer] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoChampAlignTimer] =
     {
         default: "false",
         storage: "Storage()",
@@ -1701,7 +1705,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampAlignTimer] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsForceStart] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsForceStart] =
     {
         default: "false",
         storage: "Storage()",
@@ -1715,7 +1719,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsForceStart] =
             clearTimer('nextChampionTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsFilter] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsFilter] =
     {
         default: "1;2;3;4;5;6",
         storage: "Storage()",
@@ -1729,7 +1733,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsFilter] =
             clearTimer('nextChampionTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsTeamLoop] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsTeamLoop] =
     {
         default: "10",
         storage: "Storage()",
@@ -1740,7 +1744,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsTeamLoop] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsGirlThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsGirlThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -1751,7 +1755,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsGirlThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsTeamKeepSecondLine] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsTeamKeepSecondLine] =
     {
         default: "false",
         storage: "Storage()",
@@ -1762,7 +1766,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsTeamKeepSecondLine
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsUseEne] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsUseEne] =
     {
         default: "false",
         storage: "Storage()",
@@ -1773,7 +1777,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsUseEne] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuildChampsTeam] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoBuildChampsTeam] =
     {
         default: "false",
         storage: "Storage()",
@@ -1784,7 +1788,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuildChampsTeam] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showClubButtonInPoa] =
+HHStoredVars[HHStoredVarPrefixKey + SK.showClubButtonInPoa] =
     {
         default: "true",
         storage: "Storage()",
@@ -1795,7 +1799,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showClubButtonInPoa] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoClubChamp] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoClubChamp] =
     {
         default: "false",
         storage: "Storage()",
@@ -1809,7 +1813,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoClubChamp] =
             clearTimer('nextClubChampionTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoClubChampMax] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoClubChampMax] =
     {
         default: "999",
         storage: "Storage()",
@@ -1820,7 +1824,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoClubChampMax] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoClubForceStart] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoClubForceStart] =
     {
         default: "false",
         storage: "Storage()",
@@ -1834,7 +1838,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoClubForceStart] =
             clearTimer('nextClubChampionTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoContest] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoContest] =
     {
         default: "false",
         storage: "Storage()",
@@ -1848,7 +1852,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoContest] =
             clearTimer('nextContestCollectTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.compactEndedContests] =
+HHStoredVars[HHStoredVarPrefixKey + SK.compactEndedContests] =
     {
         default: "false",
         storage: "Storage()",
@@ -1859,7 +1863,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.compactEndedContests] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoExp] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoExp] =
     {
         default: "500000000",
         storage: "Storage()",
@@ -1870,7 +1874,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoExp] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoExpW] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoExpW] =
     {
         default: "false",
         storage: "Storage()",
@@ -1881,7 +1885,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoExpW] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoFreePachinko] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoFreePachinko] =
     {
         default: "false",
         storage: "Storage()",
@@ -1897,7 +1901,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoFreePachinko] =
             clearTimer('nextPachinkoEquipTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeagues] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLeagues] =
     {
         default: "false",
         storage: "Storage()",
@@ -1911,7 +1915,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeagues] =
             clearTimer('nextLeaguesTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesAllowWinCurrent] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesAllowWinCurrent] =
     {
         default: "false",
         storage: "Storage()",
@@ -1922,7 +1926,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesAllowWinCurrent] 
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -1933,7 +1937,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesCollect] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesBoostedOnly] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesBoostedOnly] =
     {
         default: "false",
         storage: "Storage()",
@@ -1944,7 +1948,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesBoostedOnly] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesRunThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesRunThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -1955,7 +1959,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesRunThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesForceOneFight] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesForceOneFight] =
     {
         default: "false",
         storage: "Storage()",
@@ -1966,7 +1970,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesForceOneFight] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.leagueListDisplayPowerCalc] =
+HHStoredVars[HHStoredVarPrefixKey + SK.leagueListDisplayPowerCalc] =
     {
         default: "false",
         storage: "Storage()",
@@ -1980,7 +1984,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.leagueListDisplayPowerCalc] 
             deleteStoredValue(HHStoredVarPrefixKey + TK.LeagueOpponentList);
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesSelectedIndex] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesSelectedIndex] =
     {
         default: "0",
         storage: "Storage()",
@@ -1993,7 +1997,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesSelectedIndex] =
         customMenuID: "autoLeaguesSelector",
         isValid: /^[0-9]$/
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesSortIndex] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesSortIndex] =
     {
         default: "1",
         storage: "Storage()",
@@ -2009,7 +2013,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesSortIndex] =
             deleteStoredValue(HHStoredVarPrefixKey + TK.LeagueOpponentList);
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -2020,7 +2024,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesSecurityThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesSecurityThreshold] =
     {
         default: "40",
         storage: "Storage()",
@@ -2031,7 +2035,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLeaguesSecurityThreshold
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.compactMissions] =
+HHStoredVars[HHStoredVarPrefixKey + SK.compactMissions] =
     {
         default: "false",
         storage: "Storage()",
@@ -2042,7 +2046,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.compactMissions] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoMission] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoMission] =
     {
         default: "false",
         storage: "Storage()",
@@ -2056,7 +2060,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoMission] =
             clearTimer('nextMissionTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoMissionCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoMissionCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -2067,7 +2071,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoMissionCollect] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoMissionKFirst] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoMissionKFirst] =
     {
         default: "false",
         storage: "Storage()",
@@ -2078,7 +2082,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoMissionKFirst] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.invertMissions] =
+HHStoredVars[HHStoredVarPrefixKey + SK.invertMissions] =
     {
         default: "false",
         storage: "Storage()",
@@ -2089,7 +2093,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.invertMissions] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.compactPowerPlace] =
+HHStoredVars[HHStoredVarPrefixKey + SK.compactPowerPlace] =
     {
         default: "false",
         storage: "Storage()",
@@ -2100,7 +2104,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.compactPowerPlace] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlaces] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlaces] =
     {
         default: "false",
         storage: "Storage()",
@@ -2115,7 +2119,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlaces] =
             cleanTempPopToStart();
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesAll] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesAll] =
     {
         default: "false",
         storage: "Storage()",
@@ -2130,7 +2134,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesAll] =
             cleanTempPopToStart();
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesPrecision] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesPrecision] =
     {
         default: "false",
         storage: "Storage()",
@@ -2141,7 +2145,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesPrecision] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesInverted] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesInverted] =
     {
         default: "false",
         storage: "Storage()",
@@ -2152,7 +2156,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesInverted] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesWaitMax] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesWaitMax] =
     {
         default: "false",
         storage: "Storage()",
@@ -2163,7 +2167,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesWaitMax] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesIndexFilter] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesIndexFilter] =
     {
         default: "1;2;3",
         storage: "Storage()",
@@ -2178,7 +2182,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesIndexFilter] 
             cleanTempPopToStart();
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoQuest] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoQuest] =
     {
         default: "false",
         storage: "Storage()",
@@ -2192,7 +2196,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoQuest] =
             deleteStoredValue(HHStoredVarPrefixKey + TK.questRequirement);
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSideQuest] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSideQuest] =
     {
         default: "false",
         storage: "Storage()",
@@ -2203,7 +2207,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSideQuest] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoQuestThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoQuestThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -2214,7 +2218,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoQuestThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSalary] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSalary] =
     {
         default: "false",
         storage: "Storage()",
@@ -2228,7 +2232,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSalary] =
             clearTimer('nextSalaryTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSalaryMinSalary] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSalaryMinSalary] =
     {
         default: "20000",
         storage: "Storage()",
@@ -2242,7 +2246,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSalaryMinSalary] =
             clearTimer('nextSalaryTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeason] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeason] =
     {
         default: "false",
         storage: "Storage()",
@@ -2256,7 +2260,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeason] =
             clearTimer('nextSeasonTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -2274,7 +2278,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonCollect] =
             }
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonCollectAll] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonCollectAll] =
     {
         default: "false",
         storage: "Storage()",
@@ -2285,7 +2289,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonCollectAll] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls] =
     {
         default: "false",
         storage: "Storage()",
@@ -2296,7 +2300,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.seasonDisplayPowerCalc] =
+HHStoredVars[HHStoredVarPrefixKey + SK.seasonDisplayPowerCalc] =
     {
         default: "true",
         storage: "Storage()",
@@ -2307,14 +2311,14 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.seasonDisplayPowerCalc] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonCollectablesList] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonCollectablesList] =
     {
         default: JSON.stringify([]),
         storage: "Storage()",
         HHType: "Setting",
         valueType: "Array"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonPassReds] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonPassReds] =
     {
         default: "false",
         storage: "Storage()",
@@ -2325,7 +2329,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonPassReds] =
         menuType: "checked",
         kobanUsing: true
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -2336,7 +2340,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonRunThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonRunThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -2347,7 +2351,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonRunThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonMaxTier] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonMaxTier] =
     {
         default: "false",
         storage: "Storage()",
@@ -2358,7 +2362,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonMaxTier] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonMaxTierNb] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonMaxTierNb] =
     {
         default: "63",
         storage: "Storage()",
@@ -2369,7 +2373,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonMaxTierNb] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonBoostedOnly] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonBoostedOnly] =
     {
         default: "false",
         storage: "Storage()",
@@ -2380,7 +2384,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonBoostedOnly] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonSkipLowMojo] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonSkipLowMojo] =
     {
         default: "true",
         storage: "Storage()",
@@ -2391,7 +2395,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonSkipLowMojo] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrill] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrill] =
     {
         default: "false",
         storage: "Storage()",
@@ -2405,7 +2409,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrill] =
             clearTimer('nextPentaDrillTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -2424,7 +2428,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillCollect] =
             }
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillCollectAll] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillCollectAll] =
     {
         default: "false",
         storage: "Storage()",
@@ -2435,14 +2439,14 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillCollectAll] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillCollectablesList] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillCollectablesList] =
     {
         default: JSON.stringify([]),
         storage: "Storage()",
         HHType: "Setting",
         valueType: "Array"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -2453,7 +2457,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillRunThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillRunThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -2464,7 +2468,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillRunThreshold] 
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillBoostedOnly] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillBoostedOnly] =
     {
         default: "false",
         storage: "Storage()",
@@ -2475,7 +2479,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillBoostedOnly] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoStats] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoStats] =
     {
         default: "500000000",
         storage: "Storage()",
@@ -2486,7 +2490,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoStats] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoStatsSwitch] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoStatsSwitch] =
     {
         default: "false",
         storage: "Storage()",
@@ -2497,7 +2501,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoStatsSwitch] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollBattle] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollBattle] =
     {
         default: "false",
         storage: "Storage()",
@@ -2508,7 +2512,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollBattle] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollMythicByPassParanoia] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollMythicByPassParanoia] =
     {
         default: "false",
         storage: "Storage()",
@@ -2519,7 +2523,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollMythicByPassParanoi
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollSelectedIndex] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollSelectedIndex] =
     {
         default: "0",
         storage: "Storage()",
@@ -2532,7 +2536,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollSelectedIndex] =
         customMenuID: "autoTrollSelector",
         isValid: /^([0-9]|[1-9][0-9])$/
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -2543,7 +2547,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollRunThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollRunThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -2554,7 +2558,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollRunThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsForceStartEventGirl] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsForceStartEventGirl] =
     {
         default: "false",
         storage: "Storage()",
@@ -2565,29 +2569,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoChampsForceStartEventGir
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.buyCombat] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: true
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.buyCombTimer] =
-    {
-        default: "16",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.buyMythicCombat] =
+HHStoredVars[HHStoredVarPrefixKey + SK.buyCombat] =
     {
         default: "false",
         storage: "Storage()",
@@ -2598,7 +2580,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.buyMythicCombat] =
         menuType: "checked",
         kobanUsing: true
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.buyMythicCombTimer] =
+HHStoredVars[HHStoredVarPrefixKey + SK.buyCombTimer] =
     {
         default: "16",
         storage: "Storage()",
@@ -2609,7 +2591,29 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.buyMythicCombTimer] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoFreeBundlesCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.buyMythicCombat] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: true
+    };
+HHStoredVars[HHStoredVarPrefixKey + SK.buyMythicCombTimer] =
+    {
+        default: "16",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars[HHStoredVarPrefixKey + SK.autoFreeBundlesCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -2627,14 +2631,14 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoFreeBundlesCollect] =
             }
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoFreeBundlesCollectablesList] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoFreeBundlesCollectablesList] =
     {
         default: JSON.stringify([]),
         storage: "Storage()",
         HHType: "Setting",
         valueType: "Array"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.waitforContest] =
+HHStoredVars[HHStoredVarPrefixKey + SK.waitforContest] =
     {
         default: "true",
         storage: "Storage()",
@@ -2649,7 +2653,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.waitforContest] =
             clearTimer('nextContestTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.safeSecondsForContest] =
+HHStoredVars[HHStoredVarPrefixKey + SK.safeSecondsForContest] =
     {
         default: "120",
         storage: "Storage()",
@@ -2659,7 +2663,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.safeSecondsForContest] =
         setMenu: true,
         menuType: "value"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.mousePause] =
+HHStoredVars[HHStoredVarPrefixKey + SK.mousePause] =
     {
         default: "false",
         storage: "Storage()",
@@ -2670,7 +2674,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.mousePause] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.mousePauseTimeout] =
+HHStoredVars[HHStoredVarPrefixKey + SK.mousePauseTimeout] =
     {
         default: "5000",
         storage: "Storage()",
@@ -2680,7 +2684,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.mousePauseTimeout] =
         setMenu: true,
         menuType: "value"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.collectAllTimer] =
+HHStoredVars[HHStoredVarPrefixKey + SK.collectAllTimer] =
     {
         default: "12",
         storage: "Storage()",
@@ -2691,7 +2695,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.collectAllTimer] =
         menuType: "value",
         isValid: /^([1-9][0-9]|[1-9])$/
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.eventTrollOrder] =
+HHStoredVars[HHStoredVarPrefixKey + SK.eventTrollOrder] =
     {
         default: "1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
         storage: "Storage()",
@@ -2702,7 +2706,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.eventTrollOrder] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyTrollNumber] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyTrollNumber] =
     {
         default: "20",
         storage: "Storage()",
@@ -2713,7 +2717,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyTrollNumber] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyMythicTrollNumber] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyMythicTrollNumber] =
     {
         default: "20",
         storage: "Storage()",
@@ -2724,7 +2728,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyMythicTrollNumber] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.master] =
+HHStoredVars[HHStoredVarPrefixKey + SK.master] =
     {
         default: "false",
         storage: "Storage()",
@@ -2735,7 +2739,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.master] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.maxAff] =
+HHStoredVars[HHStoredVarPrefixKey + SK.maxAff] =
     {
         default: "50000",
         storage: "Storage()",
@@ -2746,7 +2750,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.maxAff] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.maxBooster] =
+HHStoredVars[HHStoredVarPrefixKey + SK.maxBooster] =
     {
         default: "10",
         storage: "Storage()",
@@ -2757,7 +2761,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.maxBooster] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.maxExp] =
+HHStoredVars[HHStoredVarPrefixKey + SK.maxExp] =
     {
         default: "10000",
         storage: "Storage()",
@@ -2768,7 +2772,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.maxExp] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.minShardsX10] =
+HHStoredVars[HHStoredVarPrefixKey + SK.minShardsX10] =
     {
         default: "10",
         storage: "Storage()",
@@ -2780,7 +2784,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.minShardsX10] =
         kobanUsing: false,
         isValid: /^(\d)+$/
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.minShardsX50] =
+HHStoredVars[HHStoredVarPrefixKey + SK.minShardsX50] =
     {
         default: "50",
         storage: "Storage()",
@@ -2791,7 +2795,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.minShardsX50] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.sandalwoodMinShardsThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.sandalwoodMinShardsThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -2802,7 +2806,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.sandalwoodMinShardsThreshold
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.sandalwoodMaxUsages] =
+HHStoredVars[HHStoredVarPrefixKey + TK.sandalwoodMaxUsages] =
     {
         default: "11",
         storage: "sessionStorage",
@@ -2813,7 +2817,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.sandalwoodMaxUsages] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.updateMarket] =
+HHStoredVars[HHStoredVarPrefixKey + SK.updateMarket] =
     {
         default: "true",
         storage: "Storage()",
@@ -2824,7 +2828,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.updateMarket] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.paranoia] =
+HHStoredVars[HHStoredVarPrefixKey + SK.paranoia] =
     {
         default: "true",
         storage: "Storage()",
@@ -2838,13 +2842,13 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.paranoia] =
             clearTimer('paranoiaSwitch');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.paranoiaSettings] =
+HHStoredVars[HHStoredVarPrefixKey + SK.paranoiaSettings] =
     {
         default: "140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep",
         storage: "Storage()",
         HHType: "Setting"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.paranoiaSpendsBefore] =
+HHStoredVars[HHStoredVarPrefixKey + SK.paranoiaSpendsBefore] =
     {
         default: "true",
         storage: "Storage()",
@@ -2855,7 +2859,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.paranoiaSpendsBefore] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusGirlSkins] =
+HHStoredVars[HHStoredVarPrefixKey + SK.plusGirlSkins] =
     {
         default: "false",
         storage: "Storage()",
@@ -2866,7 +2870,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusGirlSkins] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollLoveRaidByPassThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollLoveRaidByPassThreshold] =
     {
         default: "false",
         storage: "Storage()",
@@ -2877,7 +2881,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoTrollLoveRaidByPassThres
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusLoveRaidMythic] =
+HHStoredVars[HHStoredVarPrefixKey + SK.plusLoveRaidMythic] =
     {
         default: "off",
         storage: "Storage()",
@@ -2890,7 +2894,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusLoveRaidMythic] =
         kobanUsing: false,
         isValid: /^(off|exact3|min3|exact5)$/
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusLoveRaid] =
+HHStoredVars[HHStoredVarPrefixKey + SK.plusLoveRaid] =
     {
         default: "false",
         storage: "Storage()",
@@ -2906,7 +2910,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusLoveRaid] =
             deleteStoredValue(HHStoredVarPrefixKey + SK.autoLoveRaidSelectedIndex);
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLoveRaidSelectedIndex] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLoveRaidSelectedIndex] =
     {
         default: "0",
         storage: "Storage()",
@@ -2919,7 +2923,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLoveRaidSelectedIndex] =
         customMenuID: "loveRaidSelector",
         isValid: /^(0|first|\d+_\d+)$/
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.buyLoveRaidCombat] =
+HHStoredVars[HHStoredVarPrefixKey + SK.buyLoveRaidCombat] =
     {
         default: "false",
         storage: "Storage()",
@@ -2930,7 +2934,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.buyLoveRaidCombat] =
         menuType: "checked",
         kobanUsing: true
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyLoveRaidTrollNumber] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyLoveRaidTrollNumber] =
     {
         default: "20",
         storage: "Storage()",
@@ -2941,7 +2945,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoBuyLoveRaidTrollNumber] 
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusEventLoveRaidSandalWood] =
+HHStoredVars[HHStoredVarPrefixKey + SK.plusEventLoveRaidSandalWood] =
     {
         default: "false",
         storage: "Storage()",
@@ -2952,7 +2956,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusEventLoveRaidSandalWood]
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusEvent] =
+HHStoredVars[HHStoredVarPrefixKey + SK.plusEvent] =
     {
         default: "false",
         storage: "Storage()",
@@ -2963,7 +2967,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusEvent] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusEventMythic] =
+HHStoredVars[HHStoredVarPrefixKey + SK.plusEventMythic] =
     {
         default: "false",
         storage: "Storage()",
@@ -2974,7 +2978,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusEventMythic] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusEventSandalWood] =
+HHStoredVars[HHStoredVarPrefixKey + SK.plusEventSandalWood] =
     {
         default: "false",
         storage: "Storage()",
@@ -2985,7 +2989,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusEventSandalWood] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusEventMythicSandalWood] =
+HHStoredVars[HHStoredVarPrefixKey + SK.plusEventMythicSandalWood] =
     {
         default: "false",
         storage: "Storage()",
@@ -2996,7 +3000,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.plusEventMythicSandalWood] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autodpEventCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autodpEventCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -3014,14 +3018,14 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autodpEventCollect] =
             }
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autodpEventCollectablesList] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autodpEventCollectablesList] =
     {
         default: JSON.stringify([]),
         storage: "Storage()",
         HHType: "Setting",
         valueType: "Array"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autodpEventCollectAll] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autodpEventCollectAll] =
     {
         default: "false",
         storage: "Storage()",
@@ -3032,7 +3036,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autodpEventCollectAll] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLivelySceneEventCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLivelySceneEventCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -3050,14 +3054,14 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLivelySceneEventCollect]
             }
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLivelySceneEventCollectablesList] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLivelySceneEventCollectablesList] =
     {
         default: JSON.stringify([]),
         storage: "Storage()",
         HHType: "Setting",
         valueType: "Array"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLivelySceneEventCollectAll] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLivelySceneEventCollectAll] =
     {
         default: "false",
         storage: "Storage()",
@@ -3068,7 +3072,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLivelySceneEventCollectA
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.bossBangEvent] =
+HHStoredVars[HHStoredVarPrefixKey + SK.bossBangEvent] =
     {
         default: "false",
         storage: "Storage()",
@@ -3079,7 +3083,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.bossBangEvent] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.bossBangMinTeam] =
+HHStoredVars[HHStoredVarPrefixKey + SK.bossBangMinTeam] =
     {
         default: "5",
         storage: "Storage()",
@@ -3090,7 +3094,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.bossBangMinTeam] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop] =
+HHStoredVars[HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop] =
     {
         default: "false",
         storage: "Storage()",
@@ -3101,7 +3105,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshS
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.collectEventChest] =
+HHStoredVars[HHStoredVarPrefixKey + SK.collectEventChest] =
     {
         default: "false",
         storage: "Storage()",
@@ -3112,7 +3116,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.collectEventChest] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.AllMaskRewards] =
+HHStoredVars[HHStoredVarPrefixKey + SK.AllMaskRewards] =
     {
         default: "false",
         storage: "Storage()",
@@ -3123,7 +3127,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.AllMaskRewards] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalBuyFreeCard] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalBuyFreeCard] =
     {
         default: "false",
         storage: "Storage()",
@@ -3137,7 +3141,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalBuyFreeCard] =
             clearTimer('nextSeasonalCardCollectTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showCalculatePower] =
+HHStoredVars[HHStoredVarPrefixKey + SK.showCalculatePower] =
     {
         default: "true",
         storage: "Storage()",
@@ -3148,7 +3152,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showCalculatePower] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showAdsBack] =
+HHStoredVars[HHStoredVarPrefixKey + SK.showAdsBack] =
     {
         default: "true",
         storage: "Storage()",
@@ -3159,7 +3163,25 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showAdsBack] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showRewardsRecap] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoAdsClick] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    // Re-check reward ads promptly once the user enables it.
+                    clearTimer('nextAdsTime');
+                }
+            }
+        }
+    };
+HHStoredVars[HHStoredVarPrefixKey + SK.showRewardsRecap] =
     {
         default: "true",
         storage: "Storage()",
@@ -3170,7 +3192,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showRewardsRecap] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.hideOwnedGirls] =
+HHStoredVars[HHStoredVarPrefixKey + SK.hideOwnedGirls] =
     {
         default: "true",
         storage: "Storage()",
@@ -3181,7 +3203,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.hideOwnedGirls] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showInfo] =
+HHStoredVars[HHStoredVarPrefixKey + SK.showInfo] =
     {
         default: "true",
         storage: "Storage()",
@@ -3192,7 +3214,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showInfo] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showInfoLeft] =
+HHStoredVars[HHStoredVarPrefixKey + SK.showInfoLeft] =
     {
         default: "false",
         storage: "Storage()",
@@ -3203,7 +3225,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showInfoLeft] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showHaremAvatarMissingGirls] =
+HHStoredVars[HHStoredVarPrefixKey + SK.showHaremAvatarMissingGirls] =
     {
         default: "false",
         storage: "Storage()",
@@ -3214,7 +3236,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showHaremAvatarMissingGirls]
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showHaremTools] =
+HHStoredVars[HHStoredVarPrefixKey + SK.showHaremTools] =
     {
         default: "true",
         storage: "Storage()",
@@ -3225,7 +3247,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showHaremTools] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showHaremSkillsButtons] =
+HHStoredVars[HHStoredVarPrefixKey + SK.showHaremSkillsButtons] =
     {
         default: "true",
         storage: "Storage()",
@@ -3236,7 +3258,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showHaremSkillsButtons] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showMarketTools] =
+HHStoredVars[HHStoredVarPrefixKey + SK.showMarketTools] =
     {
         default: "false",
         storage: "Storage()",
@@ -3247,7 +3269,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showMarketTools] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showTooltips] =
+HHStoredVars[HHStoredVarPrefixKey + SK.showTooltips] =
     {
         default: "true",
         storage: "Storage()",
@@ -3258,7 +3280,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.showTooltips] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.spendKobans0] =
+HHStoredVars[HHStoredVarPrefixKey + SK.spendKobans0] =
     {
         default: "false",
         storage: "Storage()",
@@ -3269,7 +3291,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.spendKobans0] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.kobanBank] =
+HHStoredVars[HHStoredVarPrefixKey + SK.kobanBank] =
     {
         default: "1000000",
         storage: "Storage()",
@@ -3280,7 +3302,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.kobanBank] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.useX10Fights] =
+HHStoredVars[HHStoredVarPrefixKey + SK.useX10Fights] =
     {
         default: "false",
         storage: "Storage()",
@@ -3291,7 +3313,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.useX10Fights] =
         menuType: "checked",
         kobanUsing: true
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.useX10FightsAllowNormalEvent] =
+HHStoredVars[HHStoredVarPrefixKey + SK.useX10FightsAllowNormalEvent] =
     {
         default: "false",
         storage: "Storage()",
@@ -3302,7 +3324,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.useX10FightsAllowNormalEvent
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.useX50Fights] =
+HHStoredVars[HHStoredVarPrefixKey + SK.useX50Fights] =
     {
         default: "false",
         storage: "Storage()",
@@ -3313,7 +3335,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.useX50Fights] =
         menuType: "checked",
         kobanUsing: true
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.useX50FightsAllowNormalEvent] =
+HHStoredVars[HHStoredVarPrefixKey + SK.useX50FightsAllowNormalEvent] =
     {
         default: "false",
         storage: "Storage()",
@@ -3324,12 +3346,12 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.useX50FightsAllowNormalEvent
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.saveDefaults] =
+HHStoredVars[HHStoredVarPrefixKey + SK.saveDefaults] =
     {
         storage: "localStorage",
         HHType: "Setting"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheon] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheon] =
     {
         default: "false",
         storage: "Storage()",
@@ -3343,7 +3365,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheon] =
             clearTimer('nextPantheonTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheonThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheonThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -3354,7 +3376,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheonThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheonRunThreshold] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheonRunThreshold] =
     {
         default: "0",
         storage: "Storage()",
@@ -3365,7 +3387,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheonRunThreshold] =
         menuType: "value",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheonBoostedOnly] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheonBoostedOnly] =
     {
         default: "false",
         storage: "Storage()",
@@ -3376,7 +3398,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPantheonBoostedOnly] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyrinth] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyrinth] =
     {
         default: "false",
         storage: "Storage()",
@@ -3390,7 +3412,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyrinth] =
             clearTimer('nextLabyrinthTime');
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLabySweep] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLabySweep] =
     {
         default: "false",
         storage: "Storage()",
@@ -3401,7 +3423,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLabySweep] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyCustomTeamBuilder] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyCustomTeamBuilder] =
     {
         default: "false",
         storage: "Storage()",
@@ -3412,7 +3434,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyCustomTeamBuilder] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyHard] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyHard] =
     {
         default: "false",
         storage: "Storage()",
@@ -3423,7 +3445,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyHard] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyDifficultyIndex] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyDifficultyIndex] =
     {
         default: "0",
         storage: "Storage()",
@@ -3436,7 +3458,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoLabyDifficultyIndex] =
         customMenuID: "autoLabyDifficulty",
         isValid: /^[0-9]$/
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalEventCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalEventCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -3454,7 +3476,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalEventCollect] =
             }
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalEventCollectAll] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalEventCollectAll] =
     {
         default: "false",
         storage: "Storage()",
@@ -3465,14 +3487,14 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalEventCollectAll]
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalEventCollectablesList] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonalEventCollectablesList] =
     {
         default: JSON.stringify([]),
         storage: "Storage()",
         HHType: "Setting",
         valueType: "Array"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoVCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPoVCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -3490,7 +3512,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoVCollect] =
             }
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoVCollectAll] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPoVCollectAll] =
     {
         default: "false",
         storage: "Storage()",
@@ -3501,14 +3523,14 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoVCollectAll] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoVCollectablesList] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPoVCollectablesList] =
     {
         default: JSON.stringify([]),
         storage: "Storage()",
         HHType: "Setting",
         valueType: "Array"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoGCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPoGCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -3526,7 +3548,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoGCollect] =
             }
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoGCollectAll] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPoGCollectAll] =
     {
         default: "false",
         storage: "Storage()",
@@ -3537,14 +3559,14 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoGCollectAll] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoGCollectablesList] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPoGCollectablesList] =
     {
         default: JSON.stringify([]),
         storage: "Storage()",
         HHType: "Setting",
         valueType: "Array"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoACollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPoACollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -3562,7 +3584,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoACollect] =
             }
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoACollectAll] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPoACollectAll] =
     {
         default: "false",
         storage: "Storage()",
@@ -3573,14 +3595,14 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoACollectAll] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoPoACollectablesList] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPoACollectablesList] =
     {
         default: JSON.stringify([]),
         storage: "Storage()",
         HHType: "Setting",
         valueType: "Array"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoDailyGoals] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoDailyGoals] =
     {
         default: "false",
         storage: "Storage()",
@@ -3591,7 +3613,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoDailyGoals] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.compactDailyGoals] =
+HHStoredVars[HHStoredVarPrefixKey + SK.compactDailyGoals] =
     {
         default: "false",
         storage: "Storage()",
@@ -3602,7 +3624,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.compactDailyGoals] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoDailyGoalsCollect] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoDailyGoalsCollect] =
     {
         default: "false",
         storage: "Storage()",
@@ -3620,7 +3642,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoDailyGoalsCollect] =
             }
         }
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoDailyGoalsCollectablesList] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoDailyGoalsCollectablesList] =
     {
         default: JSON.stringify([]),
         storage: "Storage()",
@@ -3628,484 +3650,484 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.autoDailyGoalsCollectablesLi
         valueType: "Array"
     };
 // Temp vars
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.scriptversion] =
+HHStoredVars[HHStoredVarPrefixKey + TK.scriptversion] =
     {
         default: "0",
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.autoLoop] =
+HHStoredVars[HHStoredVarPrefixKey + TK.autoLoop] =
     {
         default: "true",
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.battlePowerRequired] =
+HHStoredVars[HHStoredVarPrefixKey + TK.battlePowerRequired] =
     {
         default: "0",
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.dailyGoalsList] =
+HHStoredVars[HHStoredVarPrefixKey + TK.dailyGoalsList] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.lastActionPerformed] =
-    {
-        default: "none",
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.questRequirement] =
+HHStoredVars[HHStoredVarPrefixKey + TK.lastActionPerformed] =
     {
         default: "none",
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.autoLoopTimeMili] =
+HHStoredVars[HHStoredVarPrefixKey + TK.questRequirement] =
+    {
+        default: "none",
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars[HHStoredVarPrefixKey + TK.autoLoopTimeMili] =
     {
         default: "1000",
         storage: "Storage()",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.freshStart] =
+HHStoredVars[HHStoredVarPrefixKey + TK.freshStart] =
     {
         default: "no",
         storage: "Storage()",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.Logging] =
+HHStoredVars[HHStoredVarPrefixKey + TK.Logging] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.Debug] =
+HHStoredVars[HHStoredVarPrefixKey + TK.Debug] =
     {
         default: "false",
         storage: "sessionStorage",
         valueType: "Boolean",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.autoTrollBattleSaveQuest] =
+HHStoredVars[HHStoredVarPrefixKey + TK.autoTrollBattleSaveQuest] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.burst] =
+HHStoredVars[HHStoredVarPrefixKey + TK.burst] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.charLevel] =
+HHStoredVars[HHStoredVarPrefixKey + TK.charLevel] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.filteredGirlsList] =
+HHStoredVars[HHStoredVarPrefixKey + TK.filteredGirlsList] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haremGirlActions] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haremGirlActions] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haremGirlMode] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haremGirlMode] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haremMoneyOnStart] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haremMoneyOnStart] =
     {
         default: "0",
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haremGirlPayLast] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haremGirlPayLast] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haremGirlEnd] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haremGirlEnd] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haremGirlLimit] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haremGirlLimit] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haremTeam] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haremTeam] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haremTeamScrolls] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haremTeamScrolls] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haremTeamSettings] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haremTeamSettings] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.blessingsCache] =
+HHStoredVars[HHStoredVarPrefixKey + TK.blessingsCache] =
     {
         default: "",
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.loveRaids] =
+HHStoredVars[HHStoredVarPrefixKey + TK.loveRaids] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.eventsGirlz] =
+HHStoredVars[HHStoredVarPrefixKey + TK.eventsGirlz] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.eventGirl] =
+HHStoredVars[HHStoredVarPrefixKey + TK.eventGirl] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.eventMythicGirl] =
+HHStoredVars[HHStoredVarPrefixKey + TK.eventMythicGirl] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.autoChampsEventGirls] =
+HHStoredVars[HHStoredVarPrefixKey + TK.autoChampsEventGirls] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.raidGirls] =
+HHStoredVars[HHStoredVarPrefixKey + TK.raidGirls] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.champBuildTeam] =
+HHStoredVars[HHStoredVarPrefixKey + TK.champBuildTeam] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.clubChampLimitReached] =
+HHStoredVars[HHStoredVarPrefixKey + TK.clubChampLimitReached] =
     {
         default: "false",
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.trollWithGirls] =
+HHStoredVars[HHStoredVarPrefixKey + TK.trollWithGirls] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.fought] =
+HHStoredVars[HHStoredVarPrefixKey + TK.fought] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haveAff] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haveAff] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haveExp] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haveExp] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.haveBooster] =
+HHStoredVars[HHStoredVarPrefixKey + TK.haveBooster] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.hideBeatenOppo] =
+HHStoredVars[HHStoredVarPrefixKey + TK.hideBeatenOppo] =
     {
         default: "0",
         storage: "Storage()",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.LeagueOpponentList] =
+HHStoredVars[HHStoredVarPrefixKey + TK.LeagueOpponentList] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.paranoiaLeagueBlocked] =
+HHStoredVars[HHStoredVarPrefixKey + TK.paranoiaLeagueBlocked] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.paranoiaQuestBlocked] =
+HHStoredVars[HHStoredVarPrefixKey + TK.paranoiaQuestBlocked] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.paranoiaSpendings] =
+HHStoredVars[HHStoredVarPrefixKey + TK.paranoiaSpendings] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.pinfo] =
+HHStoredVars[HHStoredVarPrefixKey + TK.pinfo] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.PopTargeted] =
+HHStoredVars[HHStoredVarPrefixKey + TK.PopTargeted] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.PopToStart] =
+HHStoredVars[HHStoredVarPrefixKey + TK.PopToStart] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.PopUnableToStart] =
+HHStoredVars[HHStoredVarPrefixKey + TK.PopUnableToStart] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.storeContents] =
+HHStoredVars[HHStoredVarPrefixKey + TK.storeContents] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.Timers] =
+HHStoredVars[HHStoredVarPrefixKey + TK.Timers] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.NextSwitch] =
+HHStoredVars[HHStoredVarPrefixKey + TK.NextSwitch] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.Totalpops] =
+HHStoredVars[HHStoredVarPrefixKey + TK.Totalpops] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.currentlyAvailablePops] =
+HHStoredVars[HHStoredVarPrefixKey + TK.currentlyAvailablePops] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.CheckSpentPoints] =
+HHStoredVars[HHStoredVarPrefixKey + TK.CheckSpentPoints] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.eventsList] =
+HHStoredVars[HHStoredVarPrefixKey + TK.eventsList] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.bossBangTeam] =
+HHStoredVars[HHStoredVarPrefixKey + TK.bossBangTeam] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.boosterStatus] =
+HHStoredVars[HHStoredVarPrefixKey + TK.boosterStatus] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.boosterStatusLastUpdate] =
+HHStoredVars[HHStoredVarPrefixKey + TK.boosterStatusLastUpdate] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.boosterIdMap] =
+HHStoredVars[HHStoredVarPrefixKey + TK.boosterIdMap] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.sandalwoodFailure] =
+HHStoredVars[HHStoredVarPrefixKey + TK.sandalwoodFailure] =
     {
         default: "0",
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.LeagueSavedData] =
+HHStoredVars[HHStoredVarPrefixKey + TK.LeagueSavedData] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.LeagueHumanLikeRun] =
+HHStoredVars[HHStoredVarPrefixKey + TK.LeagueHumanLikeRun] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.TrollHumanLikeRun] =
+HHStoredVars[HHStoredVarPrefixKey + TK.TrollHumanLikeRun] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.TrollInvalid] =
+HHStoredVars[HHStoredVarPrefixKey + TK.TrollInvalid] =
     {
         default: "false",
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.MainAdventureWorldID] =
+HHStoredVars[HHStoredVarPrefixKey + TK.MainAdventureWorldID] =
     {
         default: "0",
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.SideAdventureWorldID] =
+HHStoredVars[HHStoredVarPrefixKey + TK.SideAdventureWorldID] =
     {
         default: "0",
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.PantheonHumanLikeRun] =
+HHStoredVars[HHStoredVarPrefixKey + TK.PantheonHumanLikeRun] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.SeasonHumanLikeRun] =
+HHStoredVars[HHStoredVarPrefixKey + TK.SeasonHumanLikeRun] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.PentaDrillHumanLikeRun] =
+HHStoredVars[HHStoredVarPrefixKey + TK.PentaDrillHumanLikeRun] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.HaremSize] =
+HHStoredVars[HHStoredVarPrefixKey + TK.HaremSize] =
     {
         storage: "localStorage",
         HHType: "Temp",
         isValid: /{"count":(\d)+,"count_date":(\d)+}/
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.LastPageCalled] =
+HHStoredVars[HHStoredVarPrefixKey + TK.LastPageCalled] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.PoAEndDate] =
+HHStoredVars[HHStoredVarPrefixKey + TK.PoAEndDate] =
     {
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.PoVEndDate] =
+HHStoredVars[HHStoredVarPrefixKey + TK.PoVEndDate] =
     {
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.PoGEndDate] =
+HHStoredVars[HHStoredVarPrefixKey + TK.PoGEndDate] =
     {
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.poaManualCollectAll] =
+HHStoredVars[HHStoredVarPrefixKey + TK.poaManualCollectAll] =
     {
         default: "false",
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.lseManualCollectAll] =
+HHStoredVars[HHStoredVarPrefixKey + TK.lseManualCollectAll] =
     {
         default: "false",
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.unknownPagesList] =
+HHStoredVars[HHStoredVarPrefixKey + TK.unknownPagesList] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.trollPoints] =
+HHStoredVars[HHStoredVarPrefixKey + TK.trollPoints] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
 // Survey
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.surveyShown] =
+HHStoredVars[HHStoredVarPrefixKey + TK.surveyShown] =
     {
         default: "0",
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.surveyDismissCount] =
+HHStoredVars[HHStoredVarPrefixKey + TK.surveyDismissCount] =
     {
         default: "0",
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.surveyLastHash] =
+HHStoredVars[HHStoredVarPrefixKey + TK.surveyLastHash] =
     {
         storage: "localStorage",
         HHType: "Temp"
     };
 // Feature Popup (What's New)
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.featurePopupShown] =
+HHStoredVars[HHStoredVarPrefixKey + TK.featurePopupShown] =
     {
         default: "0",
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.featurePopupDismissCount] =
+HHStoredVars[HHStoredVarPrefixKey + TK.featurePopupDismissCount] =
     {
         default: "0",
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.mouseLastActivity] =
+HHStoredVars[HHStoredVarPrefixKey + TK.mouseLastActivity] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.pipelineLastRunAt] =
+HHStoredVars[HHStoredVarPrefixKey + TK.pipelineLastRunAt] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.trollWaitForEnergy] =
+HHStoredVars[HHStoredVarPrefixKey + TK.trollWaitForEnergy] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
 // Pipeline-block architecture (v7.37.0, ADR-001)
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.activeBlockRun] =
+HHStoredVars[HHStoredVarPrefixKey + TK.activeBlockRun] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.blockCooldownUntil] =
+HHStoredVars[HHStoredVarPrefixKey + TK.blockCooldownUntil] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.blockAutoDisabled] =
+HHStoredVars[HHStoredVarPrefixKey + TK.blockAutoDisabled] =
     {
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.blockFailureCount] =
+HHStoredVars[HHStoredVarPrefixKey + TK.blockFailureCount] =
     {
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.pipelineOrder] =
+HHStoredVars[HHStoredVarPrefixKey + TK.pipelineOrder] =
     {
         storage: "localStorage",
         HHType: "Setting" // user choice: survive "delete temp vars" (was "Temp")
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + TK.pipelineLogContext] =
+HHStoredVars[HHStoredVarPrefixKey + TK.pipelineLogContext] =
     {
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.pipelineDiagnose] =
+HHStoredVars[HHStoredVarPrefixKey + SK.pipelineDiagnose] =
     {
         default: "false",
         storage: "localStorage",
@@ -4116,7 +4138,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + SK.pipelineDiagnose] =
         menuType: "checked"
     };
 
-;// CONCATENATED MODULE: ./src/Utils/BrowserUtils.ts
+;// ./src/Utils/BrowserUtils.ts
 /**
  * Browser detection utilities.
  *
@@ -4180,7 +4202,7 @@ function getBrowserData(nav) {
 }
 ;
 
-;// CONCATENATED MODULE: ./src/Utils/LogUtils.ts
+;// ./src/Utils/LogUtils.ts
 /**
  * Logging and debug-export utilities for HHAuto.
  *
@@ -4237,7 +4259,7 @@ function cleanLogsInStorage() {
  * When the stored log exceeds MAX_LINES, the oldest entries are removed.
  * Duplicate keys within the same millisecond get a numeric suffix.
  */
-function LogUtils_logHHAuto(...args) {
+function logHHAuto(...args) {
     var _a;
     const stackTrace = (new Error()).stack || '';
     let match;
@@ -4331,7 +4353,7 @@ function saveHHDebugLog() {
     a.click();
 }
 
-;// CONCATENATED MODULE: ./src/Helper/NumberHelper.ts
+;// ./src/Helper/NumberHelper.ts
 // NumberHelper.ts
 //
 // Utility functions for formatting and parsing numbers across the UI.
@@ -4390,7 +4412,7 @@ class NumberHelper {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/menu/MenuPorts.ts
+;// ./src/Helper/menu/MenuPorts.ts
 // MenuPorts.ts
 //
 // Dependency-injection "ports" for the extracted menu leaf modules
@@ -4430,7 +4452,7 @@ function setMenuPorts(ports) {
     Object.assign(MenuPorts, ports);
 }
 
-;// CONCATENATED MODULE: ./src/Helper/menu/MenuSettings.ts
+;// ./src/Helper/menu/MenuSettings.ts
 // MenuSettings.ts
 //
 // Settings binding: moves values between the DOM menu inputs and persistent
@@ -4562,7 +4584,9 @@ function addEventsOnMenuItems() {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/StorageHelper.ts
+;// ./src/Helper/StorageHelper.ts
+/* unused harmony import specifier */ var StorageHelper_logHHAuto;
+/* unused harmony import specifier */ var StorageHelper_HHStoredVars;
 // StorageHelper.ts
 //
 // Abstraction layer over browser localStorage and sessionStorage for
@@ -4650,10 +4674,10 @@ function getStorage() {
     return getStoredValue(HHStoredVarPrefixKey + SK.settPerTab) === "true" ? sessionStorage : localStorage;
 }
 function getStoredValue(inVarName) {
-    if (!HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
+    if (!HHStoredVars.hasOwnProperty(inVarName))
         return undefined;
-    const storedValue = getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName];
-    if (!HHStoredVars_HHStoredVars[inVarName].kobanUsing)
+    const storedValue = getStorageItem(HHStoredVars[inVarName].storage)[inVarName];
+    if (!HHStoredVars[inVarName].kobanUsing)
         return storedValue;
     // Check main switch for spending Koban via a direct storage read,
     // NOT recursion via getStoredValue, to avoid an infinite call stack
@@ -4661,20 +4685,20 @@ function getStoredValue(inVarName) {
     // with kobanUsing: true. The master switch is itself a Storage()
     // entry so we route through getStorageItem with its registered type.
     const masterKey = HHStoredVarPrefixKey + SK.spendKobans0;
-    const masterEntry = HHStoredVars_HHStoredVars[masterKey];
+    const masterEntry = HHStoredVars[masterKey];
     const masterValue = masterEntry ? getStorageItem(masterEntry.storage)[masterKey] : undefined;
     return masterValue === "true" ? storedValue : "false";
 }
 function deleteStoredValue(inVarName) {
-    if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName)) {
-        getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage).removeItem(inVarName);
+    if (HHStoredVars.hasOwnProperty(inVarName)) {
+        getStorageItem(HHStoredVars[inVarName].storage).removeItem(inVarName);
     }
 }
 function setStoredValue(inVarName, inValue, retry = false) {
-    if (!HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
+    if (!HHStoredVars.hasOwnProperty(inVarName))
         return;
     try {
-        getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName] = inValue;
+        getStorageItem(HHStoredVars[inVarName].storage)[inVarName] = inValue;
     }
     catch (e) {
         // Robust catch: destructuring `{ errName, message }` from a
@@ -4684,18 +4708,18 @@ function setStoredValue(inVarName, inValue, retry = false) {
         // per tick. Coerce to a string message instead.
         const message = (e instanceof Error) ? e.message : String(e);
         cleanLogsInStorage();
-        LogUtils_logHHAuto(`ERROR: Can't save value in storage for ${inVarName} (${message}), ${retry ? 'user storage need to be cleaned' : 'retry...'}`);
+        logHHAuto(`ERROR: Can't save value in storage for ${inVarName} (${message}), ${retry ? 'user storage need to be cleaned' : 'retry...'}`);
         if (!retry)
             setStoredValue(inVarName, inValue, true);
     }
 }
 function extractHHVars(dataToSave, extractLog = false, extractTemp = true, extractSettings = true) {
     const currentStorageName = getStoredValue(HHStoredVarPrefixKey + SK.settPerTab) === "true" ? "sessionStorage" : "localStorage";
-    for (const i of Object.keys(HHStoredVars_HHStoredVars)) {
-        const varType = HHStoredVars_HHStoredVars[i].HHType;
+    for (const i of Object.keys(HHStoredVars)) {
+        const varType = HHStoredVars[i].HHType;
         if (!((varType === "Setting" && extractSettings) || (varType === "Temp" && extractTemp)))
             continue;
-        const storageType = HHStoredVars_HHStoredVars[i].storage;
+        const storageType = HHStoredVars[i].storage;
         const storageName = storageType === 'Storage()' ? currentStorageName : storageType;
         if (i !== HHStoredVarPrefixKey + TK.Logging) {
             dataToSave[storageName + "." + i] = getStoredValue(i);
@@ -4748,9 +4772,9 @@ function migrateHHVars() {
     // Remove together with the multi-account feature, not before.
     if (HHStoredVarPrefixKey === 'HHAuto_' || !haveHHAutoSettings())
         return;
-    for (const newKey of Object.keys(HHStoredVars_HHStoredVars)) {
+    for (const newKey of Object.keys(HHStoredVars)) {
         const oldKeys = newKey.replace(HHStoredVarPrefixKey, 'HHAuto_');
-        const storageItem = getStorageItem(HHStoredVars_HHStoredVars[newKey].storage);
+        const storageItem = getStorageItem(HHStoredVars[newKey].storage);
         const itemValue = storageItem[oldKeys];
         storageItem.removeItem(oldKeys);
         // Preserve the value if it is set at all -- including the empty
@@ -4782,21 +4806,21 @@ function saveHHStoredVarsDefaults() {
     const savedHHStoredVars = {};
     for (const i of Object.keys(dataToSave)) {
         const variableName = i.split(".")[1];
-        if (variableName !== HHStoredVarPrefixKey + SK.saveDefaults && HHStoredVars_HHStoredVars[variableName].default !== dataToSave[i]) {
+        if (variableName !== HHStoredVarPrefixKey + SK.saveDefaults && HHStoredVars[variableName].default !== dataToSave[i]) {
             savedHHStoredVars[variableName] = dataToSave[i];
         }
     }
     setStoredValue(HHStoredVarPrefixKey + SK.saveDefaults, JSON.stringify(savedHHStoredVars));
-    LogUtils_logHHAuto("HHStoredVar defaults saved !");
+    logHHAuto("HHStoredVar defaults saved !");
 }
 function setHHStoredVarToDefault(inVarName) {
-    const entry = HHStoredVars_HHStoredVars[inVarName];
+    const entry = HHStoredVars[inVarName];
     if (entry === undefined) {
-        LogUtils_logHHAuto("HHStoredVar " + inVarName + " doesn't exist.");
+        logHHAuto("HHStoredVar " + inVarName + " doesn't exist.");
         return;
     }
     if (entry.default === undefined || entry.storage === undefined) {
-        LogUtils_logHHAuto("HHStoredVar " + inVarName + " either have no storage or default defined.");
+        logHHAuto("HHStoredVar " + inVarName + " either have no storage or default defined.");
         return;
     }
     const storageItem = getStorageItem(entry.storage);
@@ -4809,25 +4833,25 @@ function setHHStoredVarToDefault(inVarName) {
     // could re-introduce the issue.
     if (userDefinedDefault !== null
         && (entry.isValid === undefined || entry.isValid.test(userDefinedDefault))) {
-        LogUtils_logHHAuto("HHStoredVar " + inVarName + " set to user default value : " + userDefinedDefault);
+        logHHAuto("HHStoredVar " + inVarName + " set to user default value : " + userDefinedDefault);
         storageItem[inVarName] = userDefinedDefault;
     }
     else {
-        LogUtils_logHHAuto("HHStoredVar " + inVarName + " set to default value : " + entry.default);
+        logHHAuto("HHStoredVar " + inVarName + " set to default value : " + entry.default);
         storageItem[inVarName] = entry.default;
     }
 }
 function getHHStoredVarDefault(inVarName) {
-    if (HHStoredVars[inVarName] !== undefined) {
-        if (HHStoredVars[inVarName].default !== undefined) {
-            return HHStoredVars[inVarName].default;
+    if (StorageHelper_HHStoredVars[inVarName] !== undefined) {
+        if (StorageHelper_HHStoredVars[inVarName].default !== undefined) {
+            return StorageHelper_HHStoredVars[inVarName].default;
         }
         else {
-            logHHAuto("HHStoredVar " + inVarName + " have no default defined.");
+            StorageHelper_logHHAuto("HHStoredVar " + inVarName + " have no default defined.");
         }
     }
     else {
-        logHHAuto("HHStoredVar " + inVarName + " doesn't exist.");
+        StorageHelper_logHHAuto("HHStoredVar " + inVarName + " doesn't exist.");
     }
 }
 function debugDeleteAllVars() {
@@ -4839,12 +4863,12 @@ function debugDeleteAllVars() {
     // does not own). TK.Logging stays so a fresh log buffer is
     // available when the user presses the debug-delete button.
     const loggingKey = HHStoredVarPrefixKey + TK.Logging;
-    for (const key of Object.keys(HHStoredVars_HHStoredVars)) {
+    for (const key of Object.keys(HHStoredVars)) {
         if (key === loggingKey)
             continue;
         deleteStoredValue(key);
     }
-    LogUtils_logHHAuto('Deleted all script vars.');
+    logHHAuto('Deleted all script vars.');
 }
 function debugDeleteTempVars() {
     // Snapshot Settings BEFORE wiping. extractHHVars serialises each
@@ -4861,7 +4885,7 @@ function debugDeleteTempVars() {
     setDefaults(true);
     for (const compoundKey of Object.keys(dataToSave)) {
         const variableName = compoundKey.split(".")[1];
-        LogUtils_logHHAuto(compoundKey + ':' + dataToSave[compoundKey]);
+        logHHAuto(compoundKey + ':' + dataToSave[compoundKey]);
         setStoredValue(variableName, dataToSave[compoundKey]);
     }
 }
@@ -4935,7 +4959,7 @@ function getLocalStorageSize() {
     return allStrings ? 3 + ((allStrings.length * 16) / (8 * 1024)) + ' KB' : 'Empty (0 KB)';
 }
 
-;// CONCATENATED MODULE: ./src/Helper/UrlHelper.ts
+;// ./src/Helper/UrlHelper.ts
 // UrlHelper.ts
 //
 // Simple URL query-string utilities. Wraps URLSearchParams for
@@ -4957,7 +4981,7 @@ function url_add_param(url, param, value) {
     return url + param + "=" + value;
 }
 
-;// CONCATENATED MODULE: ./src/Helper/PageHelper.ts
+;// ./src/Helper/PageHelper.ts
 // PageHelper.ts
 //
 // Determines which game page the player is currently viewing. The game
@@ -4994,10 +5018,10 @@ function url_add_param(url, param, value) {
  * Used by StartService when it bootstraps and finds no game root.
  */
 function haltScript(reason) {
-    LogUtils_logHHAuto(`haltScript: ${reason}`);
+    logHHAuto(`haltScript: ${reason}`);
     setStoredValue(HHStoredVarPrefixKey + SK.master, "false");
     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-    LogUtils_logHHAuto("setting autoloop to false");
+    logHHAuto("setting autoloop to false");
 }
 function resolvePopState() {
     var _a;
@@ -5144,7 +5168,7 @@ function getPage(checkUnknown = false) {
         // what to do. Bootstraps that need a hard halt call haltScript()
         // themselves; transient missing-root states (tab redraw, slow first
         // paint) are tolerated by callers that compare against pagesIDFoo.
-        LogUtils_logHHAuto("PageHelper.getPage: game root element missing, returning empty page id");
+        logHHAuto("PageHelper.getPage: game root element missing, returning empty page id");
         return "";
     }
     const activitiesMainPage = ConfigHelper.getHHScriptVars("pagesIDActivities");
@@ -5168,7 +5192,7 @@ function getPage(checkUnknown = false) {
             // when this page was already recorded with the same pathname (avoids
             // a write per AutoLoop tick on long-running unknown pages).
             if (unknownPageList[page] !== window.location.pathname) {
-                LogUtils_logHHAuto(`Page unknown for script : ${page} / ${window.location.pathname}`);
+                logHHAuto(`Page unknown for script : ${page} / ${window.location.pathname}`);
                 unknownPageList[page] = window.location.pathname;
                 setStoredValue(HHStoredVarPrefixKey + TK.unknownPagesList, JSON.stringify(unknownPageList));
             }
@@ -5177,7 +5201,7 @@ function getPage(checkUnknown = false) {
     return page;
 }
 
-;// CONCATENATED MODULE: ./src/Service/AjaxTracker.ts
+;// ./src/Service/AjaxTracker.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -5360,7 +5384,7 @@ function installAjaxTracker() {
         catch (e) { /* ignore */ }
     };
     installed = true;
-    LogUtils_logHHAuto('[AjaxTracker] installed');
+    logHHAuto('[AjaxTracker] installed');
     return true;
 }
 /**
@@ -5401,7 +5425,7 @@ function waitForAjaxIdle() {
         }
         const reachedIdle = pending === 0;
         if (!reachedIdle) {
-            LogUtils_logHHAuto(`[AjaxTracker] waitForAjaxIdle timeout, ${pending} request(s) still pending`);
+            logHHAuto(`[AjaxTracker] waitForAjaxIdle timeout, ${pending} request(s) still pending`);
         }
         if (settleMs > 0) {
             yield sleep(settleMs);
@@ -5423,7 +5447,7 @@ function acquirePostMutex(holderName = "anonymous") {
     if (postMutexHeld) {
         const heldFor = Date.now() - postMutexAcquiredAt;
         if (heldFor > POST_MUTEX_STALE_MS) {
-            LogUtils_logHHAuto('[AjaxTracker] POST mutex stale-released after ' + heldFor +
+            logHHAuto('[AjaxTracker] POST mutex stale-released after ' + heldFor +
                 'ms (was held by ' + (postMutexHolder || 'unknown') + ')');
             postMutexHeld = false;
         }
@@ -5454,7 +5478,7 @@ function isPostInFlight() {
         // pinned by a forgotten holder.
         const heldFor = Date.now() - postMutexAcquiredAt;
         if (heldFor > POST_MUTEX_STALE_MS) {
-            LogUtils_logHHAuto('[AjaxTracker] POST mutex stale-released after ' + heldFor +
+            logHHAuto('[AjaxTracker] POST mutex stale-released after ' + heldFor +
                 'ms (was held by ' + (postMutexHolder || 'unknown') + ')');
             releasePostMutex();
         }
@@ -5480,7 +5504,7 @@ function awaitServerSettleAfterPost(claimXhrDurationMs) {
             ? claimXhrDurationMs
             : 0;
         const settle = Math.max(POST_SETTLE_MIN_MS, Math.round(durationMs * POST_SETTLE_FACTOR));
-        LogUtils_logHHAuto('[AjaxTracker] server-settle pause ' + settle + 'ms (claim ' + Math.round(durationMs) + 'ms)');
+        logHHAuto('[AjaxTracker] server-settle pause ' + settle + 'ms (claim ' + Math.round(durationMs) + 'ms)');
         yield sleep(settle);
     });
 }
@@ -5512,7 +5536,7 @@ function _resetAjaxTrackerForTests() {
     installed = false;
 }
 
-;// CONCATENATED MODULE: ./src/Service/PageNavigationService.ts
+;// ./src/Service/PageNavigationService.ts
 // PageNavigationService.ts
 //
 // Centralized page navigation. Translates abstract page IDs into
@@ -5631,9 +5655,9 @@ function resolveByRegexPassthrough(page) {
 function scheduleAfterIdle(delay, logContext, action) {
     navInFlight = true;
     setTimeout(() => {
-        waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS).then((idle) => {
+        waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250)).then((idle) => {
             if (!idle) {
-                LogUtils_logHHAuto(`${logContext}: AJAX still busy after ${AJAX_IDLE_TIMEOUT_MS}ms, deferring`);
+                logHHAuto(`${logContext}: AJAX still busy after ${(/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000)}ms, deferring`);
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
                 navInFlight = false;
                 return;
@@ -5646,7 +5670,7 @@ function logBlockedNavigation(prefix, detail) {
     const now = Date.now();
     if (now - lastNavBlockedLogAt > NAV_BLOCKED_LOG_INTERVAL_MS) {
         lastNavBlockedLogAt = now;
-        LogUtils_logHHAuto(`${prefix}: navigation already in flight, ignoring ${detail}`);
+        logHHAuto(`${prefix}: navigation already in flight, ignoring ${detail}`);
     }
 }
 function resolveDelay(delay) {
@@ -5664,7 +5688,7 @@ function gotoPage(page, inArgs = {}, delay = -1) {
         return false;
     }
     const cp = getPage();
-    LogUtils_logHHAuto(`going ${cp}->${page}`);
+    logHHAuto(`going ${cp}->${page}`);
     delay = resolveDelay(delay);
     const resolverMap = buildResolverMap();
     let togoto;
@@ -5675,7 +5699,7 @@ function gotoPage(page, inArgs = {}, delay = -1) {
     else {
         togoto = resolveByRegexPassthrough(page);
         if (togoto === undefined) {
-            LogUtils_logHHAuto(`Unknown goto page request. No page '${page}' defined.`);
+            logHHAuto(`Unknown goto page request. No page '${page}' defined.`);
             return false;
         }
     }
@@ -5683,7 +5707,7 @@ function gotoPage(page, inArgs = {}, delay = -1) {
         // resolveByRegexPassthrough already logged and returned false.
         // This branch is defensive for resolver functions that yield
         // undefined despite the page-id being in the resolver map.
-        LogUtils_logHHAuto(`Couldn't resolve URL for page '${page}', skipping.`);
+        logHHAuto(`Couldn't resolve URL for page '${page}', skipping.`);
         return false;
     }
     setLastPageCalled(togoto);
@@ -5694,8 +5718,8 @@ function gotoPage(page, inArgs = {}, delay = -1) {
     }
     togoto = addNutakuSession(togoto);
     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-    LogUtils_logHHAuto("setting autoloop to false");
-    LogUtils_logHHAuto(`GotoPage : ${togoto} in ${delay}ms.`);
+    logHHAuto("setting autoloop to false");
+    logHHAuto(`GotoPage : ${togoto} in ${delay}ms.`);
     const targetUrl = togoto;
     scheduleAfterIdle(delay, 'gotoPage', () => {
         // Wait for any in-flight game AJAX (e.g. PoP claim POSTs) to
@@ -5723,7 +5747,7 @@ function safeReload(delay = -1) {
     }
     delay = resolveDelay(delay);
     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-    LogUtils_logHHAuto(`safeReload: scheduled in ${delay}ms`);
+    logHHAuto(`safeReload: scheduled in ${delay}ms`);
     scheduleAfterIdle(delay, 'safeReload', () => {
         location.reload();
     });
@@ -5742,7 +5766,7 @@ function safeNavigateHref(url, delay = -1) {
     }
     delay = resolveDelay(delay);
     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-    LogUtils_logHHAuto(`safeNavigateHref: ${url} in ${delay}ms`);
+    logHHAuto(`safeNavigateHref: ${url} in ${delay}ms`);
     scheduleAfterIdle(delay, 'safeNavigateHref', () => {
         location.href = url;
     });
@@ -5755,7 +5779,7 @@ function addNutakuSession(togoto) {
     }
     const hhSession = queryStringGetParam(window.location.search, 'sess');
     if (!hhSession) {
-        LogUtils_logHHAuto('ERROR Nutaku detected and no session found');
+        logHHAuto('ERROR Nutaku detected and no session found');
         return togoto;
     }
     if (typeof togoto === 'string') {
@@ -5780,7 +5804,7 @@ function _resetPageNavigationServiceForTests() {
     lastNavBlockedLogAt = 0;
 }
 
-;// CONCATENATED MODULE: ./src/Utils/Utils.ts
+;// ./src/Utils/Utils.ts
 // General-purpose utility functions for HHAuto.
 // Provides callItOnce (ensures a function executes only once), safeJsonParse,
 // AJAX response interception helpers, and other shared convenience methods.
@@ -5920,14 +5944,14 @@ function myfileLoad_onReaderLoad(event) {
     var variableName;
     //Json validation
     if (isJSON(text)) {
-        LogUtils_logHHAuto('the json is ok');
+        logHHAuto('the json is ok');
         var jsonNewSettings = JSON.parse(event.target.result);
         //Assign new values to Storage();
         for (const [key, value] of Object.entries(jsonNewSettings)) {
             storageType = key.split(".")[0];
             variableName = key.split(".")[1];
             storageItem = getStorageItem(storageType);
-            LogUtils_logHHAuto(key + ':' + value);
+            logHHAuto(key + ':' + value);
             storageItem[variableName] = value;
         }
         // C1: safeReload waits for any in-flight game AJAX before the
@@ -5937,11 +5961,11 @@ function myfileLoad_onReaderLoad(event) {
     }
     else {
         $('#LoadConfError')[0].innerText = 'Selected file broken!';
-        LogUtils_logHHAuto('the json is Not ok');
+        logHHAuto('the json is Not ok');
     }
 }
 
-;// CONCATENATED MODULE: ./src/Utils/HHPopup.ts
+;// ./src/Utils/HHPopup.ts
 /**
  * Custom popup/modal system for the HHAuto userscript.
  *
@@ -6079,7 +6103,7 @@ function checkAndClosePopup(inBurst) {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/HHHelper.ts
+;// ./src/Helper/HHHelper.ts
 
 
 function prefixIfNeeded(infoSearched) {
@@ -6098,7 +6122,7 @@ function getHHVars(infoSearched, logging = true) {
     for (let i = 0; i < splittedInfoSearched.length; i++) {
         if (returnValue[splittedInfoSearched[i]] === undefined) {
             if (logging) {
-                LogUtils_logHHAuto("HH var not found : " + infoSearched + " (" + splittedInfoSearched[i] + " not defined).");
+                logHHAuto("HH var not found : " + infoSearched + " (" + splittedInfoSearched[i] + " not defined).");
             }
             return null;
         }
@@ -6117,7 +6141,7 @@ function setHHVars(infoSearched, newValue) {
     let splittedInfoSearched = infoSearched.split(".");
     for (let i = 0; i < splittedInfoSearched.length; i++) {
         if (returnValue[splittedInfoSearched[i]] === undefined) {
-            LogUtils_logHHAuto("HH var not found : " + infoSearched + " (" + splittedInfoSearched[i] + " not defined).");
+            logHHAuto("HH var not found : " + infoSearched + " (" + splittedInfoSearched[i] + " not defined).");
             return -1;
         }
         else if (i === splittedInfoSearched.length - 1) {
@@ -6130,7 +6154,7 @@ function setHHVars(infoSearched, newValue) {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/HeroHelper.ts
+;// ./src/Helper/HeroHelper.ts
 var HeroHelper_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -6218,7 +6242,7 @@ function doStatUpgrades() {
                     && (nowTs - lastStatAttempt.ts) < 3000
                     && lastStatAttempt.carac === carac
                     && lastStatAttempt.value === stats[carac - 1]) {
-                    LogUtils_logHHAuto('doStatUpgrades: stat carac' + carac + '=' + stats[carac - 1]
+                    logHHAuto('doStatUpgrades: stat carac' + carac + '=' + stats[carac - 1]
                         + ' did not advance after the last buy (page=' + location.pathname
                         + '); stopping to avoid an infinite loop.');
                     lastStatAttempt = null;
@@ -6226,7 +6250,7 @@ function doStatUpgrades() {
                 }
                 lastStatAttempt = { carac: carac, value: stats[carac - 1], ts: nowTs };
                 count++;
-                LogUtils_logHHAuto('money: ' + money + ' stat' + carac + ': ' + stats[carac - 1] + ' [+' + mult + '] price: ' + price);
+                logHHAuto('money: ' + money + ' stat' + carac + ': ' + stats[carac - 1] + ' [+' + mult + '] price: ' + price);
                 money -= price;
                 var params = {
                     carac: "carac" + carac,
@@ -6234,7 +6258,7 @@ function doStatUpgrades() {
                     nb: mult
                 };
                 getHHAjax()(params, function (data) {
-                    LogUtils_logHHAuto('doStatUpgrades resp: success=' + !!(data && data.success)
+                    logHHAuto('doStatUpgrades resp: success=' + !!(data && data.success)
                         + ' page=' + location.pathname
                         + ' carac' + carac + '=' + getHHVars('Hero.infos.carac' + carac)
                         + ' money=' + HeroHelper.getMoney()
@@ -6274,7 +6298,7 @@ class HeroHelper {
             if (!booster)
                 return Promise.resolve(false);
             if (!HeroHelper.haveBoosterInInventory(booster.identifier)) {
-                LogUtils_logHHAuto("Booster " + booster + " not in inventory");
+                logHHAuto("Booster " + booster + " not in inventory");
                 return Promise.resolve(false);
             }
             let itemId = ConfigHelper.getHHScriptVars("boosterId_" + booster.identifier, false);
@@ -6283,7 +6307,7 @@ class HeroHelper {
             }
             //action=market_equip_booster&id_item=316&type=booster
             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-            LogUtils_logHHAuto("equipBooster: Equip " + booster.name + " (id_item=" + itemId + "), setting autoloop to false");
+            logHHAuto("equipBooster: Equip " + booster.name + " (id_item=" + itemId + "), setting autoloop to false");
             const params = {
                 action: "market_equip_booster",
                 id_item: itemId,
@@ -6312,7 +6336,7 @@ class HeroHelper {
                 timeoutId = setTimeout(() => {
                     if (settled)
                         return;
-                    LogUtils_logHHAuto('equipBooster: AJAX timeout after 15s — resolving with false and invalidating boosterStatus');
+                    logHHAuto('equipBooster: AJAX timeout after 15s — resolving with false and invalidating boosterStatus');
                     // Treat a hang as "state unknown": drop the freshness stamp so the next
                     // auto-equip cycle re-reads boosterStatus from the market.
                     deleteStoredValue(HHStoredVarPrefixKey + TK.boosterStatusLastUpdate);
@@ -6320,12 +6344,12 @@ class HeroHelper {
                     settle(false);
                 }, 15000);
                 getHHAjax()(params, function (data) {
-                    LogUtils_logHHAuto(`equipBooster: AJAX success callback, data.success=${data.success}, full response=${JSON.stringify(data)}`);
+                    logHHAuto(`equipBooster: AJAX success callback, data.success=${data.success}, full response=${JSON.stringify(data)}`);
                     if (data.success) {
-                        LogUtils_logHHAuto('equipBooster: Booster equipped successfully');
+                        logHHAuto('equipBooster: Booster equipped successfully');
                     }
                     else {
-                        LogUtils_logHHAuto('equipBooster: Server returned success:false (may already be equipped)');
+                        logHHAuto('equipBooster: Server returned success:false (may already be equipped)');
                         // Option D: a success:false response means our local boosterStatus is
                         // out of sync with the server (another browser/tab probably equipped
                         // boosters while we were paused). Invalidate the freshness timestamp
@@ -6333,14 +6357,14 @@ class HeroHelper {
                         deleteStoredValue(HHStoredVarPrefixKey + TK.boosterStatusLastUpdate);
                         HeroHelper.getSandalWoodEquipFailure(true); // Increase failure
                     }
-                    LogUtils_logHHAuto(`equipBooster: resolving with ${data.success}`);
+                    logHHAuto(`equipBooster: resolving with ${data.success}`);
                     settle(!!data.success);
                 }, function (err) {
-                    LogUtils_logHHAuto('equipBooster: AJAX error callback - ' + err);
+                    logHHAuto('equipBooster: AJAX error callback - ' + err);
                     // Network/server error also implies our cached state may be wrong — invalidate.
                     deleteStoredValue(HHStoredVarPrefixKey + TK.boosterStatusLastUpdate);
                     HeroHelper.getSandalWoodEquipFailure(true); // Increase failure
-                    LogUtils_logHHAuto('equipBooster: resolving with false');
+                    logHHAuto('equipBooster: resolving with false');
                     settle(false);
                 });
                 // change referer
@@ -6361,7 +6385,7 @@ class HeroHelper {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/harem/HaremFilter.ts
+;// ./src/Module/harem/HaremFilter.ts
 var HaremFilter_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -6424,7 +6448,7 @@ class HaremFilter {
                 yield this.selectOption('girl-max-grade-dropdown', starsMapping[stars]);
             }
             else {
-                LogUtils_logHHAuto(`Error unkown GirlAffectionCategory ${stars}, selecting all`);
+                logHHAuto(`Error unkown GirlAffectionCategory ${stars}, selecting all`);
                 yield this.selectOption('girl-max-grade-dropdown', 0);
             }
         });
@@ -6457,21 +6481,21 @@ class HaremFilter {
     }
     selectGirlFilters(girlType) {
         return HaremFilter_awaiter(this, void 0, void 0, function* () {
-            LogUtils_logHHAuto(`selectGirlRarity ${girlType.charAt(0)}.`);
+            logHHAuto(`selectGirlRarity ${girlType.charAt(0)}.`);
             yield this.selectGirlRarity(Number(girlType.charAt(0)));
             if (girlType.length === 3) {
-                LogUtils_logHHAuto(`selectGirlCategory ${girlType.charAt(2)}.`);
+                logHHAuto(`selectGirlCategory ${girlType.charAt(2)}.`);
                 yield this.selectGirlAffectionCategory(Number(girlType.charAt(2)));
             }
             else if (this.getGirlAffectionCategory() != '0') {
-                LogUtils_logHHAuto('reset selectGirlCategory');
+                logHHAuto('reset selectGirlCategory');
                 yield this.selectGirlAffectionCategory(0);
             }
         });
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/PriceHelper.ts
+;// ./src/Helper/PriceHelper.ts
 // PriceHelper.ts
 //
 // Parses human-readable price strings from the game UI back into raw
@@ -6552,7 +6576,7 @@ export function manageUnits(inText)
 }
 */ 
 
-;// CONCATENATED MODULE: ./src/config/InputPattern.ts
+;// ./src/config/InputPattern.ts
 // Regex patterns used for input validation in the HHAuto settings menu.
 // Each pattern constrains what the user can enter in a specific settings field
 // (e.g., timers, thresholds, booster filters).
@@ -6599,7 +6623,7 @@ const HHAuto_inputPattern = {
     sandalwoodLimit: "(100|[1-9][0-9]|[0-9])"
 };
 
-;// CONCATENATED MODULE: ./src/Module/harem/HaremGirl.pure.ts
+;// ./src/Module/harem/HaremGirl.pure.ts
 /**
  * Sum of all stat fields plus the count of class/element/figure resonance
  * matches against the wearer.
@@ -6672,7 +6696,7 @@ function isBetter(candidate, current, girl) {
     return false;
 }
 
-;// CONCATENATED MODULE: ./src/Module/harem/HaremGirl.ts
+;// ./src/Module/harem/HaremGirl.ts
 var HaremGirl_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -6727,13 +6751,13 @@ class HaremGirl {
             confirmMaxOutButton.trigger('click');
         }
         else
-            LogUtils_logHHAuto('Confirm max out button not found');
+            logHHAuto('Confirm max out button not found');
     }
     static maxOutButtonAndConfirm(haremItem, girl) {
         return new Promise((resolve) => {
             const maxOutButton = HaremGirl.getMaxOutButton(haremItem);
             if (maxOutButton.length > 0) {
-                LogUtils_logHHAuto('Max out ' + haremItem + ' for girl ' + girl.id_girl);
+                logHHAuto('Max out ' + haremItem + ' for girl ' + girl.id_girl);
                 maxOutButton.trigger('click');
                 setTimeout(() => {
                     HaremGirl.confirmMaxOut();
@@ -6743,7 +6767,7 @@ class HaremGirl {
                 }, randomInterval(700, 1100));
             }
             else {
-                LogUtils_logHHAuto('Max out button for' + haremItem + ' for girl ' + girl.id_girl + ' not enabled');
+                logHHAuto('Max out button for' + haremItem + ' for girl ' + girl.id_girl + ' not enabled');
                 resolve(false);
             }
         });
@@ -6754,7 +6778,7 @@ class HaremGirl {
             confirmMaxOutButton.trigger('click');
         }
         else
-            LogUtils_logHHAuto('Confirm max out all button not found');
+            logHHAuto('Confirm max out all button not found');
     }
     static getMaxOutPrice() {
         return Number($('#girl_max_out_all_levels_popup .slot_soft_currency .amount').text().replace(/\D+/g, ""));
@@ -6765,7 +6789,7 @@ class HaremGirl {
             confirmMaxOutButton.trigger('click');
         }
         else
-            LogUtils_logHHAuto('Confirm max out all button not found');
+            logHHAuto('Confirm max out all button not found');
     }
     static getMaxOutGems() {
         return Number($('#girl_max_out_all_levels_popup .slot_gems .amount').text().replace(/\D+/g, ""));
@@ -6779,7 +6803,7 @@ class HaremGirl {
                 if (haremItem === HaremGirl.EXPERIENCE_TYPE) {
                     setTimeout(() => HaremGirl_awaiter(this, void 0, void 0, function* () {
                         const cost = HaremGirl.getMaxOutGems();
-                        LogUtils_logHHAuto(`Max out all ${haremItem} (for ${cost} gems) for girl ${girl.name} (${girl.id_girl})`);
+                        logHHAuto(`Max out all ${haremItem} (for ${cost} gems) for girl ${girl.name} (${girl.id_girl})`);
                         HaremGirl.confirmMaxOutAllGems();
                         yield TimeHelper.sleep(randomInterval(400, 700));
                         HaremGirl.confirmMaxOut(); // No gems
@@ -6790,19 +6814,19 @@ class HaremGirl {
                 else if (haremItem === HaremGirl.AFFECTION_TYPE) {
                     setTimeout(() => HaremGirl_awaiter(this, void 0, void 0, function* () {
                         const cost = HaremGirl.getMaxOutPrice();
-                        LogUtils_logHHAuto(`Max out all ${haremItem} (for ${cost}) for girl ${girl.name} (${girl.id_girl})`);
+                        logHHAuto(`Max out all ${haremItem} (for ${cost}) for girl ${girl.name} (${girl.id_girl})`);
                         HaremGirl.confirmMaxOutAllCash();
                         yield TimeHelper.sleep(randomInterval(400, 700));
                         resolve(cost);
                     }), randomInterval(700, 1100));
                 }
                 else {
-                    LogUtils_logHHAuto(`Max out all confirm path not implemented for haremItem '${haremItem}', resolving without confirm`);
+                    logHHAuto(`Max out all confirm path not implemented for haremItem '${haremItem}', resolving without confirm`);
                     resolve(0);
                 }
             }
             else {
-                LogUtils_logHHAuto(`Max out all button for ${haremItem} for girl ${girl.name} (${girl.id_girl}) not enabled`);
+                logHHAuto(`Max out all button for ${haremItem} for girl ${girl.name} (${girl.id_girl}) not enabled`);
                 resolve(0);
             }
         });
@@ -6814,7 +6838,7 @@ class HaremGirl {
             return true;
         }
         else {
-            LogUtils_logHHAuto('Confirmation awake button is not enabled');
+            logHHAuto('Confirmation awake button is not enabled');
             Harem.clearHaremToolVariables();
             // TODO Do not clear in list mode
             return false;
@@ -6826,13 +6850,13 @@ class HaremGirl {
         const canXpGirl = numberOfGem >= girl.awakening_costs;
         const awakButton = $('#awaken:not([disabled])');
         if (awakButton.length > 0 && canXpGirl) {
-            LogUtils_logHHAuto('Awake for girl ' + girl.id_girl);
+            logHHAuto('Awake for girl ' + girl.id_girl);
             awakButton.trigger('click');
             setTimeout(HaremGirl.confirmAwake, randomInterval(500, 1000)); // Page will be refreshed if done
             return true;
         }
         else {
-            LogUtils_logHHAuto('Awake button for girl ' + girl.id_girl + ' not enabled or not enough gems (' + numberOfGem + '<' + girl.awakening_costs + ')');
+            logHHAuto('Awake button for girl ' + girl.id_girl + ' not enabled or not enough gems (' + numberOfGem + '<' + girl.awakening_costs + ')');
             return false;
         }
     }
@@ -6841,14 +6865,14 @@ class HaremGirl {
         const canGiftGirl = girl.nb_grades > girl.graded;
         const upgradeQuest = $('.upgrade_girl').attr('href');
         if (canGiftGirl && upgradeQuest && upgradeQuest.indexOf('/quest/') >= 0) {
-            LogUtils_logHHAuto('Upgrade for girl ' + girl.id_girl + ' quest:' + upgradeQuest);
+            logHHAuto('Upgrade for girl ' + girl.id_girl + ' quest:' + upgradeQuest);
             gotoPage(upgradeQuest);
             return true;
         }
         else {
-            LogUtils_logHHAuto('Can\'t upgrade girl ' + girl.id_girl + ': grade (' + girl.graded + '/' + girl.nb_grades + '), quest :' + upgradeQuest);
+            logHHAuto('Can\'t upgrade girl ' + girl.id_girl + ': grade (' + girl.graded + '/' + girl.nb_grades + '), quest :' + upgradeQuest);
             if (!upgradeQuest && retry < 2) {
-                LogUtils_logHHAuto('Can be loading time, retry in 1s');
+                logHHAuto('Can be loading time, retry in 1s');
                 setTimeout(() => {
                     HaremGirl.goToGirlQuest(girl, retry + 1);
                 }, randomInterval(1000, 1500));
@@ -6862,7 +6886,7 @@ class HaremGirl {
         if (proceedButtonMatch.length > 0) {
             var proceedButtonCost = $(".price", proceedButtonMatch);
             if (proceedButtonCost.length === 0 || !proceedButtonCost[0].innerText) {
-                LogUtils_logHHAuto("ERROR No price node on grade-complete button, stopping.");
+                logHHAuto("ERROR No price node on grade-complete button, stopping.");
                 Harem.clearHaremToolVariables();
                 return false;
             }
@@ -6872,14 +6896,14 @@ class HaremGirl {
             console.log("Debug girl Quest MONEY for : " + proceedCost);
             if (proceedCost <= moneyCurrent) {
                 // We have money.
-                LogUtils_logHHAuto("Spending " + proceedCost + " Money to proceed.");
+                logHHAuto("Spending " + proceedCost + " Money to proceed.");
                 setTimeout(function () {
                     proceedButtonMatch.trigger('click');
                 }, randomInterval(500, 800));
                 return true;
             }
             else {
-                LogUtils_logHHAuto("Need " + proceedCost + " Money to proceed.");
+                logHHAuto("Need " + proceedCost + " Money to proceed.");
                 Harem.clearHaremToolVariables();
                 return false;
             }
@@ -6892,7 +6916,7 @@ class HaremGirl {
                 return true;
             }
             else {
-                LogUtils_logHHAuto("ERROR No pay button found stopping.");
+                logHHAuto("ERROR No pay button found stopping.");
                 Harem.clearHaremToolVariables();
                 return false;
             }
@@ -6929,9 +6953,9 @@ class HaremGirl {
             }
             else {
                 if (Number(selectedGirl.level) >= Number(userHaremGirlLimit))
-                    LogUtils_logHHAuto("Girl already above target, ignoring action");
+                    logHHAuto("Girl already above target, ignoring action");
                 else
-                    LogUtils_logHHAuto("Girl and max out will be above target, ignoring action");
+                    logHHAuto("Girl and max out will be above target, ignoring action");
             }
         });
     }
@@ -6960,7 +6984,7 @@ class HaremGirl {
                         return true;
                     }
                     else {
-                        LogUtils_logHHAuto("Girl grade reach, keep last to buy manually");
+                        logHHAuto("Girl grade reach, keep last to buy manually");
                     }
                 }
                 else if ($('.upgrade_girl').length > 0) {
@@ -6972,12 +6996,12 @@ class HaremGirl {
                         return true;
                     }
                     else {
-                        LogUtils_logHHAuto("Girl grade reach, keep last to buy manually");
+                        logHHAuto("Girl grade reach, keep last to buy manually");
                     }
                 }
             }
             else {
-                LogUtils_logHHAuto("Girl grade is already maxed out");
+                logHHAuto("Girl grade is already maxed out");
             }
             return false;
         });
@@ -6993,7 +7017,7 @@ class HaremGirl {
                 return true;
             }
             else {
-                LogUtils_logHHAuto("Girl level is already maxed out");
+                logHHAuto("Girl level is already maxed out");
             }
             return false;
         });
@@ -7123,7 +7147,7 @@ class HaremGirl {
             return girl.nb_grades > girl.graded && HaremGirl.getMaxOutButton(HaremGirl.AFFECTION_TYPE).length > 0;
         }
         catch (_a) {
-            LogUtils_logHHAuto("ERROR can't compute canGiftGirl");
+            logHHAuto("ERROR can't compute canGiftGirl");
             return false;
         }
     }
@@ -7135,7 +7159,7 @@ class HaremGirl {
             return numberOfGem >= girl.awakening_costs;
         }
         catch (_d) {
-            LogUtils_logHHAuto("ERROR can't compute canAwakeGirl");
+            logHHAuto("ERROR can't compute canAwakeGirl");
             return false;
         }
     }
@@ -7146,9 +7170,9 @@ class HaremGirl {
             const girl = HaremGirl.getCurrentGirl();
             const numberOfGem = (_c = (_b = (_a = unsafeWindow.player_gems_amount) === null || _a === void 0 ? void 0 : _a[girl.element]) === null || _b === void 0 ? void 0 : _b.amount) !== null && _c !== void 0 ? _c : 0;
             //logHHAuto("moduleHaremGirl: " + girl.id_girl);
-            LogUtils_logHHAuto("Current level : " + girl.level + ', max level without gems : ' + girl.level_cap);
-            LogUtils_logHHAuto("Number of gem needed in next awakening : " + girl.awakening_costs + " / Gem in stock : " + numberOfGem);
-            LogUtils_logHHAuto("Girl grade : " + girl.graded + '/' + girl.nb_grades);
+            logHHAuto("Current level : " + girl.level + ', max level without gems : ' + girl.level_cap);
+            logHHAuto("Number of gem needed in next awakening : " + girl.awakening_costs + " / Gem in stock : " + numberOfGem);
+            logHHAuto("Girl grade : " + girl.graded + '/' + girl.nb_grades);
             const menuIDXp = "haremGirlGiveXP";
             var giveHaremXp = function () { HaremGirl.displayExpMenu(HaremGirl.EXPERIENCE_TYPE); };
             if (canAwakeGirl)
@@ -7160,7 +7184,7 @@ class HaremGirl {
         catch (err) {
             const message = err instanceof Error ? err.message : String(err);
             const errName = err instanceof Error ? err.name : 'Error';
-            LogUtils_logHHAuto(`ERROR: Can't add menu girl: ${errName}, ${message}`);
+            logHHAuto(`ERROR: Can't add menu girl: ${errName}, ${message}`);
             console.error(message);
         }
     }
@@ -7203,13 +7227,13 @@ class HaremGirl {
                     // No action to be peformed
                     return false;
                 }
-                LogUtils_logHHAuto("run HaremGirl: " + girl.name + ' (' + girl.id_girl + '), level ' + girl.level + ', rarity: ' + girl.rarity);
+                logHHAuto("run HaremGirl: " + girl.name + ' (' + girl.id_girl + '), level ' + girl.level + ', rarity: ' + girl.rarity);
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                LogUtils_logHHAuto("setting autoloop to false as action to be performed on girl");
-                LogUtils_logHHAuto("Action to be performed (mode: " + haremGirlMode + ") : give " + haremItem);
+                logHHAuto("setting autoloop to false as action to be performed on girl");
+                logHHAuto("Action to be performed (mode: " + haremGirlMode + ") : give " + haremItem);
                 if (haremGirlMode === 'girl') {
                     if (haremItem === HaremGirl.EXPERIENCE_TYPE && haremGirlLimit && (Number(girl.level) + 50) <= Number(haremGirlLimit)) {
-                        LogUtils_logHHAuto("haremGirlLimit: " + haremGirlLimit);
+                        logHHAuto("haremGirlLimit: " + haremGirlLimit);
                         HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' ' + girl.Xp.cur + "xp, level " + girl.level + "/" + haremGirlLimit, (1) * 5, haremGirlSpent);
                         if ((Number(girl.level) + 50) >= Number(haremGirlLimit)) {
                             yield HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
@@ -7222,7 +7246,7 @@ class HaremGirl {
                     else if (haremItem === HaremGirl.AFFECTION_TYPE && (canGiftGirl)) {
                         HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' ' + girl.graded + "/" + girl.nb_grades + "star", 2, haremGirlSpent);
                         if (!(yield HaremGirl.fillAllAffection())) {
-                            LogUtils_logHHAuto("No more quest");
+                            logHHAuto("No more quest");
                             // No more quest
                             HaremGirl.HaremClearGirlPopup();
                             Harem.clearHaremToolVariables();
@@ -7230,7 +7254,7 @@ class HaremGirl {
                         }
                     }
                     else {
-                        LogUtils_logHHAuto('ERROR, no action found to be executed. ', { haremItem: haremItem, canGiftGirl: canGiftGirl, canAwakeGirl: canAwakeGirl });
+                        logHHAuto('ERROR, no action found to be executed. ', { haremItem: haremItem, canGiftGirl: canGiftGirl, canAwakeGirl: canAwakeGirl });
                         Harem.clearHaremToolVariables();
                         return false;
                     }
@@ -7243,7 +7267,7 @@ class HaremGirl {
                     let girlListProgress = '';
                     const lastGirlListProgress = '<br />' + getTextForUI("giveLastGirl", "elementText");
                     const filteredGirlsList = getStoredJSON(HHStoredVarPrefixKey + TK.filteredGirlsList, []);
-                    LogUtils_logHHAuto("filteredGirlsList", filteredGirlsList);
+                    logHHAuto("filteredGirlsList", filteredGirlsList);
                     if (filteredGirlsList && filteredGirlsList.length > 0) {
                         girlPosInList = filteredGirlsList.indexOf("" + girl.id_girl);
                         if (girlPosInList >= 0 && filteredGirlsList.length > (girlPosInList + 1)) {
@@ -7253,14 +7277,14 @@ class HaremGirl {
                         }
                     }
                     else {
-                        LogUtils_logHHAuto("ERROR: no girls stored");
+                        logHHAuto("ERROR: no girls stored");
                     }
                     if (haremGirlEnd && haremItem === HaremGirl.AFFECTION_TYPE) {
                         if (Number(girl.graded) === Number(girl.nb_grades) && nextGirlId < 0)
                             girlListProgress += lastGirlListProgress;
                         HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' ' + girl.graded + "/" + girl.nb_grades + "star : Girl " + girlListProgress, (remainingGirls + 1) * 5, haremGirlSpent);
                         if (yield HaremGirl.fillAllAffection()) {
-                            LogUtils_logHHAuto("Going to girl quest");
+                            logHHAuto("Going to girl quest");
                             return true;
                         }
                     }
@@ -7272,7 +7296,7 @@ class HaremGirl {
                         HaremGirl.HaremDisplayGirlPopup(haremItem, getTextForUI("giveMaxingOut", "elementText") + ' ' + girl.name + ' : ' + girlListProgress, (remainingGirls + 1) * 5, haremGirlSpent);
                         HaremGirl.switchTabs(HaremGirl.SKILLS_TYPE);
                         yield TimeHelper.sleep(randomInterval(400, 700));
-                        LogUtils_logHHAuto('Upgrade skills, Scroll available: ' + $('.main-skill-block .available-resources .resource-value').text());
+                        logHHAuto('Upgrade skills, Scroll available: ' + $('.main-skill-block .available-resources .resource-value').text());
                         yield HaremGirl.fullSkillsUpgrade();
                         yield TimeHelper.sleep(randomInterval(400, 700));
                     }
@@ -7285,17 +7309,17 @@ class HaremGirl {
                             yield HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
                         }
                         else {
-                            LogUtils_logHHAuto("Max out button not clickable or not found");
+                            logHHAuto("Max out button not clickable or not found");
                             HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' ' + getTextForUI("giveMaxedOut", "elementText") + ' : ' + girlListProgress, (remainingGirls + 1) * 5, haremGirlSpent);
                         }
                     }
                     if (nextGirlId >= 0) {
-                        LogUtils_logHHAuto('Go to next girl (' + nextGirlId + ') remaining ' + remainingGirls + ' girls');
+                        logHHAuto('Go to next girl (' + nextGirlId + ') remaining ' + remainingGirls + ' girls');
                         gotoPage('/girl/' + nextGirlId, { resource: haremItem }, randomInterval(1500, 2500));
                         return true;
                     }
                     else {
-                        LogUtils_logHHAuto("No more girls, go back to harem list");
+                        logHHAuto("No more girls, go back to harem list");
                         gotoPage('/characters/' + girl.id_girl, {}, randomInterval(1500, 2500));
                         Harem.clearHaremToolVariables();
                     }
@@ -7319,7 +7343,7 @@ class HaremGirl {
                         }
                     }
                     if (girlPosInList === 0)
-                        LogUtils_logHHAuto('Main girl from the team');
+                        logHHAuto('Main girl from the team');
                     if (upgradeEquipment) {
                         HaremGirl.switchTabs(HaremGirl.EQUIPMENT_TYPE);
                         yield TimeHelper.sleep(randomInterval(400, 700));
@@ -7332,18 +7356,18 @@ class HaremGirl {
                         HaremGirl.switchTabs(HaremGirl.SKILLS_TYPE);
                         yield TimeHelper.sleep(randomInterval(400, 700));
                         HaremGirl.HaremDisplayGirlPopup(HaremGirl.SKILLS_TYPE, getTextForUI("giveMaxingOut", "elementText") + ' ' + girl.name + ' : ' + girlListProgress, (remainingGirls + 1) * 5, haremGirlSpent);
-                        LogUtils_logHHAuto('Upgrade skills, Scroll available: ' + $('.main-skill-block .available-resources .resource-value').text());
+                        logHHAuto('Upgrade skills, Scroll available: ' + $('.main-skill-block .available-resources .resource-value').text());
                         yield HaremGirl.fullSkillsUpgrade(girlPosInList === 0 ? 5 : 4);
                         yield TimeHelper.sleep(randomInterval(400, 700));
                     }
                     if (nextGirlId >= 0) {
-                        LogUtils_logHHAuto('Go to next girl (' + nextGirlId + ') remaining ' + remainingGirls + ' girls');
+                        logHHAuto('Go to next girl (' + nextGirlId + ') remaining ' + remainingGirls + ' girls');
                         gotoPage('/girl/' + nextGirlId, { resource: (HaremGirl.EXPERIENCE_TYPE) }, randomInterval(1500, 2500));
                         return true;
                     }
                     else {
                         // Todo end team.
-                        LogUtils_logHHAuto("No more girls, go back to harem list");
+                        logHHAuto("No more girls, go back to harem list");
                         gotoPage('/characters/' + girl.id_girl, {}, randomInterval(1500, 2500));
                         Harem.clearHaremToolVariables();
                     }
@@ -7356,7 +7380,7 @@ class HaremGirl {
             catch (err) {
                 const message = err instanceof Error ? err.message : String(err);
                 const errName = err instanceof Error ? err.name : 'Error';
-                LogUtils_logHHAuto(`ERROR: Can't add menu girl: ${errName}, ${message}`);
+                logHHAuto(`ERROR: Can't add menu girl: ${errName}, ${message}`);
                 console.error(message);
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
                 Harem.clearHaremToolVariables();
@@ -7367,7 +7391,7 @@ class HaremGirl {
     }
     static singleSkillsUpgrade(skillId) {
         return HaremGirl_awaiter(this, void 0, void 0, function* () {
-            LogUtils_logHHAuto('Upgrade skill ' + skillId);
+            logHHAuto('Upgrade skill ' + skillId);
             try {
                 const skillButton = $(`#skills .skill-upgrade .skill-upgrade-row[skill-id='${skillId}'] button.blue_button_L:not([disabled])`).first();
                 if (skillButton.length > 0) {
@@ -7377,7 +7401,7 @@ class HaremGirl {
                 }
             }
             catch (_a) {
-                LogUtils_logHHAuto("Can't remove popup_message_harem");
+                logHHAuto("Can't remove popup_message_harem");
             }
             setTimeout(() => { HaremGirl.showSkillButtons(); }, 200);
             return Promise.resolve();
@@ -7408,7 +7432,7 @@ class HaremGirl {
                 }
             }
             catch (_a) {
-                LogUtils_logHHAuto("Can't remove popup_message_harem");
+                logHHAuto("Can't remove popup_message_harem");
             }
             return Promise.resolve();
         });
@@ -7436,7 +7460,7 @@ class HaremGirl {
             }
         }
         catch (_a) {
-            LogUtils_logHHAuto("Can't remove popup_message_harem");
+            logHHAuto("Can't remove popup_message_harem");
         }
     }
     static equipItem(girlId, armorId) {
@@ -7453,12 +7477,12 @@ class HaremGirl {
                 },
                 dataType: 'json',
                 success: function (data) {
-                    LogUtils_logHHAuto(`equipItem response for armor ${armorId}: success=${data === null || data === void 0 ? void 0 : data.success}, keys=${JSON.stringify(Object.keys(data || {}))}`);
+                    logHHAuto(`equipItem response for armor ${armorId}: success=${data === null || data === void 0 ? void 0 : data.success}, keys=${JSON.stringify(Object.keys(data || {}))}`);
                     resolve(data);
                 },
                 error: function (xhr, status, error) {
                     var _a;
-                    LogUtils_logHHAuto(`equipItem HTTP error for armor ${armorId}: status=${status}, error=${error}, response=${(_a = xhr === null || xhr === void 0 ? void 0 : xhr.responseText) === null || _a === void 0 ? void 0 : _a.substring(0, 200)}`);
+                    logHHAuto(`equipItem HTTP error for armor ${armorId}: status=${status}, error=${error}, response=${(_a = xhr === null || xhr === void 0 ? void 0 : xhr.responseText) === null || _a === void 0 ? void 0 : _a.substring(0, 200)}`);
                     resolve(null);
                 }
             });
@@ -7483,7 +7507,7 @@ class HaremGirl {
             // Also try the document/body as fallback
             scrollables.push(document.scrollingElement || document.body);
             let prevCount = countItems();
-            LogUtils_logHHAuto(`forceLoadAllInventoryItems: found ${scrollables.length} scrollable elements, initial item count=${prevCount}`);
+            logHHAuto(`forceLoadAllInventoryItems: found ${scrollables.length} scrollable elements, initial item count=${prevCount}`);
             // Require 2 consecutive stable iterations before breaking — a single
             // stable iteration can happen during a network hiccup while more items
             // are still loading (see issue #1573).
@@ -7524,7 +7548,7 @@ class HaremGirl {
             var _a, _b, _c, _d, _e, _f;
             const equipmentSlots = $('.equipment_slot');
             const slotCount = equipmentSlots.length;
-            LogUtils_logHHAuto(`Optimize equipment: checking ${slotCount} slots for ${girl.name}`);
+            logHHAuto(`Optimize equipment: checking ${slotCount} slots for ${girl.name}`);
             for (let i = 0; i < slotCount; i++) {
                 const slot = equipmentSlots.eq(i);
                 slot.trigger('click');
@@ -7556,9 +7580,9 @@ class HaremGirl {
                 });
                 // Filter candidates by slot_index so we don't compare pants to necklaces
                 const inventoryItems = allDomItems.filter(it => Number(it.data.slot_index) === Number(targetSlotIndex));
-                LogUtils_logHHAuto(`Slot ${i}: ${inventoryItems.length} candidates, equipped=${equippedData ? `L${equippedData.level} ${equippedData.rarity}` : 'none'}`);
+                logHHAuto(`Slot ${i}: ${inventoryItems.length} candidates, equipped=${equippedData ? `L${equippedData.level} ${equippedData.rarity}` : 'none'}`);
                 if (inventoryItems.length === 0) {
-                    LogUtils_logHHAuto(`Slot ${i}: no inventory items for slot_index=${targetSlotIndex}, skipping`);
+                    logHHAuto(`Slot ${i}: no inventory items for slot_index=${targetSlotIndex}, skipping`);
                     continue;
                 }
                 // Rank candidates: total stats, then resonance, then individual stats
@@ -7576,7 +7600,7 @@ class HaremGirl {
                 const bestScore = scoreItem(bestInventory.data, girl);
                 const shouldReplace = isBetter(bestInventory.data, equippedData, girl);
                 if (shouldReplace) {
-                    LogUtils_logHHAuto(`Slot ${i}: replacing with better item (L${bestInventory.data.level} ${bestInventory.data.rarity}, score=${bestScore.caracSum}, resonance=${bestScore.resonanceMatches})`);
+                    logHHAuto(`Slot ${i}: replacing with better item (L${bestInventory.data.level} ${bestInventory.data.rarity}, score=${bestScore.caracSum}, resonance=${bestScore.resonanceMatches})`);
                     // Capture previous equipped identity so we can verify a real change below (see issue #1573)
                     const previousEquippedKey = equippedData ? ((_c = (_b = equippedData.id_item) !== null && _b !== void 0 ? _b : equippedData.id_equipement) !== null && _c !== void 0 ? _c : JSON.stringify(equippedData)) : null;
                     const MAX_EQUIP_ATTEMPTS = 3;
@@ -7610,19 +7634,19 @@ class HaremGirl {
                                 if ($fresh.length > 0) {
                                     bestInventory.el = $fresh;
                                     raw = $fresh.get(0);
-                                    LogUtils_logHHAuto(`Slot ${i}: item was detached, re-queried fresh node`);
+                                    logHHAuto(`Slot ${i}: item was detached, re-queried fresh node`);
                                     if (typeof raw.scrollIntoView === 'function') {
                                         raw.scrollIntoView({ block: 'center' });
                                         yield TimeHelper.sleep(randomInterval(50, 100));
                                     }
                                 }
                                 else {
-                                    LogUtils_logHHAuto(`Slot ${i}: no connected candidate after re-query, aborting attempts`);
+                                    logHHAuto(`Slot ${i}: no connected candidate after re-query, aborting attempts`);
                                     break;
                                 }
                             }
                             else {
-                                LogUtils_logHHAuto(`Slot ${i}: detached and no id_girl_armor to re-query, aborting attempts`);
+                                logHHAuto(`Slot ${i}: detached and no id_girl_armor to re-query, aborting attempts`);
                                 break;
                             }
                         }
@@ -7649,10 +7673,10 @@ class HaremGirl {
                             else
                                 $equipBtn.trigger('click');
                             yield TimeHelper.sleep(randomInterval(500, 700));
-                            LogUtils_logHHAuto(`Slot ${i}: equip button clicked (attempt ${attempt}/${MAX_EQUIP_ATTEMPTS})`);
+                            logHHAuto(`Slot ${i}: equip button clicked (attempt ${attempt}/${MAX_EQUIP_ATTEMPTS})`);
                         }
                         else {
-                            LogUtils_logHHAuto(`Slot ${i}: #girl-equipment-equip not found (attempt ${attempt}/${MAX_EQUIP_ATTEMPTS})`);
+                            logHHAuto(`Slot ${i}: #girl-equipment-equip not found (attempt ${attempt}/${MAX_EQUIP_ATTEMPTS})`);
                         }
                         // Verify the equipped item actually changed (see issue #1573)
                         yield TimeHelper.sleep(randomInterval(100, 200));
@@ -7666,25 +7690,25 @@ class HaremGirl {
                         }
                         const verifyKey = verifyData ? ((_f = (_e = verifyData.id_item) !== null && _e !== void 0 ? _e : verifyData.id_equipement) !== null && _f !== void 0 ? _f : JSON.stringify(verifyData)) : null;
                         if (verifyKey !== previousEquippedKey) {
-                            LogUtils_logHHAuto(`Slot ${i}: equip verified (L${verifyData === null || verifyData === void 0 ? void 0 : verifyData.level} ${verifyData === null || verifyData === void 0 ? void 0 : verifyData.rarity})`);
+                            logHHAuto(`Slot ${i}: equip verified (L${verifyData === null || verifyData === void 0 ? void 0 : verifyData.level} ${verifyData === null || verifyData === void 0 ? void 0 : verifyData.rarity})`);
                             equipSucceeded = true;
                             break;
                         }
-                        LogUtils_logHHAuto(`Slot ${i}: equip NOT verified, previous item still equipped (attempt ${attempt}/${MAX_EQUIP_ATTEMPTS})`);
+                        logHHAuto(`Slot ${i}: equip NOT verified, previous item still equipped (attempt ${attempt}/${MAX_EQUIP_ATTEMPTS})`);
                         if (attempt < MAX_EQUIP_ATTEMPTS) {
                             yield TimeHelper.sleep(randomInterval(200, 300));
                         }
                     }
                     if (!equipSucceeded) {
-                        LogUtils_logHHAuto(`Slot ${i}: equip failed after ${MAX_EQUIP_ATTEMPTS} attempts, skipping`);
+                        logHHAuto(`Slot ${i}: equip failed after ${MAX_EQUIP_ATTEMPTS} attempts, skipping`);
                     }
                 }
                 else {
                     const eqScore = equippedData ? scoreItem(equippedData, girl) : null;
-                    LogUtils_logHHAuto(`Slot ${i}: current item is optimal (L${equippedData === null || equippedData === void 0 ? void 0 : equippedData.level} ${equippedData === null || equippedData === void 0 ? void 0 : equippedData.rarity}, score=${eqScore === null || eqScore === void 0 ? void 0 : eqScore.caracSum})`);
+                    logHHAuto(`Slot ${i}: current item is optimal (L${equippedData === null || equippedData === void 0 ? void 0 : equippedData.level} ${equippedData === null || equippedData === void 0 ? void 0 : equippedData.rarity}, score=${eqScore === null || eqScore === void 0 ? void 0 : eqScore.caracSum})`);
                 }
             }
-            LogUtils_logHHAuto('Equipment optimization complete');
+            logHHAuto('Equipment optimization complete');
         });
     }
 }
@@ -7719,7 +7743,7 @@ HaremGirl.SCROLLS_NEED_4 = {
 HaremGirl.SKILL_BUTTON_SELECTOR = "#skills .skill-upgrade button.blue_button_L:not([disabled])";
 HaremGirl.SKILL_ORDER_PRIO = [2, 5, 4, 8];
 
-;// CONCATENATED MODULE: ./src/Module/harem/Harem.ts
+;// ./src/Module/harem/Harem.ts
 var Harem_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -7771,7 +7795,7 @@ class Harem {
         deleteStoredValue(HHStoredVarPrefixKey + TK.haremTeamScrolls);
         deleteStoredValue(HHStoredVarPrefixKey + TK.haremTeamSettings);
         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
-        LogUtils_logHHAuto("clearHaremToolVariables: re-enabling autoLoop.");
+        logHHAuto("clearHaremToolVariables: re-enabling autoLoop.");
         const lastActionPerformed = getStoredValue(HHStoredVarPrefixKey + TK.lastActionPerformed);
         if (lastActionPerformed === Harem.HAREM_UPGRADE_LAST_ACTION) {
             setStoredValue(HHStoredVarPrefixKey + TK.lastActionPerformed, "none");
@@ -7787,7 +7811,7 @@ class Harem {
                     girlsMap.sort(ConfigHelper.getHHScriptVars("haremSortingFunctions")[inSortType]);
                 }
                 else {
-                    LogUtils_logHHAuto("Unknown sorting function, returning Girls Map sorted by date acquired.");
+                    logHHAuto("Unknown sorting function, returning Girls Map sorted by date acquired.");
                     girlsMap.sort(ConfigHelper.getHHScriptVars("haremSortingFunctions").DateAcquired);
                 }
             }
@@ -7885,7 +7909,7 @@ class Harem {
             var gMap = getHHVars('girls_data_list') || getHHVars('availableGirls');
             if (gMap === null) {
                 // error
-                LogUtils_logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
+                logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
             }
             else {
                 try {
@@ -7914,7 +7938,7 @@ class Harem {
                 }
                 catch (exp) {
                     // error
-                    LogUtils_logHHAuto("Catched error : Girls Map had undefined property...! Error, cannot export girls : " + exp);
+                    logHHAuto("Catched error : Girls Map had undefined property...! Error, cannot export girls : " + exp);
                 }
             }
             return dataToSave;
@@ -7969,14 +7993,14 @@ class Harem {
                     if (!!haremItem && haremGirlMode === 'team') {
                         HaremGirl.HaremDisplayGirlPopup(HaremGirl.SKILLS_TYPE, "Get scrolls", 1, 0);
                         if (debugEnabled)
-                            LogUtils_logHHAuto("Waifu page detected, get girls with skills");
+                            logHHAuto("Waifu page detected, get girls with skills");
                         const girlDictionary = getHHVars("girls_data_list");
                         const skilledGirls = Object.values(girlDictionary).filter((girl) => {
                             const skills = Object.values(girl.skill_tiers_info);
                             return Number(skills.reduce((accumulator, skill) => accumulator + (skill.skill_points_used || 0), 0)) > 0;
                         });
                         if (debugEnabled)
-                            LogUtils_logHHAuto('Found skilled girls: ' + skilledGirls.length);
+                            logHHAuto('Found skilled girls: ' + skilledGirls.length);
                         const skilledGirlsScrolls = { 'mythic': {}, 'legendary': {}, 'epic': {}, 'rare': {}, 'common': {} };
                         for (let index = 0; index < skilledGirls.length; index++) {
                             const girl = skilledGirls[index];
@@ -7987,7 +8011,7 @@ class Harem {
                             skilledGirlsScrolls[girlRarity][girl.id_girl + ""] = totalScrolls;
                         }
                         if (debugEnabled)
-                            LogUtils_logHHAuto("Found skilled girls: ", skilledGirlsScrolls);
+                            logHHAuto("Found skilled girls: ", skilledGirlsScrolls);
                         setStoredValue(HHStoredVarPrefixKey + TK.haremTeamScrolls, JSON.stringify(skilledGirlsScrolls));
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
                         return true;
@@ -8006,15 +8030,15 @@ class Harem {
                             haremFilter.openFilter();
                             yield TimeHelper.sleep(randomInterval(200, 400)); // wait open
                             if (debugEnabled)
-                                LogUtils_logHHAuto('Reseting girl filters');
+                                logHHAuto('Reseting girl filters');
                             haremFilter.resetFilter();
                             yield TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
                             if (debugEnabled)
-                                LogUtils_logHHAuto('selectOnlyOwnedGirls');
+                                logHHAuto('selectOnlyOwnedGirls');
                             yield haremFilter.selectOnlyOwnedGirls();
                             yield TimeHelper.sleep(randomInterval(200, 400));
                             if (debugEnabled)
-                                LogUtils_logHHAuto('selectSkilledGirls');
+                                logHHAuto('selectSkilledGirls');
                             yield haremFilter.selectSkilledGirls();
                             yield TimeHelper.sleep(randomInterval(800, 1200));
                             girlListDisplayed = Object.values(getHHVars("shared.GirlSalaryManager.girlsMap"));
@@ -8024,7 +8048,7 @@ class Harem {
                         }
                         const getScrolls = (rarity) => Harem_awaiter(this, void 0, void 0, function* () {
                             HaremGirl.HaremDisplayGirlPopup(HaremGirl.SKILLS_TYPE, "resetting " + rarity, 7, 0);
-                            LogUtils_logHHAuto('Get ' + rarity + ' scrolls needed: ' + team['scrolls_' + rarity]);
+                            logHHAuto('Get ' + rarity + ' scrolls needed: ' + team['scrolls_' + rarity]);
                             let scrollGot = 0;
                             //await haremFilter.selectGirlFilters('6');
                             //const mythicGirls: KKHaremSalaryGirl[] = girlListDisplayed.filter((girl: KKHaremSalaryGirl) => girl.gData.rarity == 'mythic');
@@ -8032,17 +8056,17 @@ class Harem {
                             for (const girlId in girls) {
                                 if (team.girlIds.includes(Number(girlId))) {
                                     if (debugEnabled)
-                                        LogUtils_logHHAuto('Found ' + rarity + ' girl in team: (' + girlId + '), keep skilled');
+                                        logHHAuto('Found ' + rarity + ' girl in team: (' + girlId + '), keep skilled');
                                     continue;
                                 }
                                 const girlSkillNb = girls[girlId];
                                 // common 5M per skill
                                 const cost = girlSkillNb * 5000000;
                                 if (teamSettings.moneyToKeep && (heroMoney - cost) < teamSettings.moneyToKeep) {
-                                    LogUtils_logHHAuto(`Not enough money to reset skills for ${rarity} girl (${girlId}) for ${girls[girlId]} scrolls for a cost of ${cost / 1000000}M. Player money: ${heroMoney}`);
+                                    logHHAuto(`Not enough money to reset skills for ${rarity} girl (${girlId}) for ${girls[girlId]} scrolls for a cost of ${cost / 1000000}M. Player money: ${heroMoney}`);
                                     continue;
                                 }
-                                LogUtils_logHHAuto(`Reset skills for ${rarity} girl (${girlId}) for ${girls[girlId]} scrolls for a cost of ${cost / 1000000}M. Player money: ${heroMoney}`);
+                                logHHAuto(`Reset skills for ${rarity} girl (${girlId}) for ${girls[girlId]} scrolls for a cost of ${cost / 1000000}M. Player money: ${heroMoney}`);
                                 const resetSuccess = yield Harem.resetGirlSkills(Number(girlId));
                                 if (resetSuccess) {
                                     scrollGot += girls[girlId];
@@ -8055,7 +8079,7 @@ class Harem {
                                 // await TimeHelper.sleep(randomInterval(200, 400)); // wait open
                                 if (scrollGot >= team['scrolls_' + rarity]) {
                                     if (debugEnabled)
-                                        LogUtils_logHHAuto('Got enough ' + rarity + ' scrolls, stop resetting');
+                                        logHHAuto('Got enough ' + rarity + ' scrolls, stop resetting');
                                     break;
                                 }
                             }
@@ -8066,20 +8090,20 @@ class Harem {
                             const haveAlreadySkilledGirls = skilledGirlsScrolls[rarity] && Object.keys(skilledGirlsScrolls[rarity]).length > 0;
                             const userSelectedResetScrolls = teamSettings['reset' + rarity.charAt(0).toUpperCase() + rarity.slice(1) + 'Girls'] === true;
                             if (debugEnabled)
-                                LogUtils_logHHAuto(`For rarity ${rarity}, needScrolls: ${needScrolls}, haveAlreadySkilledGirls: ${haveAlreadySkilledGirls}, userSelectedResetScrolls: ${userSelectedResetScrolls}`);
+                                logHHAuto(`For rarity ${rarity}, needScrolls: ${needScrolls}, haveAlreadySkilledGirls: ${haveAlreadySkilledGirls}, userSelectedResetScrolls: ${userSelectedResetScrolls}`);
                             if (needScrolls && haveAlreadySkilledGirls && userSelectedResetScrolls) {
                                 if (!(yield getScrolls(rarity))) {
-                                    LogUtils_logHHAuto(`Failed to get enough ${rarity} scrolls, stop process`);
+                                    logHHAuto(`Failed to get enough ${rarity} scrolls, stop process`);
                                     break;
                                 }
                             }
                         }
                         if (debugEnabled)
-                            LogUtils_logHHAuto('Finished getting scrolls, go to first girl');
+                            logHHAuto('Finished getting scrolls, go to first girl');
                         const nextGirlId = team.girlIds[0] || -1;
                         if (nextGirlId >= 0) {
                             if (debugEnabled)
-                                LogUtils_logHHAuto('Go to first team girl (' + nextGirlId + ') remaining ' + (team.girlIds.length - 1) + ' girls');
+                                logHHAuto('Go to first team girl (' + nextGirlId + ') remaining ' + (team.girlIds.length - 1) + ' girls');
                             gotoPage('/girl/' + nextGirlId, { resource: (HaremGirl.EQUIPMENT_TYPE) }, randomInterval(1500, 2500));
                             return true;
                         }
@@ -8092,7 +8116,7 @@ class Harem {
             catch (err) {
                 const message = err instanceof Error ? err.message : String(err);
                 const errName = err instanceof Error ? err.name : 'Error';
-                LogUtils_logHHAuto(`ERROR: run harem auto: ${errName}, ${message}`);
+                logHHAuto(`ERROR: run harem auto: ${errName}, ${message}`);
                 console.error(message);
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
                 Harem.clearHaremToolVariables();
@@ -8122,7 +8146,7 @@ class Harem {
                 window.history.replaceState(null, '', addNutakuSession(currentPage));
                 resolve(data.success || true);
             }, function (err) {
-                LogUtils_logHHAuto('Error occured during girl skills reset', err);
+                logHHAuto('Error occured during girl skills reset', err);
                 resolve(false);
             });
         });
@@ -8151,15 +8175,15 @@ class Harem {
         const filteredGirlsList = Harem.getFilteredGirlList();
         if (filteredGirlsList && filteredGirlsList.length > 0) {
             const girlToGoTo = filteredGirlsList[0];
-            LogUtils_logHHAuto("Go to " + girlToGoTo);
+            logHHAuto("Go to " + girlToGoTo);
             gotoPage('/girl/' + girlToGoTo, { resource: haremItem });
             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-            LogUtils_logHHAuto("setting autoloop to false");
+            logHHAuto("setting autoloop to false");
         }
         setStoredValue(HHStoredVarPrefixKey + TK.haremGirlActions, haremItem);
         setStoredValue(HHStoredVarPrefixKey + TK.haremGirlMode, 'list');
         if (!(Number(getStoredValue(HHStoredVarPrefixKey + TK.haremMoneyOnStart)) > 0)) {
-            LogUtils_logHHAuto('set money to ' + HeroHelper.getMoney());
+            logHHAuto('set money to ' + HeroHelper.getMoney());
             setStoredValue(HHStoredVarPrefixKey + TK.haremMoneyOnStart, HeroHelper.getMoney());
         }
         if (payLast)
@@ -8212,7 +8236,7 @@ class Harem {
         }
         catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            LogUtils_logHHAuto(`ERROR in display DP rewards: ${message}`);
+            logHHAuto(`ERROR in display DP rewards: ${message}`);
         }
     }
     static addGirlListMenu() {
@@ -8295,7 +8319,7 @@ class Harem {
         const girlList = getHHVars('girls_data_list', false) || getHHVars('availableGirls', false);
         if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && girlList !== null) {
             setStoredValue(HHStoredVarPrefixKey + TK.HaremSize, JSON.stringify({ count: Object.keys(girlList).length, count_date: new Date().getTime() }));
-            LogUtils_logHHAuto("Harem size updated to : " + Object.keys(girlList).length);
+            logHHAuto("Harem size updated to : " + Object.keys(girlList).length);
         }
     }
     static getGirlUpgradeCost(inRarity, inTargetGrade) {
@@ -8330,7 +8354,7 @@ class Harem {
 }
 Harem.HAREM_UPGRADE_LAST_ACTION = 'haremGirl';
 
-;// CONCATENATED MODULE: ./src/config/game/AmourAgentVars.ts
+;// ./src/config/game/AmourAgentVars.ts
 // Game-variant configuration for Amour Agent.
 // Provides domain-to-environment mapping, troll names, and quest data
 // specific to the Amour Agent game variant.
@@ -8355,7 +8379,7 @@ class AmourAgent {
 AmourAgent.trollIdMapping = {};
 AmourAgent.lastQuestId = -1; //  TODO update when new quest comes
 
-;// CONCATENATED MODULE: ./src/config/game/ComixHaremVars.ts
+;// ./src/config/game/ComixHaremVars.ts
 // Game-variant configuration for Comix Harem.
 // Provides domain-to-environment mapping, troll names, and quest data
 // specific to the Comix Harem game variant.
@@ -8412,7 +8436,7 @@ ComixHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4
 ComixHarem.trollIdMapping = {};
 ComixHarem.lastQuestId = -1; //  TODO update when new quest comes
 
-;// CONCATENATED MODULE: ./src/config/game/GayHaremVars.ts
+;// ./src/config/game/GayHaremVars.ts
 // Game-variant configuration for Gay Harem.
 // Provides domain-to-environment mapping, troll names, and quest data
 // specific to the Gay Harem game variant.
@@ -8479,7 +8503,7 @@ GayHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-
 GayHarem.trollIdMapping = {};
 GayHarem.lastQuestId = -1; //  TODO update when new quest comes
 
-;// CONCATENATED MODULE: ./src/config/game/GayPornstarHaremVars.ts
+;// ./src/config/game/GayPornstarHaremVars.ts
 // Game-variant configuration for Gay Pornstar Harem.
 // Provides domain-to-environment mapping, troll ID remapping, troll names,
 // and quest data specific to the Gay Pornstar Harem game variant.
@@ -8523,7 +8547,7 @@ GayPornstarHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZM
 GayPornstarHarem.trollIdMapping = { 6: 2, 7: 3, 8: 4, 9: 5, 10: 6, 11: 7, 12: 8 };
 GayPornstarHarem.lastQuestId = -1; //  TODO update when new quest comes
 
-;// CONCATENATED MODULE: ./src/config/game/HentaiHeroesVars.ts
+;// ./src/config/game/HentaiHeroesVars.ts
 // Game-variant configuration for Hentai Heroes (the primary/default variant).
 // Provides domain-to-environment mapping, troll ID remapping, troll names,
 // and quest data specific to the Hentai Heroes game variant.
@@ -8644,7 +8668,7 @@ HentaiHeroes.trollIdMapping = { 21: 19, 24: 22 };
 HentaiHeroes.sideTrollIdMapping = { 22: 20, 23: 21 };
 HentaiHeroes.lastQuestId = 2408; //  TODO update when new quest comes
 
-;// CONCATENATED MODULE: ./src/config/game/MangaRpgVars.ts
+;// ./src/config/game/MangaRpgVars.ts
 // Game-variant configuration for Manga RPG.
 // Provides domain-to-environment mapping, troll ID remapping, troll names,
 // and quest data specific to the Manga RPG game variant.
@@ -8678,7 +8702,7 @@ class MangaRpg {
 MangaRpg.trollIdMapping = { 3: 3 };
 MangaRpg.lastQuestId = -1; //  TODO update when new quest comes
 
-;// CONCATENATED MODULE: ./src/config/game/PornstarHaremVars.ts
+;// ./src/config/game/PornstarHaremVars.ts
 // Game-variant configuration for Pornstar Harem.
 // Provides domain-to-environment mapping, troll ID remapping, troll names,
 // and quest data specific to the Pornstar Harem game variant.
@@ -8748,7 +8772,7 @@ class PornstarHarem {
 PornstarHarem.trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 20: 14, 23: 15, 26: 17, 27: 18, 28: 19 }; // under 10 id as usual
 PornstarHarem.lastQuestId = 16100; //  TODO update when new quest comes
 
-;// CONCATENATED MODULE: ./src/config/game/TransPornstarHaremVars.ts
+;// ./src/config/game/TransPornstarHaremVars.ts
 // Game-variant configuration for Trans Pornstar Harem.
 // Provides domain-to-environment mapping, troll ID remapping, troll names,
 // and quest data specific to the Trans Pornstar Harem game variant.
@@ -8795,7 +8819,7 @@ class TransPornstarHarem {
 TransPornstarHarem.trollIdMapping = { 2: 1, 3: 2, 5: 3, 6: 4, 7: 5, 8: 6, 9: 7, 11: 8, 13: 9, 14: 10, 15: 11 };
 TransPornstarHarem.lastQuestId = -1; //  TODO update when new quest comes
 
-;// CONCATENATED MODULE: ./src/config/HHEnvVariables.ts
+;// ./src/config/HHEnvVariables.ts
 // Per-environment (game variant) configuration for HHAuto.
 // Detects the current game domain and loads the matching set of page IDs, URLs,
 // CSS selectors, feature flags, and troll/quest data for that variant.
@@ -9256,7 +9280,7 @@ for (const key in GayPornstarHarem.getEnv()) {
 ;
 // Object.values(girlsDataList).filter(girl => girl.source?.name == "troll_tier" && girl.source?.group?.id == "7")
 
-;// CONCATENATED MODULE: ./src/Helper/ConfigHelper.ts
+;// ./src/Helper/ConfigHelper.ts
 
 
 
@@ -9285,7 +9309,7 @@ class ConfigHelper {
             }
             else {
                 if (logNotFound) {
-                    LogUtils_logHHAuto("not found var for " + environnement + "/" + id);
+                    logHHAuto("not found var for " + environnement + "/" + id);
                 }
                 return null;
             }
@@ -9293,7 +9317,7 @@ class ConfigHelper {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/LabyrinthDifficulty.ts
+;// ./src/Module/LabyrinthDifficulty.ts
 // Labyrinth difficulty option values shared between the menu (difficulty
 // select) and LabyrinthAuto. Kept in a dependency-free leaf module so the
 // menu does not have to import LabyrinthAuto (and its transitive module
@@ -9304,7 +9328,7 @@ const LABY_DIFFICULTY = {
     HARD: "2",
 };
 
-;// CONCATENATED MODULE: ./src/Module/LeagueSortModes.ts
+;// ./src/Module/LeagueSortModes.ts
 // League opponent-list sort mode values shared between the menu (sort-mode
 // select) and LeagueHelper. Kept in a dependency-free leaf module so the
 // menu does not have to import the League module (and its transitive module
@@ -9315,7 +9339,7 @@ const LEAGUE_SORT = {
     POWERCALC: '2',
 };
 
-;// CONCATENATED MODULE: ./src/Module/Events/BossBang.ts
+;// ./src/Module/Events/BossBang.ts
 var BossBang_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9381,23 +9405,23 @@ class BossBang {
                         if (!teamz.hasClass('.selected-hero-team'))
                             teamz.click();
                         teamFound = true;
-                        LogUtils_logHHAuto("Select team " + (teamIndex + 1) + ", Ego: " + parseInt(teamEgo.text()));
+                        logHHAuto("Select team " + (teamIndex + 1) + ", Ego: " + parseInt(teamEgo.text()));
                         setStoredValue(HHStoredVarPrefixKey + TK.bossBangTeam, teamIndex);
                         return true;
                     }
                 }
                 else {
-                    LogUtils_logHHAuto("Team " + teamIndex + " not eligible");
+                    logHHAuto("Team " + teamIndex + " not eligible");
                 }
             }
             // setTimer('nextBossBangTime', randomInterval(30, 60) * 60); // 30 to 60 minutes
         }
         else if (eventList[eventID]["isCompleted"]) {
-            LogUtils_logHHAuto("Boss bang completed, disabled boss bang event setting");
+            logHHAuto("Boss bang completed, disabled boss bang event setting");
             setStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent, false);
         }
         else {
-            LogUtils_logHHAuto(`No eligible team found for boss bang event, need team ${firstTeamToStartWith} or higher`);
+            logHHAuto(`No eligible team found for boss bang event, need team ${firstTeamToStartWith} or higher`);
         }
         if (!teamFound) {
             setStoredValue(HHStoredVarPrefixKey + TK.bossBangTeam, -1);
@@ -9417,21 +9441,21 @@ class BossBang {
                 //     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 // and (if no other ADR-003 block remains) drop the imports/markers above.
                 if (!acquirePostMutex('bossbang:rewards')) {
-                    LogUtils_logHHAuto('BossBang: another POST in flight, deferring rewards click');
+                    logHHAuto('BossBang: another POST in flight, deferring rewards click');
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                     return;
                 }
-                LogUtils_logHHAuto("Click get rewards bang fight");
+                logHHAuto("Click get rewards bang fight");
                 const claimStart = Date.now();
                 rewardsButton.trigger('click');
-                const idle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                const idle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                 const claimDuration = Date.now() - claimStart;
                 releasePostMutex();
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 if (idle)
                     yield awaitServerSettleAfterPost(claimDuration);
                 else
-                    LogUtils_logHHAuto('BossBang: rewards AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
+                    logHHAuto('BossBang: rewards AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, skipping settle');
                 // <<< ADR-003 / issue #1598 - bossbang:rewards end
             }
             else if (skipFightButton.length > 0) {
@@ -9445,21 +9469,21 @@ class BossBang {
                 //     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 // and (if no other ADR-003 block remains) drop the imports/markers above.
                 if (!acquirePostMutex('bossbang:skipFight')) {
-                    LogUtils_logHHAuto('BossBang: another POST in flight, deferring skip click');
+                    logHHAuto('BossBang: another POST in flight, deferring skip click');
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                     return;
                 }
-                LogUtils_logHHAuto("Click skip boss bang fight");
+                logHHAuto("Click skip boss bang fight");
                 const claimStart = Date.now();
                 skipFightButton.trigger('click');
-                const idle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                const idle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                 const claimDuration = Date.now() - claimStart;
                 releasePostMutex();
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 if (idle)
                     yield awaitServerSettleAfterPost(claimDuration);
                 else
-                    LogUtils_logHHAuto('BossBang: skip AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
+                    logHHAuto('BossBang: skip AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, skipping settle');
                 setTimeout(BossBang.skipFightPage, randomInterval(1300, 1900));
                 // <<< ADR-003 / issue #1598 - bossbang:skipFight end
             }
@@ -9471,7 +9495,7 @@ class BossBang {
                 const teamIndexFound = parseInt(getStoredValue(HHStoredVarPrefixKey + TK.bossBangTeam));
                 let bangButton = $('#contains_all #events #boss_bang .boss-bang-event-info #start-bang-button:not([disabled])');
                 if (teamIndexFound >= 0 && bangButton.length > 0) {
-                    LogUtils_logHHAuto("Go to boss bang fight page");
+                    logHHAuto("Go to boss bang fight page");
                     // Use safeNavigateHref so any in-flight game AJAX completes
                     // before the URL change. Direct location.href = ... cancels
                     // open XHRs with NS_BINDING_ABORTED, which can trigger the
@@ -9482,7 +9506,7 @@ class BossBang {
                     return true;
                 }
                 else {
-                    LogUtils_logHHAuto(`Cannot go to boss bang fight page, no team selected ${teamIndexFound} or no bang button found`);
+                    logHHAuto(`Cannot go to boss bang fight page, no team selected ${teamIndexFound} or no bang button found`);
                     setTimer('nextBossBangTime', randomInterval(30, 60) * 60); // 30 to 60 minutes
                 }
             }
@@ -9494,7 +9518,7 @@ class BossBang {
                     if (bossbangEventIDs.length > 0)
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"), { tab: bossbangEventIDs[0] });
                     else {
-                        LogUtils_logHHAuto("Cannot go to boss bang fight page, no boss bang event found");
+                        logHHAuto("Cannot go to boss bang fight page, no boss bang event found");
                         setTimer('nextBossBangTime', randomInterval(30, 60) * 60); // 30 to 60 minutes
                     }
                 }
@@ -9504,7 +9528,7 @@ class BossBang {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/CumbackContests.ts
+;// ./src/Module/Events/CumbackContests.ts
 // CumbackContests.ts -- Cumback Contest event handling and auto-collection.
 //
 // Cumback Contests are periodic events that reward returning players. This
@@ -9542,7 +9566,7 @@ class CumbackContests {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/ButtonHelper.ts
+;// ./src/Helper/ButtonHelper.ts
 /**
  * ButtonHelper.ts - Reusable HTML button generators for the game UI
  *
@@ -9560,7 +9584,7 @@ function getGoToClubChampionButton() {
     return `<button data-href="${ConfigHelper.getHHScriptVars("pagesURLClubChampion")}" class="blue_button_L hh-club-poa">${getTextForUI("goToClubChampions", "elementText")}</button>`;
 }
 
-;// CONCATENATED MODULE: ./src/model/BDSMPlayer.ts
+;// ./src/model/BDSMPlayer.ts
 // Model for a player in the BDSM (battle simulation) system.
 // Holds combat stats (HP, attack, defense, crit, shields, stun, reflect, etc.)
 // used by the battle simulator to predict fight outcomes.
@@ -9579,7 +9603,7 @@ class BDSMPlayer {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/BDSMHelper.ts
+;// ./src/Helper/BDSMHelper.ts
 
 
 class BDSMHelper {
@@ -9668,7 +9692,7 @@ let _cache;
 function calculateBattleProbabilities(player, opponent, debugEnabled = false) {
     if (debugEnabled) {
         // logHHAuto('Running simulation against' + opponent.name, opponent);
-        LogUtils_logHHAuto('Running simulation against' + opponent.name);
+        logHHAuto('Running simulation against' + opponent.name);
     }
     _player = player;
     _opponent = opponent;
@@ -9694,7 +9718,7 @@ function calculateBattleProbabilities(player, opponent, debugEnabled = false) {
         ret = playerTurn(_player.hp, _opponent.hp, _player.playerShield, _opponent.opponentShield, _player.stunned, _opponent.stunned, _player.reflect, _opponent.reflect, 1);
     }
     catch ({ errName, message }) {
-        LogUtils_logHHAuto(`An error occurred during the simulation against ${_opponent.name}`, errName, message);
+        logHHAuto(`An error occurred during the simulation against ${_opponent.name}`, errName, message);
         return {};
     }
     const sum = ret.win + ret.loss;
@@ -9702,7 +9726,7 @@ function calculateBattleProbabilities(player, opponent, debugEnabled = false) {
     ret.loss /= sum;
     ret.scoreClass = ret.win > 0.9 ? 'plus' : ret.win < 0.5 ? 'minus' : 'close';
     if (debugEnabled) {
-        LogUtils_logHHAuto(`Ran ${_runs} simulations against ${_opponent.name}; aggregated win chance: ${ret.win * 100}%`);
+        logHHAuto(`Ran ${_runs} simulations against ${_opponent.name}; aggregated win chance: ${ret.win * 100}%`);
     }
     return ret;
     function calculateDmg(x, turns) {
@@ -9987,7 +10011,7 @@ function getSkillPercentage(team, id) {
     return 1 + (team.girls.map((e) => { var _a, _b; return (_b = (_a = e.skills[id]) === null || _a === void 0 ? void 0 : _a.skill.percentage_value) !== null && _b !== void 0 ? _b : 0; }).reduce((a, b) => a + b, 0) / 100);
 }
 
-;// CONCATENATED MODULE: ./src/model/SeasonOpponent.ts
+;// ./src/model/SeasonOpponent.ts
 // Model for a season (Seasons of Love) opponent.
 // Holds the opponent's ID, nickname, mojo/exp/affection rewards,
 // and the pre-computed battle simulation result.
@@ -10003,14 +10027,14 @@ class SeasonOpponent {
     }
 }
 
-;// CONCATENATED MODULE: ./src/model/LoveRaid.ts
+;// ./src/model/LoveRaid.ts
 // Model representing a Love Raid event instance.
 // Contains the raid target (girl), associated troll/champion/season module,
 // timing (start/end), shard progress, and reward availability flags.
 class LoveRaid {
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/LoveRaidManager.ts
+;// ./src/Module/Events/LoveRaidManager.ts
 // LoveRaidManager.ts -- Love Raid event: manages raids and tracks girl shards.
 //
 // Love Raids are cooperative events where players raid together for girl shard
@@ -10058,13 +10082,13 @@ class LoveRaidManager {
             }
             catch (err) {
                 const message = err instanceof Error ? err.message : String(err);
-                LogUtils_logHHAuto(`ERROR during Love raid run: ${message}, retry in 1h`);
+                logHHAuto(`ERROR during Love raid run: ${message}, retry in 1h`);
                 setTimer('nextLoveRaidTime', randomInterval(3600, 4000));
                 return false;
             }
         }
         else {
-            LogUtils_logHHAuto("Switching to Love raid screen.");
+            logHHAuto("Switching to Love raid screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDLoveRaid"));
             return true;
         }
@@ -10120,7 +10144,7 @@ class LoveRaidManager {
         const plusGirlSkins = getStoredValue(HHStoredVarPrefixKey + SK.plusGirlSkins) === "true";
         let raid = undefined;
         let autoRaidSelectedIndex = getStoredValue(HHStoredVarPrefixKey + SK.autoLoveRaidSelectedIndex);
-        LogUtils_logHHAuto(`getRaidToFight: selector="${autoRaidSelectedIndex}", raids=${raids.length}, raidIds=[${raids.map(r => r.trollId + '_' + r.id_girl).join(',')}]`);
+        logHHAuto(`getRaidToFight: selector="${autoRaidSelectedIndex}", raids=${raids.length}, raidIds=[${raids.map(r => r.trollId + '_' + r.id_girl).join(',')}]`);
         if (autoRaidSelectedIndex === undefined || autoRaidSelectedIndex === '') {
             autoRaidSelectedIndex = '0';
         }
@@ -10128,7 +10152,7 @@ class LoveRaidManager {
             const autoRaidSelectedIndexArray = autoRaidSelectedIndex.split('_');
             if (autoRaidSelectedIndexArray.length !== 2) {
                 if (logging)
-                    LogUtils_logHHAuto('Saved raid index is malformed, resetting to default');
+                    logHHAuto('Saved raid index is malformed, resetting to default');
                 autoRaidSelectedIndex = '0';
             }
             else {
@@ -10141,12 +10165,12 @@ class LoveRaidManager {
                     const existsElsewhere = allRaids.find(r => r.trollId === selectedTrollId && String(r.id_girl) === selectedGirlId);
                     if (!existsElsewhere) {
                         if (logging)
-                            LogUtils_logHHAuto('Saved raid is no longer valid, resetting to default');
+                            logHHAuto('Saved raid is no longer valid, resetting to default');
                         autoRaidSelectedIndex = '0';
                     }
                     else {
                         if (logging)
-                            LogUtils_logHHAuto('Selected raid girl not in this filtered list, skipping (not resetting)');
+                            logHHAuto('Selected raid girl not in this filtered list, skipping (not resetting)');
                     }
                 }
             }
@@ -10156,18 +10180,18 @@ class LoveRaidManager {
             const skinsDone = !raid.skin_to_win;
             if (!plusGirlSkins || skinsDone) {
                 if (logging)
-                    LogUtils_logHHAuto(`Raid girl ${raid.id_girl} completed (shards: ${raid.girl_shards}, skins done: ${skinsDone}, +Girl Skins: ${plusGirlSkins}), resetting selector`);
+                    logHHAuto(`Raid girl ${raid.id_girl} completed (shards: ${raid.girl_shards}, skins done: ${skinsDone}, +Girl Skins: ${plusGirlSkins}), resetting selector`);
                 setStoredValue(HHStoredVarPrefixKey + SK.autoLoveRaidSelectedIndex, "0");
                 autoRaidSelectedIndex = '0';
                 raid = undefined;
             }
             else {
                 if (logging)
-                    LogUtils_logHHAuto(`Raid girl ${raid.id_girl} won but still has skins to collect (+Girl Skins ON)`);
+                    logHHAuto(`Raid girl ${raid.id_girl} won but still has skins to collect (+Girl Skins ON)`);
             }
         }
         if (logging && raid) {
-            LogUtils_logHHAuto(`LoveRaid troll fight: ${raid.trollId} selected with girl ${raid.id_girl} to win`);
+            logHHAuto(`LoveRaid troll fight: ${raid.trollId} selected with girl ${raid.id_girl} to win`);
         }
         // "first" = First ending raid (old default behavior)
         if (autoRaidSelectedIndex === 'first') {
@@ -10179,13 +10203,13 @@ class LoveRaidManager {
                 raid = raids.find(r => r.skin_to_win) || undefined;
             }
             if (logging && raid) {
-                LogUtils_logHHAuto(`LoveRaid first ending raid: troll ${raid.trollId} with girl ${raid.id_girl}`);
+                logHHAuto(`LoveRaid first ending raid: troll ${raid.trollId} with girl ${raid.id_girl}`);
             }
         }
         // Default "Choose a girl" (0) = no automatic fight
         if (autoRaidSelectedIndex === '0') {
             if (logging)
-                LogUtils_logHHAuto('Raid selector is "Choose a girl" — no automatic raid fight');
+                logHHAuto('Raid selector is "Choose a girl" — no automatic raid fight');
             raid = undefined;
         }
         return raid;
@@ -10201,11 +10225,11 @@ class LoveRaidManager {
             try {
                 if ((kkRaid.status === 'ongoing' && !raidNotStarted) || (raidNotStarted && kkRaid.status === 'upcoming')) {
                     if (debugEnabled)
-                        LogUtils_logHHAuto(`parsing raid ${kkRaid.status} ${kkRaid.event_name} module ${kkRaid.raid_module_type}`);
+                        logHHAuto(`parsing raid ${kkRaid.status} ${kkRaid.event_name} module ${kkRaid.raid_module_type}`);
                     // eslint-disable-next-line eqeqeq -- game field may be a truthy non-boolean; loose == true is intentional
                     if (kkRaid.all_is_owned == true) {
                         if (debugEnabled)
-                            LogUtils_logHHAuto(`nothing to win, ignoring raid`);
+                            logHHAuto(`nothing to win, ignoring raid`);
                         continue;
                     }
                     const raid = new LoveRaid();
@@ -10213,7 +10237,7 @@ class LoveRaidManager {
                     raid.girl_shards = Number((_a = kkRaid.girl_data) === null || _a === void 0 ? void 0 : _a.shards);
                     raid.girl_to_win = ((_b = kkRaid.girl_data) === null || _b === void 0 ? void 0 : _b.shards) < 100;
                     if (debugEnabled && ((_c = kkRaid.girl_data) === null || _c === void 0 ? void 0 : _c.shards) >= 100) {
-                        LogUtils_logHHAuto(`Girl won, may have skin to win, ignore for now`);
+                        logHHAuto(`Girl won, may have skin to win, ignore for now`);
                     }
                     // nb_grades = number of star slots (3=rare, 5=legendary, 6=mythic)
                     // Graded is a string of star symbols (e.g. "☆☆☆"), graded = completed awakenings
@@ -10228,7 +10252,7 @@ class LoveRaidManager {
                     raid.end_datetime = kkRaid.end_datetime;
                     raid.shards_left = Number(kkRaid.tranche_data.shards_left);
                     if (kkRaid.status === 'ongoing' && (((_j = (_h = (_g = kkRaid.girl_data) === null || _g === void 0 ? void 0 : _g.source) === null || _h === void 0 ? void 0 : _h.anchor_source) === null || _j === void 0 ? void 0 : _j.disabled) || ((_m = (_l = (_k = kkRaid.girl_data) === null || _k === void 0 ? void 0 : _k.source) === null || _l === void 0 ? void 0 : _l.anchor_win_from) === null || _m === void 0 ? void 0 : _m.disabled))) {
-                        LogUtils_logHHAuto(`Raid source display disabled, still parsing raid (${(_p = (_o = kkRaid.girl_data) === null || _o === void 0 ? void 0 : _o.source) === null || _p === void 0 ? void 0 : _p.sentence})`);
+                        logHHAuto(`Raid source display disabled, still parsing raid (${(_p = (_o = kkRaid.girl_data) === null || _o === void 0 ? void 0 : _o.source) === null || _p === void 0 ? void 0 : _p.sentence})`);
                     }
                     if ($('.raid-card')[index].classList.contains('multiple-girl')) {
                         const girlSkinShards = parseInt($($($('.raid-card')[index].getElementsByClassName('shards'))[1]).attr('skins-shard'), 10);
@@ -10249,14 +10273,14 @@ class LoveRaidManager {
                             break;
                         default:
                             if (debugEnabled)
-                                LogUtils_logHHAuto('Unknown raid type, ingoring raid');
+                                logHHAuto('Unknown raid type, ingoring raid');
                             continue;
                     }
                     raids.push(raid);
                 }
             }
             catch (error) {
-                LogUtils_logHHAuto('Error parsing raid', kkRaid, error);
+                logHHAuto('Error parsing raid', kkRaid, error);
             }
         }
         // console.log('raids', raids);
@@ -10320,7 +10344,7 @@ class LoveRaidManager {
             raid = raids.find(r => r.skin_to_win);
         }
         if (logging && raid) {
-            LogUtils_logHHAuto(`+Raid Stars picked troll ${raid.trollId} with girl ${raid.id_girl} (grade ${raid.girlGrade})`);
+            logHHAuto(`+Raid Stars picked troll ${raid.trollId} with girl ${raid.id_girl} (grade ${raid.girlGrade})`);
         }
         return raid;
     }
@@ -10335,7 +10359,7 @@ class LoveRaidManager {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Booster.ts
+;// ./src/Module/Booster.ts
 var Booster_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10373,16 +10397,16 @@ class Booster {
     static waitForBattleResponse() {
         if (Booster._battleResponseReady) {
             Booster._battleResponseReady = false;
-            LogUtils_logHHAuto('[SW-DEBUG] waitForBattleResponse: flag was already set, returning immediately');
+            logHHAuto('[SW-DEBUG] waitForBattleResponse: flag was already set, returning immediately');
             return Promise.resolve();
         }
-        LogUtils_logHHAuto('[SW-DEBUG] waitForBattleResponse: waiting for AJAX response (10s timeout)...');
+        logHHAuto('[SW-DEBUG] waitForBattleResponse: waiting for AJAX response (10s timeout)...');
         return new Promise((resolve, reject) => {
             Booster._battleResponseResolve = resolve;
             setTimeout(() => {
                 if (Booster._battleResponseResolve === resolve) {
                     Booster._battleResponseResolve = null;
-                    LogUtils_logHHAuto('[SW-DEBUG] waitForBattleResponse: TIMED OUT after 10s — proceeding anyway');
+                    logHHAuto('[SW-DEBUG] waitForBattleResponse: TIMED OUT after 10s — proceeding anyway');
                     resolve(); // resolve anyway to avoid blocking
                 }
             }, 10000);
@@ -10392,7 +10416,7 @@ class Booster {
      * Resets the battle response flag and resolver. Must be called BEFORE each battle button click.
      */
     static resetBattleResponseFlag() {
-        LogUtils_logHHAuto('[SW-DEBUG] resetBattleResponseFlag: clearing flag and resolver before battle click');
+        logHHAuto('[SW-DEBUG] resetBattleResponseFlag: clearing flag and resolver before battle click');
         Booster._battleResponseReady = false;
         Booster._battleResponseResolve = null;
     }
@@ -10402,13 +10426,13 @@ class Booster {
      */
     static notifyBattleResponseProcessed() {
         if (Booster._battleResponseResolve) {
-            LogUtils_logHHAuto('[SW-DEBUG] notifyBattleResponseProcessed: resolver waiting → resolving promise now');
+            logHHAuto('[SW-DEBUG] notifyBattleResponseProcessed: resolver waiting → resolving promise now');
             const resolve = Booster._battleResponseResolve;
             Booster._battleResponseResolve = null;
             resolve();
         }
         else {
-            LogUtils_logHHAuto('[SW-DEBUG] notifyBattleResponseProcessed: no resolver waiting → setting flag for later');
+            logHHAuto('[SW-DEBUG] notifyBattleResponseProcessed: no resolver waiting → setting flag for later');
             Booster._battleResponseReady = true;
         }
     }
@@ -10438,7 +10462,7 @@ class Booster {
                                 // Track max usages for Sandalwood on equip
                                 if (((_a = clonedData.item) === null || _a === void 0 ? void 0 : _a.identifier) === 'MB1' && clonedData.usages_remaining != null) {
                                     setStoredValue(HHStoredVarPrefixKey + TK.sandalwoodMaxUsages, String(clonedData.usages_remaining));
-                                    LogUtils_logHHAuto(`[SW-DEBUG] Sandalwood equipped via AJAX: usages_remaining=${clonedData.usages_remaining}, saved to TK.sandalwoodMaxUsages`);
+                                    logHHAuto(`[SW-DEBUG] Sandalwood equipped via AJAX: usages_remaining=${clonedData.usages_remaining}, saved to TK.sandalwoodMaxUsages`);
                                 }
                             }
                             else {
@@ -10492,27 +10516,27 @@ class Booster {
                     if (sandalwood && action === 'do_battles_trolls') {
                         const isMultibattle = parseInt(number_of_battles || '') > 1;
                         const dosesBeforeFight = sandalwood.usages_remaining;
-                        LogUtils_logHHAuto(`[SW-DEBUG] AJAX do_battles_trolls: isMultibattle=${isMultibattle}, number_of_battles=${number_of_battles}, dosesBeforeFight=${dosesBeforeFight}`);
+                        logHHAuto(`[SW-DEBUG] AJAX do_battles_trolls: isMultibattle=${isMultibattle}, number_of_battles=${number_of_battles}, dosesBeforeFight=${dosesBeforeFight}`);
                         const { rewards } = response;
                         if (rewards && rewards.data && rewards.data.shards) {
                             let dosesConsumed = 0;
                             rewards.data.shards.forEach(({ previous_value, value }, idx) => {
                                 const shardsDropped = value - previous_value;
-                                LogUtils_logHHAuto(`[SW-DEBUG] shard drop[${idx}]: previous=${previous_value}, value=${value}, shardsDropped=${shardsDropped}`);
+                                logHHAuto(`[SW-DEBUG] shard drop[${idx}]: previous=${previous_value}, value=${value}, shardsDropped=${shardsDropped}`);
                                 if (isMultibattle) {
                                     const isOdd = shardsDropped % 2 === 1;
                                     if (isOdd) {
-                                        LogUtils_logHHAuto(`[SW-DEBUG] shard drop[${idx}]: ODD (${shardsDropped}) → Sandalwood expired mid-batch, all ${dosesBeforeFight} doses consumed`);
+                                        logHHAuto(`[SW-DEBUG] shard drop[${idx}]: ODD (${shardsDropped}) → Sandalwood expired mid-batch, all ${dosesBeforeFight} doses consumed`);
                                         dosesConsumed = dosesBeforeFight;
                                     }
                                     else {
                                         const dosesDelta = Math.floor(shardsDropped / 2);
-                                        LogUtils_logHHAuto(`[SW-DEBUG] shard drop[${idx}]: EVEN (${shardsDropped}) → ${dosesDelta} doses consumed`);
+                                        logHHAuto(`[SW-DEBUG] shard drop[${idx}]: EVEN (${shardsDropped}) → ${dosesDelta} doses consumed`);
                                         dosesConsumed += dosesDelta;
                                     }
                                 }
                                 else {
-                                    LogUtils_logHHAuto(`[SW-DEBUG] shard drop[${idx}]: single battle → 1 dose consumed`);
+                                    logHHAuto(`[SW-DEBUG] shard drop[${idx}]: single battle → 1 dose consumed`);
                                     dosesConsumed++;
                                 }
                             });
@@ -10520,10 +10544,10 @@ class Booster {
                             const uncappedDoses = dosesConsumed;
                             dosesConsumed = Math.min(dosesConsumed, dosesBeforeFight);
                             if (uncappedDoses !== dosesConsumed) {
-                                LogUtils_logHHAuto(`[SW-DEBUG] dose cap applied: uncapped=${uncappedDoses}, capped=${dosesConsumed}`);
+                                logHHAuto(`[SW-DEBUG] dose cap applied: uncapped=${uncappedDoses}, capped=${dosesConsumed}`);
                             }
                             sandalwood.usages_remaining -= dosesConsumed;
-                            LogUtils_logHHAuto(`[SW-DEBUG] Sandalwood dose tracking: before=${dosesBeforeFight}, consumed=${dosesConsumed}, remaining=${sandalwood.usages_remaining}, ended=${sandalwood.usages_remaining <= 0}`);
+                            logHHAuto(`[SW-DEBUG] Sandalwood dose tracking: before=${dosesBeforeFight}, consumed=${dosesConsumed}, remaining=${sandalwood.usages_remaining}, ended=${sandalwood.usages_remaining <= 0}`);
                             mythicUpdated = true;
                             sandalwoodEnded = sandalwood.usages_remaining <= 0;
                         }
@@ -10572,7 +10596,7 @@ class Booster {
                     try {
                         if (sandalwood && mythicUpdated && sandalwoodEnded) {
                             const isMultibattle = parseInt(number_of_battles || '') > 1;
-                            LogUtils_logHHAuto("[SW-DEBUG] sandalwood may be ended, need a new one");
+                            logHHAuto("[SW-DEBUG] sandalwood may be ended, need a new one");
                             const activatedEvent = getStoredValue(HHStoredVarPrefixKey + SK.plusEvent) === "true" && getStoredValue(HHStoredVarPrefixKey + SK.plusEventSandalWood) === "true";
                             const activatedMythic = getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythic) === "true" && getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythicSandalWood) === "true";
                             const activatedLoveRaid = LoveRaidManager.isAnyActivated() && getStoredValue(HHStoredVarPrefixKey + SK.plusEventLoveRaidSandalWood) === "true";
@@ -10585,7 +10609,7 @@ class Booster {
                         }
                     }
                     catch (err) {
-                        LogUtils_logHHAuto('Catch error during equip sandalwood for mythic' + err);
+                        logHHAuto('Catch error during equip sandalwood for mythic' + err);
                     }
                     if (action === 'do_battles_trolls') {
                         Booster.notifyBattleResponseProcessed();
@@ -10622,7 +10646,7 @@ class Booster {
     static collectBoostersFromMarket() {
         const activeSlots = $('#equiped .booster .slot:not(.empty):not(.mythic)').map((i, el) => $(el).data('d')).toArray();
         const activeMythicSlots = $('#equiped .booster .slot:not(.empty).mythic').map((i, el) => $(el).data('d')).toArray();
-        LogUtils_logHHAuto(`collectBoostersFromMarket: found ${activeSlots.length} normal boosters, ${activeMythicSlots.length} mythic boosters equipped`);
+        logHHAuto(`collectBoostersFromMarket: found ${activeSlots.length} normal boosters, ${activeMythicSlots.length} mythic boosters equipped`);
         const boosterStatus = {
             normal: activeSlots.map((data) => (Object.assign(Object.assign({}, data), { endAt: getHHVars('server_now_ts') + data.expiration }))),
             mythic: activeMythicSlots,
@@ -10674,7 +10698,7 @@ class Booster {
                     name: shopBooster.item.name,
                     rarity: shopBooster.item.rarity
                 };
-                LogUtils_logHHAuto(`getBoosterByIdentifier: "${identifier}" resolved from storeContents → id_item=${resolved.id_item}, name=${resolved.name}`);
+                logHHAuto(`getBoosterByIdentifier: "${identifier}" resolved from storeContents → id_item=${resolved.id_item}, name=${resolved.name}`);
                 return resolved;
             }
         }
@@ -10684,7 +10708,7 @@ class Booster {
         if (entry) {
             // boosterIdMap now stores { id_item, identifier, name, rarity }
             if (typeof entry === 'object' && entry.id_item) {
-                LogUtils_logHHAuto(`getBoosterByIdentifier: "${identifier}" resolved from boosterIdMap → id_item=${entry.id_item}, name=${entry.name}`);
+                logHHAuto(`getBoosterByIdentifier: "${identifier}" resolved from boosterIdMap → id_item=${entry.id_item}, name=${entry.name}`);
                 return Object.assign({}, entry);
             }
             // Backward compat: old format stored just the id_item string
@@ -10693,7 +10717,7 @@ class Booster {
             }
         }
         // No market data available — do NOT fall back to hardcoded IDs
-        LogUtils_logHHAuto(`getBoosterByIdentifier: No market data for "${identifier}". Visit the market first.`);
+        logHHAuto(`getBoosterByIdentifier: No market data for "${identifier}". Visit the market first.`);
         return null;
     }
     static parseEquipSlotConfig() {
@@ -10701,7 +10725,7 @@ class Booster {
         const normalized = raw.replace(/,/g, ';');
         const slots = normalized.split(';').map((s) => s.trim().toUpperCase());
         if (slots.length < 1 || slots.length > 4 || !slots.every((s) => /^B[1-4]$/.test(s))) {
-            LogUtils_logHHAuto("Auto-equip booster config invalid: " + raw + ", falling back to B1;B1;B2;B4");
+            logHHAuto("Auto-equip booster config invalid: " + raw + ", falling back to B1;B1;B2;B4");
             return ['B1', 'B1', 'B2', 'B4'];
         }
         return slots;
@@ -10774,7 +10798,7 @@ class Booster {
         const randomDelay = Booster.getRandomEquipDelay();
         const totalDelay = longestRemaining + randomDelay;
         const delayMin = Math.floor(totalDelay / 60);
-        LogUtils_logHHAuto("Auto-equip: Next check in " + delayMin + " min (booster expires in "
+        logHHAuto("Auto-equip: Next check in " + delayMin + " min (booster expires in "
             + Math.floor(longestRemaining / 60) + " min + " + Math.floor(randomDelay / 60) + " min random delay).");
         setTimer('nextAutoEquipBoosterTime', totalDelay);
     }
@@ -10788,11 +10812,11 @@ class Booster {
             // Debug: dump cached booster inventory data
             const cachedIdMap = getStoredJSON(HHStoredVarPrefixKey + TK.boosterIdMap, {});
             const cachedInventory = getStoredJSON(HHStoredVarPrefixKey + TK.haveBooster, {});
-            LogUtils_logHHAuto("Auto-equip: Cached boosterIdMap = " + JSON.stringify(cachedIdMap));
-            LogUtils_logHHAuto("Auto-equip: Cached haveBooster (qty) = " + JSON.stringify(cachedInventory));
+            logHHAuto("Auto-equip: Cached boosterIdMap = " + JSON.stringify(cachedIdMap));
+            logHHAuto("Auto-equip: Cached haveBooster (qty) = " + JSON.stringify(cachedInventory));
             // Ensure we have booster data from the market before trying to equip
             if (!Booster.hasBoosterDataFromMarket()) {
-                LogUtils_logHHAuto("Auto-equip: No booster data from market. Navigating to market first.");
+                logHHAuto("Auto-equip: No booster data from market. Navigating to market first.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
                 return true; // Signal busy — the market visit will cache the data, next loop will equip
             }
@@ -10800,42 +10824,42 @@ class Booster {
             // the equipped boosters. Without this, getBoostersToEquip() would use stale data
             // and repeatedly try to equip slots that are actually already occupied server-side.
             if (!Booster.hasFreshBoosterStatus()) {
-                LogUtils_logHHAuto("Auto-equip: boosterStatus is stale or missing. Navigating to market to refresh.");
+                logHHAuto("Auto-equip: boosterStatus is stale or missing. Navigating to market to refresh.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
                 return true; // Signal busy — market visit will refresh boosterStatus via collectBoostersFromMarket
             }
             const boostersToEquip = Booster.getBoostersToEquip();
             if (boostersToEquip.length === 0) {
-                LogUtils_logHHAuto("Auto-equip: All booster slots active.");
+                logHHAuto("Auto-equip: All booster slots active.");
                 Booster.scheduleNextEquipCheck();
                 return false;
             }
-            LogUtils_logHHAuto("Auto-equip: Need to equip " + boostersToEquip.length + " booster(s): " + boostersToEquip.join(', '));
+            logHHAuto("Auto-equip: Need to equip " + boostersToEquip.length + " booster(s): " + boostersToEquip.join(', '));
             let anyEquipped = false;
             try {
                 for (const nextBoosterId of boostersToEquip) {
                     const boosterObj = Booster.getBoosterByIdentifier(nextBoosterId);
                     if (!boosterObj) {
-                        LogUtils_logHHAuto("Auto-equip: Could not resolve booster " + nextBoosterId + " from market data, skipping.");
+                        logHHAuto("Auto-equip: Could not resolve booster " + nextBoosterId + " from market data, skipping.");
                         continue;
                     }
                     if (!HeroHelper.haveBoosterInInventory(boosterObj.identifier)) {
-                        LogUtils_logHHAuto("Auto-equip: " + boosterObj.name + " (" + boosterObj.identifier + ") not in inventory, skipping.");
+                        logHHAuto("Auto-equip: " + boosterObj.name + " (" + boosterObj.identifier + ") not in inventory, skipping.");
                         continue;
                     }
                     const equipped = yield HeroHelper.equipBooster(boosterObj);
                     if (equipped) {
-                        LogUtils_logHHAuto("Auto-equip: Successfully equipped " + boosterObj.name);
+                        logHHAuto("Auto-equip: Successfully equipped " + boosterObj.name);
                         anyEquipped = true;
                     }
                     else {
-                        LogUtils_logHHAuto("Auto-equip: Failed to equip " + boosterObj.name + ". Slot may be occupied.");
+                        logHHAuto("Auto-equip: Failed to equip " + boosterObj.name + ". Slot may be occupied.");
                         break;
                     }
                 }
             }
             catch (error) {
-                LogUtils_logHHAuto("Auto-equip: Error during equip loop: " + error);
+                logHHAuto("Auto-equip: Error during equip loop: " + error);
             }
             finally {
                 // Always schedule next check, even on error
@@ -10855,20 +10879,20 @@ class Booster {
         const activatedEvent = getStoredValue(HHStoredVarPrefixKey + SK.plusEvent) === "true" && getStoredValue(HHStoredVarPrefixKey + SK.plusEventSandalWood) === "true";
         const activatedMythic = getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythic) === "true" && getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythicSandalWood) === "true";
         const activatedLoveRaid = LoveRaidManager.isAnyActivated() && getStoredValue(HHStoredVarPrefixKey + SK.plusEventLoveRaidSandalWood) === "true";
-        LogUtils_logHHAuto(`[SW-DEBUG] needSandalWoodEquipped: troll=${nextTrollChoosen}, activatedEvent=${activatedEvent}, activatedMythic=${activatedMythic}, activatedLoveRaid=${activatedLoveRaid}`);
+        logHHAuto(`[SW-DEBUG] needSandalWoodEquipped: troll=${nextTrollChoosen}, activatedEvent=${activatedEvent}, activatedMythic=${activatedMythic}, activatedLoveRaid=${activatedLoveRaid}`);
         if (!activatedEvent && !activatedMythic && !activatedLoveRaid) {
-            LogUtils_logHHAuto('[SW-DEBUG] needSandalWoodEquipped: no auto-sandalwood activated, skipping');
+            logHHAuto('[SW-DEBUG] needSandalWoodEquipped: no auto-sandalwood activated, skipping');
             return false;
         }
         // Don't try to equip if we're on cooldown from a recent failure
         if (Booster.isEquipOnCooldown()) {
-            LogUtils_logHHAuto("needSandalWoodEquipped: skipping - equip on cooldown");
+            logHHAuto("needSandalWoodEquipped: skipping - equip on cooldown");
             return false;
         }
         // If no market data cached yet, signal that we need a market visit first.
         // Troll.ts will navigate to the shop page, which caches booster data.
         if (!Booster.hasBoosterDataFromMarket()) {
-            LogUtils_logHHAuto("needSandalWoodEquipped: No market data cached. Need market visit to check Sandalwood inventory.");
+            logHHAuto("needSandalWoodEquipped: No market data cached. Need market visit to check Sandalwood inventory.");
             return true;
         }
         let needForEvent = false, needForMythic = false, needForLoveRaid = false;
@@ -10887,14 +10911,14 @@ class Booster {
             }
             needForLoveRaid = Booster.needSandalWoodLoveRaid(nextTrollChoosen, loveRaid);
         }
-        LogUtils_logHHAuto(`[SW-DEBUG] needSandalWoodEquipped: needForEvent=${needForEvent}, needForMythic=${needForMythic}, needForLoveRaid=${needForLoveRaid}`);
+        logHHAuto(`[SW-DEBUG] needSandalWoodEquipped: needForEvent=${needForEvent}, needForMythic=${needForMythic}, needForLoveRaid=${needForLoveRaid}`);
         // Proactive depletion check: if Sandalwood is equipped but has 0 doses remaining,
         // remove it from boosterStatus so ownedSandalwoodAndNotEquiped() triggers re-equip.
         if (needForEvent || needForMythic || needForLoveRaid) {
             const dosesRemaining = Booster.getSandalwoodDosesRemaining();
-            LogUtils_logHHAuto(`[SW-DEBUG] needSandalWoodEquipped: proactive depletion check, dosesRemaining=${dosesRemaining}`);
+            logHHAuto(`[SW-DEBUG] needSandalWoodEquipped: proactive depletion check, dosesRemaining=${dosesRemaining}`);
             if (dosesRemaining !== null && dosesRemaining <= 0) {
-                LogUtils_logHHAuto('needSandalWoodEquipped: Sandalwood depleted (0 doses), removing from boosterStatus to trigger re-equip');
+                logHHAuto('needSandalWoodEquipped: Sandalwood depleted (0 doses), removing from boosterStatus to trigger re-equip');
                 const boosterStatus = Booster.getBoosterFromStorage();
                 boosterStatus.mythic = boosterStatus.mythic.filter(b => { var _a; return ((_a = b.item) === null || _a === void 0 ? void 0 : _a.identifier) !== 'MB1'; });
                 setStoredValue(HHStoredVarPrefixKey + TK.boosterStatus, JSON.stringify(boosterStatus));
@@ -10905,7 +10929,7 @@ class Booster {
     static ownedSandalwoodAndNotEquiped() {
         const ownedSandalwood = HeroHelper.haveBoosterInInventory(Booster.SANDALWOOD_IDENTIFIER);
         const equipedSandalwood = Booster.haveBoosterEquiped(Booster.SANDALWOOD_IDENTIFIER);
-        LogUtils_logHHAuto(`[SW-DEBUG] ownedSandalwoodAndNotEquiped: owned=${ownedSandalwood}, equipped=${equipedSandalwood}, result=${ownedSandalwood && !equipedSandalwood}`);
+        logHHAuto(`[SW-DEBUG] ownedSandalwoodAndNotEquiped: owned=${ownedSandalwood}, equipped=${equipedSandalwood}, result=${ownedSandalwood && !equipedSandalwood}`);
         return ownedSandalwood && !equipedSandalwood;
     }
     static isEquipOnCooldown() {
@@ -10913,7 +10937,7 @@ class Booster {
     }
     static setEquipCooldown(seconds = 5 * 60) {
         setTimer('nextBoosterEquipTime', seconds);
-        LogUtils_logHHAuto(`Booster equip cooldown set for ${seconds} seconds`);
+        logHHAuto(`Booster equip cooldown set for ${seconds} seconds`);
     }
     static markBoosterAsEquippedInStorage(booster) {
         const boosterStatus = Booster.getBoosterFromStorage();
@@ -10931,7 +10955,7 @@ class Booster {
                 // tick still treats the status as stale and navigates to
                 // the shop just to confirm what we already wrote here.
                 setStoredValue(HHStoredVarPrefixKey + TK.boosterStatusLastUpdate, String(Date.now()));
-                LogUtils_logHHAuto('Marked ' + booster.name + ' as equipped in storage (server says already equipped)');
+                logHHAuto('Marked ' + booster.name + ' as equipped in storage (server says already equipped)');
             }
         }
         else {
@@ -10944,7 +10968,7 @@ class Booster {
                 });
                 setStoredValue(HHStoredVarPrefixKey + TK.boosterStatus, JSON.stringify(boosterStatus));
                 setStoredValue(HHStoredVarPrefixKey + TK.boosterStatusLastUpdate, String(Date.now()));
-                LogUtils_logHHAuto('Marked ' + booster.name + ' as equipped in storage (server says already equipped)');
+                logHHAuto('Marked ' + booster.name + ' as equipped in storage (server says already equipped)');
             }
         }
     }
@@ -10967,7 +10991,7 @@ class Booster {
         const remainingShards = Number(100 - Number(eventGirl.shards));
         const threshold = Booster.getSandalwoodMinShardsThreshold();
         if (remainingShards <= threshold) {
-            LogUtils_logHHAuto(`[SW-DEBUG] Not equipping sandalwood for event, only ${remainingShards} shards remaining (threshold: ${threshold})`);
+            logHHAuto(`[SW-DEBUG] Not equipping sandalwood for event, only ${remainingShards} shards remaining (threshold: ${threshold})`);
         }
         return activated && correctTrollTargetted && remainingShards > threshold;
     }
@@ -10977,7 +11001,7 @@ class Booster {
         const remainingShards = Number(100 - Number(eventMythicGirl.shards));
         const threshold = Booster.getSandalwoodMinShardsThreshold();
         if (remainingShards <= threshold) {
-            LogUtils_logHHAuto(`[SW-DEBUG] Not equipping sandalwood for mythic, only ${remainingShards} shards remaining (threshold: ${threshold})`);
+            logHHAuto(`[SW-DEBUG] Not equipping sandalwood for mythic, only ${remainingShards} shards remaining (threshold: ${threshold})`);
         }
         return activated && correctTrollTargetted && remainingShards > threshold;
     }
@@ -10989,17 +11013,17 @@ class Booster {
         const remainingShards = Number(100 - Number(loveRaid.girl_shards));
         const threshold = Booster.getSandalwoodMinShardsThreshold();
         if (remainingShards <= threshold) {
-            LogUtils_logHHAuto(`[SW-DEBUG] Not equipping sandalwood for love raid, only ${remainingShards} shards remaining (threshold: ${threshold})`);
+            logHHAuto(`[SW-DEBUG] Not equipping sandalwood for love raid, only ${remainingShards} shards remaining (threshold: ${threshold})`);
         }
         return activated && correctTrollTargetted && remainingShards > threshold;
     }
     static equipeSandalWoodIfNeeded(nextTrollChoosen_1) {
         return Booster_awaiter(this, arguments, void 0, function* (nextTrollChoosen, settingKey = SK.plusEventMythicSandalWood) {
-            LogUtils_logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: called for troll ${nextTrollChoosen}, settingKey=${settingKey}`);
+            logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: called for troll ${nextTrollChoosen}, settingKey=${settingKey}`);
             const activatedEvent = getStoredValue(HHStoredVarPrefixKey + SK.plusEvent) === "true" && getStoredValue(HHStoredVarPrefixKey + SK.plusEventSandalWood) === "true";
             const activatedMythic = getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythic) === "true" && getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythicSandalWood) === "true";
             const activatedLoveRaid = LoveRaidManager.isAnyActivated() && getStoredValue(HHStoredVarPrefixKey + SK.plusEventLoveRaidSandalWood) === "true";
-            LogUtils_logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: activatedEvent=${activatedEvent}, activatedMythic=${activatedMythic}, activatedLoveRaid=${activatedLoveRaid}`);
+            logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: activatedEvent=${activatedEvent}, activatedMythic=${activatedMythic}, activatedLoveRaid=${activatedLoveRaid}`);
             let eventMythicGirl = null, loveRaid = null;
             let needForEvent = false, needForMythic = false, needForLoveRaid = false;
             if (activatedEvent) {
@@ -11026,33 +11050,33 @@ class Booster {
                     settingKey = SK.plusEventLoveRaidSandalWood;
                 }
             }
-            LogUtils_logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: needForEvent=${needForEvent}, needForMythic=${needForMythic}, needForLoveRaid=${needForLoveRaid}`);
+            logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: needForEvent=${needForEvent}, needForMythic=${needForMythic}, needForLoveRaid=${needForLoveRaid}`);
             try {
                 if (((needForEvent || needForMythic || needForLoveRaid) && Booster.ownedSandalwoodAndNotEquiped())) {
                     // Check cooldown before attempting equip
                     if (Booster.isEquipOnCooldown()) {
-                        LogUtils_logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: on cooldown, skipping equip attempt");
+                        logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: on cooldown, skipping equip attempt");
                         return false;
                     }
                     // Resolve Sandalwood booster from market data
                     const sandalwoodBooster = Booster.getSandalwoodBooster();
                     if (!sandalwoodBooster) {
-                        LogUtils_logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: No market data for Sandalwood. Visit the market first.");
+                        logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: No market data for Sandalwood. Visit the market first.");
                         return false;
                     }
                     // Equip a new one
-                    LogUtils_logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: calling HeroHelper.equipBooster(Sandalwood)");
+                    logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: calling HeroHelper.equipBooster(Sandalwood)");
                     const equiped = yield HeroHelper.equipBooster(sandalwoodBooster);
-                    LogUtils_logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: equipBooster returned ${equiped}`);
+                    logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: equipBooster returned ${equiped}`);
                     if (!equiped) {
                         const numberFailure = HeroHelper.getSandalWoodEquipFailure();
-                        LogUtils_logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: failure #${numberFailure}`);
+                        logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: failure #${numberFailure}`);
                         if (numberFailure >= 3) {
-                            LogUtils_logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: 3rd failure, deactivating auto sandalwood settingKey=" + settingKey);
+                            logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: 3rd failure, deactivating auto sandalwood settingKey=" + settingKey);
                             setStoredValue(HHStoredVarPrefixKey + settingKey, 'false');
                         }
                         else {
-                            LogUtils_logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: marking as already equipped + setting cooldown");
+                            logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: marking as already equipped + setting cooldown");
                             // Server says max boosters equipped - mark it as equipped to prevent retries
                             Booster.markBoosterAsEquippedInStorage(sandalwoodBooster);
                             // Set cooldown to prevent spamming equip attempts
@@ -11061,17 +11085,17 @@ class Booster {
                     }
                     else {
                         // Reset failure counter on success
-                        LogUtils_logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: success, resetting failure counter");
+                        logHHAuto("[SW-DEBUG] equipeSandalWoodIfNeeded: success, resetting failure counter");
                         setStoredValue(HHStoredVarPrefixKey + TK.sandalwoodFailure, 0);
                     }
                     return equiped;
                 }
                 else {
-                    LogUtils_logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: conditions not met, no equip needed`);
+                    logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: conditions not met, no equip needed`);
                 }
             }
             catch (error) {
-                LogUtils_logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: caught error: ${error}`);
+                logHHAuto(`[SW-DEBUG] equipeSandalWoodIfNeeded: caught error: ${error}`);
                 return Promise.resolve(false);
             }
             return Promise.resolve(false);
@@ -11098,7 +11122,7 @@ Booster._battleResponseResolve = null;
 /** TTL for boosterStatus freshness in milliseconds (10 minutes). */
 Booster.BOOSTER_STATUS_TTL_MS = 10 * 60 * 1000;
 
-;// CONCATENATED MODULE: ./src/Module/Events/Season.ts
+;// ./src/Module/Events/Season.ts
 var Season_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -11210,7 +11234,7 @@ class Season {
         const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonBoostedOnly) === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
         if (checkTimer('nextSeasonTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
-            LogUtils_logHHAuto('Time for season but no booster equipped');
+            logHHAuto('Time for season but no booster equipped');
         }
         return (checkTimer('nextSeasonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
@@ -11221,7 +11245,7 @@ class Season {
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey + TK.Debug) === 'true';
             if (!autoRun && !dispalyPowerCalc) {
                 if (debugEnabled)
-                    LogUtils_logHHAuto("Auto season : Display power calc is disabled, not simulating fight.");
+                    logHHAuto("Auto season : Display power calc is disabled, not simulating fight.");
                 return -1;
             }
             const hero_data = unsafeWindow.hero_data;
@@ -11234,7 +11258,7 @@ class Season {
             // with an opaque "Could not display season score" message every tick.
             // Guard up front with a clear log instead.
             if (!Array.isArray(opponentDatas) || opponentDatas.length < 3) {
-                LogUtils_logHHAuto(`Season : expected 3 opponents but got ${Array.isArray(opponentDatas) ? opponentDatas.length : 'none'}, skipping simulation.`);
+                logHHAuto(`Season : expected 3 opponents but got ${Array.isArray(opponentDatas) ? opponentDatas.length : 'none'}, skipping simulation.`);
                 return -1;
             }
             try {
@@ -11282,13 +11306,13 @@ class Season {
                         $('div.matchRatingNew', opponentBlock).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
                     }
                     catch (_d) {
-                        LogUtils_logHHAuto('Error when dispaly chosen opponent');
+                        logHHAuto('Error when dispaly chosen opponent');
                     }
                 }
                 return chosenIndex < 0 ? chosenIndex : chosenID;
             }
             catch (err) {
-                LogUtils_logHHAuto("Catched error : Could not display season score : " + err);
+                logHHAuto("Catched error : Could not display season score : " + err);
                 return -1;
             }
         });
@@ -11401,24 +11425,24 @@ class Season {
     }
     static run() {
         return Season_awaiter(this, void 0, void 0, function* () {
-            LogUtils_logHHAuto("Performing auto Season.");
+            logHHAuto("Performing auto Season.");
             // Confirm if on correct screen.
             const Hero = getHero();
             var page = getPage();
             if (page === ConfigHelper.getHHScriptVars("pagesIDSeasonArena")) {
-                LogUtils_logHHAuto("On season arena page.");
+                logHHAuto("On season arena page.");
                 Season.stylesBattle();
                 const isMaxTierSet = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonMaxTier) === "true";
                 const maxTier = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonMaxTierNb) || Season.LAST_SEASON_LEVEL;
                 const stopIfNoEventGirl = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls) === "true";
                 const maxTierReached = isMaxTierSet && Season.getTierLevel() >= maxTier;
                 if (maxTierReached && !stopIfNoEventGirl) {
-                    LogUtils_logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}), not fighting anymore in season.`);
+                    logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}), not fighting anymore in season.`);
                     setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
                     return true;
                 }
                 if (maxTierReached && stopIfNoEventGirl) {
-                    LogUtils_logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}) but "Stop if no event girl" enabled, will check for event girls.`);
+                    logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}) but "Stop if no event girl" enabled, will check for event girls.`);
                 }
                 var chosenID = yield Season.moduleSimSeasonBattle(true);
                 if (chosenID === undefined || chosenID === null) {
@@ -11426,7 +11450,7 @@ class Season {
                     // number (opponent id, -1 or -2). A null/undefined result means the
                     // simulation did not run (e.g. a poisoned callItOnce wrapper). Retry
                     // shortly instead of arming the 30 min "no opponent" timer.
-                    LogUtils_logHHAuto("Season : opponent simulation returned no result, retrying shortly.");
+                    logHHAuto("Season : opponent simulation returned no result, retrying shortly.");
                     setTimer('nextSeasonTime', randomInterval(5, 10));
                     return false;
                 }
@@ -11438,7 +11462,7 @@ class Season {
                             class: 'Arena',
                             action: 'arena_reload'
                         };
-                        LogUtils_logHHAuto("Three red opponents, paying for refresh.");
+                        logHHAuto("Three red opponents, paying for refresh.");
                         getHHAjax()(params, function (data) {
                             Hero.update("hard_currency", data.hard_currency, false);
                             // C1: route through safeReload so any in-flight
@@ -11447,13 +11471,13 @@ class Season {
                         });
                     }
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                    LogUtils_logHHAuto("setting autoloop to false");
+                    logHHAuto("setting autoloop to false");
                     setTimer('nextSeasonTime', 5);
                     setTimeout(refreshOpponents, randomInterval(800, 1600));
                     return true;
                 }
                 else if (chosenID === -1) {
-                    LogUtils_logHHAuto("Season : was not able to choose opponent.");
+                    logHHAuto("Season : was not able to choose opponent.");
                     setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
                 }
                 else {
@@ -11461,16 +11485,16 @@ class Season {
                     const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + chosenID + ']');
                     const girlShardsReward = $(".slot.girl_ico[data-rewards]", opponentBlock);
                     if (girlShardsReward.length > 0) {
-                        LogUtils_logHHAuto("Girl shard reward found for chosen opponent");
+                        logHHAuto("Girl shard reward found for chosen opponent");
                     }
                     if (stopIfNoEventGirl && girlShardsReward.length <= 0) {
                         if (!isMaxTierSet || maxTierReached) {
-                            LogUtils_logHHAuto("Ignoring season fights as no girl to win on fight reward");
+                            logHHAuto("Ignoring season fights as no girl to win on fight reward");
                             setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
                             return false;
                         }
                         else {
-                            LogUtils_logHHAuto("Below max tier, fighting regardless of event girls.");
+                            logHHAuto("Below max tier, fighting regardless of event girls.");
                         }
                     }
                     if (runThreshold > 0) {
@@ -11478,7 +11502,7 @@ class Season {
                     }
                     const toGoTo = $(".opponent_perform_button_container :first-child", opponentBlock).first().attr('href') || '';
                     if (toGoTo === '') {
-                        LogUtils_logHHAuto('Season : Error getting opponent location');
+                        logHHAuto('Season : Error getting opponent location');
                         setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
                         return false;
                     }
@@ -11486,7 +11510,7 @@ class Season {
                     // (e.g. a parallel autoLoop tick) gets to finish before
                     // the URL change cancels open XHRs (issue #1598).
                     safeNavigateHref(addNutakuSession(toGoTo));
-                    LogUtils_logHHAuto(`Going to crush : ${$(".personal_info div.player-name", opponentBlock).text()} (${chosenID})`);
+                    logHHAuto(`Going to crush : ${$(".personal_info div.player-name", opponentBlock).text()} (${chosenID})`);
                     setTimer('nextSeasonTime', 5);
                     return true;
                 }
@@ -11494,9 +11518,9 @@ class Season {
             else {
                 const current_kisses = Season.getEnergy();
                 // Switch to the correct screen
-                LogUtils_logHHAuto("Remaining kisses : " + current_kisses);
+                logHHAuto("Remaining kisses : " + current_kisses);
                 if (current_kisses > 0) {
-                    LogUtils_logHHAuto("Switching to Season Arena screen.");
+                    logHHAuto("Switching to Season Arena screen.");
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"));
                 }
                 else {
@@ -11523,7 +11547,7 @@ class Season {
         catch (err) {
             const message = err instanceof Error ? err.message : String(err);
             const errName = err instanceof Error ? err.name : 'Error';
-            LogUtils_logHHAuto(`ERROR in display Season rewards: ${errName}, ${message}`);
+            logHHAuto(`ERROR in display Season rewards: ${errName}, ${message}`);
         }
     }
     static getNotClaimedRewards() {
@@ -11541,10 +11565,10 @@ class Season {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeason")) {
             Season.getRemainingTime();
             const seasonEnd = getSecondsLeft("SeasonRemainingTime");
-            LogUtils_logHHAuto("Season end in " + TimeHelper.debugDate(seasonEnd));
+            logHHAuto("Season end in " + TimeHelper.debugDate(seasonEnd));
             if (checkTimer('nextSeasonCollectAllTime') && seasonEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonCollectAll) === "true") {
                 if ($(ConfigHelper.getHHScriptVars("selectorClaimAllRewards")).length > 0) {
-                    LogUtils_logHHAuto("Going to collect all Season item at once.");
+                    logHHAuto("Going to collect all Season item at once.");
                     setTimeout(function () {
                         $(ConfigHelper.getHHScriptVars("selectorClaimAllRewards"))[0].click();
                         setTimer('nextSeasonCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180)); // Add timer to check again later if there is new items to collect
@@ -11557,8 +11581,8 @@ class Season {
                 }
             }
             if (checkTimer('nextSeasonCollectTime') && getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonCollect) === "true") {
-                LogUtils_logHHAuto("Going to collect Season.");
-                LogUtils_logHHAuto("setting autoloop to false");
+                logHHAuto("Going to collect Season.");
+                logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 let limitClassPass = "";
                 if ($("div#gsp_btn_holder:visible").length) {
@@ -11566,18 +11590,18 @@ class Season {
                 }
                 const buttonsToCollect = [];
                 const listSeasonTiersToClaim = $("#seasons_tab_container .rewards_pair .reward_wrapper.reward_is_claimable" + limitClassPass);
-                LogUtils_logHHAuto('Found ' + listSeasonTiersToClaim.length + ' rewards available for collection before filtering');
+                logHHAuto('Found ' + listSeasonTiersToClaim.length + ' rewards available for collection before filtering');
                 for (let currentReward = 0; currentReward < listSeasonTiersToClaim.length; currentReward++) {
                     const currentRewardSlot = RewardHelper.getRewardTypeBySlot($(".slot, .shards_girl_ico", listSeasonTiersToClaim[currentReward])[0]);
                     const currentTier = $(".tier_number", $(listSeasonTiersToClaim[currentReward]).parent())[0].innerText;
                     //console.log(currentRewardSlot);
                     if (rewardsToCollect.includes(currentRewardSlot)) {
                         if (listSeasonTiersToClaim[currentReward].className.indexOf('pass-reward') > 0) {
-                            LogUtils_logHHAuto("Adding for collection tier n°" + currentTier + " reward (paid) : " + currentRewardSlot);
+                            logHHAuto("Adding for collection tier n°" + currentTier + " reward (paid) : " + currentRewardSlot);
                             buttonsToCollect.push({ reward: currentRewardSlot, button: listSeasonTiersToClaim[currentReward], tier: currentTier, paid: true });
                         }
                         else {
-                            LogUtils_logHHAuto("Adding for collection n°" + currentTier + " reward (free) : " + currentRewardSlot);
+                            logHHAuto("Adding for collection n°" + currentTier + " reward (free) : " + currentRewardSlot);
                             buttonsToCollect.push({ reward: currentRewardSlot, button: listSeasonTiersToClaim[currentReward], tier: currentTier, paid: false });
                         }
                     }
@@ -11595,29 +11619,29 @@ class Season {
                                     && rewardsToCollect.includes(currentSelectedRewardType)
                                     && currentSelectedRewardType === currentToCollect.reward
                                     && currentTier === currentToCollect.tier) {
-                                    LogUtils_logHHAuto("Collecting tier n°" + currentToCollect.tier + " : " + currentSelectedRewardType);
+                                    logHHAuto("Collecting tier n°" + currentToCollect.tier + " : " + currentSelectedRewardType);
                                     setTimeout(function () { $("#claim_btn_s")[0].click(); }, 500);
                                 }
                                 else {
-                                    LogUtils_logHHAuto(`Issue collecting n°${currentToCollect.tier} : ${currentToCollect.reward} : \n`
+                                    logHHAuto(`Issue collecting n°${currentToCollect.tier} : ${currentToCollect.reward} : \n`
                                         + `rewardPlaceHolder.length : ${rewardPlaceHolder.length}\n`
                                         + `rewardsToCollect.includes(currentSelectedRewardType) : ${rewardsToCollect.includes(currentSelectedRewardType)}\n`
                                         + `currentSelectedRewardType : ${currentSelectedRewardType} / currentToCollect.reward : ${currentToCollect.reward} => ${currentSelectedRewardType === currentToCollect.reward}\n`
                                         + `currentTier : ${currentTier} / currentToCollect.tier : ${currentToCollect.tier} => ${currentTier === currentToCollect.tier}`);
-                                    LogUtils_logHHAuto("Proceeding with next one.");
+                                    logHHAuto("Proceeding with next one.");
                                 }
                                 buttonsToCollect.shift();
                                 setTimeout(collectSeasonRewards, 1000);
                                 return;
                             }
                             else {
-                                LogUtils_logHHAuto("Selecting reward n°" + currentToCollect.tier + " : " + currentToCollect.reward);
+                                logHHAuto("Selecting reward n°" + currentToCollect.tier + " : " + currentToCollect.reward);
                                 currentToCollect.button.click();
                                 setTimeout(function () { collectSeasonRewards(true); }, randomInterval(300, 500));
                             }
                         }
                         else {
-                            LogUtils_logHHAuto("Season collection finished.");
+                            logHHAuto("Season collection finished.");
                             setTimer('nextSeasonCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         }
@@ -11626,7 +11650,7 @@ class Season {
                     return true;
                 }
                 else {
-                    LogUtils_logHHAuto("No season collection to do.");
+                    logHHAuto("No season collection to do.");
                     setTimer('nextSeasonCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                     setTimer('nextSeasonCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
@@ -11636,7 +11660,7 @@ class Season {
             return false;
         }
         else {
-            LogUtils_logHHAuto("Switching to Season Rewards screen.");
+            logHHAuto("Switching to Season Rewards screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeason"));
             return true;
         }
@@ -11716,7 +11740,7 @@ class Season {
 Season.LAST_SEASON_LEVEL = 63;
 Season.MIN_MOJO_FIGHT = 8;
 
-;// CONCATENATED MODULE: ./src/Module/League.pure.ts
+;// ./src/Module/League.pure.ts
 // League.pure.ts -- Pure decision logic for league automation.
 //
 // Extracted from LeagueHelper.isTimeToFight to enable direct unit tests
@@ -11768,7 +11792,7 @@ function decideShouldFight(state) {
     return ((timerExpired && energyAboveThreshold && boosterCheck) || paranoiaOverride);
 }
 
-;// CONCATENATED MODULE: ./src/model/LeagueOpponent.ts
+;// ./src/model/LeagueOpponent.ts
 // Model for a league opponent displayed in the league battle screen.
 // Holds the opponent's ID, nickname, power level, and the pre-computed
 // battle simulation result used to decide whether to fight.
@@ -11793,7 +11817,7 @@ class LeagueOpponent {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/League.ts
+;// ./src/Module/League.ts
 var League_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -11981,7 +12005,7 @@ class LeagueHelper {
         const league_end = LeagueHelper.getLeagueEndTime();
         if (league_end > 0 && league_end <= (60 * 60)) {
             // Last league hour //TODO
-            LogUtils_logHHAuto("Last League hour");
+            logHHAuto("Last League hour");
         }
         const energy = LeagueHelper.getEnergy();
         const paranoiaSpending = ParanoiaService.checkParanoiaSpendings('challenge');
@@ -12004,7 +12028,7 @@ class LeagueHelper {
         const energyAboveThreshold = (humanLikeRun && energy > threshold) ||
             energy > Math.max(threshold, runThreshold - 1);
         if (timerExpired && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
-            LogUtils_logHHAuto('Time for league but no booster equipped');
+            logHHAuto('Time for league but no booster equipped');
         }
         return decideShouldFight(state);
     }
@@ -12036,7 +12060,7 @@ class LeagueHelper {
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey + TK.Debug) === 'true';
             const opponents_list = getHHVars("opponents_list");
             if (!opponents_list) {
-                LogUtils_logHHAuto('ERROR: Can\'t find opponent list');
+                logHHAuto('ERROR: Can\'t find opponent list');
                 return;
             }
             else {
@@ -12051,7 +12075,7 @@ class LeagueHelper {
                             return;
                         }
                         if (debugEnabled)
-                            LogUtils_logHHAuto('Simulating league opponents, remaining to simulate: ' + opponentsToSimulate.length);
+                            logHHAuto('Simulating league opponents, remaining to simulate: ' + opponentsToSimulate.length);
                         let opponentsPowerList = LeagueHelper._getTempLeagueOpponentList();
                         let opponentsPowerListChanged = false;
                         for (let opponentIndex = 0; opponentIndex < opponentsToSimulate.length; opponentIndex++) {
@@ -12059,7 +12083,7 @@ class LeagueHelper {
                             let simu;
                             let leagueOpponent;
                             if (debugEnabled)
-                                LogUtils_logHHAuto(`Simulating opponent ${opponentIndex + 1}/${opponentsToSimulate.length} - id: ${opponents.player.id_fighter}, nickname: ${opponents.nickname}`);
+                                logHHAuto(`Simulating opponent ${opponentIndex + 1}/${opponentsToSimulate.length} - id: ${opponents.player.id_fighter}, nickname: ${opponents.nickname}`);
                             if (opponentsPowerList && opponentsPowerList.opponentsList.length > 0) {
                                 try {
                                     leagueOpponent = opponentsPowerList.opponentsList.find((el) => el.opponent_id == opponents.player.id_fighter);
@@ -12067,9 +12091,9 @@ class LeagueHelper {
                                         simu = leagueOpponent.simu;
                                 }
                                 catch (error) {
-                                    LogUtils_logHHAuto("Error when getting oppo " + opponents.player.id_fighter + "from storage");
+                                    logHHAuto("Error when getting oppo " + opponents.player.id_fighter + "from storage");
                                     if (debugEnabled)
-                                        LogUtils_logHHAuto(error);
+                                        logHHAuto(error);
                                 }
                             }
                             if (!simu) {
@@ -12091,7 +12115,7 @@ class LeagueHelper {
                             yield TimeHelper.sleep(randomInterval(10, 30)); // Allow browser to render
                         }
                         if (opponentsPowerListChanged) {
-                            LogUtils_logHHAuto('Save opponent list for later');
+                            logHHAuto('Save opponent list for later');
                             setStoredValue(HHStoredVarPrefixKey + TK.LeagueOpponentList, JSON.stringify(opponentsPowerList));
                         }
                     });
@@ -12147,7 +12171,7 @@ class LeagueHelper {
         }
         catch (err) {
             const { errName, message } = (err !== null && err !== void 0 ? err : {});
-            LogUtils_logHHAuto(`Error module Sim League: ${errName}, ${message}`);
+            logHHAuto(`Error module Sim League: ${errName}, ${message}`);
         }
     }
     static moduleSimLeagueHideBeatenOppo() {
@@ -12248,7 +12272,7 @@ class LeagueHelper {
             opponentsPowerList.expirationDate = new Date().getTime() + maxLeagueListDurationSecs * 1000;
         }
         else {
-            LogUtils_logHHAuto('Found valid opponent list in storage, reuse it');
+            logHHAuto('Found valid opponent list in storage, reuse it');
         }
         return opponentsPowerList;
     }
@@ -12264,10 +12288,10 @@ class LeagueHelper {
         let usePowerCalc = sortMode === LeagueHelper.SORT_POWERCALC;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + TK.Debug) === 'true';
         if (debugEnabled)
-            LogUtils_logHHAuto(`Storting method: ${sortMode}`);
+            logHHAuto(`Storting method: ${sortMode}`);
         const hasScriptChangedPowerBefore = !LeagueHelper.hasVanillaPowerColumn();
         if (hasScriptChangedPowerBefore)
-            LogUtils_logHHAuto('Power columned changed from vanilla game, can be HH++ BDSM or other script');
+            logHHAuto('Power columned changed from vanilla game, can be HH++ BDSM or other script');
         const tableRow = $(".data-list .data-row.body-row");
         /*var getPowerOrPoints = function (hasHHBdsmChangeBefore, oppoRow)
         {
@@ -12279,7 +12303,7 @@ class LeagueHelper {
                 return parsePrice($('.data-column[column="power"]', oppoRow).text());
             }
         }*/
-        LogUtils_logHHAuto('Number of player in league:' + tableRow.length + '. Number of opponent not fought in league:' + $('.data-list .data-row.body-row a').length);
+        logHHAuto('Number of player in league:' + tableRow.length + '. Number of opponent not fought in league:' + $('.data-list .data-row.body-row a').length);
         const opponents_list = getHHVars("opponents_list");
         let heroFighter;
         if (usePowerCalc) {
@@ -12288,9 +12312,9 @@ class LeagueHelper {
                 heroFighter = opponents_list === null || opponents_list === void 0 ? void 0 : opponents_list.find((el) => el.player.id_fighter == HeroHelper.getPlayerId()).player;
             }
             catch (error) {
-                LogUtils_logHHAuto('Error, falback to not use powercalc');
+                logHHAuto('Error, falback to not use powercalc');
                 if (debugEnabled)
-                    LogUtils_logHHAuto(error);
+                    logHHAuto(error);
                 usePowerCalc = false;
             }
         }
@@ -12306,7 +12330,7 @@ class LeagueHelper {
                         leagueOpponent = opponentsPowerList.opponentsList.find((el) => el.opponent_id == opponent_id);
                     }
                     catch (error) {
-                        LogUtils_logHHAuto("Error when getting oppo " + opponent_id + " from storage");
+                        logHHAuto("Error when getting oppo " + opponent_id + " from storage");
                     }
                 }
                 if (!leagueOpponent) {
@@ -12319,7 +12343,7 @@ class LeagueHelper {
                             expectedPoints = Number(NumberHelper.nRounding(simu.expectedValue, 1, -1));
                         }
                         catch (error) {
-                            LogUtils_logHHAuto("Error in simu for oppo " + opponent_id + ", falback to not use powercalc");
+                            logHHAuto("Error in simu for oppo " + opponent_id + ", falback to not use powercalc");
                             canUseSimu = false;
                         }
                     }
@@ -12342,17 +12366,17 @@ class LeagueHelper {
             }
         });
         if (opponentsPowerListChanged) {
-            LogUtils_logHHAuto('Save updated opponent list for later');
+            logHHAuto('Save updated opponent list for later');
             setStoredValue(HHStoredVarPrefixKey + TK.LeagueOpponentList, JSON.stringify(opponentsPowerList));
         }
         const hasScriptChangedPowerAfter = !LeagueHelper.hasVanillaPowerColumn();
         if (!hasScriptChangedPowerBefore && hasScriptChangedPowerAfter) {
             if (isFirstCall) {
-                LogUtils_logHHAuto('User script edited power column during computation, try again');
+                logHHAuto('User script edited power column during computation, try again');
                 return LeagueHelper.getLeagueOpponentListData(false);
             }
             else {
-                LogUtils_logHHAuto('User script edited power column during computation twice, stop');
+                logHHAuto('User script edited power column during computation twice, stop');
                 return [];
             }
         }
@@ -12368,7 +12392,7 @@ class LeagueHelper {
         } // sortMode === LeagueHelper.SORT_DISPLAYED // No sorting, keep html order
         //}
         if (usePowerCalc) {
-            LogUtils_logHHAuto('Save opponent list for later');
+            logHHAuto('Save opponent list for later');
             setStoredValue(HHStoredVarPrefixKey + TK.LeagueOpponentList, JSON.stringify({ expirationDate: opponentsPowerList.expirationDate, opponentsList: Data }));
         }
         return Data;
@@ -12395,18 +12419,18 @@ class LeagueHelper {
                 // CrushThemFights(); // TODO ??? // now managed by doBattle
             }
             else if (page === ConfigHelper.getHHScriptVars("pagesIDLeaderboard")) {
-                LogUtils_logHHAuto("On leaderboard page.");
+                logHHAuto("On leaderboard page.");
                 if (getStoredValue(HHStoredVarPrefixKey + SK.autoLeaguesCollect) === "true") {
                     if ($('#leagues .forced_info button[rel="claim"]').length > 0) {
                         $('#leagues .forced_info button[rel="claim"]').trigger('click'); //click reward
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
                     }
                 }
-                LogUtils_logHHAuto('parsing enemies');
+                logHHAuto('parsing enemies');
                 var Data = LeagueHelper.getLeagueOpponentListData();
                 const league_end = LeagueHelper.getLeagueEndTime();
                 if (currentPower < 1 && Data.length > 0) {
-                    LogUtils_logHHAuto("No power for leagues.");
+                    logHHAuto("No power for leagues.");
                     //prevent paranoia to wait for league
                     setStoredValue(HHStoredVarPrefixKey + TK.paranoiaLeagueBlocked, "true");
                     const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts');
@@ -12414,21 +12438,21 @@ class LeagueHelper {
                     return;
                 }
                 if (Data.length == 0) {
-                    LogUtils_logHHAuto('No valid targets!');
+                    logHHAuto('No valid targets!');
                     //prevent paranoia to wait for league
                     setStoredValue(HHStoredVarPrefixKey + TK.paranoiaLeagueBlocked, "true");
                     if ($('#leagues .forced_info').length > 0) {
                         setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
                     }
                     else {
-                        LogUtils_logHHAuto('Set timer to league ends.');
+                        logHHAuto('Set timer to league ends.');
                         setTimer('nextLeaguesTime', randomInterval(league_end - 5 * 60, league_end));
                     }
                 }
                 else {
                     var getPlayerCurrentLevel = LeagueHelper.getLeagueCurrentLevel();
                     if (isNaN(getPlayerCurrentLevel)) {
-                        LogUtils_logHHAuto("Could not get current Rank, stopping League.");
+                        logHHAuto("Could not get current Rank, stopping League.");
                         //prevent paranoia to wait for league
                         setStoredValue(HHStoredVarPrefixKey + TK.paranoiaLeagueBlocked, "true");
                         setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
@@ -12447,7 +12471,7 @@ class LeagueHelper {
                         if (currentRank > (totalOpponents - 15)) {
                             rankDemote = totalOpponents - 15;
                         }
-                        LogUtils_logHHAuto("Current league above target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to demote. max rank : " + rankDemote + "/" + totalOpponents);
+                        logHHAuto("Current league above target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to demote. max rank : " + rankDemote + "/" + totalOpponents);
                         let getRankDemote = $(".data-list .data-row.body-row .data-column[column='place']:contains(" + rankDemote + ")").filter(function () {
                             return Number($(this).text().trim()) === rankDemote;
                         });
@@ -12457,14 +12481,14 @@ class LeagueHelper {
                         else {
                             maxDemote = 0;
                         }
-                        LogUtils_logHHAuto("Current league above target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to demote. Score should not be higher than : " + maxDemote);
+                        logHHAuto("Current league above target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to demote. Score should not be higher than : " + maxDemote);
                         if (currentScore + leagueScoreSecurityThreshold >= maxDemote) {
                             if (league_end <= (60 * 60)) {
-                                LogUtils_logHHAuto("Can't do league as could go above demote, as last hour setting timer to 5 mins");
+                                logHHAuto("Can't do league as could go above demote, as last hour setting timer to 5 mins");
                                 setTimer('nextLeaguesTime', randomInterval(5 * 60, 8 * 60));
                             }
                             else {
-                                LogUtils_logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
+                                logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
                                 setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
                             }
                             //prevent paranoia to wait for league
@@ -12490,7 +12514,7 @@ class LeagueHelper {
                         if (currentRank > promotionCount) {
                             rankStay = promotionCount;
                         }
-                        LogUtils_logHHAuto("Current league is target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to stay. Promotion cutoff (higher of 15%/top20): " + promotionCount + ", max rank : " + rankStay);
+                        logHHAuto("Current league is target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to stay. Promotion cutoff (higher of 15%/top20): " + promotionCount + ", max rank : " + rankStay);
                         let getRankStay = $(".data-list .data-row.body-row .data-column[column='place']:contains(" + rankStay + ")").filter(function () {
                             return Number($(this).text().trim()) === rankStay;
                         });
@@ -12500,9 +12524,9 @@ class LeagueHelper {
                         else {
                             maxStay = 0;
                         }
-                        LogUtils_logHHAuto("Current league is target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to stay. Score should not be higher than : " + maxStay);
+                        logHHAuto("Current league is target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to stay. Score should not be higher than : " + maxStay);
                         if (currentScore + leagueScoreSecurityThreshold >= maxStay && getStoredValue(HHStoredVarPrefixKey + SK.autoLeaguesAllowWinCurrent) !== "true") {
-                            LogUtils_logHHAuto("Can't do league as could go above stay, setting timer to 30 mins");
+                            logHHAuto("Can't do league as could go above stay, setting timer to 30 mins");
                             setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
                             //prevent paranoia to wait for league
                             setStoredValue(HHStoredVarPrefixKey + TK.paranoiaLeagueBlocked, "true");
@@ -12510,9 +12534,9 @@ class LeagueHelper {
                             return;
                         }
                     }
-                    LogUtils_logHHAuto(Data.length + ' valid targets!');
+                    logHHAuto(Data.length + ' valid targets!');
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                    LogUtils_logHHAuto("setting autoloop to false");
+                    logHHAuto("setting autoloop to false");
                     const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoLeaguesRunThreshold)) || 0;
                     if (runThreshold > 0) {
                         setStoredValue(HHStoredVarPrefixKey + TK.LeagueHumanLikeRun, "true");
@@ -12521,23 +12545,23 @@ class LeagueHelper {
                     const opponents_list = getHHVars("opponents_list");
                     const opponentDataFromList = opponents_list === null || opponents_list === void 0 ? void 0 : opponents_list.find((obj) => obj.player.id_fighter == nextOpponent.opponent_id);
                     if (debugEnabled && opponentDataFromList)
-                        LogUtils_logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
+                        logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
                     if (!opponentDataFromList)
-                        LogUtils_logHHAuto(`ERROR opponent ${nextOpponent.opponent_id} not found in JS list`);
-                    LogUtils_logHHAuto(`Going to fight ${nextOpponent.nickname} (${nextOpponent.opponent_id}) with power ${nextOpponent.power}. Can fight: ${opponentDataFromList === null || opponentDataFromList === void 0 ? void 0 : opponentDataFromList.can_fight}`);
+                        logHHAuto(`ERROR opponent ${nextOpponent.opponent_id} not found in JS list`);
+                    logHHAuto(`Going to fight ${nextOpponent.nickname} (${nextOpponent.opponent_id}) with power ${nextOpponent.power}. Can fight: ${opponentDataFromList === null || opponentDataFromList === void 0 ? void 0 : opponentDataFromList.can_fight}`);
                     if (debugEnabled)
-                        LogUtils_logHHAuto(JSON.stringify(nextOpponent));
+                        logHHAuto(JSON.stringify(nextOpponent));
                     // change referer
                     window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id));
                     const numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList);
                     let numberOfBattle = 1;
                     if (numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)) {
                         if (maxStay > 0 && currentScore + (numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay)
-                            LogUtils_logHHAuto('Can\'t do ' + numberOfFightAvailable + ' fights in league as could go above stay');
+                            logHHAuto('Can\'t do ' + numberOfFightAvailable + ' fights in league as could go above stay');
                         else
                             numberOfBattle = numberOfFightAvailable;
                     }
-                    LogUtils_logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
+                    logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
                     // Schedule the next league fight *before* triggering
                     // the battle. Three cases:
                     //
@@ -12618,17 +12642,17 @@ class LeagueHelper {
                 if (lastActionPerformed !== undefined
                     && lastActionPerformed !== "none"
                     && lastActionPerformed !== "league") {
-                    LogUtils_logHHAuto("Skip switching to leagues screen, busy with: " + lastActionPerformed);
+                    logHHAuto("Skip switching to leagues screen, busy with: " + lastActionPerformed);
                     return;
                 }
-                LogUtils_logHHAuto("Switching to leagues screen.");
+                logHHAuto("Switching to leagues screen.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
                 return;
             }
         }
         catch (err) {
             const { errName, message } = (err !== null && err !== void 0 ? err : {});
-            LogUtils_logHHAuto(`Error do League: ${errName}, ${message}`);
+            logHHAuto(`Error do League: ${errName}, ${message}`);
             setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
         }
@@ -12649,7 +12673,7 @@ LeagueHelper.SORT_DISPLAYED = LEAGUE_SORT.DISPLAYED;
 LeagueHelper.SORT_POWER = LEAGUE_SORT.POWER;
 LeagueHelper.SORT_POWERCALC = LEAGUE_SORT.POWERCALC;
 
-;// CONCATENATED MODULE: ./src/Module/DailyGoals.ts
+;// ./src/Module/DailyGoals.ts
 // DailyGoals.ts -- Automates daily goals: claims rewards and tracks refresh timers.
 //
 // The game offers daily goals with rewards upon completion. This module
@@ -12678,7 +12702,7 @@ class DailyGoals {
             const goalsTimer = Number(convertTimeToInt($(timerRequest).text()));
             return goalsTimer;
         }
-        LogUtils_logHHAuto('ERROR: can\'t get Daily goals timer, default to maxCollectionDelay');
+        logHHAuto('ERROR: can\'t get Daily goals timer, default to maxCollectionDelay');
         return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
     }
     static styles() {
@@ -12730,7 +12754,7 @@ class DailyGoals {
             //console.log(getPage());
             if (getPage() === ConfigHelper.getHHScriptVars("pagesIDDailyGoals")) {
                 try {
-                    LogUtils_logHHAuto("Checking Daily Goals for collectable rewards. Setting autoloop to false");
+                    logHHAuto("Checking Daily Goals for collectable rewards. Setting autoloop to false");
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                     const nextDailyGoalsTimer = DailyGoals.getNewGoalsTimer();
                     let buttonsToCollect = [];
@@ -12744,7 +12768,7 @@ class DailyGoals {
                             const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
                             //console.log("checking tier : "+currentTierNb);
                             if (nextDailyGoalsTimer <= ConfigHelper.getHHScriptVars("dailyRewardMaxRemainingTime") && nextDailyGoalsTimer > 0) {
-                                LogUtils_logHHAuto("Force adding for collection chest n° " + currentTierNb);
+                                logHHAuto("Force adding for collection chest n° " + currentTierNb);
                                 buttonsToCollect.push(currentButton[0]);
                             }
                             else {
@@ -12752,14 +12776,14 @@ class DailyGoals {
                                 for (let reward of currentRewardsList) {
                                     const rewardType = RewardHelper.getRewardTypeByData(reward);
                                     if (!rewardsToCollect.includes(rewardType)) {
-                                        LogUtils_logHHAuto(`Not adding for collection chest n° ${currentTierNb} because ${rewardType} is not in immediate collection list.`);
+                                        logHHAuto(`Not adding for collection chest n° ${currentTierNb} because ${rewardType} is not in immediate collection list.`);
                                         validToCollect = false;
                                         break;
                                     }
                                 }
                                 if (validToCollect) {
                                     buttonsToCollect.push(currentButton[0]);
-                                    LogUtils_logHHAuto("Adding for collection chest n° " + currentTierNb);
+                                    logHHAuto("Adding for collection chest n° " + currentTierNb);
                                 }
                             }
                         }
@@ -12767,13 +12791,13 @@ class DailyGoals {
                     if (buttonsToCollect.length > 0 || potionsNum < 100) {
                         function collectDailyGoalsRewards() {
                             if (buttonsToCollect.length > 0) {
-                                LogUtils_logHHAuto("Collecting chest n° " + buttonsToCollect[0].getAttribute('tier'));
+                                logHHAuto("Collecting chest n° " + buttonsToCollect[0].getAttribute('tier'));
                                 buttonsToCollect[0].click();
                                 buttonsToCollect.shift();
                                 setTimeout(collectDailyGoalsRewards, randomInterval(300, 500));
                             }
                             else {
-                                LogUtils_logHHAuto("Daily Goals collection finished.");
+                                logHHAuto("Daily Goals collection finished.");
                                 setTimer('nextDailyGoalsCollectTime', randomInterval(30 * 60, 35 * 60));
                                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                             }
@@ -12782,7 +12806,7 @@ class DailyGoals {
                         return true;
                     }
                     else {
-                        LogUtils_logHHAuto("No Daily Goals reward to collect.");
+                        logHHAuto("No Daily Goals reward to collect.");
                         setTimer('nextDailyGoalsCollectTime', nextDailyGoalsTimer + randomInterval(3600, 4000));
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         return false;
@@ -12796,13 +12820,13 @@ class DailyGoals {
                     // both safely; the message extraction stays defensive so a
                     // primitive throw still produces a readable log line.
                     const errMessage = err instanceof Error ? err.message : String(err);
-                    LogUtils_logHHAuto(`ERROR during daily goals run: ${errMessage}, retry in 1h`);
+                    logHHAuto(`ERROR during daily goals run: ${errMessage}, retry in 1h`);
                     setTimer('nextDailyGoalsCollectTime', randomInterval(3600, 4000));
                     return false;
                 }
             }
             else {
-                LogUtils_logHHAuto("Switching to Daily Goals screen.");
+                logHHAuto("Switching to Daily Goals screen.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDDailyGoals"));
                 return true;
             }
@@ -12843,7 +12867,7 @@ class DailyGoals {
                 }
         }
         setStoredValue(HHStoredVarPrefixKey + TK.dailyGoalsList, JSON.stringify(supportedGoals));
-        LogUtils_logHHAuto("Daily Goals", supportedGoals);
+        logHHAuto("Daily Goals", supportedGoals);
         return supportedGoals;
     }
     static _isDailyGoalType(anchor, update) {
@@ -12884,7 +12908,7 @@ class DailyGoalsIcon {
         const ocdhelp = $('#worship_data');
         if (ocdhelp.length > 0) {
             if ($('.daily_goals_potion_icn', ocdhelp).length <= 0) {
-                LogUtils_logHHAuto('displayPantheon');
+                logHHAuto('displayPantheon');
                 GM_addStyle('#worship_data .daily_goals_potion_icn.hhauto {'
                     + 'background-size: 15px;'
                     + 'width: 15px;'
@@ -12904,7 +12928,7 @@ class DailyGoalsIcon {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Pantheon.pure.ts
+;// ./src/Module/Pantheon.pure.ts
 // Pantheon.pure.ts -- Pure decision logic for the pantheon auto module.
 //
 // Extracted from Pantheon.isEnabled and Pantheon.isTimeToFight so the
@@ -12957,7 +12981,7 @@ function Pantheon_pure_decideShouldFight(state) {
     return (timerExpired && energyAboveThreshold && boosterCheck) || paranoiaOverride;
 }
 
-;// CONCATENATED MODULE: ./src/Module/Pantheon.ts
+;// ./src/Module/Pantheon.ts
 // Pantheon.ts -- Automates Pantheon fights: opponent selection and energy management.
 //
 // The Pantheon is a PvP arena with its own energy system. This module selects
@@ -13040,7 +13064,7 @@ class Pantheon {
         const energyAboveThreshold = (humanLikeRun && energy > threshold)
             || energy > Math.max(threshold, runThreshold - 1);
         if (timerExpired && energyAboveThreshold && needBoosterToFight && !haveBoosterEquipped) {
-            LogUtils_logHHAuto('Time for pantheon but no booster equipped');
+            logHHAuto('Time for pantheon but no booster equipped');
         }
         return Pantheon_pure_decideShouldFight({
             energy,
@@ -13055,13 +13079,13 @@ class Pantheon {
         });
     }
     static run() {
-        LogUtils_logHHAuto("Performing auto Pantheon.");
+        logHHAuto("Performing auto Pantheon.");
         // Confirm if on correct screen.
         var page = getPage();
         var current_worship = Pantheon.getEnergy();
         if (page === ConfigHelper.getHHScriptVars("pagesIDPantheon")) {
-            LogUtils_logHHAuto("On pantheon page.");
-            LogUtils_logHHAuto("Remaining worship : " + current_worship);
+            logHHAuto("On pantheon page.");
+            logHHAuto("Remaining worship : " + current_worship);
             if (current_worship > 0) {
                 const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoPantheonRunThreshold)) || 0;
                 if (runThreshold > 0) {
@@ -13070,13 +13094,13 @@ class Pantheon {
                 let pantheonButton = $("#pantheon_tab_container .bottom-container .blue_button_L.pantheon-pre-battle-btn");
                 let templeID = queryStringGetParam(new URL(pantheonButton[0].getAttribute("href") || '', window.location.origin).search, 'id_opponent');
                 if (pantheonButton.length > 0 && templeID !== null) {
-                    LogUtils_logHHAuto("Going to fight Temple : " + templeID);
+                    logHHAuto("Going to fight Temple : " + templeID);
                     if (DailyGoals.isAutoDailyGoalsActivated() && DailyGoals.incrementPantheonDailyGoal())
-                        LogUtils_logHHAuto('Increment pantheon daily goals');
+                        logHHAuto('Increment pantheon daily goals');
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDPantheonPreBattle"), { id_opponent: templeID });
                 }
                 else {
-                    LogUtils_logHHAuto("Issue to find templeID retry in 60secs.");
+                    logHHAuto("Issue to find templeID retry in 60secs.");
                     setTimer('nextPantheonTime', randomInterval(60, 70));
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                 }
@@ -13094,18 +13118,18 @@ class Pantheon {
             return;
         }
         else if (page === ConfigHelper.getHHScriptVars("pagesIDPantheonPreBattle")) {
-            LogUtils_logHHAuto("On pantheon-pre-battle page.");
+            logHHAuto("On pantheon-pre-battle page.");
             let templeID = queryStringGetParam(window.location.search, 'id_opponent');
-            LogUtils_logHHAuto("Go and fight temple :" + templeID);
+            logHHAuto("Go and fight temple :" + templeID);
             let pantheonTempleBattleButton = $("#pre-battle .battle-buttons .green_button_L.battle-action-button.pantheon-single-battle-button[data-pantheon-id='" + templeID + "']");
             if (pantheonTempleBattleButton.length > 0) {
                 //replaceCheatClick();
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                LogUtils_logHHAuto("setting autoloop to false");
+                logHHAuto("setting autoloop to false");
                 pantheonTempleBattleButton[0].click();
             }
             else {
-                LogUtils_logHHAuto("Issue to find temple battle button retry in 60secs. Disabling pantheon battle.");
+                logHHAuto("Issue to find temple battle button retry in 60secs. Disabling pantheon battle.");
                 setStoredValue(HHStoredVarPrefixKey + SK.autoPantheon, "false");
                 setTimer('nextPantheonTime', randomInterval(60, 70));
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
@@ -13113,9 +13137,9 @@ class Pantheon {
         }
         else {
             // Switch to the correct screen
-            LogUtils_logHHAuto("Remaining worship : " + current_worship);
+            logHHAuto("Remaining worship : " + current_worship);
             if (current_worship > 0) {
-                LogUtils_logHHAuto("Switching to pantheon screen.");
+                logHHAuto("Switching to pantheon screen.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDPantheon"));
                 return;
             }
@@ -13134,7 +13158,7 @@ class Pantheon {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/PlaceOfPower.ts
+;// ./src/Module/PlaceOfPower.ts
 var PlaceOfPower_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13180,7 +13204,7 @@ class PlaceOfPower {
         const onPowerplacePage = getPage() === ConfigHelper.getHHScriptVars("pagesIDPowerplacemain");
         const enoughGirl = Harem.getGirlCount() >= 10;
         if (!enoughGirl) {
-            LogUtils_logHHAuto('ERROR: not enough girl for POP');
+            logHHAuto('ERROR: not enough girl for POP');
         }
         // unlocked and the end of world 2
         const enoughProgress = getHHVars('Hero.infos.questing.id_world') > 2 && enoughGirl;
@@ -13251,7 +13275,7 @@ class PlaceOfPower {
     static addPopToUnableToStart(popIndex, message) {
         var _a;
         var popUnableToStart = (_a = getStoredValue(HHStoredVarPrefixKey + TK.PopUnableToStart)) !== null && _a !== void 0 ? _a : "";
-        LogUtils_logHHAuto(message);
+        logHHAuto(message);
         if (popUnableToStart === "") {
             setStoredValue(HHStoredVarPrefixKey + TK.PopUnableToStart, String(popIndex));
         }
@@ -13290,17 +13314,17 @@ class PlaceOfPower {
                 PlaceOfPower.removePopFromPopToStart(lockedPopIndex);
             }
             if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain")) {
-                LogUtils_logHHAuto("Navigating to powerplaces main page.");
+                logHHAuto("Navigating to powerplaces main page.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));
                 // return busy
                 return true;
             }
             else {
-                LogUtils_logHHAuto("On powerplaces main page.");
+                logHHAuto("On powerplaces main page.");
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                LogUtils_logHHAuto("setting autoloop to false");
+                logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + TK.Totalpops, $("div.pop_list div[pop_id]").length); //Count how many different POPs there are and store them locally
-                LogUtils_logHHAuto("totalpops : " + getStoredValue(HHStoredVarPrefixKey + TK.Totalpops));
+                logHHAuto("totalpops : " + getStoredValue(HHStoredVarPrefixKey + TK.Totalpops));
                 var newFilter = "";
                 if (getStoredValue(HHStoredVarPrefixKey + SK.autoPowerPlacesInverted) === "true") {
                     // starting from last one.
@@ -13323,14 +13347,14 @@ class PlaceOfPower {
                     // accounts with very large rosters). If another caller
                     // already holds the mutex we yield this tick.
                     if (!acquirePostMutex('pop:claim')) {
-                        LogUtils_logHHAuto('PoP: another POST in flight, deferring claim');
+                        logHHAuto('PoP: another POST in flight, deferring claim');
                         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
                         return true;
                     }
                     const claimedPopId = $(buttonClaimQuery).first().parent().attr('pop_id');
                     const claimStart = Date.now();
                     $(buttonClaimQuery).first().trigger('click');
-                    LogUtils_logHHAuto("Claimed reward for PoP : " + claimedPopId);
+                    logHHAuto("Claimed reward for PoP : " + claimedPopId);
                     // The claim click fires an ajax.php POST. We must wait for
                     // that POST to complete before changing the page, otherwise
                     // window.location.href cancels the request (NS_BINDING_ABORTED)
@@ -13342,9 +13366,9 @@ class PlaceOfPower {
                     // bail out if the wait times out. Navigating anyway would
                     // cancel the still-open POST and re-introduce the race the
                     // wait is meant to prevent. AutoLoop will retry next tick.
-                    const claimIdle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                    const claimIdle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                     if (!claimIdle) {
-                        LogUtils_logHHAuto('PoP: claim AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, deferring popup/navigation');
+                        logHHAuto('PoP: claim AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, deferring popup/navigation');
                         releasePostMutex();
                         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
                         return true;
@@ -13352,9 +13376,9 @@ class PlaceOfPower {
                     const claimDuration = Date.now() - claimStart;
                     RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
                     // Wait again in case closing the popup itself fires a request.
-                    const popupIdle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                    const popupIdle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                     if (!popupIdle) {
-                        LogUtils_logHHAuto('PoP: popup-close AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, deferring navigation');
+                        logHHAuto('PoP: popup-close AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, deferring navigation');
                         releasePostMutex();
                         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
                         return true;
@@ -13437,7 +13461,7 @@ class PlaceOfPower {
                 if (PopToStart.length === 0) {
                     deleteStoredValue(HHStoredVarPrefixKey + TK.PopUnableToStart);
                 }
-                LogUtils_logHHAuto("build popToStart : " + PopToStart);
+                logHHAuto("build popToStart : " + PopToStart);
                 setStoredValue(HHStoredVarPrefixKey + TK.PopToStart, JSON.stringify(PopToStart));
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
                 setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + TK.autoLoopTimeMili)));
@@ -13478,7 +13502,7 @@ class PlaceOfPower {
                     deleteStoredValue(HHStoredVarPrefixKey + TK.PopTargeted);
                 }
                 else {
-                    LogUtils_logHHAuto("Navigating to powerplace" + index + " page.");
+                    logHHAuto("Navigating to powerplace" + index + " page.");
                     // Issue #1782: the game's 7.x optimization update renamed the
                     // Place-of-Power query param from `index` to `pop_id`
                     // (/activities.html?tab=pop&pop_id=N). Navigating with the old
@@ -13491,14 +13515,14 @@ class PlaceOfPower {
                 return true;
             }
             else {
-                LogUtils_logHHAuto("On powerplace" + index + " page.");
+                logHHAuto("On powerplace" + index + " page.");
                 deleteStoredValue(HHStoredVarPrefixKey + TK.PopTargeted);
                 const debugEnabled = getStoredValue(HHStoredVarPrefixKey + TK.Debug) === 'true';
                 //getting reward in case failed on main page
                 var querySelectorText = "button[rel='pop_claim']:not([style*='display:none']):not([style*='display: none'])";
                 if ($(querySelectorText).length > 0) {
                     $(querySelectorText).trigger("click");
-                    LogUtils_logHHAuto("Claimed powerplace" + index);
+                    logHHAuto("Claimed powerplace" + index);
                     yield TimeHelper.sleep(randomInterval(200, 500));
                     if (getStoredValue(HHStoredVarPrefixKey + SK.autoPowerPlacesAll) !== "true") {
                         PlaceOfPower.cleanTempPopToStart();
@@ -13520,9 +13544,9 @@ class PlaceOfPower {
                     if (document.getElementsByClassName("pop_remaining").length > 0) {
                         if (document.getElementsByClassName("pop_remaining")[0].children.length > 0) {
                             const remainText = document.getElementsByClassName("pop_remaining")[0].children[0].innerText;
-                            LogUtils_logHHAuto("PoP remainText: " + remainText);
+                            logHHAuto("PoP remainText: " + remainText);
                             if (debugEnabled)
-                                LogUtils_logHHAuto("PoP acting-power-text: " + $('.acting-power-text').text());
+                                logHHAuto("PoP acting-power-text: " + $('.acting-power-text').text());
                             const hasRemainDays = remainText.includes("d");
                             // If for some reason we cannot parse the text, set time too high to start
                             // This may cause undesirable loops but for now is considered better than having girls stuck in PoP for days
@@ -13538,7 +13562,7 @@ class PlaceOfPower {
                                 querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])";
                                 if ($(querySelectorText).length > 0) {
                                     document.querySelector(querySelectorText).click();
-                                    LogUtils_logHHAuto("Started powerplace" + index);
+                                    logHHAuto("Started powerplace" + index);
                                     yield TimeHelper.sleep(randomInterval(1000, 2000));
                                 }
                                 ;
@@ -13552,22 +13576,22 @@ class PlaceOfPower {
                 else {
                     if ($("div.grid_view div.not_selected").length === 1) {
                         $("div.grid_view div.not_selected").trigger("click");
-                        LogUtils_logHHAuto("Only one girl available for powerplace n°" + index + " assigning her.");
+                        logHHAuto("Only one girl available for powerplace n°" + index + " assigning her.");
                         yield TimeHelper.sleep(randomInterval(1200, 2000));
                     }
                     else {
                         querySelectorText = "button.blue_button_L[rel='pop_auto_assign']:not([disabled])";
                         if ($(querySelectorText).length > 0) {
                             document.querySelector(querySelectorText).click();
-                            LogUtils_logHHAuto("Autoassigned powerplace" + index);
+                            logHHAuto("Autoassigned powerplace" + index);
                             yield TimeHelper.sleep(randomInterval(1500, 2000));
                         }
                         else
-                            LogUtils_logHHAuto("No autoassign button for powerplace" + index);
+                            logHHAuto("No autoassign button for powerplace" + index);
                     }
                     querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])";
                     if ($(querySelectorText).length > 0) {
-                        LogUtils_logHHAuto("Starting powerplace" + index);
+                        logHHAuto("Starting powerplace" + index);
                         // Issue #1782: the old code waited for an ajax whose data
                         // matched "PlaceOfPower&action=start". The game's 7.x update
                         // changed the start request signature, so that wait never
@@ -13577,9 +13601,9 @@ class PlaceOfPower {
                         // independent, timeout-bounded wait the claim path above uses,
                         // so a changed signature can never hang the loop again.
                         $(querySelectorText).trigger('click');
-                        const startIdle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                        const startIdle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                         if (!startIdle) {
-                            LogUtils_logHHAuto("PoP: start AJAX still busy after " + AJAX_IDLE_TIMEOUT_MS + "ms for powerplace" + index);
+                            logHHAuto("PoP: start AJAX still busy after " + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + "ms for powerplace" + index);
                         }
                     }
                     else if ($("button.blue_button_L[rel='pop_action'][disabled]").length > 0 && $("div.grid_view div.pop_selected").length > 0) {
@@ -13647,8 +13671,8 @@ class PlaceOfPower {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + TK.Debug) === 'true';
         let startTime = 0;
         if (debugEnabled) {
-            LogUtils_logHHAuto("PoP debug is enabled");
-            LogUtils_logHHAuto("PoP power needed:" + powerText);
+            logHHAuto("PoP debug is enabled");
+            logHHAuto("PoP power needed:" + powerText);
             startTime = performance.now();
         }
         let girlOptions = [];
@@ -13690,20 +13714,20 @@ class PlaceOfPower {
         });
         if (debugEnabled) {
             const endTime = performance.now();
-            LogUtils_logHHAuto("PoP precision: calculating this team took " + (endTime - startTime) + "ms");
+            logHHAuto("PoP precision: calculating this team took " + (endTime - startTime) + "ms");
             let teamPower = 0;
             chosenTeam.forEach((girl) => {
                 teamPower += girl.power;
             });
-            LogUtils_logHHAuto("PoP teamPower:" + teamPower);
-            LogUtils_logHHAuto("PoP teamScore:" + teamScore);
-            LogUtils_logHHAuto("PoP chosenTeam (" + chosenTeam.length + " girls):" + JSON.stringify(chosenTeam));
+            logHHAuto("PoP teamPower:" + teamPower);
+            logHHAuto("PoP teamScore:" + teamScore);
+            logHHAuto("PoP chosenTeam (" + chosenTeam.length + " girls):" + JSON.stringify(chosenTeam));
         }
         return chosenTeam;
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Quest.ts
+;// ./src/Module/Quest.ts
 // Quest.ts -- Automates questing: accepts quests, handles quest steps, and buys
 // energy if configured.
 //
@@ -13768,11 +13792,11 @@ class QuestHelper {
             var quests = $('.side-quest:has(.slot) .side-quest-button');
             let navOk;
             if (quests.length > 0) {
-                LogUtils_logHHAuto("Navigating to side quest.");
+                logHHAuto("Navigating to side quest.");
                 navOk = gotoPage(quests.attr('href'));
             }
             else {
-                LogUtils_logHHAuto("All quests finished, setting timer to check back later!");
+                logHHAuto("All quests finished, setting timer to check back later!");
                 if (checkTimer('nextMainQuestAttempt')) {
                     setTimer('nextMainQuestAttempt', 604800);
                 } // 1 week delay
@@ -13797,7 +13821,7 @@ class QuestHelper {
                 navOk = gotoPage(nextQuestUrl);
             }
             else {
-                LogUtils_logHHAuto("All quests finished, setting timer to check back later!");
+                logHHAuto("All quests finished, setting timer to check back later!");
                 if (checkTimer('nextMainQuestAttempt')) {
                     setTimer('nextMainQuestAttempt', 604800); // 1 week delay
                 }
@@ -13815,7 +13839,7 @@ class QuestHelper {
         // new import cycles (RewardHelper -> EventModule -> ... -> Quest).
         const rewardConfirm = $('div#rewards_popup button.blue_button_L:not([disabled]):visible, div#rewards_popup button.purple_button_L:not([disabled]):visible');
         if (rewardConfirm.length > 0) {
-            LogUtils_logHHAuto("Close reward popup blocking the quest.");
+            logHHAuto("Close reward popup blocking the quest.");
             rewardConfirm.first().trigger('click');
             return true;
         }
@@ -13823,7 +13847,7 @@ class QuestHelper {
         var proceedButtonMatch = $("#controls button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0) {
             // Choice button 
-            LogUtils_logHHAuto("Search for choice buttons");
+            logHHAuto("Search for choice buttons");
             proceedButtonMatch = $(".buttons-container button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])").first();
         }
         if (proceedButtonMatch.length === 0) {
@@ -13832,15 +13856,15 @@ class QuestHelper {
         var proceedType = proceedButtonMatch.attr("id");
         //console.log("DebugQuest proceedType : "+proceedType);
         if (proceedButtonMatch.length === 0) {
-            LogUtils_logHHAuto("Could not find resume button.");
+            logHHAuto("Could not find resume button.");
             return true;
         }
         else if (proceedButtonMatch.attr('disabled') && proceedType != "end_play") {
-            LogUtils_logHHAuto("Button is disabled for animation wait a bit.");
+            logHHAuto("Button is disabled for animation wait a bit.");
             return true;
         }
         if (proceedType === "free") {
-            LogUtils_logHHAuto("Proceeding for free.");
+            logHHAuto("Proceeding for free.");
             //setStoredValue"HHAuto_Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
             //proceedButtonMatch.click();
@@ -13857,10 +13881,10 @@ class QuestHelper {
                 // console.log("DebugQuest ENERGY for : "+proceedCost + " / " + energyCurrent);
                 if (proceedCost <= energyCurrent) {
                     // We have energy.
-                    LogUtils_logHHAuto("Spending " + proceedCost + " Energy to proceed.");
+                    logHHAuto("Spending " + proceedCost + " Energy to proceed.");
                 }
                 else {
-                    LogUtils_logHHAuto("Quest requires " + proceedCost + " Energy to proceed.");
+                    logHHAuto("Quest requires " + proceedCost + " Energy to proceed.");
                     setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, "*" + proceedCost);
                     return true;
                 }
@@ -13869,10 +13893,10 @@ class QuestHelper {
                 console.log("DebugQuest MONEY for : " + proceedCost);
                 if (proceedCost <= moneyCurrent) {
                     // We have money.
-                    LogUtils_logHHAuto("Spending " + proceedCost + " Money to proceed.");
+                    logHHAuto("Spending " + proceedCost + " Money to proceed.");
                 }
                 else {
-                    LogUtils_logHHAuto("Need " + proceedCost + " Money to proceed.");
+                    logHHAuto("Need " + proceedCost + " Money to proceed.");
                     setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, "$" + proceedCost);
                     return true;
                 }
@@ -13882,13 +13906,13 @@ class QuestHelper {
             //logHHAuto("setting autoloop to false");
         }
         else if (proceedType === "use_item") {
-            LogUtils_logHHAuto("Proceeding by using X" + Number($("#controls .item span").text()) + " of the required item.");
+            logHHAuto("Proceeding by using X" + Number($("#controls .item span").text()) + " of the required item.");
             //proceedButtonMatch.click();
             //setStoredValue(HHStoredVarPrefixKey+TK.autoLoop, "false");
             //logHHAuto("setting autoloop to false");
         }
         else if (proceedType === "battle") {
-            LogUtils_logHHAuto("Quest need battle...");
+            logHHAuto("Quest need battle...");
             setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, "battle");
             // Proceed to battle troll.
             //proceedButtonMatch.click();
@@ -13896,10 +13920,10 @@ class QuestHelper {
             //logHHAuto("setting autoloop to false");
         }
         else if (proceedType === "finish") {
-            LogUtils_logHHAuto("Reached end of current side quest. Proceeding to next.");
+            logHHAuto("Reached end of current side quest. Proceeding to next.");
         }
         else if (proceedType === "end_archive") {
-            LogUtils_logHHAuto("Reached end of current archive. Proceeding to next archive.");
+            logHHAuto("Reached end of current archive. Proceeding to next archive.");
             //setStoredValue(HHStoredVarPrefixKey+TK.autoLoop, "false");
             //logHHAuto("setting autoloop to false");
             //proceedButtonMatch.click();
@@ -13907,31 +13931,31 @@ class QuestHelper {
         else if (proceedType === "end_play") {
             let rewards = $('#popups[style="display: block;"]>#rewards_popup[style="display: block;"] button.blue_button_L[confirm_blue_button]');
             if (proceedButtonMatch.attr('disabled') && rewards.length > 0) {
-                LogUtils_logHHAuto("Reached end of current archive. Claim reward.");
+                logHHAuto("Reached end of current archive. Claim reward.");
                 rewards.click();
                 return true;
             }
-            LogUtils_logHHAuto("Reached end of current play. Proceeding to next play.");
+            logHHAuto("Reached end of current play. Proceeding to next play.");
             //setStoredValue(HHStoredVarPrefixKey+TK.autoLoop, "false");
             //logHHAuto("setting autoloop to false");
             //proceedButtonMatch.click();
         }
         else if (proceedType === "outfit") {
-            LogUtils_logHHAuto("Change outfit needed.");
+            logHHAuto("Change outfit needed.");
             // TODO manage ?
             setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, "outfit");
         }
         else {
-            LogUtils_logHHAuto("Could not identify given resume button.");
+            logHHAuto("Could not identify given resume button.");
             setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, "unknownQuestButton");
             return true;
         }
         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-        LogUtils_logHHAuto("setting autoloop to false");
+        logHHAuto("setting autoloop to false");
         setTimeout(function () {
             proceedButtonMatch.click();
             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
-            LogUtils_logHHAuto("setting autoloop to true");
+            logHHAuto("setting autoloop to true");
             setTimeout(autoLoop, randomInterval(800, 1200));
         }, randomInterval(500, 800));
         //setTimeout(function () {location.reload();},randomInterval(800,1500));
@@ -13940,7 +13964,7 @@ class QuestHelper {
 }
 QuestHelper.SITE_QUEST_PAGE = '/side-quests.html';
 
-;// CONCATENATED MODULE: ./src/Service/ParanoiaService.ts
+;// ./src/Service/ParanoiaService.ts
 // ParanoiaService.ts
 //
 // Anti-detection system that alternates between "burst" (active) and
@@ -14018,14 +14042,14 @@ class ParanoiaService {
                 let currValue = currentPSpendings.get(inSpendingFunction) || 0;
                 currValue -= inSpent;
                 if (currValue > 0) {
-                    LogUtils_logHHAuto("Spent " + inSpent + " " + inSpendingFunction + ", remains " + currValue + " before Paranoia.");
+                    logHHAuto("Spent " + inSpent + " " + inSpendingFunction + ", remains " + currValue + " before Paranoia.");
                     currentPSpendings.set(inSpendingFunction, currValue);
                 }
                 else {
                     currentPSpendings.delete(inSpendingFunction);
                 }
             }
-            LogUtils_logHHAuto("Remains to spend before Paranoia : " + JSON.stringify(currentPSpendings, replacerMap));
+            logHHAuto("Remains to spend before Paranoia : " + JSON.stringify(currentPSpendings, replacerMap));
             setStoredValue(HHStoredVarPrefixKey + TK.paranoiaSpendings, JSON.stringify(currentPSpendings, replacerMap));
         }
     }
@@ -14052,10 +14076,10 @@ class ParanoiaService {
                     if (totalPointsEndParanoia >= maxEnergy) {
                         paranoiaSpend = totalPointsEndParanoia - maxEnergy + 1;
                         paranoiaSpendings.set("challenge", paranoiaSpend);
-                        LogUtils_logHHAuto("Setting Paranoia spendings for league : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
+                        logHHAuto("Setting Paranoia spendings for league : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
                     }
                     else {
-                        LogUtils_logHHAuto("Setting Paranoia spendings for league : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
+                        logHHAuto("Setting Paranoia spendings for league : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
                     }
                 }
             }
@@ -14070,10 +14094,10 @@ class ParanoiaService {
                     if (totalPointsEndParanoia >= maxEnergy) {
                         paranoiaSpend = totalPointsEndParanoia - maxEnergy + 1;
                         paranoiaSpendings.set("quest", paranoiaSpend);
-                        LogUtils_logHHAuto("Setting Paranoia spendings for quest : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
+                        logHHAuto("Setting Paranoia spendings for quest : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
                     }
                     else {
-                        LogUtils_logHHAuto("Setting Paranoia spendings for quest : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
+                        logHHAuto("Setting Paranoia spendings for quest : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
                     }
                 }
             }
@@ -14087,16 +14111,16 @@ class ParanoiaService {
                 if (totalPointsEndParanoia >= maxEnergy) {
                     paranoiaSpend = totalPointsEndParanoia - maxEnergy + 1;
                     paranoiaSpendings.set("fight", paranoiaSpend);
-                    LogUtils_logHHAuto("Setting Paranoia spendings for troll : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
+                    logHHAuto("Setting Paranoia spendings for troll : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
                 }
                 else {
-                    LogUtils_logHHAuto("Setting Paranoia spendings for troll : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
+                    logHHAuto("Setting Paranoia spendings for troll : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
                 }
             }
             //if autoSeason is on
             if (ConfigHelper.getHHScriptVars('isEnabledSeason', false) && getStoredValue(HHStoredVarPrefixKey + SK.autoSeason) === "true") {
                 if (getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls) === "true") {
-                    LogUtils_logHHAuto('Season auto is on but ignore fights when no girls to win, no spending kisses.');
+                    logHHAuto('Season auto is on but ignore fights when no girls to win, no spending kisses.');
                 }
                 else {
                     maxPointsDuringParanoia = Math.ceil((toNextSwitch - Number(getHHVars('Hero.energies.kiss.next_refresh_ts'))) / Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
@@ -14107,10 +14131,10 @@ class ParanoiaService {
                     if (totalPointsEndParanoia >= maxEnergy) {
                         paranoiaSpend = totalPointsEndParanoia - maxEnergy + 1;
                         paranoiaSpendings.set("kiss", paranoiaSpend);
-                        LogUtils_logHHAuto("Setting Paranoia spendings for Season : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
+                        logHHAuto("Setting Paranoia spendings for Season : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
                     }
                     else {
-                        LogUtils_logHHAuto("Setting Paranoia spendings for Season : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
+                        logHHAuto("Setting Paranoia spendings for Season : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
                     }
                 }
             }
@@ -14124,13 +14148,13 @@ class ParanoiaService {
                 if (totalPointsEndParanoia >= maxEnergy) {
                     paranoiaSpend = totalPointsEndParanoia - maxEnergy + 1;
                     paranoiaSpendings.set("worship", paranoiaSpend);
-                    LogUtils_logHHAuto("Setting Paranoia spendings for Pantheon : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
+                    logHHAuto("Setting Paranoia spendings for Pantheon : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
                 }
                 else {
-                    LogUtils_logHHAuto("Setting Paranoia spendings for Pantheon : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
+                    logHHAuto("Setting Paranoia spendings for Pantheon : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
                 }
             }
-            LogUtils_logHHAuto("Setting paranoia spending to : " + JSON.stringify(paranoiaSpendings, replacerMap));
+            logHHAuto("Setting paranoia spending to : " + JSON.stringify(paranoiaSpendings, replacerMap));
             setStoredValue(HHStoredVarPrefixKey + TK.paranoiaSpendings, JSON.stringify(paranoiaSpendings, replacerMap));
         }
     }
@@ -14151,7 +14175,7 @@ class ParanoiaService {
             toNextSwitch = nextSwitchVal ? Number((Number(nextSwitchVal) - new Date().getTime()) / 1000) : randomInterval(Number(periods[period][0]), Number(periods[period][1]));
             //match mythic new wave with end of sleep
             if (getStoredValue(HHStoredVarPrefixKey + SK.autoTrollMythicByPassParanoia) === "true" && getTimer("eventMythicNextWave") !== -1 && toNextSwitch > getSecondsLeft("eventMythicNextWave")) {
-                LogUtils_logHHAuto("Forced rest only until next mythic wave.");
+                logHHAuto("Forced rest only until next mythic wave.");
                 toNextSwitch = getSecondsLeft("eventMythicNextWave");
             }
             //bypass Paranoia if ongoing mythic
@@ -14166,7 +14190,7 @@ class ParanoiaService {
                     //mythic onGoing and still have some fight above threshold
                     if (Troll.getEnergy() > 0) //trollThreshold)
                      {
-                        LogUtils_logHHAuto("Forced bypass Paranoia for mythic (can fight).");
+                        logHHAuto("Forced bypass Paranoia for mythic (can fight).");
                         setTimer('paranoiaSwitch', 60);
                         return;
                     }
@@ -14174,7 +14198,7 @@ class ParanoiaService {
                     // const Hero=getHero();
                     // var price=Hero.get_recharge_cost("fight");
                     if (Troll.canBuyFight(eventMythicGirl).canBuy && Troll.getEnergy() == 0) {
-                        LogUtils_logHHAuto("Forced bypass Paranoia for mythic (can buy).");
+                        logHHAuto("Forced bypass Paranoia for mythic (can buy).");
                         setTimer('paranoiaSwitch', 60);
                         return;
                     }
@@ -14197,14 +14221,14 @@ class ParanoiaService {
                 ParanoiaService.countParanoiaLoop++;
                 // logHHAuto(`checkParanoiaSpendings() = ${checkParanoiaSpendings()}, reached ${ParanoiaService.countParanoiaLoop} times`);
                 if (ParanoiaService.countParanoiaLoop > ParanoiaService.MAX_LOOP) {
-                    LogUtils_logHHAuto(`10 times flip without actions, clearParanoiaSpending and update (count: ${ParanoiaService.countParanoiaClear++}) `);
+                    logHHAuto(`10 times flip without actions, clearParanoiaSpending and update (count: ${ParanoiaService.countParanoiaClear++}) `);
                     ParanoiaService.clearParanoiaSpendings();
                     ParanoiaService.setParanoiaSpendings();
                 }
                 if (ParanoiaService.countParanoiaClear < ParanoiaService.MAX_LOOP)
                     return;
                 else
-                    LogUtils_logHHAuto(`10 times clearParanoiaSpending and update, let flip continue`);
+                    logHHAuto(`10 times clearParanoiaSpending and update, let flip continue`);
             }
             else {
                 //refresh remaining
@@ -14217,14 +14241,14 @@ class ParanoiaService {
             //if (getPage()!=ConfigHelper.getHHScriptVars("pagesIDHome")) return;
             //going to work
             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-            LogUtils_logHHAuto("setting autoloop to false");
+            logHHAuto("setting autoloop to false");
             setStoredValue(HHStoredVarPrefixKey + TK.burst, "true");
             var b = S1[0][0][0].split('-');
             toNextSwitch = randomInterval(Number(b[0]), Number(b[1]));
         }
         var ND = new Date().getTime() + toNextSwitch * 1000;
         var message = period + (burst ? " rest" : " burst");
-        LogUtils_logHHAuto("PARANOIA: " + message);
+        logHHAuto("PARANOIA: " + message);
         setStoredValue(HHStoredVarPrefixKey + TK.pinfo, message);
         setTimer('paranoiaSwitch', toNextSwitch);
         //force recheck non completed event after paranoia
@@ -14274,7 +14298,7 @@ function reviverMap(key, value) {
     return value;
 }
 
-;// CONCATENATED MODULE: ./src/Module/PentaDrill.ts
+;// ./src/Module/PentaDrill.ts
 var PentaDrill_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -14360,7 +14384,7 @@ class PentaDrill {
         const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrillBoostedOnly) === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
         if (checkTimer('nextPentaDrillTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
-            LogUtils_logHHAuto('Time for PentaDrill but no booster equipped');
+            logHHAuto('Time for PentaDrill but no booster equipped');
         }
         return (checkTimer('nextPentaDrillTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
@@ -14370,12 +14394,12 @@ class PentaDrill {
         try {
             const opponents = unsafeWindow.opponents_list;
             if (!opponents || opponents.length === 0) {
-                LogUtils_logHHAuto("PentaDrill : no opponents available to choose from.");
+                logHHAuto("PentaDrill : no opponents available to choose from.");
                 return undefined;
             }
             const lowestPowerOpponent = [...opponents].sort((a, b) => a.player.total_power - b.player.total_power)[0];
             if (debugEnabled) {
-                LogUtils_logHHAuto(`Lowest Penta drill opponent is ${lowestPowerOpponent.player.nickname} with power ${lowestPowerOpponent.player.total_power}`);
+                logHHAuto(`Lowest Penta drill opponent is ${lowestPowerOpponent.player.nickname} with power ${lowestPowerOpponent.player.total_power}`);
             }
             const opponentButton = $('.opponent-info-container .change-team-container a[href*=' + ((_a = lowestPowerOpponent.player) === null || _a === void 0 ? void 0 : _a.id_fighter) + ']');
             const opponentBlock = opponentButton.parent().parent();
@@ -14384,21 +14408,21 @@ class PentaDrill {
             return lowestPowerOpponent;
         }
         catch (err) {
-            LogUtils_logHHAuto("Catched error : Could not choose Penta drill opponent : " + err);
+            logHHAuto("Catched error : Could not choose Penta drill opponent : " + err);
         }
         return undefined;
     }
     static run() {
         return PentaDrill_awaiter(this, void 0, void 0, function* () {
-            LogUtils_logHHAuto("Performing auto PentaDrill.");
+            logHHAuto("Performing auto PentaDrill.");
             // Confirm if on correct screen.
             //const Hero = getHero();
             const page = getPage();
             if (page === ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena")) {
-                LogUtils_logHHAuto("On PentaDrill arena page.");
+                logHHAuto("On PentaDrill arena page.");
                 const chosenOpponent = PentaDrill.moduleSimPentaDrillBattle();
                 if (chosenOpponent === undefined) {
-                    LogUtils_logHHAuto("PentaDrill : was not able to choose opponent.");
+                    logHHAuto("PentaDrill : was not able to choose opponent.");
                     setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
                     return false;
                 }
@@ -14411,11 +14435,11 @@ class PentaDrill {
                     }
                     const toGoTo = opponentButton.attr('href') || '';
                     if (toGoTo === '') {
-                        LogUtils_logHHAuto('PentaDrill : Error getting opponent location');
+                        logHHAuto('PentaDrill : Error getting opponent location');
                         setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
                         return false;
                     }
-                    LogUtils_logHHAuto(`Going to crush : ${chosenOpponent.player.nickname} (${chosenID})`);
+                    logHHAuto(`Going to crush : ${chosenOpponent.player.nickname} (${chosenID})`);
                     // C1: safeNavigateHref handles autoLoop disable + AJAX-idle
                     // wait + URL change atomically. The duplicate setStoredValue
                     // and log line is removed because safeNavigateHref does that
@@ -14426,16 +14450,16 @@ class PentaDrill {
                 }
             }
             else if (page === ConfigHelper.getHHScriptVars("pagesIDPentaDrillPreBattle")) {
-                LogUtils_logHHAuto("On PentaDrill pre battle page.");
+                logHHAuto("On PentaDrill pre battle page.");
                 const performButton = $('#perform_opponent:not([disabled])');
                 if (performButton.length === 0) {
-                    LogUtils_logHHAuto('PentaDrill : Perform button is disabled, can\'t fight now.');
+                    logHHAuto('PentaDrill : Perform button is disabled, can\'t fight now.');
                     setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
                     return false;
                 }
                 performButton.trigger('click');
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                LogUtils_logHHAuto("setting autoloop to false");
+                logHHAuto("setting autoloop to false");
                 yield TimeHelper.sleep(randomInterval(6000, 9000));
                 //setTimer('nextPentaDrillTime',10);
                 return true;
@@ -14443,9 +14467,9 @@ class PentaDrill {
             else {
                 const current_drill = PentaDrill.getEnergy();
                 // Switch to the correct screen
-                LogUtils_logHHAuto("Remaining drill : " + current_drill);
+                logHHAuto("Remaining drill : " + current_drill);
                 if (current_drill > 0) {
-                    LogUtils_logHHAuto("Switching to PentaDrill Arena screen.");
+                    logHHAuto("Switching to PentaDrill Arena screen.");
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"));
                 }
                 else {
@@ -14471,7 +14495,7 @@ class PentaDrill {
         }
         catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            LogUtils_logHHAuto(`ERROR in display PentaDrill rewards: ${message}`);
+            logHHAuto(`ERROR in display PentaDrill rewards: ${message}`);
         }
     }
     static getNotClaimedRewards() {
@@ -14489,10 +14513,10 @@ class PentaDrill {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrill")) {
             PentaDrill.getRemainingTime();
             const PentaDrillEnd = getSecondsLeft("pentaDrillRemainingTime");
-            LogUtils_logHHAuto("PentaDrill end in " + TimeHelper.debugDate(PentaDrillEnd));
+            logHHAuto("PentaDrill end in " + TimeHelper.debugDate(PentaDrillEnd));
             if (checkTimer('nextPentaDrillCollectAllTime') && PentaDrillEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrillCollectAll) === "true") {
                 if ($(ConfigHelper.getHHScriptVars("selectorClaimAllRewards")).length > 0) {
-                    LogUtils_logHHAuto("Going to collect all PentaDrill item at once.");
+                    logHHAuto("Going to collect all PentaDrill item at once.");
                     setTimeout(function () {
                         $(ConfigHelper.getHHScriptVars("selectorClaimAllRewards"))[0].click();
                         setTimer('nextPentaDrillCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180)); // Add timer to check again later if there is new items to collect
@@ -14505,15 +14529,15 @@ class PentaDrill {
                 }
             }
             if (checkTimer('nextPentaDrillCollectTime') && getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrillCollect) === "true") {
-                LogUtils_logHHAuto("Going to collect PentaDrill.");
-                LogUtils_logHHAuto("setting autoloop to false");
+                logHHAuto("Going to collect PentaDrill.");
+                logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 const isPassPaid = $("#get_penta_pass_btn:visible").length === 0;
                 const freeSlotQuery = ".free_reward .slot";
                 const paidSlotQuery = ".pass_reward .slot";
                 const buttonsToCollect = [];
                 const listPentaDrillTiersToClaim = $(".rewards_container_penta_drill .rewards_pair:has(.btn_claim)");
-                LogUtils_logHHAuto('Found ' + listPentaDrillTiersToClaim.length + ' rewards available for collection before filtering');
+                logHHAuto('Found ' + listPentaDrillTiersToClaim.length + ' rewards available for collection before filtering');
                 for (let currentTier = 0; currentTier < listPentaDrillTiersToClaim.length; currentTier++) {
                     const currentButton = $("button[rel='claim']", listPentaDrillTiersToClaim[currentTier])[0];
                     const currentTierNb = currentButton.getAttribute("tier");
@@ -14525,22 +14549,22 @@ class PentaDrill {
                             const paidSlotType = RewardHelper.getRewardTypeBySlot($(paidSlotQuery, listPentaDrillTiersToClaim[currentTier])[0]);
                             if (rewardsToCollect.includes(paidSlotType)) {
                                 buttonsToCollect.push(currentButton);
-                                LogUtils_logHHAuto("Adding for collection tier (free + paid) : " + currentTierNb);
+                                logHHAuto("Adding for collection tier (free + paid) : " + currentTierNb);
                             }
                             else {
-                                LogUtils_logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
+                                logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
                             }
                         }
                         else {
                             buttonsToCollect.push(currentButton);
-                            LogUtils_logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
+                            logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
                         }
                     }
                 }
                 if (buttonsToCollect.length > 0) {
                     function collectPentaDrillRewards() {
                         function collectionFinished() {
-                            LogUtils_logHHAuto("PentaDrill collection finished.");
+                            logHHAuto("PentaDrill collection finished.");
                             setTimer('nextPentaDrillCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         }
@@ -14551,7 +14575,7 @@ class PentaDrill {
                             }
                             function collectNextTier() {
                                 if (buttonsToCollect.length > 0) {
-                                    LogUtils_logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
+                                    logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
                                     buttonsToCollect[0].click();
                                     buttonsToCollect.shift();
                                     setTimeout(closeRewardAndCollectagain, randomInterval(300, 500));
@@ -14569,7 +14593,7 @@ class PentaDrill {
                     return true;
                 }
                 else {
-                    LogUtils_logHHAuto("No PentaDrill collection to do.");
+                    logHHAuto("No PentaDrill collection to do.");
                     setTimer('nextPentaDrillCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                     setTimer('nextPentaDrillCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
@@ -14579,7 +14603,7 @@ class PentaDrill {
             return false;
         }
         else {
-            LogUtils_logHHAuto("Switching to PentaDrill Rewards screen.");
+            logHHAuto("Switching to PentaDrill Rewards screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrill"));
             return true;
         }
@@ -14604,7 +14628,7 @@ class PentaDrill {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Contest.ts
+;// ./src/Module/Contest.ts
 // Contest.ts -- Handles contest reward claiming and "wait for contest" logic.
 //
 // Contests are timed competitive events with milestone rewards. This module
@@ -14633,20 +14657,20 @@ class Contest {
     }
     static run() {
         if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests")) {
-            LogUtils_logHHAuto("Navigating to contests page.");
+            logHHAuto("Navigating to contests page.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
             // return busy
             return true;
         }
         else {
-            LogUtils_logHHAuto("On contests page.");
-            LogUtils_logHHAuto("Collecting finished contests's reward.");
+            logHHAuto("On contests page.");
+            logHHAuto("Collecting finished contests's reward.");
             const contest_list = Contest.getClaimsButton();
-            LogUtils_logHHAuto(`Found ${contest_list.length} contest to be collected`);
+            logHHAuto(`Found ${contest_list.length} contest to be collected`);
             if (contest_list.length > 0) {
                 const firstContestEnded = contest_list.first();
                 const contestContainer = firstContestEnded.parents('.contest');
-                LogUtils_logHHAuto(`Collected contest id : ${contestContainer === null || contestContainer === void 0 ? void 0 : contestContainer.attr('id_contest')}.`);
+                logHHAuto(`Collected contest id : ${contestContainer === null || contestContainer === void 0 ? void 0 : contestContainer.attr('id_contest')}.`);
                 firstContestEnded.trigger('click');
                 // Remove the claimed contest from the DOM so setTimers() won't
                 // see stale claim buttons and create an infinite collect loop.
@@ -14669,7 +14693,7 @@ class Contest {
     }
     static setTimers() {
         if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests")) {
-            LogUtils_logHHAuto("Navigating to contests page.");
+            logHHAuto("Navigating to contests page.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
             // return busy
             return true;
@@ -14706,7 +14730,7 @@ class Contest {
                 }
             }
             catch (err) {
-                LogUtils_logHHAuto('ERROR getting next contest timers, ignore...');
+                logHHAuto('ERROR getting next contest timers, ignore...');
                 setTimer('contestRemainingTime', 3600);
                 setTimer('nextContestTime', 4000);
                 setTimer('nextContestCollectTime', 4000);
@@ -14749,7 +14773,7 @@ class Contest {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Labyrinth.pure.ts
+;// ./src/Module/Labyrinth.pure.ts
 // Labyrinth.pure.ts -- Pure decision logic for the labyrinth path pipeline
 // and the "find better option" selector.
 //
@@ -14951,7 +14975,7 @@ function decideBetterOption(state) {
     return chosenOption;
 }
 
-;// CONCATENATED MODULE: ./src/Module/RelicManager.ts
+;// ./src/Module/RelicManager.ts
 var RelicManager_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -15081,10 +15105,10 @@ class RelicManager {
                     // Marker not present yet: derive the same choice and use its slot.
                     const relics = this.parseRelics();
                     if (this.debugEnabled)
-                        LogUtils_logHHAuto('relics', relics);
+                        logHHAuto('relics', relics);
                     const relic = this.chooseRelic(relics);
                     if (this.debugEnabled)
-                        LogUtils_logHHAuto('Selecting', relic);
+                        logHHAuto('Selecting', relic);
                     chosenContainer = relic.slot;
                 }
                 const claimBtn = $('.relic-card-buttons .claim-relic-btn', chosenContainer).first();
@@ -15092,14 +15116,14 @@ class RelicManager {
                     throw new Error('no claim button in chosen relic container');
                 }
                 if (this.debugEnabled)
-                    LogUtils_logHHAuto('Claiming relic-id', claimBtn.attr('relic-id'));
+                    logHHAuto('Claiming relic-id', claimBtn.attr('relic-id'));
                 // Native click: a jQuery .trigger('click') does not actuate the
                 // game's per-card claim and the leftmost relic gets claimed instead
                 // (issue #1716). A real DOM click on the marked card's button does.
                 claimBtn[0].click();
             }
             catch (err) {
-                LogUtils_logHHAuto('Error selecting relics, select first no girl relic');
+                logHHAuto('Error selecting relics, select first no girl relic');
                 (_a = $('#labyrinth_reward_popup #reward_holder .relic-container:not(.large-card) .relic-card-buttons .claim-relic-btn').get(0)) === null || _a === void 0 ? void 0 : _a.click();
             }
             yield TimeHelper.sleep(randomInterval(800, 1300));
@@ -15114,7 +15138,7 @@ class RelicManager {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Labyrinth.ts
+;// ./src/Module/Labyrinth.ts
 var Labyrinth_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -15167,7 +15191,7 @@ class Labyrinth {
         if (floorDom.length > 0) {
             floor = Number($('#labyrinth-tabs .tab-switcher-fade-in .floor-number-text').text());
             if (isNaN(floor) || floor === 0) {
-                LogUtils_logHHAuto("Error getting floor");
+                logHHAuto("Error getting floor");
                 floor = 0;
             }
         }
@@ -15212,7 +15236,7 @@ class Labyrinth {
                     }
                 }
                 catch (_a) {
-                    LogUtils_logHHAuto('Error during changing low power girls');
+                    logHHAuto('Error during changing low power girls');
                 }
             }
         });
@@ -15226,7 +15250,7 @@ class Labyrinth {
             // 5   3
             //   4
             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-            LogUtils_logHHAuto("setting autoloop to false");
+            logHHAuto("setting autoloop to false");
             $(`.${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled', 'disabled');
             // Fill any empty slots via the game's auto-fill first, then optimize
             // positions below; class swaps alone cannot guarantee a full team.
@@ -15266,7 +15290,7 @@ class Labyrinth {
                 yield Labyrinth._selectGirl(6, backGirls[backGirlIndex++]);
             $(`.${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
-            LogUtils_logHHAuto("setting autoloop to true");
+            logHHAuto("setting autoloop to true");
         });
     }
     static isSelectedGirl(girlId, position = 0) {
@@ -15310,12 +15334,12 @@ class Labyrinth {
         for (let i = 0; i < girls.length && hardCoreGirls.length <= numberOfGirls; i++) {
             const tooltipData = $('.girl_img', $(girls[i])).attr(ConfigHelper.getHHScriptVars('girlToolTipData')) || '';
             if (tooltipData === '') {
-                LogUtils_logHHAuto('ERROR, no girl information found');
+                logHHAuto('ERROR, no girl information found');
                 continue;
             }
             const obj = safeJsonParse(tooltipData, null);
             if (obj === null) {
-                LogUtils_logHHAuto('ERROR, failed to parse girl information');
+                logHHAuto('ERROR, failed to parse girl information');
                 continue;
             }
             const remainingEgo = Number($('.ego-bar-container span', $(girls[i])).text().replace('%', ''));
@@ -15333,7 +15357,7 @@ class Labyrinth {
             const id_girl = $(haremGirls[i]).attr('id_girl');
             const remainingEgo = Number($('.ego-bar-container span', $(haremGirls[i])).text().replace('%', ''));
             if (remainingEgo > 0 && remainingEgo < 30) {
-                LogUtils_logHHAuto(`Adding low power girl ${id_girl}`);
+                logHHAuto(`Adding low power girl ${id_girl}`);
                 lowPowerGirls.push($(teamGirlSelector + '[data-girl-id="' + id_girl + '"]'));
             }
         }
@@ -15346,9 +15370,9 @@ class Labyrinth {
                 const relicManager = new RelicManager();
                 const relics = relicManager.parseRelics();
                 if (relics.length > 1) {
-                    LogUtils_logHHAuto("relics", relics);
+                    logHHAuto("relics", relics);
                     const relic = relicManager.chooseRelic(relics);
-                    LogUtils_logHHAuto("relic", relic);
+                    logHHAuto("relic", relic);
                     GM_addStyle('.relicChosen {width: 25px; top: 0px; position: absolute; left: 197px;}');
                     relic.slot.append(`<img class="relicChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
                 }
@@ -15356,7 +15380,7 @@ class Labyrinth {
             if ($('.labChosen').length > 0 || Labyrinth.isEnded()) {
                 return;
             }
-            LogUtils_logHHAuto("On Labyrinth page.");
+            logHHAuto("On Labyrinth page.");
             GM_addStyle('.labChosen {width: 25px; top: 55px; position: relative; left: 35px;}');
             GM_addStyle('.pathChosen {border: 1px solid green; border-radius: 40px;}');
             const NB_ROW = 11;
@@ -15373,7 +15397,7 @@ class Labyrinth {
                 }
                 const choosenOption = Labyrinth.findBetter(options);
                 if (choosenOption) {
-                    LogUtils_logHHAuto("Row " + currentLevel + ". chosen " + JSON.stringify(choosenOption));
+                    logHHAuto("Row " + currentLevel + ". chosen " + JSON.stringify(choosenOption));
                     Labyrinth.appendChoosenTag(choosenOption);
                     break;
                 }
@@ -15431,7 +15455,7 @@ class Labyrinth {
             //logHHAuto('labyrinthTimer', labyrinthTimer);
             return labyrinthTimer;
         }
-        LogUtils_logHHAuto('ERROR: can\'t get labyrinth reset time, default to maxCollectionDelay');
+        logHHAuto('ERROR: can\'t get labyrinth reset time, default to maxCollectionDelay');
         return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
     }
     static findBetter(options) {
@@ -15439,11 +15463,11 @@ class Labyrinth {
         const haveGirlWounded = (unsafeWindow.girl_squad || []).filter((girl) => girl.remaining_ego_percent < 100).length > 0;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + TK.Debug) === 'true';
         if (debugEnabled)
-            LogUtils_logHHAuto("Options " + JSON.stringify(options));
+            logHHAuto("Options " + JSON.stringify(options));
         if (debugEnabled)
-            LogUtils_logHHAuto("haveGirlWounded " + haveGirlWounded);
+            logHHAuto("haveGirlWounded " + haveGirlWounded);
         if (debugEnabled)
-            LogUtils_logHHAuto("chooseMoreReward " + chooseMoreReward);
+            logHHAuto("chooseMoreReward " + chooseMoreReward);
         const liteOptions = options.map(option => ({
             opponentDifficulty: option.opponentDifficulty,
             isTreasure: option.isTreasure,
@@ -15461,7 +15485,7 @@ class Labyrinth {
             floor: Labyrinth.getCurrentFloorNumber(),
         });
         if (debugEnabled)
-            LogUtils_logHHAuto("Options after filter (handled by Labyrinth.pure)");
+            logHHAuto("Options after filter (handled by Labyrinth.pure)");
         return chosen === null ? null : chosen.__orig;
     }
     static appendChoosenTag(option) {
@@ -15499,7 +15523,7 @@ class Labyrinth {
 Labyrinth.HAREM_SELECTED_GIRLS = '.harem-panel-girls .harem-girl-container.selected'; // in my squad
 Labyrinth.BUILD_BUTTON_ID = 'hhAutoLabyTeam';
 
-;// CONCATENATED MODULE: ./src/Service/BlockDisabledState.ts
+;// ./src/Service/BlockDisabledState.ts
 // BlockDisabledState.ts -- read/clear the watchdog auto-disable + failure-count
 // state of the block scheduler (v7.37.0, ADR-001 R5.6).
 //
@@ -15544,7 +15568,7 @@ function reactivateBlock(blockId) {
         setStoredValue(HHStoredVarPrefixKey + TK.blockFailureCount, JSON.stringify(counts));
 }
 
-;// CONCATENATED MODULE: ./src/Service/InfoService.ts
+;// ./src/Service/InfoService.ts
 // InfoService.ts
 //
 // Renders the floating "pInfo" overlay panel that shows the current
@@ -15638,7 +15662,7 @@ function updateData() {
     });
     const pInfo = document.getElementById('pInfo');
     if (pInfo == null) {
-        LogUtils_logHHAuto('ERROR pInfo element not found');
+        logHHAuto('ERROR pInfo element not found');
         return;
     }
     if (getStoredValue(HHStoredVarPrefixKey + SK.showInfo) == "true") // && busy==false // && getPage()==ConfigHelper.getHHScriptVars("pagesIDHome")
@@ -15758,7 +15782,7 @@ function updateData() {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Service/MouseService.ts
+;// ./src/Service/MouseService.ts
 // MouseService.ts
 //
 // Pauses automation while the user is actively interacting with the
@@ -15842,7 +15866,7 @@ function bindMouseEvents() {
     document.onmouseup = function () { makeMouseBusy(mouseTimeoutVal); };
 }
 
-;// CONCATENATED MODULE: ./src/Service/AutoLoop.pure.ts
+;// ./src/Service/AutoLoop.pure.ts
 // AutoLoop.pure.ts -- Pure decision logic for the auto-loop scheduler.
 //
 // Two helpers:
@@ -15884,7 +15908,7 @@ function shouldRunStandardHandler(g) {
     return true;
 }
 
-;// CONCATENATED MODULE: ./src/Module/Spreadsheet.ts
+;// ./src/Module/Spreadsheet.ts
 var Spreadsheet_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -15940,7 +15964,7 @@ Spreadsheet.LINK_CLASS = 'hhauto-spreadsheet-link';
 Spreadsheet.BDSMPP_CLASS = 'script-blessing-spreadsheet-link';
 Spreadsheet.POPUP_SELECTOR = '#blessings_popup .blessings_wrapper';
 
-;// CONCATENATED MODULE: ./src/Service/BlessingService.ts
+;// ./src/Service/BlessingService.ts
 // BlessingService.ts -- Loads and caches weekly blessing data.
 //
 // Blessings change weekly and affect girl stats. This service loads
@@ -15966,17 +15990,17 @@ class BlessingService {
     static fetchAndCache() {
         const ajax = getHHAjax();
         if (!ajax) {
-            LogUtils_logHHAuto('BlessingService: hh_ajax not available');
+            logHHAuto('BlessingService: hh_ajax not available');
             return;
         }
-        LogUtils_logHHAuto('BlessingService: fetching blessings...');
+        logHHAuto('BlessingService: fetching blessings...');
         ajax({ action: 'get_girls_blessings' }, (response) => {
             if (!response || !response.success) {
-                LogUtils_logHHAuto('BlessingService: fetch failed: ' + JSON.stringify(response));
+                logHHAuto('BlessingService: fetch failed: ' + JSON.stringify(response));
                 return;
             }
-            LogUtils_logHHAuto('BlessingService: response keys: ' + Object.keys(response).join(', '));
-            LogUtils_logHHAuto('BlessingService: raw (500 chars): ' + JSON.stringify(response).substring(0, 500));
+            logHHAuto('BlessingService: response keys: ' + Object.keys(response).join(', '));
+            logHHAuto('BlessingService: raw (500 chars): ' + JSON.stringify(response).substring(0, 500));
             const blessingData = {
                 timestamp: Date.now(),
                 raw: response,
@@ -15985,7 +16009,7 @@ class BlessingService {
                 blessedElement: BlessingService.parseElement(response),
             };
             setStoredValue(HHStoredVarPrefixKey + TK.blessingsCache, JSON.stringify(blessingData));
-            LogUtils_logHHAuto('BlessingService: cached. Traits: ' + blessingData.blessedTraits.join(', ') + ', Element: ' + (blessingData.blessedElement || 'unknown'));
+            logHHAuto('BlessingService: cached. Traits: ' + blessingData.blessedTraits.join(', ') + ', Element: ' + (blessingData.blessedElement || 'unknown'));
         });
     }
     static getCached() {
@@ -16213,7 +16237,7 @@ class BlessingService {
                 const ratio = topCount / group.length;
                 const lead = secondCount === 0 ? Infinity : topCount / secondCount;
                 if (ratio >= 0.8 || lead >= 3) {
-                    LogUtils_logHHAuto('BlessingService: resolved ' + blessedCategory + ' -> hex="' + topVal + '" (' + topCount + '/' + group.length + ' girls, lead=' + (lead === Infinity ? 'inf' : lead.toFixed(1)) + ')');
+                    logHHAuto('BlessingService: resolved ' + blessedCategory + ' -> hex="' + topVal + '" (' + topCount + '/' + group.length + ' girls, lead=' + (lead === Infinity ? 'inf' : lead.toFixed(1)) + ')');
                     return topVal;
                 }
             }
@@ -16451,7 +16475,7 @@ class BlessingService {
     }
 }
 
-;// CONCATENATED MODULE: ./src/model/Champion.ts
+;// ./src/model/Champion.ts
 // Model representing a Champion (boss encounter) in the game.
 // Tracks the champion's index, timer state, whether it has been started,
 // impression level, filter membership, and associated event girls.
@@ -16471,7 +16495,7 @@ class ChampionModel {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Champion.pure.ts
+;// ./src/Module/Champion.pure.ts
 // Champion.pure.ts -- Pure decision logic for the champions auto module.
 //
 // Extracted from Champion.findNextChamptionTime so the timer scan can be
@@ -16550,7 +16574,7 @@ function isEventGirlAvailableOnLockedStage(parsedFirstLockedStage, targetGirlIds
     return false;
 }
 
-;// CONCATENATED MODULE: ./src/Module/Champion.ts
+;// ./src/Module/Champion.ts
 var Champion_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -16651,7 +16675,7 @@ class Champion {
                 const $girl = $('.girl-box__draggable ', $(girlBox));
                 const girlData = champTeam[girlIndex];
                 if (girlData.id_girl != $girl.attr('id_girl')) {
-                    LogUtils_logHHAuto('Invalid girls ' + girlData.id_girl + 'vs' + $girl.attr('id_girl'));
+                    logHHAuto('Invalid girls ' + girlData.id_girl + 'vs' + $girl.attr('id_girl'));
                     return;
                 }
                 const poseNumber = girlData.figure;
@@ -16700,7 +16724,7 @@ class Champion {
                     const $girl = $('.girl-box__draggable ', $(girlBox));
                     const girlData = champTeam[girlIndex];
                     if (girlData.id_girl != $girl.attr('id_girl')) {
-                        LogUtils_logHHAuto('Invalid girls ' + girlData.id_girl + 'vs' + $girl.attr('id_girl'));
+                        logHHAuto('Invalid girls ' + girlData.id_girl + 'vs' + $girl.attr('id_girl'));
                         return;
                     }
                     const poseNumber = girlData.figure;
@@ -16738,7 +16762,7 @@ class Champion {
                         }
                     }
                 }
-                LogUtils_logHHAuto('Team of girls ' + teamGirls);
+                logHHAuto('Team of girls ' + teamGirls);
                 var toggleSelectGirl = function (girlId, girlDraggable, timer = 1000) {
                     setTimeout(function () {
                         console.log("click " + girlId, girlDraggable);
@@ -16751,7 +16775,7 @@ class Champion {
                     const selectedGirlId = $(girlBox).attr('id_girl');
                     if (teamGirls.indexOf(selectedGirlId) < 0) {
                         girlsClicked = true;
-                        LogUtils_logHHAuto("Unselected as out of the team :" + selectedGirlId);
+                        logHHAuto("Unselected as out of the team :" + selectedGirlId);
                         toggleSelectGirl(selectedGirlId, $(girlBox), randomInterval(300, 600));
                     }
                 });
@@ -16761,11 +16785,11 @@ class Champion {
                         var girlDraggable = $('.girl-box__draggable[id_girl="' + teamGirls[i] + '"]');
                         if (!girlDraggable.hasClass('selected')) {
                             girlsClicked = true;
-                            LogUtils_logHHAuto("Girl not selected :" + teamGirls[i]);
+                            logHHAuto("Girl not selected :" + teamGirls[i]);
                             toggleSelectGirl(teamGirls[i], girlDraggable, randomInterval(800, 1200));
                         }
                         else {
-                            LogUtils_logHHAuto("Girl already selected :" + teamGirls[i]);
+                            logHHAuto("Girl already selected :" + teamGirls[i]);
                         }
                     }
                 }
@@ -16775,21 +16799,21 @@ class Champion {
                         if ($(newDraftButtonQuery).length === 0)
                             return;
                         if (!acquirePostMutex('champion:newDraft')) {
-                            LogUtils_logHHAuto('Champion: another POST in flight, skipping new-draft click this iteration');
+                            logHHAuto('Champion: another POST in flight, skipping new-draft click this iteration');
                             return;
                         }
                         const newDraftStart = Date.now();
                         $(newDraftButtonQuery).trigger('click');
-                        const newDraftIdle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                        const newDraftIdle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                         const newDraftDuration = Date.now() - newDraftStart;
                         releasePostMutex();
                         if (newDraftIdle)
                             yield awaitServerSettleAfterPost(newDraftDuration);
                         else
-                            LogUtils_logHHAuto('Champion: new-draft AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
+                            logHHAuto('Champion: new-draft AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, skipping settle');
                     });
                 }, newDraftInterval);
-                LogUtils_logHHAuto("Free drafts remanings :" + freeDrafts);
+                logHHAuto("Free drafts remanings :" + freeDrafts);
                 counterLoop++;
                 if (freeDrafts > 0 && counterLoop <= maxLoops) {
                     setTimeout(selectGirls, randomInterval(6000, 9000)); // Wait animation
@@ -16801,26 +16825,26 @@ class Champion {
                         if (acquirePostMutex('champion:confirmDraft')) {
                             const confirmStart = Date.now();
                             $(confirmDraftButtonQuery).trigger('click');
-                            const confirmIdle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                            const confirmIdle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                             const confirmDuration = Date.now() - confirmStart;
                             releasePostMutex();
                             if (confirmIdle)
                                 yield awaitServerSettleAfterPost(confirmDuration);
                             else
-                                LogUtils_logHHAuto('Champion: confirm AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
+                                logHHAuto('Champion: confirm AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, skipping settle');
                         }
                         else {
-                            LogUtils_logHHAuto('Champion: another POST in flight, falling back to direct confirm click');
+                            logHHAuto('Champion: another POST in flight, falling back to direct confirm click');
                             $(confirmDraftButtonQuery).trigger('click');
                         }
                     }
                     if (getStoredValue(HHStoredVarPrefixKey + SK.autoBuildChampsTeam) === "true") {
-                        LogUtils_logHHAuto('Auto team ended, sort girls after build');
+                        logHHAuto('Auto team ended, sort girls after build');
                         yield TimeHelper.sleep(randomInterval(800, 1200));
                         Champion.orderTeam(champTeam);
                     }
                     else {
-                        LogUtils_logHHAuto("Auto team ended, refresh page, restarting autoloop");
+                        logHHAuto("Auto team ended, refresh page, restarting autoloop");
                         // safeReload waits for any in-flight champion AJAX to
                         // settle before reloading. Direct reload cancels open
                         // XHRs and can trigger the Forbidden race (issue #1598).
@@ -16831,12 +16855,12 @@ class Champion {
         };
         var findBestTeam = function () {
             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-            LogUtils_logHHAuto("setting autoloop to false");
+            logHHAuto("setting autoloop to false");
             maxLoops = getChampMaxLoop();
             keepSecondLineGirls = getChampSecondLine();
             $('#updateChampTeamButton').attr('disabled', 'disabled').text('Starting soon...');
             Champion.ChamppUpdateAutoTeamPopup('Starting soon...', maxLoops, (maxLoops) * 2);
-            LogUtils_logHHAuto("keep second line : " + keepSecondLineGirls);
+            logHHAuto("keep second line : " + keepSecondLineGirls);
             counterLoop = 0;
             if ($(changeDraftButtonQuery).length > 0)
                 $(changeDraftButtonQuery).click();
@@ -16850,7 +16874,7 @@ class Champion {
             GM_registerMenuCommand(getTextForUI("updateChampTeamButton", "elementText"), findBestTeam);
         }
         else {
-            LogUtils_logHHAuto("No more free draft available");
+            logHHAuto("No more free draft available");
         }
     }
     static getChampionListFromMap() {
@@ -16901,7 +16925,7 @@ class Champion {
             var switchGirls = function (targettedTeam) {
                 return Champion_awaiter(this, void 0, void 0, function* () {
                     if (!acquirePostMutex('champion:reorder')) {
-                        LogUtils_logHHAuto('Champion: another POST in flight, deferring reorder request');
+                        logHHAuto('Champion: another POST in flight, deferring reorder request');
                         return false;
                     }
                     const reorderStart = Date.now();
@@ -16914,11 +16938,11 @@ class Champion {
                         };
                         getHHAjax()(params, function (data) {
                             if (data.success == false) {
-                                LogUtils_logHHAuto('Error occured during champion team reorder', data);
+                                logHHAuto('Error occured during champion team reorder', data);
                             }
                             resolve(data.success || true);
                         }, function (err) {
-                            LogUtils_logHHAuto('Error occured during champion team reorder', err);
+                            logHHAuto('Error occured during champion team reorder', err);
                             resolve(false);
                         });
                     });
@@ -16929,7 +16953,7 @@ class Champion {
                 });
             };
             let currentGirlOrder = [...champTeam.map((g) => g.id_girl)]; // To be stored as string
-            LogUtils_logHHAuto('Ordering champion team', currentGirlOrder);
+            logHHAuto('Ordering champion team', currentGirlOrder);
             let oneGirlSwitched = false;
             const getGirlId = (position) => {
                 const girlBox = $('.girl-box__draggable:has(".hhgirlOrder.best:contains(\'' + position + '\')")');
@@ -16953,31 +16977,31 @@ class Champion {
                     if (girlId != currentGirlOrder[i - 1]) {
                         $('div[id_girl="' + girlId + '"]').addClass('switching');
                         $('div[id_girl="' + currentGirlOrder[i - 1] + '"]').addClass('switching');
-                        LogUtils_logHHAuto(`Switching girls to reorder team ${girlId} - ${currentGirlOrder[i - 1]}`);
+                        logHHAuto(`Switching girls to reorder team ${girlId} - ${currentGirlOrder[i - 1]}`);
                         const oldGirlIndex = currentGirlOrder.findIndex(g => g == girlId);
                         const targettedTeam = [...currentGirlOrder];
                         [targettedTeam[i - 1], targettedTeam[oldGirlIndex]] = [targettedTeam[oldGirlIndex], targettedTeam[i - 1]];
-                        LogUtils_logHHAuto('Ordering champion targettedTeam', targettedTeam);
+                        logHHAuto('Ordering champion targettedTeam', targettedTeam);
                         if (yield switchGirls(targettedTeam)) {
                             oneGirlSwitched = true;
                             // Update current girls order after success switch
                             currentGirlOrder = targettedTeam;
                         }
                         else {
-                            LogUtils_logHHAuto('ERROR: Switch failed, try to continue');
+                            logHHAuto('ERROR: Switch failed, try to continue');
                         }
                         $('div[id_girl]').removeClass('switching');
                         yield TimeHelper.sleep(randomInterval(800, 1200));
                     }
                     else {
-                        LogUtils_logHHAuto('Girl already in the right position :' + girlId);
+                        logHHAuto('Girl already in the right position :' + girlId);
                     }
                 }
                 else {
-                    LogUtils_logHHAuto('Could not find girlId for position ' + i);
+                    logHHAuto('Could not find girlId for position ' + i);
                 }
             }
-            LogUtils_logHHAuto('Finished ordering champion team');
+            logHHAuto('Finished ordering champion team');
             $("#orderTeam").removeAttr('disabled');
             //if(oneGirlSwitched)
             // Use safeReload so the final reorder POST can complete before
@@ -16991,9 +17015,9 @@ class Champion {
             var page = getPage();
             if (page == ConfigHelper.getHHScriptVars("pagesIDChampionsPage")) {
                 const champTeamId = Number(getHHVars('championData.champion.id'));
-                LogUtils_logHHAuto('on champion ' + champTeamId + ' page');
+                logHHAuto('on champion ' + champTeamId + ' page');
                 if ($('button[rel=perform].blue_button_L').length == 0) {
-                    LogUtils_logHHAuto('Something is wrong!');
+                    logHHAuto('Something is wrong!');
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return true;
                 }
@@ -17004,9 +17028,9 @@ class Champion {
                     const impressionDone = ((safeJsonParse(tooltipData, {})).impression_info || '0/1').split('/')[0] || '0';
                     var TCount = Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
                     var ECount = QuestHelper.getEnergy();
-                    LogUtils_logHHAuto("T:" + TCount + " E:" + ECount + " " + (getStoredValue(HHStoredVarPrefixKey + SK.autoChampsUseEne) === "true") + " Imp:" + impressionDone);
+                    logHHAuto("T:" + TCount + " E:" + ECount + " " + (getStoredValue(HHStoredVarPrefixKey + SK.autoChampsUseEne) === "true") + " Imp:" + impressionDone);
                     if (TCount == 0) {
-                        LogUtils_logHHAuto("No tickets!");
+                        logHHAuto("No tickets!");
                         const nextTime = randomInterval(3600, 4000);
                         setTimer('nextChampionTime', nextTime);
                         if (getStoredValue(HHStoredVarPrefixKey + SK.autoClubChamp) === "true") {
@@ -17022,13 +17046,13 @@ class Champion {
                                 deleteStoredValue(HHStoredVarPrefixKey + TK.champBuildTeam);
                             }
                             else {
-                                LogUtils_logHHAuto("Build team before start");
+                                logHHAuto("Build team before start");
                                 if ($("#updateChampTeamButton").length == 0) {
                                     Champion.moduleSimChampions();
                                     yield TimeHelper.sleep(randomInterval(200, 500));
                                 }
                                 if ($("#updateChampTeamButton").attr("disabled") === "disabled") {
-                                    LogUtils_logHHAuto('Cannot build team, no free draft available. Starting champion without building team');
+                                    logHHAuto('Cannot build team, no free draft available. Starting champion without building team');
                                 }
                                 else {
                                     $("#updateChampTeamButton").trigger("click"); // Auto loop false
@@ -17039,26 +17063,26 @@ class Champion {
                             }
                         }
                         if (!acquirePostMutex('champion:useTicket')) {
-                            LogUtils_logHHAuto('Champion: another POST in flight, deferring ticket use');
+                            logHHAuto('Champion: another POST in flight, deferring ticket use');
                             return true;
                         }
-                        LogUtils_logHHAuto("Using ticket");
+                        logHHAuto("Using ticket");
                         const ticketStart = Date.now();
                         $('button[rel=perform].blue_button_L').trigger('click');
-                        const ticketIdle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                        const ticketIdle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                         const ticketDuration = Date.now() - ticketStart;
                         releasePostMutex();
                         if (ticketIdle)
                             yield awaitServerSettleAfterPost(ticketDuration);
                         else
-                            LogUtils_logHHAuto('Champion: ticket AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
+                            logHHAuto('Champion: ticket AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, skipping settle');
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDChampionsMap"));
                         return true;
                     }
                 }
             }
             else if (page == ConfigHelper.getHHScriptVars("pagesIDChampionsMap")) {
-                LogUtils_logHHAuto('on champion map');
+                logHHAuto('on champion map');
                 const championMap = Champion.getChampionListFromMap();
                 const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey + SK.autoChampsForceStartEventGirl) === "true";
                 const autoChampsEventGirls = getStoredJSON(HHStoredVarPrefixKey + TK.autoChampsEventGirls, []);
@@ -17091,7 +17115,7 @@ class Champion {
                                     }
                                 }
                                 if (!autoChampGirlOnChamp) {
-                                    LogUtils_logHHAuto("Seems Girl is no more available at Champion " + Number(i + 1) + ". Going to event page.");
+                                    logHHAuto("Seems Girl is no more available at Champion " + Number(i + 1) + ". Going to event page.");
                                     EventModule.parseEventPage(autoChampGirlsEventsID);
                                     return true;
                                 }
@@ -17099,20 +17123,20 @@ class Champion {
                         }
                     }
                     const eventGirlForced = autoChampGirlOnChamp;
-                    LogUtils_logHHAuto("Champion " + (i + 1) + " [" + championMap[i].impression + "]"
+                    logHHAuto("Champion " + (i + 1) + " [" + championMap[i].impression + "]"
                         + (championMap[i].started ? " Started;" : " Not started;")
                         + (autoChampsForceStart ? " Force start;" : " Not force start;")
                         + (OnTimer ? " on timer;" : " not on timer;")
                         + (championMap[i].inFilter ? " Included in filter;" : " Excluded from filter;")
                         + (eventGirlForced ? " Forced for event" : " Not event forced"));
                     if ((championMap[i].started || eventGirlForced || autoChampsForceStart) && !OnTimer && championMap[i].inFilter) {
-                        LogUtils_logHHAuto("Let's do him!");
+                        logHHAuto("Let's do him!");
                         gotoPage('/champions/' + Number(i + 1));
                         //window.location = window.location.origin + '/champions/'+(i+1);
                         return true;
                     }
                 }
-                LogUtils_logHHAuto("No good candidate");
+                logHHAuto("No good candidate");
                 Champion.findNextChamptionTime(championMap);
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                 return false;
@@ -17132,16 +17156,16 @@ class Champion {
             const { minTime, minTimeEnded } = decideNextChampionTime(championMap, autoChampsForceStart);
             //fetching min
             let nextChampionTime;
-            LogUtils_logHHAuto('minTimeEnded: ' + minTimeEnded + ', minTime:' + minTime);
+            logHHAuto('minTimeEnded: ' + minTimeEnded + ', minTime:' + minTime);
             if (minTime === -1 && minTimeEnded === -1) {
                 nextChampionTime = randomInterval(3600, 4000);
             }
             else if (minTime === -1) {
-                LogUtils_logHHAuto('Champion ended, next time: ' + minTimeEnded);
+                logHHAuto('Champion ended, next time: ' + minTimeEnded);
                 nextChampionTime = randomInterval(minTimeEnded, 180 + minTimeEnded);
             }
             else {
-                LogUtils_logHHAuto('Champion next time: ' + minTime);
+                logHHAuto('Champion next time: ' + minTime);
                 const maxTime = minTime > 0 ? 180 + minTime : 0.5;
                 nextChampionTime = randomInterval(minTime, maxTime);
             }
@@ -17167,7 +17191,7 @@ class Champion {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Club.ts
+;// ./src/Module/Club.ts
 // Club.ts -- Detects club membership and enables or disables club-related features.
 //
 // Checks whether the player is currently in a club and toggles visibility of
@@ -17196,7 +17220,7 @@ class Club {
             chatVars = getHHVars("Chat_vars.CLUB_INFO.id_club", false);
         }
         catch (e) {
-            LogUtils_logHHAuto("Catched error : Couldn't parse CLUB_INFO : " + e);
+            logHHAuto("Catched error : Couldn't parse CLUB_INFO : " + e);
         }
         if (chatVars === null || chatVars === false) {
             HHEnvVariables[ConfigHelper.getHHScriptVars("HHGameName")].isEnabledClubChamp = false;
@@ -17204,7 +17228,7 @@ class Club {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/ClubChampion.pure.ts
+;// ./src/Module/ClubChampion.pure.ts
 // ClubChampion.pure.ts -- Pure decision logic for the club-champion auto module.
 //
 // Extracted from ClubChampion.updateClubChampionTimer and
@@ -17282,7 +17306,7 @@ function decideAlignedClubChampionTimer(state) {
     return state.proposedTime;
 }
 
-;// CONCATENATED MODULE: ./src/Module/ClubChampion.ts
+;// ./src/Module/ClubChampion.ts
 var ClubChampion_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -17324,20 +17348,20 @@ class ClubChampion {
             let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="expires"]';
             if ($(restTeamFilter).length > 0) {
                 SecsToNextTimer = Number(convertTimeToInt($(restTeamFilter).text()));
-                LogUtils_logHHAuto("Team is resting for : " + TimeHelper.toHHMMSS(SecsToNextTimer));
+                logHHAuto("Team is resting for : " + TimeHelper.toHHMMSS(SecsToNextTimer));
             }
             else if ($(restChampionFilter).length > 0) {
                 SecsToNextTimer = Number(convertTimeToInt($(restChampionFilter).text()));
-                LogUtils_logHHAuto("Champion is resting for : " + TimeHelper.toHHMMSS(SecsToNextTimer));
+                logHHAuto("Champion is resting for : " + TimeHelper.toHHMMSS(SecsToNextTimer));
                 if (ClubChampion.hasGirlReward()) {
                     SecsToNextTimer = randomInterval(30 * 60, 35 * 60);
-                    LogUtils_logHHAuto("Champion has girl reward");
+                    logHHAuto("Champion has girl reward");
                 }
             }
             else {
-                LogUtils_logHHAuto('No timer found');
+                logHHAuto('No timer found');
             }
-            LogUtils_logHHAuto('on clubs, next timer:' + SecsToNextTimer);
+            logHHAuto('on clubs, next timer:' + SecsToNextTimer);
             return SecsToNextTimer;
         }
         return 0; // -1 is only when no timer on club page
@@ -17345,7 +17369,7 @@ class ClubChampion {
     static updateClubChampionTimer() {
         var page = getPage();
         if (page == ConfigHelper.getHHScriptVars("pagesIDClub")) {
-            LogUtils_logHHAuto('on clubs');
+            logHHAuto('on clubs');
             const secsToNextTimer = ClubChampion.getNextClubChampionTimer();
             const noTimer = (secsToNextTimer === -1);
             const decision = decideNextClubChampionTime({
@@ -17375,7 +17399,7 @@ class ClubChampion {
             && getStoredValue(HHStoredVarPrefixKey + SK.autoClubChamp) === "true") {
             const champTimeLeft = getSecondsLeft('nextClubChampionTime');
             if (champTimeLeft > 60) {
-                LogUtils_logHHAuto("Club champion seems available, reduce next timer to 30-60s.");
+                logHHAuto("Club champion seems available, reduce next timer to 30-60s.");
                 ClubChampion._setTimer(randomInterval(30, 60));
             }
         }
@@ -17384,15 +17408,15 @@ class ClubChampion {
         return ClubChampion_awaiter(this, void 0, void 0, function* () {
             var page = getPage();
             if (page == ConfigHelper.getHHScriptVars("pagesIDClubChampion")) {
-                LogUtils_logHHAuto('on club_champion page');
+                logHHAuto('on club_champion page');
                 if ($('button[rel=perform].blue_button_L').length == 0) {
                     if ($('.champions-bottom__rest').length > 0) {
-                        LogUtils_logHHAuto('Girls are resting');
+                        logHHAuto('Girls are resting');
                         const restTime = ClubChampion.getRemainingRestTime();
                         ClubChampion._setTimer(randomInterval(restTime + 10, restTime + 2 * 60));
                     }
                     else {
-                        LogUtils_logHHAuto('Something is wrong!');
+                        logHHAuto('Something is wrong!');
                         ClubChampion._setTimer(randomInterval(15 * 60, 17 * 60));
                     }
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
@@ -17406,9 +17430,9 @@ class ClubChampion {
                     const playerStarted = clubChamptionFightActive && userStarted && userStarted.challenge_count > 0;
                     var TCount = Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
                     var ECount = QuestHelper.getEnergy();
-                    LogUtils_logHHAuto(`T:${TCount} E:${ECount} Player challenge :${(userStarted === null || userStarted === void 0 ? void 0 : userStarted.challenge_count) || 0}`);
+                    logHHAuto(`T:${TCount} E:${ECount} Player challenge :${(userStarted === null || userStarted === void 0 ? void 0 : userStarted.challenge_count) || 0}`);
                     if (TCount == 0) {
-                        LogUtils_logHHAuto("No tickets!");
+                        logHHAuto("No tickets!");
                         const nextTime = randomInterval(3600, 4000);
                         if (getStoredValue(HHStoredVarPrefixKey + SK.autoChamps) === "true") {
                             // No ticket for boths
@@ -17424,13 +17448,13 @@ class ClubChampion {
                                 deleteStoredValue(HHStoredVarPrefixKey + TK.champBuildTeam);
                             }
                             else {
-                                LogUtils_logHHAuto("Build team before start");
+                                logHHAuto("Build team before start");
                                 if ($("#updateChampTeamButton").length == 0) {
                                     Champion.moduleSimChampions();
                                     yield TimeHelper.sleep(randomInterval(200, 500));
                                 }
                                 if ($("#updateChampTeamButton").attr("disabled") === "disabled") {
-                                    LogUtils_logHHAuto('Cannot build team, no free draft available. Starting champion without building team');
+                                    logHHAuto('Cannot build team, no free draft available. Starting champion without building team');
                                 }
                                 else {
                                     $("#updateChampTeamButton").trigger("click"); // Auto loop false
@@ -17441,7 +17465,7 @@ class ClubChampion {
                             }
                         }
                         if (TCount != 0) {
-                            LogUtils_logHHAuto("Using ticket");
+                            logHHAuto("Using ticket");
                             $('button[rel=perform].blue_button_L').trigger('click');
                             ClubChampion._setTimer(randomInterval(15 * 60, 17 * 60));
                         }
@@ -17452,10 +17476,10 @@ class ClubChampion {
             }
             else if (page == ConfigHelper.getHHScriptVars("pagesIDClub")) {
                 deleteStoredValue(HHStoredVarPrefixKey + TK.clubChampLimitReached);
-                LogUtils_logHHAuto('on clubs');
+                logHHAuto('on clubs');
                 const onChampTab = $("div.club-champion-members-challenges:visible").length === 1;
                 if (!onChampTab) {
-                    LogUtils_logHHAuto('Click champions tab');
+                    logHHAuto('Click champions tab');
                     $("#club_champions_tab").trigger('click');
                 }
                 let Started = $("div.club-champion-members-challenges .player-row").length === 1;
@@ -17470,12 +17494,12 @@ class ClubChampion {
                     let maxTickets = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoClubChampMax));
                     //console.log(maxTickets, ticketUsed);
                     if (maxTickets > ticketUsed) {
-                        LogUtils_logHHAuto("Let's do him!");
+                        logHHAuto("Let's do him!");
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDClubChampion"));
                         return true;
                     }
                     else {
-                        LogUtils_logHHAuto("Max tickets to use on Club Champ reached.");
+                        logHHAuto("Max tickets to use on Club Champ reached.");
                         setStoredValue(HHStoredVarPrefixKey + TK.clubChampLimitReached, "true");
                         setTimer('nextClubChampionTime', randomInterval(4 * 60 * 60, 5 * 60 * 60));
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
@@ -17508,7 +17532,7 @@ class ClubChampion {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/LivelyScene.pure.ts
+;// ./src/Module/Events/LivelyScene.pure.ts
 // LivelyScene.pure.ts -- Pure decision logic for the Lively Scene event.
 //
 // Extracted from LivelyScene.parse and LivelyScene.parseClaimableRewards
@@ -17574,7 +17598,7 @@ function selectClaimablePieces(pieces, state) {
     return claimable;
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/LivelyScene.ts
+;// ./src/Module/Events/LivelyScene.ts
 var LivelyScene_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -17655,7 +17679,7 @@ class LivelyScene {
             needToCollectAll,
             manualCollectAll,
         }).map((p) => p.__orig);
-        LogUtils_logHHAuto('claimablePieces', claimablePieces);
+        logHHAuto('claimablePieces', claimablePieces);
         return claimablePieces;
     }
     static goAndCollect(remainingTime_1) {
@@ -17665,8 +17689,8 @@ class LivelyScene {
                 if (manualCollectAll)
                     setStoredValue(HHStoredVarPrefixKey + TK.lseManualCollectAll, 'true');
                 if (rewards.length > 0) {
-                    LogUtils_logHHAuto("Going to collect rewards.");
-                    LogUtils_logHHAuto("setting autoloop to false");
+                    logHHAuto("Going to collect rewards.");
+                    logHHAuto("setting autoloop to false");
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                     for (let currentReward = 0; currentReward < rewards.length; currentReward++) {
                         const reward = rewards[currentReward];
@@ -17686,7 +17710,7 @@ class LivelyScene {
                     }
                 }
                 else {
-                    LogUtils_logHHAuto("No (more) LivelyScene reward to collect .");
+                    logHHAuto("No (more) LivelyScene reward to collect .");
                     setTimer('nextLivelySceneEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                     setStoredValue(HHStoredVarPrefixKey + TK.lseManualCollectAll, 'false');
                     //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
@@ -17697,7 +17721,7 @@ class LivelyScene {
             }
             catch (err) {
                 const message = err instanceof Error ? err.message : String(err);
-                LogUtils_logHHAuto(`ERROR during collect LivelyScene rewards: ${message}`);
+                logHHAuto(`ERROR during collect LivelyScene rewards: ${message}`);
                 setStoredValue(HHStoredVarPrefixKey + TK.lseManualCollectAll, 'false');
             }
             return false;
@@ -17735,7 +17759,7 @@ class LivelyScene {
                         if ($puzzlePiece.length > 0 && iconHref) {
                             const image = LivelyScene._makeSVGImage($puzzlePiece, iconHref);
                             document.getElementById(`puzzle_piece_${puzzlePiece.id_piece}`).appendChild(image);
-                            LogUtils_logHHAuto(`Add icon for ${rewardType} to #puzzle_piece_${puzzlePiece.id_piece}`);
+                            logHHAuto(`Add icon for ${rewardType} to #puzzle_piece_${puzzlePiece.id_piece}`);
                         }
                     }
                 }
@@ -17758,7 +17782,7 @@ class LivelyScene {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/PathOfAttraction.ts
+;// ./src/Module/Events/PathOfAttraction.ts
 var PathOfAttraction_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -17826,12 +17850,12 @@ class PathOfAttraction {
         const eventID = hhEvent.eventId;
         PathOfAttraction.getRemainingTime();
         const poAEnd = getSecondsLeft("PoARemainingTime");
-        LogUtils_logHHAuto("PoA end in " + TimeHelper.debugDate(poAEnd));
+        logHHAuto("PoA end in " + TimeHelper.debugDate(poAEnd));
         let refreshTimerPoa = ConfigHelper.getHHScriptVars('maxCollectionDelay');
         if (poAEnd < Math.max(refreshTimerPoa, getLimitTimeBeforeEnd()) && getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollectAll) === "true") {
             refreshTimerPoa = Math.min(refreshTimerPoa, getLimitTimeBeforeEnd());
         }
-        LogUtils_logHHAuto("PoA next refres in " + TimeHelper.debugDate(refreshTimerPoa));
+        logHHAuto("PoA next refres in " + TimeHelper.debugDate(refreshTimerPoa));
         eventList[eventID] = {};
         eventList[eventID]["id"] = eventID;
         eventList[eventID]["type"] = hhEvent.eventType;
@@ -17842,7 +17866,7 @@ class PathOfAttraction {
     static run() {
         return PathOfAttraction_awaiter(this, void 0, void 0, function* () {
             if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab=" + ConfigHelper.getHHScriptVars('poaEventIDReg'))) {
-                LogUtils_logHHAuto("On path of attraction event.");
+                logHHAuto("On path of attraction event.");
                 if (ConfigHelper.getHHScriptVars("isEnabledClubChamp", false)) {
                     if ($(".hh-club-poa").length <= 0) {
                         const championsGoal = $('#poa-content .buttons:has(button[data-href="/champions-map.html"])');
@@ -17888,7 +17912,7 @@ class PathOfAttraction {
         }
         catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            LogUtils_logHHAuto(`ERROR in display POA rewards: ${message}`);
+            logHHAuto(`ERROR in display POA rewards: ${message}`);
         }
     }
     static getNotClaimedRewards() {
@@ -17946,13 +17970,13 @@ class PathOfAttraction {
                 setStoredValue(HHStoredVarPrefixKey + TK.poaManualCollectAll, 'true');
             if (needToCollect || needToCollectAllBeforeEnd || manualCollectAll) {
                 const rewardsToCollect = getStoredJSON(HHStoredVarPrefixKey + SK.autoPoACollectablesList, []);
-                LogUtils_logHHAuto("Checking Path of Attraction for collectable rewards.");
+                logHHAuto("Checking Path of Attraction for collectable rewards.");
                 const numberTiers = $(PathOfAttraction.rewardPairTierPath).length;
                 const freeClaimableRewards = PathOfAttraction.getFreeClaimableRewards();
                 const paidClaimableRewards = PathOfAttraction.getPaidClaimableRewards();
                 function getReward(reward) {
                     return PathOfAttraction_awaiter(this, void 0, void 0, function* () {
-                        LogUtils_logHHAuto("Going to get " + JSON.stringify(reward));
+                        logHHAuto("Going to get " + JSON.stringify(reward));
                         reward.slot.trigger('click');
                         yield TimeHelper.sleep(randomInterval(300, 800));
                         $(PathOfAttraction.getRewardButtonPath).trigger('click');
@@ -17963,15 +17987,15 @@ class PathOfAttraction {
                         yield TimeHelper.sleep(randomInterval(1000, 1500));
                     });
                 }
-                LogUtils_logHHAuto("numberTiers: " + numberTiers);
+                logHHAuto("numberTiers: " + numberTiers);
                 if (debugEnabled) {
-                    LogUtils_logHHAuto("freeClaimableRewards", freeClaimableRewards);
-                    LogUtils_logHHAuto("paidClaimableRewards", paidClaimableRewards);
+                    logHHAuto("freeClaimableRewards", freeClaimableRewards);
+                    logHHAuto("paidClaimableRewards", paidClaimableRewards);
                 }
                 const freeClaimableTiers = Object.keys(freeClaimableRewards);
                 const paidClaimableTiers = Object.keys(paidClaimableRewards);
                 if (numberTiers > 0 && (freeClaimableTiers.length > 0 || paidClaimableTiers.length > 0)) {
-                    LogUtils_logHHAuto(`Collecting rewards, ${freeClaimableTiers.length + paidClaimableTiers.length} rewards to collect , setting autoloop to false`);
+                    logHHAuto(`Collecting rewards, ${freeClaimableTiers.length + paidClaimableTiers.length} rewards to collect , setting autoloop to false`);
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                     $(".scroll-area.poa").animate({ scrollLeft: 0 });
                     yield TimeHelper.sleep(randomInterval(300, 800));
@@ -17989,13 +18013,13 @@ class PathOfAttraction {
                             }
                         }
                     }
-                    LogUtils_logHHAuto("Path of Attraction collection finished.");
+                    logHHAuto("Path of Attraction collection finished.");
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
                     setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + TK.autoLoopTimeMili)));
                     return true;
                 }
                 else {
-                    LogUtils_logHHAuto("No Path of Attraction reward to collect.");
+                    logHHAuto("No Path of Attraction reward to collect.");
                     setStoredValue(HHStoredVarPrefixKey + TK.poaManualCollectAll, 'false');
                 }
             }
@@ -18036,7 +18060,7 @@ PathOfAttraction.freeSlotPath = "#nc-poa-tape-rewards .nc-poa-reward-pair .nc-po
 PathOfAttraction.paidSlotPath = "#nc-poa-tape-rewards .nc-poa-reward-pair .nc-poa-locked-reward";
 PathOfAttraction.getRewardButtonPath = "#poa-content .objective .reward button.purple_button_L";
 
-;// CONCATENATED MODULE: ./src/Module/Events/PathOfGlory.ts
+;// ./src/Module/Events/PathOfGlory.ts
 // PathOfGlory.ts -- Path of Glory (PoG) event: tier collection and reward tracking.
 //
 // Path of Glory is a tiered event where the player earns points through
@@ -18090,12 +18114,12 @@ class PathOfGlory {
                     const passPlusSlotType = RewardHelper.getRewardTypeBySlot(paidSlots[1]);
                     if (rewardsToCollect.includes(passSlotType) && (paidSlots.length > 1 ? rewardsToCollect.includes(passPlusSlotType) : true)) {
                         buttonsToCollect.push(currentButton);
-                        LogUtils_logHHAuto(`Adding for collection tier (with paid) : ${currentTierNb} (Free: ${freeSlotType}, Pass: ${passSlotType}, Pass+: ${paidSlots.length > 1 ? passPlusSlotType : 'locked'})`);
+                        logHHAuto(`Adding for collection tier (with paid) : ${currentTierNb} (Free: ${freeSlotType}, Pass: ${passSlotType}, Pass+: ${paidSlots.length > 1 ? passPlusSlotType : 'locked'})`);
                     }
                 }
                 else {
                     buttonsToCollect.push(currentButton);
-                    LogUtils_logHHAuto(`Adding for collection tier (only free) : ${currentTierNb} (${freeSlotType})`);
+                    logHHAuto(`Adding for collection tier (only free) : ${currentTierNb} (${freeSlotType})`);
                 }
             }
         }
@@ -18105,10 +18129,10 @@ class PathOfGlory {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPoG")) {
             PathOfGlory.getRemainingTime();
             const pogEnd = getSecondsLeft("PoGRemainingTime");
-            LogUtils_logHHAuto("PoG end in " + TimeHelper.debugDate(pogEnd));
+            logHHAuto("PoG end in " + TimeHelper.debugDate(pogEnd));
             if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + SK.autoPoGCollectAll) === "true") {
                 if ($(ConfigHelper.getHHScriptVars("selectorClaimAllRewards")).length > 0) {
-                    LogUtils_logHHAuto("Going to collect all POG item at once.");
+                    logHHAuto("Going to collect all POG item at once.");
                     setTimeout(function () {
                         $(ConfigHelper.getHHScriptVars("selectorClaimAllRewards"))[0].click();
                         setTimer('nextPoGCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180)); // Add timer to check again later if there is new items to collect
@@ -18121,20 +18145,20 @@ class PathOfGlory {
                 }
             }
             if (checkTimer('nextPoGCollectTime') && (getStoredValue(HHStoredVarPrefixKey + SK.autoPoGCollect) === "true" || getStoredValue(HHStoredVarPrefixKey + SK.autoPoGCollectAll) === "true")) {
-                LogUtils_logHHAuto("Checking Path of Glory for collectable rewards.");
-                LogUtils_logHHAuto("setting autoloop to false");
+                logHHAuto("Checking Path of Glory for collectable rewards.");
+                logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 let buttonsToCollect = PathOfGlory.getRewardButtonToCollect();
                 if (buttonsToCollect.length > 0) {
                     function collectPoGRewards() {
                         if (buttonsToCollect.length > 0) {
-                            LogUtils_logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
+                            logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
                             setTimeout(collectPoGRewards, randomInterval(300, 500));
                         }
                         else {
-                            LogUtils_logHHAuto("Path of Glory collection finished.");
+                            logHHAuto("Path of Glory collection finished.");
                             setTimer('nextPoGCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         }
@@ -18143,7 +18167,7 @@ class PathOfGlory {
                     return true;
                 }
                 else {
-                    LogUtils_logHHAuto("No Path of Glory reward to collect.");
+                    logHHAuto("No Path of Glory reward to collect.");
                     setTimer('nextPoGCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                     setTimer('nextPoGCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
@@ -18153,7 +18177,7 @@ class PathOfGlory {
             return false;
         }
         else {
-            LogUtils_logHHAuto("Switching to Path of Glory screen.");
+            logHHAuto("Switching to Path of Glory screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDPoG"));
             return true;
         }
@@ -18165,7 +18189,7 @@ class PathOfGlory {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/PathOfValue.ts
+;// ./src/Module/Events/PathOfValue.ts
 // PathOfValue.ts -- Path of Value (PoV) event: tier collection and reward tracking.
 //
 // Path of Value is a tiered event similar to Path of Glory and Path of
@@ -18219,12 +18243,12 @@ class PathOfValue {
                     const passPlusSlotType = RewardHelper.getRewardTypeBySlot(paidSlots[1]);
                     if (rewardsToCollect.includes(passSlotType) && (paidSlots.length > 1 ? rewardsToCollect.includes(passPlusSlotType) : true)) {
                         buttonsToCollect.push(currentButton);
-                        LogUtils_logHHAuto(`Adding for collection tier (with paid) : ${currentTierNb} (Free: ${freeSlotType}, Pass: ${passSlotType}, Pass+: ${paidSlots.length > 1 ? passPlusSlotType : 'locked'})`);
+                        logHHAuto(`Adding for collection tier (with paid) : ${currentTierNb} (Free: ${freeSlotType}, Pass: ${passSlotType}, Pass+: ${paidSlots.length > 1 ? passPlusSlotType : 'locked'})`);
                     }
                 }
                 else {
                     buttonsToCollect.push(currentButton);
-                    LogUtils_logHHAuto(`Adding for collection tier (only free) : ${currentTierNb} (${freeSlotType})`);
+                    logHHAuto(`Adding for collection tier (only free) : ${currentTierNb} (${freeSlotType})`);
                 }
             }
         }
@@ -18234,10 +18258,10 @@ class PathOfValue {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPoV")) {
             PathOfValue.getRemainingTime();
             const povEnd = getSecondsLeft("PoVRemainingTime");
-            LogUtils_logHHAuto("PoV end in " + TimeHelper.debugDate(povEnd));
+            logHHAuto("PoV end in " + TimeHelper.debugDate(povEnd));
             if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + SK.autoPoVCollectAll) === "true") {
                 if ($(ConfigHelper.getHHScriptVars("selectorClaimAllRewards")).length > 0) {
-                    LogUtils_logHHAuto("Going to collect all POV item at once.");
+                    logHHAuto("Going to collect all POV item at once.");
                     setTimeout(function () {
                         $(ConfigHelper.getHHScriptVars("selectorClaimAllRewards"))[0].click();
                         setTimer('nextPoVCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180)); // Add timer to check again later if there is new items to collect
@@ -18250,20 +18274,20 @@ class PathOfValue {
                 }
             }
             if (checkTimer('nextPoVCollectTime') && getStoredValue(HHStoredVarPrefixKey + SK.autoPoVCollect) === "true") {
-                LogUtils_logHHAuto("Checking Path of Valor for collectable rewards.");
-                LogUtils_logHHAuto("setting autoloop to false");
+                logHHAuto("Checking Path of Valor for collectable rewards.");
+                logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 let buttonsToCollect = PathOfValue.getRewardButtonToCollect();
                 if (buttonsToCollect.length > 0) {
                     function collectPoVRewards() {
                         if (buttonsToCollect.length > 0) {
-                            LogUtils_logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
+                            logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
                             setTimeout(collectPoVRewards, randomInterval(300, 500));
                         }
                         else {
-                            LogUtils_logHHAuto("Path of Valor collection finished.");
+                            logHHAuto("Path of Valor collection finished.");
                             setTimer('nextPoVCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         }
@@ -18272,7 +18296,7 @@ class PathOfValue {
                     return true;
                 }
                 else {
-                    LogUtils_logHHAuto("No Path of Valor reward to collect.");
+                    logHHAuto("No Path of Valor reward to collect.");
                     setTimer('nextPoVCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                     setTimer('nextPoVCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
@@ -18282,7 +18306,7 @@ class PathOfValue {
             return false;
         }
         else {
-            LogUtils_logHHAuto("Switching to Path of Valor screen.");
+            logHHAuto("Switching to Path of Valor screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDPoV"));
             return true;
         }
@@ -18294,7 +18318,7 @@ class PathOfValue {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/Seasonal.ts
+;// ./src/Module/Events/Seasonal.ts
 var Seasonal_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -18349,11 +18373,11 @@ class SeasonalEvent {
             const rankTimer = Number(convertTimeToInt($(rankTimerRequest).text()));
             return rankTimer;
         }
-        LogUtils_logHHAuto('ERROR: can\'t get seasonal rank timer, default to maxCollectionDelay');
+        logHHAuto('ERROR: can\'t get seasonal rank timer, default to maxCollectionDelay');
         return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
     }
     static displayRemainingTime() {
-        LogUtils_logHHAuto('Not implemented');
+        logHHAuto('Not implemented');
     }
     static getSeasonalNotClaimedRewards() {
         const arrayz = $(SeasonalEvent.SEASONAL_REWARD_PATH);
@@ -18385,12 +18409,12 @@ class SeasonalEvent {
                 const megaSeasonalPaidSlotQuery = ".pass-slot.paid-unclaimed .slot";
                 if (needToCollect || needToCollectAllBeforeEnd || manualCollectAll) {
                     if (needToCollect)
-                        LogUtils_logHHAuto("Checking SeasonalEvent for collectable rewards.");
+                        logHHAuto("Checking SeasonalEvent for collectable rewards.");
                     if (needToCollectAllBeforeEnd)
-                        LogUtils_logHHAuto("Going to collect all SeasonalEvent rewards.");
+                        logHHAuto("Going to collect all SeasonalEvent rewards.");
                     if (manualCollectAll)
-                        LogUtils_logHHAuto("Going to collect all SeasonalEvent rewards after collect all button usage.");
-                    LogUtils_logHHAuto("setting autoloop to false");
+                        logHHAuto("Going to collect all SeasonalEvent rewards after collect all button usage.");
+                    logHHAuto("setting autoloop to false");
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                     const buttonsToCollect = [];
                     const listSeasonalEventTiersToClaim = isMegaSeasonalEvent ? $(megaSeasonalTierQuery) : $(seasonalTierQuery);
@@ -18408,15 +18432,15 @@ class SeasonalEvent {
                                 const paidSlotType = RewardHelper.getRewardTypeBySlot($(paidSlotQuery, listSeasonalEventTiersToClaim[currentTier])[0]);
                                 if (rewardsToCollect.includes(paidSlotType) || needToCollectAllBeforeEnd || manualCollectAll) {
                                     buttonsToCollect.push(currentButton);
-                                    LogUtils_logHHAuto("Adding for collection tier (free + paid) : " + currentTierNb);
+                                    logHHAuto("Adding for collection tier (free + paid) : " + currentTierNb);
                                 }
                                 else {
-                                    LogUtils_logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
+                                    logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
                                 }
                             }
                             else {
                                 buttonsToCollect.push(currentButton);
-                                LogUtils_logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
+                                logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
                             }
                         }
                     }
@@ -18427,13 +18451,13 @@ class SeasonalEvent {
                         }
                         function collectSeasonalEventRewards() {
                             if (buttonsToCollect.length > 0) {
-                                LogUtils_logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
+                                logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
                                 buttonsToCollect[0].click();
                                 buttonsToCollect.shift();
                                 setTimeout(closeRewardAndCollectagain, randomInterval(300, 500));
                             }
                             else {
-                                LogUtils_logHHAuto("SeasonalEvent collection finished.");
+                                logHHAuto("SeasonalEvent collection finished.");
                                 setTimer('nextSeasonalEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                                 if (!manualCollectAll) {
                                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
@@ -18445,7 +18469,7 @@ class SeasonalEvent {
                         return true;
                     }
                     else {
-                        LogUtils_logHHAuto("No SeasonalEvent reward to collect.");
+                        logHHAuto("No SeasonalEvent reward to collect.");
                         setTimer('nextSeasonalEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                         setTimer('nextSeasonalEventCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                         if (!manualCollectAll) {
@@ -18459,18 +18483,18 @@ class SeasonalEvent {
             catch (err) {
                 const message = err instanceof Error ? err.message : String(err);
                 const errName = err instanceof Error ? err.name : 'Error';
-                LogUtils_logHHAuto(`ERROR: Can't collect rewards retry later: ${errName}, ${message}`);
+                logHHAuto(`ERROR: Can't collect rewards retry later: ${errName}, ${message}`);
                 setTimer('nextSeasonalEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
             }
             return false;
         }
         else if (SeasonalEvent.isActiveEvent()) {
-            LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
+            logHHAuto("Switching to SeasonalEvent screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
             return true;
         }
         else {
-            LogUtils_logHHAuto("No SeasonalEvent active.");
+            logHHAuto("No SeasonalEvent active.");
             setTimer('nextSeasonalEventCollectTime', 604800); // 1 week delay
             setTimer('nextSeasonalEventCollectAllTime', 604800); // 1 week delay
             return false;
@@ -18567,7 +18591,7 @@ class SeasonalEvent {
             return;
         const $playerPoints = $('.player-shards .mega-event-currency');
         if ($playerPoints.length === 0) {
-            LogUtils_logHHAuto("ERROR: Can't find player points");
+            logHHAuto("ERROR: Can't find player points");
         }
         const playerPoints = $playerPoints.length ? Number($playerPoints.text()) : 0;
         const girlContainer = $('.girls-reward-container');
@@ -18595,7 +18619,7 @@ class SeasonalEvent {
         try {
             if ($('#' + hhRewardId).length <= 0) {
                 const rewardCountByType = isMegaSeasonalEvent ? SeasonalEvent.getMegaSeasonalNotClaimedRewards() : SeasonalEvent.getSeasonalNotClaimedRewards();
-                LogUtils_logHHAuto("Rewards seasonal event:", JSON.stringify(rewardCountByType));
+                logHHAuto("Rewards seasonal event:", JSON.stringify(rewardCountByType));
                 if (rewardCountByType['all'] > 0) {
                     // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
                     // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
@@ -18612,7 +18636,7 @@ class SeasonalEvent {
             }
         }
         catch (err) {
-            LogUtils_logHHAuto("ERROR:", err.message);
+            logHHAuto("ERROR:", err.message);
             target.append($('<div id=' + hhRewardId + ' style="display:none;"></div>'));
         }
     }
@@ -18623,14 +18647,14 @@ class SeasonalEvent {
                 const topRank = $('#mega-event-tabs #top_ranking_tab');
                 const eventRank = $('#mega-event-tabs #event_ranking_tab');
                 if (!isMegaSeasonalEvent && topRank.length === 0 && eventRank.length === 0) {
-                    LogUtils_logHHAuto('Not Mega Event');
+                    logHHAuto('Not Mega Event');
                     setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
                     return Promise.resolve(false);
                 }
                 else if (topRank.length > 0 || eventRank.length > 0) {
-                    LogUtils_logHHAuto('Not Mega Event but rank tab exist');
+                    logHHAuto('Not Mega Event but rank tab exist');
                 }
-                LogUtils_logHHAuto('Collect Mega Event Rank Rewards');
+                logHHAuto('Collect Mega Event Rank Rewards');
                 // switch tabs
                 if (topRank.length > 0)
                     topRank.trigger("click");
@@ -18643,12 +18667,12 @@ class SeasonalEvent {
                 setTimer('nextMegaEventRankCollectTime', SeasonalEvent.getGlobalRankRemainingTime() + randomInterval(3600, 4000));
             }
             else if (SeasonalEvent.isActiveEvent()) {
-                LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
+                logHHAuto("Switching to SeasonalEvent screen.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
                 return Promise.resolve(true);
             }
             else {
-                LogUtils_logHHAuto("No SeasonalEvent active.");
+                logHHAuto("No SeasonalEvent active.");
                 setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
             }
             return Promise.resolve(false);
@@ -18658,14 +18682,14 @@ class SeasonalEvent {
         return Seasonal_awaiter(this, void 0, void 0, function* () {
             var cardsOwned = getHHVars('mega_event_data.cards');
             if (cardsOwned && cardsOwned.indexOf('1') >= 0) {
-                LogUtils_logHHAuto(`Free cards already collected (${cardsOwned}), wait for next seasonal event`);
+                logHHAuto(`Free cards already collected (${cardsOwned}), wait for next seasonal event`);
                 setTimer('nextSeasonalCardCollectTime', getSecondsLeft("SeasonalEventRemainingTime") + randomInterval(3600, 4000));
             }
             else {
                 if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent")) {
                     const cardTabs = $('#mega-event-tabs #cards_tab');
                     if (cardTabs.length > 0) {
-                        LogUtils_logHHAuto('Collect free cards from Seasonal Event');
+                        logHHAuto('Collect free cards from Seasonal Event');
                         // switch tabs
                         cardTabs.trigger("click");
                         yield TimeHelper.sleep(randomInterval(400, 600));
@@ -18677,7 +18701,7 @@ class SeasonalEvent {
                         yield TimeHelper.sleep(randomInterval(400, 600));
                         RewardHelper.closeRewardPopupIfAny(); // Close card reward popup
                         if (freeCardClaimButton.length > 1) {
-                            LogUtils_logHHAuto('There is still free cards to collect, try again');
+                            logHHAuto('There is still free cards to collect, try again');
                             freeCardClaimButton.trigger("click");
                             yield TimeHelper.sleep(randomInterval(400, 600));
                             RewardHelper.closeRewardPopupIfAny();
@@ -18686,12 +18710,12 @@ class SeasonalEvent {
                     setTimer('nextSeasonalCardCollectTime', getSecondsLeft("SeasonalEventRemainingTime") + randomInterval(3600, 4000));
                 }
                 else if (SeasonalEvent.isActiveEvent()) {
-                    LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
+                    logHHAuto("Switching to SeasonalEvent screen.");
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
                     return Promise.resolve(true);
                 }
                 else {
-                    LogUtils_logHHAuto("No SeasonalEvent active.");
+                    logHHAuto("No SeasonalEvent active.");
                     setTimer('nextSeasonalCardCollectTime', 604800); // 1 week delay
                 }
             }
@@ -18702,7 +18726,7 @@ class SeasonalEvent {
 SeasonalEvent.SEASONAL_REWARD_PATH = '.mega-tier.unclaimed';
 SeasonalEvent.SEASONAL_REWARD_MEGA_PATH = '.mega-tier-container:has(.free-slot button.mega-claim-reward)';
 
-;// CONCATENATED MODULE: ./src/Module/Pachinko.ts
+;// ./src/Module/Pachinko.ts
 var Pachinko_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -18762,14 +18786,14 @@ class Pachinko {
             }
             try {
                 if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDPachinko")) {
-                    LogUtils_logHHAuto("Navigating to Pachinko window.");
+                    logHHAuto("Navigating to Pachinko window.");
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDPachinko"));
                     return true;
                 }
                 else {
-                    LogUtils_logHHAuto("Detected Pachinko Screen. Fetching Pachinko, setting autoloop to false");
+                    logHHAuto("Detected Pachinko Screen. Fetching Pachinko, setting autoloop to false");
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                    LogUtils_logHHAuto('switch to ' + pachinkoType);
+                    logHHAuto('switch to ' + pachinkoType);
                     const equipementSection = '#pachinko_whole .playing-zone';
                     const freeButtonQuery = '#playzone-replace-info button[data-free="true"].blue_button_L';
                     function selectPachinko(pachinkoType) {
@@ -18780,11 +18804,11 @@ class Pachinko {
                     }
                     yield selectPachinko(pachinkoType);
                     if ($(equipementSection).attr('type-panel') !== pachinkoType) {
-                        LogUtils_logHHAuto(`Error pachinko ${pachinkoType} not loaded after click, retry`);
+                        logHHAuto(`Error pachinko ${pachinkoType} not loaded after click, retry`);
                         yield selectPachinko(pachinkoType);
                     }
                     if ($(freeButtonQuery).length === 0) {
-                        LogUtils_logHHAuto('Not ready yet');
+                        logHHAuto('Not ready yet');
                     }
                     else {
                         $(freeButtonQuery).trigger('click');
@@ -18795,13 +18819,13 @@ class Pachinko {
                         setTimer(pachinkoTimer, Number(convertTimeToInt(npach)) + randomInterval(1, 5));
                     }
                     else {
-                        LogUtils_logHHAuto("Unable to find " + pachinkoType + " Pachinko time, wait 4h.");
+                        logHHAuto("Unable to find " + pachinkoType + " Pachinko time, wait 4h.");
                         setTimer(pachinkoTimer, ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(1, 10));
                     }
                     setTimeout(function () {
                         RewardHelper.closeRewardPopupIfAny();
                         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
-                        LogUtils_logHHAuto("setting autoloop to true");
+                        logHHAuto("setting autoloop to true");
                         if (Pachinko_autoLoopKick)
                             setTimeout(Pachinko_autoLoopKick, randomInterval(500, 800));
                     }, randomInterval(300, 600));
@@ -18809,7 +18833,7 @@ class Pachinko {
                 return true;
             }
             catch (ex) {
-                LogUtils_logHHAuto("Catched error : Could not collect " + pachinkoType + " Pachinko... " + ex);
+                logHHAuto("Catched error : Could not collect " + pachinkoType + " Pachinko... " + ex);
                 setTimer(pachinkoTimer, ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(1, 10));
                 return false;
             }
@@ -18823,7 +18847,7 @@ class Pachinko {
                 numberOfGirlsToWin = safeJsonParse(girlsRewards.attr("data-rewards"), []).length;
             }
             catch (exp) {
-                LogUtils_logHHAuto('Could not count pachinko girls to win: ' + exp);
+                logHHAuto('Could not count pachinko girls to win: ' + exp);
             }
         }
         return numberOfGirlsToWin;
@@ -18835,7 +18859,7 @@ class Pachinko {
         }
         if (isNaN(orbsLeft)) {
             orbsLeft = 0;
-            LogUtils_logHHAuto("ERROR getting orbs left");
+            logHHAuto("ERROR getting orbs left");
         }
         return orbsLeft;
     }
@@ -18944,7 +18968,7 @@ class Pachinko {
     }
     static pachinkoPlayXTimes() {
         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-        LogUtils_logHHAuto("setting autoloop to false");
+        logHHAuto("setting autoloop to false");
         Pachinko.pachinkoSelector = document.getElementById("PachinkoSelector");
         Pachinko.ByPassNoGirlChecked = document.getElementById("PachinkoByPassNoGirls").checked;
         Pachinko.stopFirstGirlChecked = document.getElementById("PachinkoStopFirstGirl").checked;
@@ -18953,12 +18977,12 @@ class Pachinko {
         Pachinko.orbsToGo = Number(document.getElementById("PachinkoXTimes").value);
         Pachinko.orbLeftOnAutoStart = Pachinko.getNumberOfOrbsLeft(buttonSelector);
         if (Pachinko.orbLeftOnAutoStart <= 0) {
-            LogUtils_logHHAuto('No Orbs left for : ' + selectedOption.text);
+            logHHAuto('No Orbs left for : ' + selectedOption.text);
             $("#PachinkoError").text(getTextForUI("PachinkoSelectorNoButtons", "elementText"));
             return;
         }
         if (Number.isNaN(Number(Pachinko.orbsToGo)) || Pachinko.orbsToGo < 1 || Pachinko.orbsToGo > Pachinko.orbLeftOnAutoStart) {
-            LogUtils_logHHAuto('Invalid orbs number ' + Pachinko.orbsToGo);
+            logHHAuto('Invalid orbs number ' + Pachinko.orbsToGo);
             $("#PachinkoError").text(getTextForUI("PachinkoInvalidOrbsNb", "elementText") + " : " + Pachinko.orbsToGo);
             return;
         }
@@ -18976,7 +19000,7 @@ class Pachinko {
         // from a previous run, and a fresh retry budget.
         Pachinko.serverOrbsLeft = undefined;
         Pachinko.retry = 0;
-        LogUtils_logHHAuto(`Pachinko run starting: ${selectedOption.text}, target ${Pachinko.orbsToGo}, available ${Pachinko.orbLeftOnAutoStart}.`);
+        logHHAuto(`Pachinko run starting: ${selectedOption.text}, target ${Pachinko.orbsToGo}, available ${Pachinko.orbLeftOnAutoStart}.`);
         Pachinko.autoPachinkoRunning = true;
         setTimeout(Pachinko.playXPachinko_func, randomInterval(500, 1500));
     }
@@ -18989,29 +19013,29 @@ class Pachinko {
     // StartService page-load reset). Restore autoLoop here directly.
     static cancelXPachinkoRun() {
         maskHHPopUp();
-        LogUtils_logHHAuto("Cancel clicked, closing popUp.");
+        logHHAuto("Cancel clicked, closing popUp.");
         Pachinko.autoPachinkoRunning = false;
         if (Pachinko.failureTimeoutId)
             clearTimeout(Pachinko.failureTimeoutId); // cancel safe mode
         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
-        LogUtils_logHHAuto("setting autoloop to true");
+        logHHAuto("setting autoloop to true");
         if (Pachinko_autoLoopKick)
             setTimeout(Pachinko_autoLoopKick, randomInterval(500, 800));
     }
     static stopXPachinkoNoGirl() {
-        LogUtils_logHHAuto("No more girl on Pachinko, cancelling.");
+        logHHAuto("No more girl on Pachinko, cancelling.");
         maskHHPopUp();
         Pachinko.buildPachinkoSelectPopUp();
         $("#PachinkoError").text(getTextForUI("PachinkoNoGirls", "elementText"));
     }
     static stopXPachinkoFailure() {
         if (Pachinko.retry <= 2) {
-            LogUtils_logHHAuto("Pachinko failure, retry once.");
+            logHHAuto("Pachinko failure, retry once.");
             Pachinko.retry++;
             setTimeout(Pachinko.playXPachinko_func, randomInterval(100, 300));
         }
         else {
-            LogUtils_logHHAuto("Pachinko failure, cancelling.");
+            logHHAuto("Pachinko failure, cancelling.");
             maskHHPopUp();
             Pachinko.buildPachinkoSelectPopUp();
             $("#PachinkoError").text(getTextForUI("PachinkoFailure", "elementText"));
@@ -19024,7 +19048,7 @@ class Pachinko {
             const buttonContinueSelector = '.popup_buttons #play_again:visible';
             if (!isDisplayedHHPopUp()) {
                 Pachinko.autoPachinkoRunning = false;
-                LogUtils_logHHAuto("PopUp closed, cancelling interval, restart autoloop.");
+                logHHAuto("PopUp closed, cancelling interval, restart autoloop.");
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
                 if (Pachinko_autoLoopKick)
                     setTimeout(Pachinko_autoLoopKick, Number(getStoredValue(HHStoredVarPrefixKey + TK.autoLoopTimeMili)));
@@ -19034,7 +19058,7 @@ class Pachinko {
             if (confirmPachinko !== null) {
                 if (Pachinko.ByPassNoGirlChecked && confirmPachinko.querySelector("#popup_confirm.blue_button_L") !== null) {
                     confirmPachinko.querySelector("#popup_confirm.blue_button_L").click();
-                    LogUtils_logHHAuto('By pass no girl popup closed');
+                    logHHAuto('By pass no girl popup closed');
                 }
                 else {
                     Pachinko.stopXPachinkoNoGirl();
@@ -19048,9 +19072,9 @@ class Pachinko {
             const currentOrbsLeft = Pachinko.resolveStopOrbsLeft(Pachinko.serverOrbsLeft, domOrbsLeft);
             const spendedOrbs = Number(Pachinko.orbLeftOnAutoStart - currentOrbsLeft);
             if (Pachinko.debugEnabled)
-                LogUtils_logHHAuto(`Pachinko progress: spent ${spendedOrbs}/${Pachinko.orbsToGo} (orbsLeft server=${(_a = Pachinko.serverOrbsLeft) !== null && _a !== void 0 ? _a : 'n/a'} dom=${domOrbsLeft}).`);
+                logHHAuto(`Pachinko progress: spent ${spendedOrbs}/${Pachinko.orbsToGo} (orbsLeft server=${(_a = Pachinko.serverOrbsLeft) !== null && _a !== void 0 ? _a : 'n/a'} dom=${domOrbsLeft}).`);
             if (Pachinko.stopFirstGirlChecked && $('#rewards_popup #reward_holder .shards_wrapper:visible').length > 0) {
-                LogUtils_logHHAuto("Girl in reward, stopping...");
+                logHHAuto("Girl in reward, stopping...");
                 maskHHPopUp();
                 Pachinko.buildPachinkoSelectPopUp(spendedOrbs);
                 return;
@@ -19072,7 +19096,7 @@ class Pachinko {
                     pachinkoSelectedButton.click();
                     Pachinko.failureTimeoutId = setTimeout(() => {
                         // Safe mode
-                        LogUtils_logHHAuto("ERROR: No reply from server after more than 5s.");
+                        logHHAuto("ERROR: No reply from server after more than 5s.");
                         Pachinko.stopXPachinkoFailure();
                     }, randomInterval(5000, 8000));
                     // Nothing to do here, will be done by ajaxComplete handler above.
@@ -19080,7 +19104,7 @@ class Pachinko {
             }
             else {
                 RewardHelper.closeRewardPopupIfAny(false);
-                LogUtils_logHHAuto(`Pachinko run finished: spent ${spendedOrbs}/${Pachinko.orbsToGo} orbs, ${currentOrbsLeft} left.`);
+                logHHAuto(`Pachinko run finished: spent ${spendedOrbs}/${Pachinko.orbsToGo} orbs, ${currentOrbsLeft} left.`);
                 maskHHPopUp();
                 Pachinko.buildPachinkoSelectPopUp(spendedOrbs);
                 return;
@@ -19100,7 +19124,7 @@ class Pachinko {
                 const response = safeJsonParse(xhr.responseText, null);
                 if (!response || !response.success) {
                     if (Pachinko.debugEnabled)
-                        LogUtils_logHHAuto("Not response success");
+                        logHHAuto("Not response success");
                     Pachinko.stopXPachinkoFailure();
                     return;
                 }
@@ -19120,7 +19144,7 @@ class Pachinko {
                         setTimeout(Pachinko.playXPachinko_func, randomInterval(200, 500));
                     }
                     else if (Pachinko.debugEnabled) {
-                        LogUtils_logHHAuto('Ajax catched, do nothing');
+                        logHHAuto('Ajax catched, do nothing');
                     }
                 }
                 else
@@ -19223,7 +19247,7 @@ Pachinko.retry = 0;
 // fast runs and cause over-consumption past the requested amount (issue 1745).
 Pachinko.serverOrbsLeft = undefined;
 
-;// CONCATENATED MODULE: ./src/Module/Shop.ts
+;// ./src/Module/Shop.ts
 // Shop.ts -- Automates the equipment shop: buys and sells equipment, manages
 // inventory.
 //
@@ -19255,12 +19279,12 @@ class Shop {
     }
     static updateShop() {
         if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDShop")) {
-            LogUtils_logHHAuto("Navigating to Market window.");
+            logHHAuto("Navigating to Market window.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
             return true;
         }
         else {
-            LogUtils_logHHAuto("Detected Market Screen. Fetching Assortment");
+            logHHAuto("Detected Market Screen. Fetching Assortment");
             var assA = [];
             var assB = [];
             var assG = [];
@@ -19311,12 +19335,12 @@ class Shop {
             setStoredValue(HHStoredVarPrefixKey + TK.haveExp, HaveExp);
             setStoredValue(HHStoredVarPrefixKey + TK.haveBooster, JSON.stringify(HaveBooster));
             setStoredValue(HHStoredVarPrefixKey + TK.boosterIdMap, JSON.stringify(BoosterIdMap));
-            LogUtils_logHHAuto('counted ' + getStoredValue(HHStoredVarPrefixKey + TK.haveAff) + ' Aff, ' + getStoredValue(HHStoredVarPrefixKey + TK.haveExp) + ' Exp, Booster: ' + JSON.stringify(HaveBooster));
+            logHHAuto('counted ' + getStoredValue(HHStoredVarPrefixKey + TK.haveAff) + ' Aff, ' + getStoredValue(HHStoredVarPrefixKey + TK.haveExp) + ' Exp, Booster: ' + JSON.stringify(HaveBooster));
             // Debug: log each booster found in player inventory with id_item and quantity
             for (const [identifier, data] of Object.entries(BoosterIdMap)) {
                 const qty = HaveBooster[identifier] || 0;
                 const entry = data;
-                LogUtils_logHHAuto(`  Booster inventory: ${entry.name} [${identifier}] id_item=${entry.id_item} rarity=${entry.rarity} qty=${qty}`);
+                logHHAuto(`  Booster inventory: ${entry.name} [${identifier}] id_item=${entry.id_item} rarity=${entry.rarity} qty=${qty}`);
             }
             setStoredValue(HHStoredVarPrefixKey + TK.storeContents, JSON.stringify([assA, assB, assG, assP]));
             setStoredValue(HHStoredVarPrefixKey + TK.charLevel, HeroHelper.getLevel());
@@ -19333,7 +19357,7 @@ class Shop {
             if (isJSON(getStoredValue(HHStoredVarPrefixKey + TK.LastPageCalled))
                 && getPage() === getStoredJSON(HHStoredVarPrefixKey + TK.LastPageCalled, { page: '' }).page) {
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                LogUtils_logHHAuto("Go to Home after Shopping");
+                logHHAuto("Go to Home after Shopping");
             }
         }
         return false;
@@ -19578,7 +19602,7 @@ class Shop {
                         $("#" + menuID).remove();
                     }
                     catch (e) {
-                        LogUtils_logHHAuto("Catched error : Couldn't remove " + menuID + " menu : " + e);
+                        logHHAuto("Catched error : Couldn't remove " + menuID + " menu : " + e);
                     }
                 }
                 return;
@@ -19647,7 +19671,7 @@ class Shop {
                 });
                 $("#menuSellButton").on("click", function () {
                     if (Number(document.getElementById("menuSellNumber").value) > 0) {
-                        LogUtils_logHHAuto("Starting selling " + Number(document.getElementById("menuSellNumber").value) + " items.");
+                        logHHAuto("Starting selling " + Number(document.getElementById("menuSellNumber").value) + " items.");
                         sellArmorItems();
                     }
                 });
@@ -19656,13 +19680,13 @@ class Shop {
                 const SellDialog = document.getElementById("SellDialog");
                 if (typeof SellDialog.showModal !== "function") {
                     alert("The <dialog> API is not supported by this browser");
-                    LogUtils_logHHAuto("The <dialog> API is not supported by this browser");
+                    logHHAuto("The <dialog> API is not supported by this browser");
                     return;
                 }
                 menuSellMaxItems = Number(window.prompt("Max amount of inventory to load (all for no limit)", menuSellMaxItems + ''));
                 if (menuSellMaxItems !== null) {
                     menuSellMaxItems = isNaN(menuSellMaxItems) ? Number.MAX_VALUE : menuSellMaxItems;
-                    LogUtils_logHHAuto(`Going to load ${menuSellMaxItems} items`);
+                    logHHAuto(`Going to load ${menuSellMaxItems} items`);
                     $("menuSellStop").css("display", "block");
                     menuSellStop = false;
                     fetchStarted = true;
@@ -19712,10 +19736,10 @@ class Shop {
                 const oldCount = $(itemsQuery).length;
                 $("#menuSellCurrentCount").html(oldCount + '');
                 if (allLoaded) {
-                    LogUtils_logHHAuto(`No more items to load, currently: ${oldCount}/${menuSellMaxItems}`);
+                    logHHAuto(`No more items to load, currently: ${oldCount}/${menuSellMaxItems}`);
                 }
                 else {
-                    LogUtils_logHHAuto(`Loading items, currently: ${oldCount}/${menuSellMaxItems}`);
+                    logHHAuto(`Loading items, currently: ${oldCount}/${menuSellMaxItems}`);
                 }
                 const scroll = $("#player-inventory.armor")[0];
                 const SellDialog = document.getElementById("SellDialog");
@@ -19730,14 +19754,14 @@ class Shop {
                         menuSellListItems();
                     }
                     else {
-                        LogUtils_logHHAuto('Sell Dialog closed, stopping');
+                        logHHAuto('Sell Dialog closed, stopping');
                     }
                     return;
                 }
                 scroll.scrollTop = scroll.scrollHeight - scroll.offsetHeight;
             }
             catch (err) {
-                LogUtils_logHHAuto('Error during armor item fetch, restoring animations: ' + err);
+                logHHAuto('Error during armor item fetch, restoring animations: ' + err);
                 unsafeWindow.shared.animations.loadingAnimation.start = loadingAnimationStart;
                 unsafeWindow.shared.animations.loadingAnimation.stop = loadingAnimationStop;
                 fetchStarted = false;
@@ -19759,8 +19783,8 @@ class Shop {
         }
         function sellArmorItems() {
             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-            LogUtils_logHHAuto("setting autoloop to false");
-            LogUtils_logHHAuto('start selling common, rare and epic stuff');
+            logHHAuto("setting autoloop to false");
+            logHHAuto('start selling common, rare and epic stuff');
             $("#menuSellHide").css("display", "none");
             $("#menuSoldHide").css("display", "block");
             // Scroll to top
@@ -19778,30 +19802,30 @@ class Shop {
             function selling_func() {
                 const SellDialog = document.getElementById("SellDialog");
                 if ($('#player-inventory.armor').length === 0) {
-                    LogUtils_logHHAuto('Wrong tab');
+                    logHHAuto('Wrong tab');
                     sellArmorEnded();
                     return;
                 }
                 else if (!SellDialog.open) {
-                    LogUtils_logHHAuto('Sell Dialog closed, stopping');
+                    logHHAuto('Sell Dialog closed, stopping');
                     sellArmorEnded();
                     return;
                 }
                 const availebleItems = $(itemsQuery);
                 const currentNumberOfItems = availebleItems.length;
                 if (currentNumberOfItems === 0) {
-                    LogUtils_logHHAuto('no more items for sale');
+                    logHHAuto('no more items for sale');
                     sellingEnd(getTextForUI("menuSoldMessageNoMore", "elementText"));
                     return;
                 }
                 if (initialNumberOfItems < currentNumberOfItems) {
-                    LogUtils_logHHAuto('Some items was loaded in the background, can\'t continue');
+                    logHHAuto('Some items was loaded in the background, can\'t continue');
                     sellingEnd(getTextForUI("menuSoldMessageErrorLoaded", "elementText"));
                     return;
                 }
                 //console.log(initialNumberOfItems,currentNumberOfItems);
                 if ((initialNumberOfItems - currentNumberOfItems) >= itemsToSell) {
-                    LogUtils_logHHAuto('Reach wanted sold items.');
+                    logHHAuto('Reach wanted sold items.');
                     sellingEnd(getTextForUI("menuSoldMessageReachNB", "elementText"));
                     return;
                 }
@@ -19812,7 +19836,7 @@ class Shop {
                     if (availebleItems.filter('.selected').filter(':not(.legendary),[canBeSold]').length > 0) {
                         can_sell = true;
                     }
-                    LogUtils_logHHAuto('can be sold ' + can_sell + ' : ' + availebleItems.filter('.selected')[0].getAttribute('data-d'));
+                    logHHAuto('can be sold ' + can_sell + ' : ' + availebleItems.filter('.selected')[0].getAttribute('data-d'));
                     if (can_sell) {
                         $('#shops .menu-switch-tab-content.active button.green_text_button[rel=sell]').click();
                         const currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) + 1);
@@ -19867,7 +19891,7 @@ class Shop {
                         }
                     }
                     if ($('#player-inventory.armor [canBeSold]:not([menuSellLocked]):not(.mythic)').length === 0) {
-                        LogUtils_logHHAuto('no more items for sale');
+                        logHHAuto('no more items for sale');
                         sellingEnd(getTextForUI("menuSoldMessageReachNB", "elementText"));
                         return;
                     }
@@ -19879,7 +19903,7 @@ class Shop {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Service/TeamScoringService.ts
+;// ./src/Service/TeamScoringService.ts
 // TeamScoringService.ts -- Pure scoring helpers for the Spec-driven team builder.
 //
 // Public surface (everything else is gone after the v7.35.39 refactor):
@@ -20050,7 +20074,7 @@ class TeamScoringService {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Service/TeamBuilderService.ts
+;// ./src/Service/TeamBuilderService.ts
 // TeamBuilderService.ts -- Spec-driven team builder.
 //
 // Implements docs-internal/REVIEW_TeamSelection.md.
@@ -20758,7 +20782,7 @@ class TeamBuilderService {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Service/TraitMappings.ts
+;// ./src/Service/TraitMappings.ts
 // TraitMappings.ts -- Maps internal hex / image / unicode codes to
 // human-readable trait names.
 //
@@ -20895,7 +20919,7 @@ class TraitMappings {
     }
 }
 
-;// CONCATENATED MODULE: ./src/model/TeamData.ts
+;// ./src/model/TeamData.ts
 // Model representing the player's team composition and scroll inventory.
 // Contains the list of team girls and counts for each scroll rarity tier.
 class TeamData {
@@ -20905,7 +20929,7 @@ class TeamData {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/TeamModule.ts
+;// ./src/Module/TeamModule.ts
 // TeamModule.ts -- Team management: auto-selects optimal teams for different
 // battle modes.
 //
@@ -20978,11 +21002,11 @@ class TeamModule {
     }
     static unequipAllGirls(callback = null) {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam") || getPage() === ConfigHelper.getHHScriptVars("pagesIDBattleTeams")) {
-            LogUtils_logHHAuto('Unequip from edit team');
+            logHHAuto('Unequip from edit team');
             $("#UnequipAll").attr('disabled', 'disabled');
             const girlId = TeamModule.getFirstSelectedGirlId();
             if (isNaN(girlId) || girlId < 0) {
-                LogUtils_logHHAuto('Error: can\'t get mandatory girl id, cancel action');
+                logHHAuto('Error: can\'t get mandatory girl id, cancel action');
                 return;
             }
             const currentPage = window.location.pathname + window.location.search;
@@ -21054,7 +21078,7 @@ class TeamModule {
             team.scrolls_common = neededCommonScrolls;
             scrollTooltipDetail += `<span class="scrolls_common_icn" style="width: 25px;height: 25px;"></span> Common: ${neededCommonScrolls}/${heroCurrencies.scrolls_common} <br/>`;
         }
-        LogUtils_logHHAuto(`Needed ${neededMythicScrolls} mythic scrolls, ${neededLegendaryScrolls} legendary scrolls, ${neededEpicScrolls} epic scrolls, ${neededRareScrolls} rare scrolls and ${neededCommonScrolls} common scrolls for the current team`);
+        logHHAuto(`Needed ${neededMythicScrolls} mythic scrolls, ${neededLegendaryScrolls} legendary scrolls, ${neededEpicScrolls} epic scrolls, ${neededRareScrolls} rare scrolls and ${neededCommonScrolls} common scrolls for the current team`);
         const scrollTooltip = $('<div class="hhScrollTooltip"><span class="scrolls_common_icn" style="width: 25px;height: 25px;"></span></div>');
         scrollTooltip.css('position', 'absolute').css('top', '110px').css('right', '30px');
         scrollTooltip.attr('tooltip', `<div style="max-width: 290px;">${getTextForUI("skillPointTooltipTitle", "elementText")}<br />
@@ -21121,7 +21145,7 @@ class TeamModule {
         document.getElementById("StuffTeamEquipment").checked = true;
         document.getElementById("StuffTeamSkills").checked = true;
         $("#stuffTeamSubmit").on("click", function () {
-            LogUtils_logHHAuto('Stuff from edit team');
+            logHHAuto('Stuff from edit team');
             //$("#StuffTeam").attr('disabled', 'disabled');
             const saveAndGo = function () {
                 const teamSettings = {
@@ -21132,7 +21156,7 @@ class TeamModule {
                     resetRareGirls: document.getElementById("stuffTeamResetRareGirls").checked,
                     resetCommonGirls: document.getElementById("stuffTeamResetCommonGirls").checked,
                 };
-                LogUtils_logHHAuto('Team settings: ' + JSON.stringify(teamSettings));
+                logHHAuto('Team settings: ' + JSON.stringify(teamSettings));
                 setStoredValue(HHStoredVarPrefixKey + TK.haremTeam, JSON.stringify(team));
                 setStoredValue(HHStoredVarPrefixKey + TK.haremGirlActions, HaremGirl.SKILLS_TYPE + '_' + HaremGirl.EQUIPMENT_TYPE);
                 setStoredValue(HHStoredVarPrefixKey + TK.haremGirlMode, 'team');
@@ -21142,7 +21166,7 @@ class TeamModule {
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
                 }
                 else {
-                    LogUtils_logHHAuto('No skill to reset, going to harem.');
+                    logHHAuto('No skill to reset, going to harem.');
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
                 }
             };
@@ -21159,7 +21183,7 @@ class TeamModule {
     static getSkillNeededScrolls(mainGirl, teamGirls, rarity, nbGrades) {
         const girls = teamGirls.filter(girl => girl.girl && girl.girl.rarity === rarity && girl.girl.nb_grades == nbGrades);
         if (girls.length > 0)
-            LogUtils_logHHAuto(`Found ${girls.length} ${rarity} girls with ${nbGrades} grades in the team.`);
+            logHHAuto(`Found ${girls.length} ${rarity} girls with ${nbGrades} grades in the team.`);
         let usedScrolls = 0;
         for (const girl of girls) {
             const skills = Object.values(girl.skill_tiers_info);
@@ -21172,14 +21196,14 @@ class TeamModule {
             usedScrolls += Number(skills.reduce((accumulator, skill) => accumulator + (skill.skill_points_used || 0), 0));
         }
         if (girls.length > 0)
-            LogUtils_logHHAuto(`Total skill points used by ${rarity}_${nbGrades} girls in the team: ${usedScrolls}/${fullNeededScrolls}`);
+            logHHAuto(`Total skill points used by ${rarity}_${nbGrades} girls in the team: ${usedScrolls}/${fullNeededScrolls}`);
         return Math.max(0, fullNeededScrolls - usedScrolls);
     }
     static equipAllGirls() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDBattleTeams")) {
             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-            LogUtils_logHHAuto("Setting autoloop to false to let the equip action complete without interruptions.");
-            LogUtils_logHHAuto('Equip team');
+            logHHAuto("Setting autoloop to false to let the equip action complete without interruptions.");
+            logHHAuto('Equip team');
             $("#EquipAll").attr('disabled', 'disabled');
             const girlIds = TeamModule.getSelectedGirlsId();
             if (girlIds.length == 0) {
@@ -21188,7 +21212,7 @@ class TeamModule {
             const currentPage = window.location.pathname + window.location.search;
             let index = 0;
             const equipGirl = (girlId) => {
-                LogUtils_logHHAuto(`Performing equip action for girl ${girlId} (${index + 1}/${girlIds.length})`);
+                logHHAuto(`Performing equip action for girl ${girlId} (${index + 1}/${girlIds.length})`);
                 $(`.team-member-container[data-girl-id="${girlId}"]`).addClass('selected');
                 // change referer
                 //logHHAuto('change referer to ' + '/characters/' + girlId);
@@ -21200,10 +21224,10 @@ class TeamModule {
                 getHHAjax()(params1, function (data) {
                     $('.team-member-container').removeClass('selected');
                     if (data && data.success) {
-                        LogUtils_logHHAuto(`Successfully equip girl ${girlId}`);
+                        logHHAuto(`Successfully equip girl ${girlId}`);
                     }
                     else
-                        LogUtils_logHHAuto(`Failed to equip girl ${girlId}`);
+                        logHHAuto(`Failed to equip girl ${girlId}`);
                     index++;
                     if (index <= (girlIds.length - 1)) {
                         setTimeout(function () { equipGirl(girlIds[index]); }, randomInterval(800, 1000));
@@ -21233,34 +21257,34 @@ class TeamModule {
     static getSelectedGirlsId() {
         const selectedTeam = $('.team-slot-container.selected-team').attr('data-team-index');
         if (isNaN(Number(selectedTeam))) {
-            LogUtils_logHHAuto('Error: can\'t get selected team index, cancel action');
+            logHHAuto('Error: can\'t get selected team index, cancel action');
             return [];
         }
         const girlIds = [...unsafeWindow.teams_data[selectedTeam].girls_ids];
         if (girlIds.length != 7) {
-            LogUtils_logHHAuto('Error: can\'t get all team members, cancel action');
+            logHHAuto('Error: can\'t get all team members, cancel action');
             return [];
         }
-        LogUtils_logHHAuto('Selected team: ' + selectedTeam + ', Team members to equip: ' + girlIds.join(', '));
+        logHHAuto('Selected team: ' + selectedTeam + ', Team members to equip: ' + girlIds.join(', '));
         return girlIds;
     }
     static getSelectedGirls() {
         const selectedTeam = $('.team-slot-container.selected-team').attr('data-team-index');
         if (isNaN(Number(selectedTeam))) {
-            LogUtils_logHHAuto('Error: can\'t get selected team index, cancel action');
+            logHHAuto('Error: can\'t get selected team index, cancel action');
             return [];
         }
         const girls = [...unsafeWindow.teams_data[selectedTeam].girls];
         if (girls.length != 7) {
-            LogUtils_logHHAuto('Error: can\'t get all team members, cancel action');
+            logHHAuto('Error: can\'t get all team members, cancel action');
             return [];
         }
-        LogUtils_logHHAuto('Selected team: ' + selectedTeam + ', Team members to equip: ' + girls.map(girl => girl.girl.name).join(', '));
+        logHHAuto('Selected team: ' + selectedTeam + ', Team members to equip: ' + girls.map(girl => girl.girl.name).join(', '));
         return girls;
     }
     static assignTopTeam() {
         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-        LogUtils_logHHAuto("setting autoloop to false");
+        logHHAuto("setting autoloop to false");
         function selectFromHaremBest(i, best) {
             let girlToSelect = best ? i : i + 7;
             //console.log(i,girlToSelect,best);
@@ -21298,7 +21322,7 @@ class TeamModule {
             TeamModule.setTopTeamV2(sumFormulaType, availableGirls);
         }
         else {
-            LogUtils_logHHAuto('availableGirls not found, falling back to legacy team selection');
+            logHHAuto('availableGirls not found, falling back to legacy team selection');
             TeamModule.setTopTeamLegacy(sumFormulaType);
         }
     }
@@ -21338,7 +21362,7 @@ class TeamModule {
         const resultMode2 = TeamBuilderService.buildTeam(girls, 2, playerLevel, playerClass);
         const result = mode === 1 ? resultMode1 : resultMode2;
         if (!result) {
-            LogUtils_logHHAuto('Not enough girls for team selection v2 (mode ' + mode + '), falling back to legacy');
+            logHHAuto('Not enough girls for team selection v2 (mode ' + mode + '), falling back to legacy');
             TeamModule.setTopTeamLegacy(mode);
             return;
         }
@@ -21388,7 +21412,7 @@ class TeamModule {
             ? `ProjSum=${result.projectedSum.toLocaleString()}, MainSum=${result.mainSum.toLocaleString()}`
             : `MainSum=${result.mainSum.toLocaleString()}, ProjSum=${result.projectedSum.toLocaleString()}`;
         const fbStr = result.poolUsed === 'fallback' ? `, FALLBACK=${result.fallbackReason || 'short pool'}` : '';
-        LogUtils_logHHAuto(`Team v2 [${modeName}]: Class=${playerClassNameLog} (${mainCaracLabel}), Pool=${result.poolUsed}, ${sumLabel}, Tier3=${(result.tier3Bonus * 100).toFixed(1)}%, Leader=${result.girls[0].name} (${result.leaderTier5.name}, ${result.girls[0].rarity}, ${inClusterStr})${leaderReasonStr}, Trait: ${result.traitCategory}=${result.traitValue} (${result.traitMatchCount}/${result.girls.length}), Elements: ${distStr}, ${psStr}, Blessings: ${blessStr}${fbStr}${identStr}`);
+        logHHAuto(`Team v2 [${modeName}]: Class=${playerClassNameLog} (${mainCaracLabel}), Pool=${result.poolUsed}, ${sumLabel}, Tier3=${(result.tier3Bonus * 100).toFixed(1)}%, Leader=${result.girls[0].name} (${result.leaderTier5.name}, ${result.girls[0].rarity}, ${inClusterStr})${leaderReasonStr}, Trait: ${result.traitCategory}=${result.traitValue} (${result.traitMatchCount}/${result.girls.length}), Elements: ${distStr}, ${psStr}, Blessings: ${blessStr}${fbStr}${identStr}`);
         // Per-slot detail line for diagnosis: tells the issue reporter
         // exactly which 7 girls were picked, with level/awakening/grades/score
         // and any active blessing percent. Cross-checks against the game UI
@@ -21401,7 +21425,7 @@ class TeamModule {
                 const cl = s.inCluster ? '*' : '';
                 return `[${i + 1}${cl}] ${s.name} (${s.rarity}/${s.element} lvl${s.level} aw${(_a = s.awakening_level) !== null && _a !== void 0 ? _a : '?'} ${s.graded}/${s.nb_grades}${tvStr}${blStr} score=${Math.round(s.score)})`;
             }).join(' | ');
-            LogUtils_logHHAuto(`Team v2 [${modeName}] slots: ${slotsStr}`);
+            logHHAuto(`Team v2 [${modeName}] slots: ${slotsStr}`);
         }
         // UI update: same approach as legacy — hide non-selected, show + number selected
         TeamModule.updateTeamUI(deckID, result);
@@ -21422,7 +21446,7 @@ class TeamModule {
             let gID = Number($(arr[i]).attr('id_girl'));
             const tooltipData = $('.girl_img', $(arr[i])).attr(ConfigHelper.getHHScriptVars('girlToolTipData')) || '';
             if (tooltipData == '') {
-                LogUtils_logHHAuto('ERROR, no girl information found');
+                logHHAuto('ERROR, no girl information found');
                 return;
             }
             let obj = JSON.parse(tooltipData);
@@ -21478,7 +21502,7 @@ class TeamModule {
             TeamModule.ensureAssignTopTeamButton();
         }
         catch (err) {
-            LogUtils_logHHAuto('Failed to render AssignTopTeam button: ' + err);
+            logHHAuto('Failed to render AssignTopTeam button: ' + err);
         }
         for (let i = arr.length - 1; i > -1; i--) {
             const gID = Number($(arr[i]).attr('id_girl'));
@@ -21530,7 +21554,7 @@ class TeamModule {
             TeamModule.renderTeamInfoPanel(teamResult);
         }
         catch (err) {
-            LogUtils_logHHAuto('Failed to render team info panel: ' + err);
+            logHHAuto('Failed to render team info panel: ' + err);
         }
     }
     /**
@@ -21687,7 +21711,7 @@ TeamModule.PLAYER_CLASS_NAME = {
  */
 TeamModule.lastMainSum = {};
 
-;// CONCATENATED MODULE: ./src/Service/AdsService.ts
+;// ./src/Service/AdsService.ts
 // AdsService.ts
 //
 // Manages in-game advertisements that can interfere with automation.
@@ -21699,12 +21723,95 @@ TeamModule.lastMainSum = {};
 // Also detects cross-game promo popups and sex-friends ads that use
 // a different DOM structure than regular ads.
 //
-// Used by: StartService (on page load)
+// Reward-ad automation (issue #1746): the Home page shows one or more
+// cross-promo reward ads, each a `<button>` whose onclick calls
+// `shared.hh_crosspromo.redirectToCrosspromo(id, url, 1, 1)` and whose text
+// is "Try it now". runAdCycle() (master switch autoAdsClick, off by default)
+// handles the ads one per tick: it clicks a button, closes the ad tab it opens
+// and then confirms the reward with the game's OK button
+// (`button[confirm_blue_button]`), before moving on to the next ad shortly
+// after. The tab is closed via the handle returned by a temporarily wrapped
+// `unsafeWindow.open` -- a window a script opened may be closed again by its
+// opener, cross-origin notwithstanding. An ad already handled this page session
+// is never clicked again (its button can linger until the page reloads). Every
+// failure path (popup blocker, missing confirm button, no ad present) logs and
+// arms a cooldown timer instead of retrying in a tight loop.
+//
+// Used by: StartService (on page load), Pipeline.config (handleKobanAds)
+var AdsService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
 
 
+
+
+// Cooldown windows (seconds). Never a tight retry loop (issue #1746 acceptance).
+// DONE: nothing left to do (all ads handled / none present) -- rest a while.
+// NEXT: more ads to handle, or an OK button expected shortly -- come back soon.
+// BLOCKED: a popup blocker stopped the ad tab -- back off, retrying won't help.
+const AD_COOLDOWN_DONE = [15 * 60, 20 * 60];
+const AD_COOLDOWN_NEXT = [60, 3 * 60];
+const AD_COOLDOWN_BLOCKED = [20 * 60, 30 * 60];
+// The reward-ad "Try it now" button is identified by its onclick calling the
+// game's cross-promo redirect. Matching the handler (not a wrapper class or the
+// localized button text) keeps the selector stable across layout/locale changes
+// and never matches the OK confirm button (which has no such onclick).
+const AD_BUTTON_SELECTOR = 'button[onclick*="redirectToCrosspromo"]';
+// The reward is confirmed back in the game tab with the OK button, marked by
+// the `confirm_blue_button` attribute (locale-independent, unlike its text).
+const AD_CONFIRM_SELECTOR = 'button[confirm_blue_button]';
+/** Stable key for one ad button (its onclick carries the cross-promo id + url). */
+function adKey(btn) {
+    return btn.getAttribute("onclick") || btn.outerHTML;
+}
+/**
+ * Temporarily wrap `win.open`, run `clickFn` (which is expected to trigger the
+ * ad's own synchronous `window.open`) and return the captured window handle.
+ * The original `open` is ALWAYS restored (try/finally), even if `clickFn`
+ * throws, so no other window.open user is affected. Pure/host-agnostic so it
+ * can be unit-tested with a mock opener.
+ */
+function captureOpenedWindow(win, clickFn) {
+    let handle = null;
+    const original = win.open;
+    win.open = function (...args) {
+        const w = original.apply(win, args);
+        handle = w;
+        return w;
+    };
+    try {
+        clickFn();
+    }
+    finally {
+        win.open = original;
+    }
+    return handle;
+}
+/**
+ * Find every reward-ad "Try it now" button currently on the page. Exported for
+ * testing.
+ */
+function findAdButtons() {
+    return Array.from(document.querySelectorAll(AD_BUTTON_SELECTOR));
+}
+/**
+ * Find the game's reward-confirm ("OK") button, or null. Exported for testing.
+ */
+function findConfirmButton() {
+    return document.querySelector(AD_CONFIRM_SELECTOR);
+}
+function adsDelay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 class AdsService {
     static closeHomeAds() {
         if ($('#ad_home close:visible').length) {
@@ -21743,9 +21850,114 @@ class AdsService {
             }
         }
     }
+    /** True when the reward-ad automation master switch is enabled. */
+    static isAdClickActivated() {
+        return getStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick) === "true";
+    }
+    /** Ad buttons not yet handled this page session. Exported via the class for testing. */
+    static findUnhandledAdButtons() {
+        return findAdButtons().filter(b => !AdsService.handledAdKeys.has(adKey(b)));
+    }
+    /**
+     * Poll for the reward-confirm ("OK") button up to `timeoutMs`. Resolves with
+     * the button once it appears, or null on timeout (never loops forever). The
+     * OK button can show up a few seconds after the ad tab closes, so the wait
+     * is generous.
+     */
+    static waitForConfirmButton() {
+        return AdsService_awaiter(this, arguments, void 0, function* (timeoutMs = 15000, pollMs = 500) {
+            const deadline = Date.now() + timeoutMs;
+            for (;;) {
+                const btn = findConfirmButton();
+                if (btn)
+                    return btn;
+                if (Date.now() >= deadline)
+                    return null;
+                yield adsDelay(pollMs);
+            }
+        });
+    }
+    /**
+     * One reward-ad step on the Home page (issue #1746). Handles a single ad per
+     * call and comes back soon (NEXT cooldown) while more remain, so all ads are
+     * drained over a few ticks rather than one every 15-20 min:
+     *   1. If an OK confirm button is already present (from a previous step),
+     *      click it and come back soon (more ads may follow).
+     *   2. Otherwise pick the first not-yet-handled "Try it now" button.
+     *   3. Wrap unsafeWindow.open, click it, capture the ad-tab handle. No handle
+     *      (popup blocker) -> log + long back-off, no retry.
+     *   4. Mark the ad handled (so its lingering button is never re-clicked),
+     *      wait 3-5 s, close the handle.
+     *   5. Wait (up to 15 s) for the OK button and click it.
+     *   6. Arm NEXT when more ads remain or the OK has not shown yet, else DONE.
+     *
+     * Every exit path arms `nextAdsTime`, so the caller's precondition
+     * (checkTimer) rate-limits re-entry -- there is no unbounded retry loop.
+     * Returns true when an action was taken (drives the pipeline slot-hold).
+     */
+    static runAdCycle() {
+        return AdsService_awaiter(this, void 0, void 0, function* () {
+            if (!AdsService.isAdClickActivated())
+                return false;
+            // Confirm a reward left over from an earlier (possibly interrupted) step.
+            const pending = findConfirmButton();
+            if (pending) {
+                logHHAuto("Ads: confirming pending reward (OK).");
+                pending.click();
+                setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_NEXT));
+                return true;
+            }
+            const buttons = AdsService.findUnhandledAdButtons();
+            if (buttons.length === 0) {
+                logHHAuto("Ads: no new reward ad to click.");
+                setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_DONE));
+                return false;
+            }
+            const target = buttons[0];
+            logHHAuto("Ads: clicking reward ad ('Try it now'). " + (buttons.length - 1) + " more waiting.");
+            const handle = captureOpenedWindow(unsafeWindow, () => {
+                target.click();
+            });
+            if (!handle) {
+                // Popup blocker (or the ad did not open synchronously): do NOT retry
+                // in a loop -- log and back off. Not marked handled (nothing opened).
+                logHHAuto("Ads: no ad-tab handle captured (popup blocker?). Backing off.");
+                setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_BLOCKED));
+                return false;
+            }
+            // Watched: never click this ad again this session, even if its button
+            // lingers after the reward is claimed.
+            AdsService.handledAdKeys.add(adKey(target));
+            yield adsDelay(randomInterval(3000, 5000));
+            try {
+                handle.close();
+            }
+            catch (err) {
+                logHHAuto("Ads: could not close ad tab: " + String(err));
+            }
+            const confirmBtn = yield AdsService.waitForConfirmButton();
+            if (confirmBtn) {
+                logHHAuto("Ads: reward available, confirming (OK).");
+                confirmBtn.click();
+            }
+            else {
+                logHHAuto("Ads: reward confirm (OK) not visible yet, will retry shortly.");
+            }
+            // Come back soon if more ads remain, or if the OK has not appeared yet
+            // (the pending-confirm check at the top of the next step will catch it).
+            const moreAds = AdsService.findUnhandledAdButtons().length > 0;
+            const cooldown = (confirmBtn && !moreAds) ? AD_COOLDOWN_DONE : AD_COOLDOWN_NEXT;
+            setTimer("nextAdsTime", randomInterval(...cooldown));
+            return true;
+        });
+    }
 }
+// Ads clicked during this page session, keyed by adKey(). Prevents
+// re-clicking an ad whose button lingers after it has been watched (the
+// set is cleared naturally when the page reloads and the script re-inits).
+AdsService.handledAdKeys = new Set();
 
-;// CONCATENATED MODULE: ./src/Service/AutoLoopPageHandlers.ts
+;// ./src/Service/AutoLoopPageHandlers.ts
 // AutoLoopPageHandlers.ts
 //
 // Handles page-specific UI enhancements that run on every loop
@@ -22054,7 +22266,7 @@ function handlePageSpecific(ctx) {
     });
 }
 
-;// CONCATENATED MODULE: ./src/Service/AutoLoop.ts
+;// ./src/Service/AutoLoop.ts
 var AutoLoop_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -22155,19 +22367,19 @@ function CheckSpentPoints() {
         }
         setStoredValue(HHStoredVarPrefixKey + TK.CheckSpentPoints, JSON.stringify(newValues));
         if (ConfigHelper.getHHScriptVars('isEnabledLeagues', false) && newValues['challenge'] > (oldValues['challenge'] + 1)) {
-            LogUtils_logHHAuto("Seems league point bought, resetting timer.");
+            logHHAuto("Seems league point bought, resetting timer.");
             clearTimer('nextLeaguesTime');
         }
         if (ConfigHelper.getHHScriptVars('isEnabledSeason', false) && newValues['kiss'] > (oldValues['kiss'] + 1)) {
-            LogUtils_logHHAuto("Seems season point bought, resetting timer.");
+            logHHAuto("Seems season point bought, resetting timer.");
             clearTimer('nextSeasonTime');
         }
         if (ConfigHelper.getHHScriptVars('isEnabledPantheon', false) && newValues['worship'] > (oldValues['worship'] + 1)) {
-            LogUtils_logHHAuto("Seems Pantheon point bought, resetting timer.");
+            logHHAuto("Seems Pantheon point bought, resetting timer.");
             clearTimer('nextPantheonTime');
         }
         if (ConfigHelper.getHHScriptVars('isEnabledPentaDrill', false) && newValues['drill'] > (oldValues['drill'] + 1)) {
-            LogUtils_logHHAuto("Seems Penta Drill point bought, resetting timer.");
+            logHHAuto("Seems Penta Drill point bought, resetting timer.");
             clearTimer('nextPentaDrillTime');
         }
     }
@@ -22216,7 +22428,7 @@ function autoLoop() {
         const userPaused = isUserPauseActive();
         if (burst && userPaused && Date.now() - lastMousePauseLog >= 2000) {
             lastMousePauseLog = Date.now();
-            LogUtils_logHHAuto("Mouse pause active, holding automation.");
+            logHHAuto("Mouse pause active, holding automation.");
         }
         if (burst && !userPaused /*|| checkTimer('nextMissionTime')*/) {
             if (!checkTimer("paranoiaSwitch")) {
@@ -22240,7 +22452,7 @@ function autoLoop() {
             // (issue #1598 follow-up: an earlier patch gated the whole
             // autoLoop tick and starved the menu UI).
             if (isPostInFlight()) {
-                LogUtils_logHHAuto('AutoLoop: POST in flight, deferring action handlers this tick');
+                logHHAuto('AutoLoop: POST in flight, deferring action handlers this tick');
             }
             else {
                 // --- Action Handlers (executed in order, each checks ctx.busy) ---
@@ -22280,23 +22492,23 @@ function autoLoop() {
             // logHHAuto("no action performed in this loop, rest lastActionPerformed");
         }
         if (ctx.lastActionPerformed !== getStoredValue(HHStoredVarPrefixKey + TK.lastActionPerformed)) {
-            LogUtils_logHHAuto("lastActionPerformed changed to " + ctx.lastActionPerformed);
+            logHHAuto("lastActionPerformed changed to " + ctx.lastActionPerformed);
         }
         setStoredValue(HHStoredVarPrefixKey + TK.lastActionPerformed, ctx.lastActionPerformed);
         if (isNaN(getStoredValue(HHStoredVarPrefixKey + TK.autoLoopTimeMili))) {
-            LogUtils_logHHAuto("AutoLoopTimeMili is not a number.");
+            logHHAuto("AutoLoopTimeMili is not a number.");
             StartService_setDefaults(true);
         }
         else if (isAutoLoopActive()) {
             setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + TK.autoLoopTimeMili)));
         }
         else {
-            LogUtils_logHHAuto("autoLoop Disabled");
+            logHHAuto("autoLoop Disabled");
         }
     });
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/DoublePenetration.ts
+;// ./src/Module/Events/DoublePenetration.ts
 // DoublePenetration.ts -- Double Penetration event: fight tracking and rewards.
 //
 // Double Penetration is a time-limited competitive event with its own fight
@@ -22352,8 +22564,8 @@ class DoublePenetration {
             const dPPaidSlotQuery = ".paid-slot .slot,.paid-slot .slot_girl_shards";
             const isPassPaid = $("#nc-poa-tape-blocker button.unlock-poa-bonus-rewards:visible").length <= 0;
             if (needToCollect || needToCollectAll || manualCollectAll) {
-                LogUtils_logHHAuto("Checking double penetration event for collectable rewards.");
-                LogUtils_logHHAuto("setting autoloop to false");
+                logHHAuto("Checking double penetration event for collectable rewards.");
+                logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 let buttonsToCollect = [];
                 const listDpEventTiersToClaim = $(dPTierQuery);
@@ -22362,11 +22574,11 @@ class DoublePenetration {
                     const currentTierNb = currentButton.getAttribute("tier");
                     //console.log("checking tier : "+currentTierNb);
                     if (needToCollectAll) {
-                        LogUtils_logHHAuto("Adding for collection tier before end of event: " + currentTierNb);
+                        logHHAuto("Adding for collection tier before end of event: " + currentTierNb);
                         buttonsToCollect.push(currentButton);
                     }
                     else if (manualCollectAll) {
-                        LogUtils_logHHAuto("Adding for collection tier from manual collect all: " + currentTierNb);
+                        logHHAuto("Adding for collection tier from manual collect all: " + currentTierNb);
                         buttonsToCollect.push(currentButton);
                     }
                     else {
@@ -22377,15 +22589,15 @@ class DoublePenetration {
                                 const paidSlotType = RewardHelper.getRewardTypeBySlot($(dPPaidSlotQuery, listDpEventTiersToClaim[currentTier])[0]);
                                 if (rewardsToCollect.includes(paidSlotType)) {
                                     buttonsToCollect.push(currentButton);
-                                    LogUtils_logHHAuto("Adding for collection tier (free + paid) : " + currentTierNb);
+                                    logHHAuto("Adding for collection tier (free + paid) : " + currentTierNb);
                                 }
                                 else {
-                                    LogUtils_logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
+                                    logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
                                 }
                             }
                             else {
                                 buttonsToCollect.push(currentButton);
-                                LogUtils_logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
+                                logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
                             }
                         }
                     }
@@ -22393,14 +22605,14 @@ class DoublePenetration {
                 if (buttonsToCollect.length > 0) {
                     function collectDpEventRewards() {
                         if (buttonsToCollect.length > 0) {
-                            LogUtils_logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
+                            logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
                             setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(300, 500));
                             setTimeout(collectDpEventRewards, randomInterval(500, 800));
                         }
                         else {
-                            LogUtils_logHHAuto("Double penetration collection finished.");
+                            logHHAuto("Double penetration collection finished.");
                             setTimer('nextDpEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                             //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                             setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
@@ -22411,7 +22623,7 @@ class DoublePenetration {
                     return true;
                 }
                 else {
-                    LogUtils_logHHAuto("No double penetration reward to collect.");
+                    logHHAuto("No double penetration reward to collect.");
                     setTimer('nextDpEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
                     //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
@@ -22423,13 +22635,13 @@ class DoublePenetration {
         }
         catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            LogUtils_logHHAuto(`ERROR during collect DP rewards: ${message}`);
+            logHHAuto(`ERROR during collect DP rewards: ${message}`);
         }
         return false;
     }
     static run() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab=" + ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'))) {
-            LogUtils_logHHAuto("On Double penetration event.");
+            logHHAuto("On Double penetration event.");
             if (getStoredValue(HHStoredVarPrefixKey + SK.showClubButtonInPoa) === "true" && ConfigHelper.getHHScriptVars("isEnabledClubChamp", false)) {
                 GM_addStyle('#dp-content .left-container .objectives-container .hard-objective .nc-sub-panel div.buttons .redirect-buttons {flex-direction: column;}');
                 if ($(".hard-objective .hh-club-poa").length <= 0) {
@@ -22461,7 +22673,7 @@ class DoublePenetration {
         }
         catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            LogUtils_logHHAuto(`ERROR in display DP rewards: ${message}`);
+            logHHAuto(`ERROR in display DP rewards: ${message}`);
         }
     }
     static getNotClaimedRewards() {
@@ -22487,7 +22699,7 @@ class DoublePenetration {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/KinkyCumpetition.ts
+;// ./src/Module/Events/KinkyCumpetition.ts
 // KinkyCumpetition.ts -- Kinky Cumpetition event handling.
 //
 // Kinky Cumpetition is a periodic competitive event. This module parses event
@@ -22525,7 +22737,7 @@ class KinkyCumpetition {
     }
 }
 
-;// CONCATENATED MODULE: ./src/model/EventGirl.ts
+;// ./src/model/EventGirl.ts
 // Model representing a girl obtainable during an in-game event.
 // Wraps the raw KKEventGirl API data and extracts the girl ID, troll/champion
 // association, shard count, event timing, and mythic status.
@@ -22577,7 +22789,7 @@ class EventGirl {
                     let parsedURL = new URL(girlData.source.anchor_source.url, window.location.origin);
                     this.troll_id = Number(queryStringGetParam(parsedURL.search, 'id_opponent'));
                     if (girlData.source.anchor_source.disabled) {
-                        LogUtils_logHHAuto(`Troll ${this.troll_id} is not available for ${this.is_mythic ? 'mythic ' : ''}girl ${this.name} (${this.girl_id}) ignoring`);
+                        logHHAuto(`Troll ${this.troll_id} is not available for ${this.is_mythic ? 'mythic ' : ''}girl ${this.name} (${this.girl_id}) ignoring`);
                         this.troll_id = undefined;
                     }
                 }
@@ -22586,12 +22798,12 @@ class EventGirl {
                         let parsedURL = new URL(girlData.source.anchor_win_from[0].url, window.location.origin);
                         this.troll_id = Number(queryStringGetParam(parsedURL.search, 'id_opponent'));
                         if (girlData.source.anchor_win_from.disabled) {
-                            LogUtils_logHHAuto(`Troll ${this.troll_id} is not available for ${this.is_mythic ? 'mythic ' : ''}girl ${this.name} (${this.girl_id}) ignoring`);
+                            logHHAuto(`Troll ${this.troll_id} is not available for ${this.is_mythic ? 'mythic ' : ''}girl ${this.name} (${this.girl_id}) ignoring`);
                             this.troll_id = undefined;
                         }
                     }
                     catch (error) {
-                        LogUtils_logHHAuto(`Can't get troll from girl ${this.name} (${this.girl_id})`);
+                        logHHAuto(`Can't get troll from girl ${this.name} (${this.girl_id})`);
                     }
                 }
             }
@@ -22599,7 +22811,7 @@ class EventGirl {
                 try {
                     this.champ_id = Number(girlData.source.anchor_source.url.split('/champions/')[1]);
                     if (girlData.source.anchor_source.disabled) {
-                        LogUtils_logHHAuto(`Champion ${this.champ_id} is not available for ${this.is_mythic ? 'mythic ' : ''}girl ${this.name} (${this.girl_id}) ignoring`);
+                        logHHAuto(`Champion ${this.champ_id} is not available for ${this.is_mythic ? 'mythic ' : ''}girl ${this.name} (${this.girl_id}) ignoring`);
                         this.champ_id = undefined;
                     }
                 }
@@ -22607,12 +22819,12 @@ class EventGirl {
                     try {
                         this.champ_id = Number(girlData.source.anchor_win_from[0].url.split('/champions/')[1]);
                         if (girlData.source.anchor_win_from.disabled) {
-                            LogUtils_logHHAuto(`Champion ${this.champ_id} is not available for ${this.is_mythic ? 'mythic ' : ''}girl ${this.name} (${this.girl_id}) ignoring`);
+                            logHHAuto(`Champion ${this.champ_id} is not available for ${this.is_mythic ? 'mythic ' : ''}girl ${this.name} (${this.girl_id}) ignoring`);
                             this.champ_id = undefined;
                         }
                     }
                     catch (error) {
-                        LogUtils_logHHAuto(`Can't get champion from girl ${this.name} (${this.girl_id})`);
+                        logHHAuto(`Can't get champion from girl ${this.name} (${this.girl_id})`);
                     }
                 }
             }
@@ -22623,13 +22835,13 @@ class EventGirl {
                 // pachinko event girl
             }
             else {
-                LogUtils_logHHAuto(`Other source found ${girlData.source.name}`);
+                logHHAuto(`Other source found ${girlData.source.name}`);
             }
         }
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/MythicEvent.ts
+;// ./src/Module/Events/MythicEvent.ts
 // MythicEvent.ts -- Mythic event: wave tracking and troll fight coordination.
 //
 // Mythic events feature special troll bosses with wave-based progression and
@@ -22685,7 +22897,7 @@ class MythicEvent {
                     const eventGirl = new EventGirl(girlData, eventID, eventList[eventID]["seconds_before_end"], true);
                     if (remShards !== 0) {
                         if (eventGirl.isOnTroll()) {
-                            LogUtils_logHHAuto(`Event girl : ${eventGirl.toString()} with priority : ${Priority.indexOf('' + eventGirl.troll_id)}`, eventGirl);
+                            logHHAuto(`Event girl : ${eventGirl.toString()} with priority : ${Priority.indexOf('' + eventGirl.troll_id)}`, eventGirl);
                             eventsGirlz.push(eventGirl);
                         }
                     }
@@ -22705,7 +22917,7 @@ class MythicEvent {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/PlusEvents.ts
+;// ./src/Module/Events/PlusEvents.ts
 // PlusEvents.ts -- Plus Events: parsing and display for event overlay info.
 //
 // Plus Events are a category of events that overlay additional information
@@ -22748,11 +22960,11 @@ class PlusEvent {
                 eventList[eventID]["isCompleted"] = false;
                 const eventGirl = new EventGirl(girlData, eventID, eventList[eventID]["seconds_before_end"]);
                 if (eventGirl.isOnTroll()) {
-                    LogUtils_logHHAuto(`Event girl : ${eventGirl.toString()} with priority : ${Priority.indexOf('' + eventGirl.troll_id)}`, eventGirl);
+                    logHHAuto(`Event girl : ${eventGirl.toString()} with priority : ${Priority.indexOf('' + eventGirl.troll_id)}`, eventGirl);
                     eventsGirlz.push(eventGirl);
                 }
                 if (eventGirl.isOnChampion()) {
-                    LogUtils_logHHAuto(`Event girl : ${eventGirl.toString()}`, eventGirl);
+                    logHHAuto(`Event girl : ${eventGirl.toString()}`, eventGirl);
                     eventChamps.push(eventGirl);
                 }
             }
@@ -22763,7 +22975,7 @@ class PlusEvent {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/SultryMysteries.ts
+;// ./src/Module/Events/SultryMysteries.ts
 // SultryMysteries.ts -- Sultry Mysteries event: shop refresh and auto-buying.
 //
 // Sultry Mysteries is a time-limited event featuring a special event shop.
@@ -22799,7 +23011,7 @@ class SultryMysteries {
         eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
         eventList[eventID]["isCompleted"] = false;
         if (checkTimer("eventSultryMysteryShopRefresh")) {
-            LogUtils_logHHAuto("Refresh sultry mysteries shop content.");
+            logHHAuto("Refresh sultry mysteries shop content.");
             const shopButton = $('#shop_tab');
             const gridButton = $('#grid_tab');
             shopButton.trigger('click');
@@ -22813,7 +23025,7 @@ class SultryMysteries {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/EventModule.ts
+;// ./src/Module/Events/EventModule.ts
 var EventModule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -22946,7 +23158,7 @@ class EventModule {
     static getDisplayedIdEventPage(logging = true) {
         const eventHref = $("#contains_all #events .events-list .event-title.active").attr("href") || '';
         if (!eventHref && logging) {
-            LogUtils_logHHAuto('Error href not found for current event');
+            logHHAuto('Error href not found for current event');
         }
         if (eventHref) {
             const parsedURL = new URL(eventHref, window.location.origin);
@@ -22987,12 +23199,12 @@ class EventModule {
                 const eventID = EventModule.getDisplayedIdEventPage();
                 if (inTab !== "global" && inTab !== eventID) {
                     if (eventID === '') {
-                        LogUtils_logHHAuto("ERROR: No event Id found in current page, clear event data and go to home");
+                        logHHAuto("ERROR: No event Id found in current page, clear event data and go to home");
                         EventModule.clearEventData(inTab);
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     }
                     else {
-                        LogUtils_logHHAuto("Wrong event opened, need to change event page");
+                        logHHAuto("Wrong event opened, need to change event page");
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"), { tab: inTab });
                     }
                     return true;
@@ -23000,7 +23212,7 @@ class EventModule {
                 const hhEvent = EventModule.getEvent(eventID);
                 if (!hhEvent.eventTypeKnown) {
                     if (queryEventTabCheck.attr('parsed') === undefined) {
-                        LogUtils_logHHAuto("Not parsable event");
+                        logHHAuto("Not parsable event");
                         queryEventTabCheck[0].setAttribute('parsed', 'true');
                     }
                     return false;
@@ -23016,7 +23228,7 @@ class EventModule {
                 // functions have always received it as-is, so keep the historic
                 // non-optional type at the call sites (WART-001).
                 const hhEventData = (unsafeWindow.event_data || unsafeWindow.current_event);
-                LogUtils_logHHAuto(`On event page : ${eventID} (${(hhEventData === null || hhEventData === void 0 ? void 0 : hhEventData.event_name) || ''})`);
+                logHHAuto(`On event page : ${eventID} (${(hhEventData === null || hhEventData === void 0 ? void 0 : hhEventData.event_name) || ''})`);
                 EventModule.clearEventData(eventID);
                 //let eventsGirlz=[];
                 const eventList = getStoredJSON(HHStoredVarPrefixKey + TK.eventsList, {});
@@ -23024,42 +23236,42 @@ class EventModule {
                 const eventChamps = getStoredJSON(HHStoredVarPrefixKey + TK.autoChampsEventGirls, []);
                 const Priority = (getStoredValue(HHStoredVarPrefixKey + SK.eventTrollOrder) || '').split(";");
                 if ((hhEvent.isPlusEvent || hhEvent.isPlusEventMythic) && !hhEventData) {
-                    LogUtils_logHHAuto("Error getting current event Data from HH.");
+                    logHHAuto("Error getting current event Data from HH.");
                 }
                 if (hhEvent.isPlusEvent) {
-                    LogUtils_logHHAuto("On going event, parsing...");
+                    logHHAuto("On going event, parsing...");
                     PlusEvent.parse(hhEvent, eventList, hhEventData, eventsGirlz, eventChamps);
                 }
                 if (hhEvent.isPlusEventMythic) {
-                    LogUtils_logHHAuto("On going mythic event, parsing...");
+                    logHHAuto("On going mythic event, parsing...");
                     MythicEvent.parse(hhEvent, eventList, hhEventData, eventsGirlz, eventChamps);
                 }
                 if (hhEvent.isBossBangEvent) {
-                    LogUtils_logHHAuto("On going bossBang event, parsing...");
+                    logHHAuto("On going bossBang event, parsing...");
                     BossBang.parse(hhEvent, eventList, hhEventData);
                 }
                 if (hhEvent.isSultryMysteriesEvent) {
-                    LogUtils_logHHAuto("On going sultry mysteries event.");
+                    logHHAuto("On going sultry mysteries event.");
                     SultryMysteries.parse(hhEvent, eventList, hhEventData);
                 }
                 if (hhEvent.isLivelyScene) {
-                    LogUtils_logHHAuto("On going lively scene event.");
+                    logHHAuto("On going lively scene event.");
                     LivelyScene.parse(hhEvent, eventList, hhEventData);
                 }
                 if (hhEvent.isDPEvent) {
-                    LogUtils_logHHAuto("On going double penetration event.");
+                    logHHAuto("On going double penetration event.");
                     DoublePenetration.parse(hhEvent, eventList, hhEventData);
                 }
                 if (hhEvent.isPoa) {
-                    LogUtils_logHHAuto("On going path of Attraction event.");
+                    logHHAuto("On going path of Attraction event.");
                     PathOfAttraction.parse(hhEvent, eventList, hhEventData);
                 }
                 if (hhEvent.isCumback) {
-                    LogUtils_logHHAuto("On going cumback contest event.");
+                    logHHAuto("On going cumback contest event.");
                     CumbackContests.parse(hhEvent, eventList, hhEventData);
                 }
                 if (hhEvent.isKinky) {
-                    LogUtils_logHHAuto("On going kinky cumpetition event.");
+                    logHHAuto("On going kinky cumpetition event.");
                     KinkyCumpetition.parse(hhEvent, eventList, hhEventData);
                 }
                 if (Object.keys(eventList).length > 0) {
@@ -23130,7 +23342,7 @@ class EventModule {
                         const ev = evList[inTab];
                         const end = Number(ev === null || ev === void 0 ? void 0 : ev.seconds_before_end);
                         if (Number.isFinite(end) && end <= Date.now()) {
-                            LogUtils_logHHAuto(`Skipping navigation to expired event ${inTab}, dropping stale registry entry.`);
+                            logHHAuto(`Skipping navigation to expired event ${inTab}, dropping stale registry entry.`);
                             EventModule.clearEventData(inTab);
                             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                             return true;
@@ -23148,7 +23360,7 @@ class EventModule {
     }
     static saveEventGirl(eventGirlz) {
         var chosenTroll = Number(eventGirlz.troll_id);
-        LogUtils_logHHAuto("ET: " + chosenTroll);
+        logHHAuto("ET: " + chosenTroll);
         if (!eventGirlz.is_mythic) {
             setStoredValue(HHStoredVarPrefixKey + TK.eventGirl, JSON.stringify(eventGirlz));
         }
@@ -23411,7 +23623,7 @@ class EventModule {
         if (getStoredValue(HHStoredVarPrefixKey + SK.collectEventChest) === "true") {
             const eventChestId = "#extra-rewards-claim-btn:not([disabled])";
             if ($(eventChestId).length > 0) {
-                LogUtils_logHHAuto("Collect event chest");
+                logHHAuto("Collect event chest");
                 $(eventChestId).click();
             }
         }
@@ -23441,7 +23653,7 @@ class EventModule {
                 eventId = queryStringGetParam(parsedURL.search, 'tab') || '';
                 const eventName = $(queryResults[index]).children().first().text();
                 if (!eventName || eventName === '') {
-                    LogUtils_logHHAuto(`Error: No name displayed for event ${eventId}, ignoring it.`);
+                    logHHAuto(`Error: No name displayed for event ${eventId}, ignoring it.`);
                     continue;
                 }
                 if (eventId !== '' && EventModule.checkEvent(eventId)) {
@@ -23483,18 +23695,18 @@ class EventModule {
             }
             parseForEventId(dpEventQuery, eventIDs);
             if (getStoredValue(HHStoredVarPrefixKey + SK.autodpEventCollect) === "true" && $(dpEventQuery).length === 0) {
-                LogUtils_logHHAuto("No double penetration event found, deactivate collect.");
+                logHHAuto("No double penetration event found, deactivate collect.");
                 setStoredValue(HHStoredVarPrefixKey + SK.autodpEventCollect, "false");
             }
             // LivelyScene
             parseForEventId(livelySceneEventQuery, eventIDs);
             if (getStoredValue(HHStoredVarPrefixKey + SK.autoLivelySceneEventCollect) === "true" && $(livelySceneEventQuery).length === 0) {
-                LogUtils_logHHAuto("No Lively Scene event found, deactivate collect.");
+                logHHAuto("No Lively Scene event found, deactivate collect.");
                 setStoredValue(HHStoredVarPrefixKey + SK.autoLivelySceneEventCollect, "false");
             }
             const queryResults = $(seasonalEventQuery);
             if ((getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonalEventCollect) === "true" || getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonalEventCollectAll) === "true") && queryResults.length === 0) {
-                LogUtils_logHHAuto("No seasonal event found, deactivate collect.");
+                logHHAuto("No seasonal event found, deactivate collect.");
                 setStoredValue(HHStoredVarPrefixKey + SK.autoSeasonalEventCollect, "false");
                 setStoredValue(HHStoredVarPrefixKey + SK.autoSeasonalEventCollectAll, "false");
             }
@@ -23520,7 +23732,7 @@ class EventModule {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/RewardHelper.ts
+;// ./src/Helper/RewardHelper.ts
 // RewardHelper.ts
 //
 // Detects, classifies, and renders in-game reward slots. The game
@@ -23648,7 +23860,7 @@ class RewardHelper {
             case 'mythic': return 1;
             case 'avatar': return 1;
             default:
-                LogUtils_logHHAuto('Error: reward type unknown ' + rewardType);
+                logHHAuto('Error: reward type unknown ' + rewardType);
                 return 0;
         }
     }
@@ -23791,7 +24003,7 @@ class RewardHelper {
             }
         }
         catch (err) {
-            LogUtils_logHHAuto("ERROR:", err.message);
+            logHHAuto("ERROR:", err.message);
             target.append(emptyRewardDiv);
         }
     }
@@ -23807,11 +24019,11 @@ class RewardHelper {
         let rewardQuery = `div#${popupId != '' ? popupId : 'rewards_popup'} button.blue_button_L:not([disabled]):visible`;
         if ($(rewardQuery).length > 0) {
             if ($(rewardQuery).attr('id') === 'redirect-to-harem') {
-                LogUtils_logHHAuto("Redirect to harem button detected.");
+                logHHAuto("Redirect to harem button detected.");
                 return RewardHelper.closeGirlRewardPopupIfAny(logging, popupId);
             }
             if (logging)
-                LogUtils_logHHAuto(`Close reward popup ${popupId != '' ? popupId : 'rewards_popup'}.`);
+                logHHAuto(`Close reward popup ${popupId != '' ? popupId : 'rewards_popup'}.`);
             $(rewardQuery).trigger('click');
             return true;
         }
@@ -23821,7 +24033,7 @@ class RewardHelper {
         let rewardQuery = `div#${popupId != '' ? popupId : 'rewards_popup'} button.purple_button_L:not([disabled]):visible`;
         if ($(rewardQuery).length > 0) {
             if (logging)
-                LogUtils_logHHAuto(`Close girl reward popup ${popupId != '' ? popupId : 'rewards_popup'}.`);
+                logHHAuto(`Close girl reward popup ${popupId != '' ? popupId : 'rewards_popup'}.`);
             $(rewardQuery).trigger('click');
             return true;
         }
@@ -23841,13 +24053,13 @@ class RewardHelper {
             const loveRaid = LoveRaidManager.getAllRaids();
             const foughtTrollFromLoveRaid = loveRaid.find(raid => raid.trollId === foughtTrollId);
             if (eventMythicGirl.troll_id && foughtTrollId != eventMythicGirl.troll_id && eventGirl.troll_id && foughtTrollId != eventGirl.troll_id && !foughtTrollFromLoveRaid) {
-                LogUtils_logHHAuto(`Troll from mythic event (${eventMythicGirl.troll_id}) or from event (${eventGirl.troll_id}) or from LoveRaid not fought, was (${foughtTrollId}) instead.
+                logHHAuto(`Troll from mythic event (${eventMythicGirl.troll_id}) or from event (${eventGirl.troll_id}) or from LoveRaid not fought, was (${foughtTrollId}) instead.
                 Can be issue in event variable (mythic event finished: ${EventModule.isEventActive(eventMythicGirl.event_id)},  event finished: ${EventModule.isEventActive(eventGirl.event_id)})`);
                 // TTF = foughtTrollId;
             }
             if ($('#rewards_popup #reward_holder .shards_wrapper').length === 0) {
                 clearTimeout(inCaseTimer);
-                LogUtils_logHHAuto("No girl in reward going back to Troll");
+                logHHAuto("No girl in reward going back to Troll");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"), { id_opponent: foughtTrollId });
                 return;
             }
@@ -23855,14 +24067,14 @@ class RewardHelper {
             let needLoveRaidUpdate = false;
             let loveRaidGirlWon = false;
             let girlShardsWon = $('.shards_wrapper .slot_girl_shards');
-            LogUtils_logHHAuto("Detected girl shard reward");
+            logHHAuto("Detected girl shard reward");
             for (var currGirl = 0; currGirl <= girlShardsWon.length; currGirl++) {
                 let girlIdSrc = $("img", girlShardsWon[currGirl]).attr("src") || '';
                 let girlId = Number(girlIdSrc.split('/')[5]);
                 const previousGirlShards = Math.min(Number($('.shards[shards]', girlShardsWon[currGirl]).attr('shards')), 100);
                 let wonShards = Number($('.shards[shards]', girlShardsWon[currGirl]).text().replace(/^\D+/g, ''));
                 if (!(wonShards > 0)) {
-                    LogUtils_logHHAuto('ERROR: Unable to gate number of shards won, default 1 shard.');
+                    logHHAuto('ERROR: Unable to gate number of shards won, default 1 shard.');
                     wonShards = 1;
                 }
                 const girlShards = Math.min(previousGirlShards + wonShards, 100);
@@ -23874,7 +24086,7 @@ class RewardHelper {
                             renewEvent = eventsGirlz[girlIndex].event_id;
                         }
                         if (wonShards > 0) {
-                            LogUtils_logHHAuto("Won " + wonShards + " event shards for " + eventsGirlz[girlIndex].name);
+                            logHHAuto("Won " + wonShards + " event shards for " + eventsGirlz[girlIndex].name);
                         }
                     }
                 }
@@ -23912,7 +24124,7 @@ class RewardHelper {
                 || (eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.girl_id) && EventModule.checkEvent(eventGirl.event_id)
                 || (eventMythicGirl === null || eventMythicGirl === void 0 ? void 0 : eventMythicGirl.girl_id) && EventModule.checkEvent(eventMythicGirl.event_id)) {
                 clearTimeout(inCaseTimer);
-                LogUtils_logHHAuto(`Need to check back event page: '${renewEvent}' or '${(_a = eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.event_id) !== null && _a !== void 0 ? _a : ''}' or '${(_b = eventMythicGirl === null || eventMythicGirl === void 0 ? void 0 : eventMythicGirl.event_id) !== null && _b !== void 0 ? _b : ''}' `);
+                logHHAuto(`Need to check back event page: '${renewEvent}' or '${(_a = eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.event_id) !== null && _a !== void 0 ? _a : ''}' or '${(_b = eventMythicGirl === null || eventMythicGirl === void 0 ? void 0 : eventMythicGirl.event_id) !== null && _b !== void 0 ? _b : ''}' `);
                 if (renewEvent !== "") {
                     EventModule.parseEventPage(renewEvent);
                 }
@@ -23926,13 +24138,13 @@ class RewardHelper {
             }
             else if (loveRaidGirlWon) {
                 clearTimeout(inCaseTimer);
-                LogUtils_logHHAuto("Parse again love Raid.");
+                logHHAuto("Parse again love Raid.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDLoveRaid"));
                 return;
             }
             else {
                 clearTimeout(inCaseTimer);
-                LogUtils_logHHAuto("Go back to troll after troll fight.");
+                logHHAuto("Go back to troll after troll fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"), { id_opponent: foughtTrollId });
                 return;
             }
@@ -23943,7 +24155,7 @@ class RewardHelper {
         if ($('#rewards_popup').length > 0) {
             if ($('#rewards_popup')[0].style.display !== "block" && $('#rewards_popup')[0].style.display !== "") {
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                LogUtils_logHHAuto("setting autoloop to false to wait for troll rewards");
+                logHHAuto("setting autoloop to false to wait for troll rewards");
                 observerReward.observe($('#rewards_popup')[0], {
                     childList: false,
                     subtree: false,
@@ -23966,7 +24178,7 @@ class RewardHelper {
                     //replaceCheatClick();
                     setTimeout(function () {
                         $(querySkip)[0].click();
-                        LogUtils_logHHAuto("Clicking on pass battle.");
+                        logHHAuto("Clicking on pass battle.");
                     }, randomInterval(800, 1200));
                 }
             });
@@ -23980,7 +24192,7 @@ class RewardHelper {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Troll.ts
+;// ./src/Module/Troll.ts
 var Troll_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -24092,7 +24304,7 @@ class Troll {
             id_world = Number(getHHVars('Hero.infos.questing.id_world'));
         }
         else if (id_world <= 0) {
-            LogUtils_logHHAuto(`id_world given ${id_world} must be wrong, default to current world`);
+            logHHAuto(`id_world given ${id_world} must be wrong, default to current world`);
             id_world = Number(getHHVars('Hero.infos.questing.id_world'));
         }
         let trollIdMapping = [];
@@ -24103,17 +24315,17 @@ class Troll {
                     return trollIdMapping[id_world]; // PSH parallel adventures
                 }
                 if (logging)
-                    LogUtils_logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
+                    logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
             }
         }
         else {
             if (logging)
-                LogUtils_logHHAuto(`Side adventure detected with world ${id_world}`);
+                logHHAuto(`Side adventure detected with world ${id_world}`);
             trollIdMapping = ConfigHelper.getHHScriptVars("sideTrollIdMapping");
         }
         if (Object.keys(trollIdMapping).length > 0 && trollIdMapping.hasOwnProperty(id_world)) {
             if (logging)
-                LogUtils_logHHAuto(`Troll ID mapping (${trollIdMapping[id_world]}) found for world ${id_world}`);
+                logHHAuto(`Troll ID mapping (${trollIdMapping[id_world]}) found for world ${id_world}`);
             return trollIdMapping[id_world];
         }
         return id_world - 1;
@@ -24125,7 +24337,7 @@ class Troll {
         else {
             if (eventGirl)
                 EventModule.clearEventData(eventGirl.event_id);
-            LogUtils_logHHAuto("Event troll completed, clear event and get new troll ID");
+            logHHAuto("Event troll completed, clear event and get new troll ID");
             return Troll.getTrollIdToFight();
         }
     }
@@ -24152,18 +24364,18 @@ class Troll {
         // +Raid: user-selected girl bypasses grade filter, auto-mode ("first") respects it
         const loveRaids = LoveRaidManager.isActivated() ? allTrollRaids : [];
         if (debugEnabled && logging) {
-            LogUtils_logHHAuto('eventGirl', eventGirl);
-            LogUtils_logHHAuto('eventMythicGirl', eventMythicGirl);
-            LogUtils_logHHAuto('loveRaids', loveRaids);
+            logHHAuto('eventGirl', eventGirl);
+            logHHAuto('eventMythicGirl', eventMythicGirl);
+            logHHAuto('loveRaids', loveRaids);
         }
         if (getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythic) === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventMythicGirl.is_mythic) {
             if (logging)
-                LogUtils_logHHAuto("Mythic Event troll fight");
+                logHHAuto("Mythic Event troll fight");
             TTF = Troll.getTrollIdFromEvent(eventMythicGirl);
         }
         else if (raidStarsRaids.length > 0) {
             if (logging)
-                LogUtils_logHHAuto("Raid Stars troll fight (selection " + LoveRaidManager.getRaidStarsSelection() + ")");
+                logHHAuto("Raid Stars troll fight (selection " + LoveRaidManager.getRaidStarsSelection() + ")");
             const loveRaid = LoveRaidManager.getRaidStarsRaidToFight(raidStarsRaids, logging);
             if (loveRaid) {
                 TTF = loveRaid.trollId;
@@ -24171,17 +24383,17 @@ class Troll {
         }
         else if (getStoredValue(HHStoredVarPrefixKey + SK.plusEvent) === "true" && !checkTimer("eventGoing") && eventGirl.girl_id && !eventGirl.is_mythic) {
             if (logging)
-                LogUtils_logHHAuto("Event troll fight");
+                logHHAuto("Event troll fight");
             TTF = Troll.getTrollIdFromEvent(eventGirl);
         }
         else if (getStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle) === "true" && (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99)) {
             if (trollWithGirls === undefined || trollWithGirls.length === 0) {
                 if (logging)
-                    LogUtils_logHHAuto("No troll with girls from storage, parsing game info ...");
+                    logHHAuto("No troll with girls from storage, parsing game info ...");
                 trollWithGirls = Troll.getTrollWithGirls();
                 if (trollWithGirls.length === 0) {
                     if (logging)
-                        LogUtils_logHHAuto("Need girls list, going to Waifu page to get them");
+                        logHHAuto("Need girls list, going to Waifu page to get them");
                     if (!allowSideEffects)
                         return 0;
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
@@ -24194,17 +24406,17 @@ class Troll {
             if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
                 if (autoTrollSelectedIndex === 98) {
                     if (debugEnabled && logging)
-                        LogUtils_logHHAuto("First troll with girls from storage");
+                        logHHAuto("First troll with girls from storage");
                     TTF = trollWithGirls.findIndex((troll) => troll > 0) + 1;
                     if (TTF > lastTrollIdAvailable) {
                         if (logging)
-                            LogUtils_logHHAuto(`First troll with girls (${TTF}) is beyond last available (${lastTrollIdAvailable}), no valid troll target.`);
+                            logHHAuto(`First troll with girls (${TTF}) is beyond last available (${lastTrollIdAvailable}), no valid troll target.`);
                         TTF = 0;
                     }
                 }
                 else if (autoTrollSelectedIndex === 99) {
                     if (debugEnabled && logging)
-                        LogUtils_logHHAuto("Last troll with girls from storage");
+                        logHHAuto("Last troll with girls from storage");
                     TTF = trollWithGirls.findLastIndex((troll) => troll > 0) + 1;
                     if (TTF > lastTrollIdAvailable) {
                         // Find the last troll with girls that is actually unlocked
@@ -24218,36 +24430,36 @@ class Troll {
                         }
                         if (!found) {
                             if (logging)
-                                LogUtils_logHHAuto(`No unlocked troll has girls (last available: ${lastTrollIdAvailable}), no valid troll target.`);
+                                logHHAuto(`No unlocked troll has girls (last available: ${lastTrollIdAvailable}), no valid troll target.`);
                             TTF = 0;
                         }
                         else {
                             if (logging)
-                                LogUtils_logHHAuto(`Last troll with girls capped to ${TTF} (last available: ${lastTrollIdAvailable}).`);
+                                logHHAuto(`Last troll with girls capped to ${TTF} (last available: ${lastTrollIdAvailable}).`);
                         }
                     }
                 }
             }
             else if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDHome")) {
                 if (logging)
-                    LogUtils_logHHAuto("Can't get troll with girls, going to home page to get girl list.");
+                    logHHAuto("Can't get troll with girls, going to home page to get girl list.");
                 if (allowSideEffects)
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
             else {
                 if (logging)
-                    LogUtils_logHHAuto("Can't get troll with girls, going to last troll.");
+                    logHHAuto("Can't get troll with girls, going to last troll.");
                 TTF = lastTrollIdAvailable;
             }
             // No troll with girls found - fall through to love raids before giving up
             if (TTF <= 0 && LoveRaidManager.isActivated() && loveRaids.length > 0) {
                 if (logging)
-                    LogUtils_logHHAuto("No troll with girls, checking love raids as fallback.");
+                    logHHAuto("No troll with girls, checking love raids as fallback.");
                 const loveRaid = LoveRaidManager.getRaidToFight(loveRaids, logging);
                 if (loveRaid) {
                     TTF = loveRaid.trollId;
                     if (logging)
-                        LogUtils_logHHAuto(`Love raid fallback: fighting troll ${TTF} for raid girl ${loveRaid.id_girl}.`);
+                        logHHAuto(`Love raid fallback: fighting troll ${TTF} for raid girl ${loveRaid.id_girl}.`);
                 }
             }
         }
@@ -24260,18 +24472,18 @@ class Troll {
         else if (getStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle) === "true" && autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98) {
             TTF = autoTrollSelectedIndex;
             if (logging)
-                LogUtils_logHHAuto("Custom troll fight.");
+                logHHAuto("Custom troll fight.");
         }
         else if (getStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle) === "true") {
             TTF = lastTrollIdAvailable;
             if (logging)
-                LogUtils_logHHAuto("Last troll fight: " + TTF);
+                logHHAuto("Last troll fight: " + TTF);
         }
         if (getStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle) === "true"
             && getStoredValue(HHStoredVarPrefixKey + TK.autoTrollBattleSaveQuest) === "true") {
             TTF = lastTrollIdAvailable;
             if (logging)
-                LogUtils_logHHAuto("Last troll fight for quest item: " + TTF);
+                logHHAuto("Last troll fight for quest item: " + TTF);
             if (allowSideEffects)
                 setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, "none");
         }
@@ -24280,7 +24492,7 @@ class Troll {
         // Check if selected troll is actually unlocked (love raid girls can be on locked trolls)
         if (TTF > 0 && TTF > lastTrollIdAvailable) {
             if (logging)
-                LogUtils_logHHAuto(`Troll ${TTF} (${trollz[Number(TTF)]}) not unlocked (last available: ${lastTrollIdAvailable}), resetting raid selector to "Choose a girl".`);
+                logHHAuto(`Troll ${TTF} (${trollz[Number(TTF)]}) not unlocked (last available: ${lastTrollIdAvailable}), resetting raid selector to "Choose a girl".`);
             if (allowSideEffects)
                 setStoredValue(HHStoredVarPrefixKey + SK.autoLoveRaidSelectedIndex, "0");
             TTF = 0;
@@ -24291,18 +24503,18 @@ class Troll {
                 // Only fallback to last troll when not using first/last troll with girls mode
                 TTF = lastTrollIdAvailable > 0 ? lastTrollIdAvailable : 1;
                 if (logging)
-                    LogUtils_logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
+                    logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
             }
             else {
                 // First/last troll with girls found no valid target, or events/raids only mode
                 if (logging)
-                    LogUtils_logHHAuto("No valid troll target found, skipping.");
+                    logHHAuto("No valid troll target found, skipping.");
                 return 0;
             }
         }
         if (TTF > 0 && !trollz.hasOwnProperty(TTF) && !sideTrollz.hasOwnProperty(TTF)) {
             if (logging)
-                LogUtils_logHHAuto("Error: New troll implemented '" + TTF + "' (List to be updated) or wrong troll target found");
+                logHHAuto("Error: New troll implemented '" + TTF + "' (List to be updated) or wrong troll target found");
             if (getStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle) === "true") {
                 TTF = 1;
             }
@@ -24348,18 +24560,18 @@ class Troll {
                     && autoTrollSelectedIndex !== 98 && autoTrollSelectedIndex !== 99) {
                     // Fixed troll or "last troll" mode: retry once, then fallback to troll 1
                     if (getStoredValue(HHStoredVarPrefixKey + TK.TrollInvalid) === "true") {
-                        LogUtils_logHHAuto(`ERROR: Invalid troll N°${TTF}, again, going to first troll`);
+                        logHHAuto(`ERROR: Invalid troll N°${TTF}, again, going to first troll`);
                         TTF = 1;
                     }
                     else {
-                        LogUtils_logHHAuto(`ERROR: Invalid troll N°${TTF}, do not fight, retry...`);
+                        logHHAuto(`ERROR: Invalid troll N°${TTF}, do not fight, retry...`);
                         setStoredValue(HHStoredVarPrefixKey + TK.TrollInvalid, "true");
                         return true;
                     }
                 }
                 else {
                     // First/last troll with girls found no valid target, or events/raids only mode
-                    LogUtils_logHHAuto("No troll target found, skipping fight.");
+                    logHHAuto("No troll target found, skipping fight.");
                     return false;
                 }
             }
@@ -24371,7 +24583,7 @@ class Troll {
             const needSW = Booster.needSandalWoodEquipped(TTF);
             if (needSW) {
                 if (currentPage !== ConfigHelper.getHHScriptVars("pagesIDShop")) {
-                    LogUtils_logHHAuto('Sandalwood needed: going to Shop page to update booster status');
+                    logHHAuto('Sandalwood needed: going to Shop page to update booster status');
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
                     return true;
                 }
@@ -24383,7 +24595,7 @@ class Troll {
                     }
                 }
             }
-            LogUtils_logHHAuto(`Fighting troll N°${TTF}, ${trollz[Number(TTF)]}`);
+            logHHAuto(`Fighting troll N°${TTF}, ${trollz[Number(TTF)]}`);
             // Battles the latest boss.
             // Navigate to latest boss.
             //console.log(getPage());
@@ -24393,9 +24605,9 @@ class Troll {
                 return true;
             }
             else {
-                LogUtils_logHHAuto("Navigating to chosen Troll.");
+                logHHAuto("Navigating to chosen Troll.");
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                LogUtils_logHHAuto("setting autoloop to false");
+                logHHAuto("setting autoloop to false");
                 //week 28 new battle modification
                 //location.href = "/battle.html?id_troll=" + TTF;
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"), { id_opponent: TTF });
@@ -24408,7 +24620,7 @@ class Troll {
         return Troll_awaiter(this, void 0, void 0, function* () {
             if (getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle")) {
                 // On battle page.
-                LogUtils_logHHAuto("On Pre battle page.");
+                logHHAuto("On Pre battle page.");
                 const TTF = Number(queryStringGetParam(window.location.search, 'id_opponent'));
                 const trollz = ConfigHelper.getHHScriptVars("trollzList");
                 const battleButton = $('#pre-battle .battle-buttons .green_button_L.battle-action-button');
@@ -24424,7 +24636,7 @@ class Troll {
                     // The goal of this function is to detect slow server response to avoid loop without fight
                     if (previousPower > 0 && previousPower === currentPower) {
                         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                        LogUtils_logHHAuto("Server seems slow to reply, setting autoloop to false to wait for troll page to load");
+                        logHHAuto("Server seems slow to reply, setting autoloop to false to wait for troll page to load");
                     }
                 };
                 //check if girl still available at troll in case of event
@@ -24439,7 +24651,7 @@ class Troll {
                     if (eventMythicGirl.girl_id && TTF === eventMythicGirl.troll_id && eventMythicGirl.is_mythic && getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythic) === "true") {
                         eventTrollGirl = eventMythicGirl;
                         if (rewardGirlz.length === 0 || !trollGirlRewards.includes('"id_girl":' + eventMythicGirl.girl_id)) {
-                            LogUtils_logHHAuto(`Seems ${eventMythicGirl.name} is no more available at troll ${trollz[Number(TTF)]}. Going to event page.`);
+                            logHHAuto(`Seems ${eventMythicGirl.name} is no more available at troll ${trollz[Number(TTF)]}. Going to event page.`);
                             EventModule.parseEventPage(eventMythicGirl.event_id);
                             return true;
                         }
@@ -24447,13 +24659,13 @@ class Troll {
                     if (eventGirl.girl_id && TTF === eventGirl.troll_id && !eventGirl.is_mythic && getStoredValue(HHStoredVarPrefixKey + SK.plusEvent) === "true") {
                         eventTrollGirl = eventGirl;
                         if (rewardGirlz.length === 0 || !trollGirlRewards.includes('"id_girl":' + eventGirl.girl_id)) {
-                            LogUtils_logHHAuto(`Seems ${eventGirl.name} is no more available at troll ${trollz[Number(TTF)]}. Going to event page.`);
+                            logHHAuto(`Seems ${eventGirl.name} is no more available at troll ${trollz[Number(TTF)]}. Going to event page.`);
                             EventModule.parseEventPage(eventGirl.event_id);
                             return true;
                         }
                     }
                     if (rewardGirlz.length === 0 && (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99)) {
-                        LogUtils_logHHAuto(`Seems no more girls available at troll ${trollz[Number(TTF)]}, looking for next troll.`);
+                        logHHAuto(`Seems no more girls available at troll ${trollz[Number(TTF)]}, looking for next troll.`);
                         const trollWithGirls = getStoredJSON(HHStoredVarPrefixKey + TK.trollWithGirls, []);
                         trollWithGirls[TTF - 1] = 0;
                         setStoredValue(HHStoredVarPrefixKey + TK.trollWithGirls, JSON.stringify(trollWithGirls));
@@ -24463,7 +24675,7 @@ class Troll {
                             return true;
                         }
                         else {
-                            LogUtils_logHHAuto(`Same troll found and no girls available, stopping troll fight.`);
+                            logHHAuto(`Same troll found and no girls available, stopping troll fight.`);
                             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                             return;
                         }
@@ -24492,7 +24704,7 @@ class Troll {
                         const trollRaids = LoveRaidManager.getTrollRaids();
                         loveRaid = trollRaids.find(raid => raid.trollId === TTF);
                         if (loveRaid && (rewardGirlz.length === 0 || !trollGirlRewards.includes('"id_girl":' + loveRaid.id_girl))) {
-                            LogUtils_logHHAuto(`Seems girl ${loveRaid.id_girl} is no more available at troll ${trollz[Number(TTF)]}. Going to love Raid.`);
+                            logHHAuto(`Seems girl ${loveRaid.id_girl} is no more available at troll ${trollz[Number(TTF)]}. Going to love Raid.`);
                             clearTimer('nextLoveRaidTime');
                             gotoPage(ConfigHelper.getHHScriptVars("pagesIDLoveRaid"));
                             return true;
@@ -24537,9 +24749,9 @@ class Troll {
                             && (currentPower >= (Number(getStoredValue(HHStoredVarPrefixKey + SK.autoTrollThreshold)) + 50)
                                 || bypassThreshold)
                             && ((eventTrollGirl === null || eventTrollGirl === void 0 ? void 0 : eventTrollGirl.is_mythic) || getStoredValue(HHStoredVarPrefixKey + SK.useX50FightsAllowNormalEvent) === "true")) {
-                            LogUtils_logHHAuto("Going to crush 50 times: " + trollz[Number(TTF)] + ' for ' + battleButtonX50Price + ' kobans.');
+                            logHHAuto("Going to crush 50 times: " + trollz[Number(TTF)] + ' for ' + battleButtonX50Price + ' kobans.');
                             if (!acquirePostMutex('troll:battleX50')) {
-                                LogUtils_logHHAuto('Troll: another POST in flight, deferring x50 battle');
+                                logHHAuto('Troll: another POST in flight, deferring x50 battle');
                                 return;
                             }
                             const x50Start = Date.now();
@@ -24547,25 +24759,25 @@ class Troll {
                             Booster.resetBattleResponseFlag();
                             battleButtonX50[0].click();
                             setHHVars('Hero.infos.hc_confirm', hcConfirmValue);
-                            LogUtils_logHHAuto(`Crushed 50 times: ${trollz[Number(TTF)]} for ${battleButtonX50Price} kobans.`);
+                            logHHAuto(`Crushed 50 times: ${trollz[Number(TTF)]} for ${battleButtonX50Price} kobans.`);
                             if (getStoredValue(HHStoredVarPrefixKey + TK.questRequirement) === "battle") {
                                 // Battle Done.
                                 setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, "none");
                             }
                             RewardHelper.ObserveAndGetGirlRewards();
                             yield Booster.waitForBattleResponse();
-                            const x50Idle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                            const x50Idle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                             const x50Duration = Date.now() - x50Start;
                             releasePostMutex();
                             if (x50Idle)
                                 yield awaitServerSettleAfterPost(x50Duration);
                             else
-                                LogUtils_logHHAuto('Troll: x50 AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
+                                logHHAuto('Troll: x50 AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, skipping settle');
                             return;
                         }
                         else {
                             if (getStoredValue(HHStoredVarPrefixKey + SK.useX50Fights) === "true") {
-                                LogUtils_logHHAuto(`Unable to use x50 for ${battleButtonX50Price} kobans,fights : ${Troll.getEnergy()}/50, remaining shards : ${remainingShards}/${getStoredValue(HHStoredVarPrefixKey + SK.minShardsX50)}, kobans : ${HeroHelper.getKoban()}/${Number(getStoredValue(HHStoredVarPrefixKey + SK.kobanBank))}`);
+                                logHHAuto(`Unable to use x50 for ${battleButtonX50Price} kobans,fights : ${Troll.getEnergy()}/50, remaining shards : ${remainingShards}/${getStoredValue(HHStoredVarPrefixKey + SK.minShardsX50)}, kobans : ${HeroHelper.getKoban()}/${Number(getStoredValue(HHStoredVarPrefixKey + SK.kobanBank))}`);
                             }
                         }
                         const minShardsX10 = getStoredValue(HHStoredVarPrefixKey + SK.minShardsX10);
@@ -24576,9 +24788,9 @@ class Troll {
                             && (currentPower >= (Number(getStoredValue(HHStoredVarPrefixKey + SK.autoTrollThreshold)) + 10)
                                 || bypassThreshold)
                             && ((eventTrollGirl === null || eventTrollGirl === void 0 ? void 0 : eventTrollGirl.is_mythic) || getStoredValue(HHStoredVarPrefixKey + SK.useX10FightsAllowNormalEvent) === "true")) {
-                            LogUtils_logHHAuto(`Going to crush 10 times: ${trollz[Number(TTF)]} for ${battleButtonX10Price} kobans.`);
+                            logHHAuto(`Going to crush 10 times: ${trollz[Number(TTF)]} for ${battleButtonX10Price} kobans.`);
                             if (!acquirePostMutex('troll:battleX10')) {
-                                LogUtils_logHHAuto('Troll: another POST in flight, deferring x10 battle');
+                                logHHAuto('Troll: another POST in flight, deferring x10 battle');
                                 return;
                             }
                             const x10Start = Date.now();
@@ -24586,70 +24798,70 @@ class Troll {
                             Booster.resetBattleResponseFlag();
                             battleButtonX10[0].click();
                             setHHVars('Hero.infos.hc_confirm', hcConfirmValue);
-                            LogUtils_logHHAuto(`Crushed 10 times: ${trollz[Number(TTF)]} for ${battleButtonX10Price} kobans.`);
+                            logHHAuto(`Crushed 10 times: ${trollz[Number(TTF)]} for ${battleButtonX10Price} kobans.`);
                             if (getStoredValue(HHStoredVarPrefixKey + TK.questRequirement) === "battle") {
                                 // Battle Done.
                                 setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, "none");
                             }
                             RewardHelper.ObserveAndGetGirlRewards();
                             yield Booster.waitForBattleResponse();
-                            const x10Idle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                            const x10Idle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                             const x10Duration = Date.now() - x10Start;
                             releasePostMutex();
                             if (x10Idle)
                                 yield awaitServerSettleAfterPost(x10Duration);
                             else
-                                LogUtils_logHHAuto('Troll: x10 AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
+                                logHHAuto('Troll: x10 AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, skipping settle');
                             return;
                         }
                         else {
                             if (getStoredValue(HHStoredVarPrefixKey + SK.useX10Fights) === "true") {
-                                LogUtils_logHHAuto(`Unable to use x10 for ${battleButtonX10Price} kobans,fights : ${Troll.getEnergy()}/10, remaining shards : ${remainingShards}/${getStoredValue(HHStoredVarPrefixKey + SK.minShardsX10)}, kobans : ${HeroHelper.getKoban()}/${Number(getStoredValue(HHStoredVarPrefixKey + SK.kobanBank))}`);
+                                logHHAuto(`Unable to use x10 for ${battleButtonX10Price} kobans,fights : ${Troll.getEnergy()}/10, remaining shards : ${remainingShards}/${getStoredValue(HHStoredVarPrefixKey + SK.minShardsX10)}, kobans : ${HeroHelper.getKoban()}/${Number(getStoredValue(HHStoredVarPrefixKey + SK.kobanBank))}`);
                             }
                         }
                     }
                     //Crushing one by one
                     if (currentPower > 0) {
                         if ($('#pre-battle div.battle-buttons a.single-battle-button[disabled]').length > 0) {
-                            LogUtils_logHHAuto("Battle Button seems disabled, force reload of page.");
+                            logHHAuto("Battle Button seems disabled, force reload of page.");
                             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                             return;
                         }
                         if (battleButton === undefined || battleButton.length === 0) {
-                            LogUtils_logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
+                            logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
                             document.getElementById("autoTrollBattle").checked = false;
                             setStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle, "false");
                             //document.getElementById("autoArenaCheckbox").checked = false;
                             if (getStoredValue(HHStoredVarPrefixKey + TK.questRequirement) === "battle") {
                                 document.getElementById("autoQuest").checked = false;
                                 setStoredValue(HHStoredVarPrefixKey + SK.autoQuest, "false");
-                                LogUtils_logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
+                                logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
                             }
                             return;
                         }
-                        LogUtils_logHHAuto("Crushing: " + trollz[Number(TTF)]);
+                        logHHAuto("Crushing: " + trollz[Number(TTF)]);
                         //console.log(battleButton);
                         //replaceCheatClick();
                         checkPreviousFightDone();
                         setStoredValue(HHStoredVarPrefixKey + TK.trollPoints, currentPower);
                         if (!acquirePostMutex('troll:battle')) {
-                            LogUtils_logHHAuto('Troll: another POST in flight, deferring single battle');
+                            logHHAuto('Troll: another POST in flight, deferring single battle');
                             return;
                         }
                         const battleStart = Date.now();
                         battleButton[0].click();
-                        const battleIdle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                        const battleIdle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                         const battleDuration = Date.now() - battleStart;
                         releasePostMutex();
                         if (battleIdle)
                             yield awaitServerSettleAfterPost(battleDuration);
                         else
-                            LogUtils_logHHAuto('Troll: battle AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
+                            logHHAuto('Troll: battle AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, skipping settle');
                     }
                     else {
                         // We need more power.
                         const battle_price = 1; // TODO what is the expected value here ?
-                        LogUtils_logHHAuto(`Battle requires ${battle_price} power, having ${currentPower}.`);
+                        logHHAuto(`Battle requires ${battle_price} power, having ${currentPower}.`);
                         setStoredValue(HHStoredVarPrefixKey + TK.battlePowerRequired, battle_price);
                         if (getStoredValue(HHStoredVarPrefixKey + TK.questRequirement) === "battle") {
                             setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, "P" + battle_price);
@@ -24663,22 +24875,22 @@ class Troll {
                     setStoredValue(HHStoredVarPrefixKey + TK.trollPoints, currentPower);
                     //replaceCheatClick();
                     if (!acquirePostMutex('troll:battleNoEvent')) {
-                        LogUtils_logHHAuto('Troll: another POST in flight, deferring single battle (no event)');
+                        logHHAuto('Troll: another POST in flight, deferring single battle (no event)');
                         return;
                     }
                     const battleNoEventStart = Date.now();
                     battleButton[0].click();
-                    const battleNoEventIdle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
+                    const battleNoEventIdle = yield waitForAjaxIdle((/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000), (/* inlined export .AJAX_IDLE_SETTLE_MS */250));
                     const battleNoEventDuration = Date.now() - battleNoEventStart;
                     releasePostMutex();
                     if (battleNoEventIdle)
                         yield awaitServerSettleAfterPost(battleNoEventDuration);
                     else
-                        LogUtils_logHHAuto('Troll: battle (no event) AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
+                        logHHAuto('Troll: battle (no event) AJAX still busy after ' + (/* inlined export .AJAX_IDLE_TIMEOUT_MS */15000) + 'ms, skipping settle');
                 }
             }
             else {
-                LogUtils_logHHAuto('Unable to identify page.');
+                logHHAuto('Unable to identify page.');
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                 return;
             }
@@ -24689,7 +24901,7 @@ class Troll {
         const Hero = getHero();
         //let canBuyResult = Troll.canBuyFight(eventTrollGirl);
         if (canBuyResult.canBuy) {
-            LogUtils_logHHAuto('Recharging ' + canBuyResult.toBuy + ' fights for ' + canBuyResult.price + ' kobans.');
+            logHHAuto('Recharging ' + canBuyResult.toBuy + ' fights for ' + canBuyResult.price + ' kobans.');
             const hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
             setHHVars('Hero.infos.hc_confirm', true);
             // We have the power.
@@ -24697,7 +24909,7 @@ class Troll {
             //console.log($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
             Hero.recharge($("button.orange_text_button.manual-recharge"), canBuyResult.type, canBuyResult.toBuy, canBuyResult.price);
             setHHVars('Hero.infos.hc_confirm', hcConfirmValue);
-            LogUtils_logHHAuto('Recharged up to ' + canBuyResult.max + ' fights for ' + canBuyResult.price + ' kobans.');
+            logHHAuto('Recharged up to ' + canBuyResult.max + ' fights for ' + canBuyResult.price + ' kobans.');
         }
     }
     /**
@@ -24731,7 +24943,7 @@ class Troll {
             }
             else {
                 if (p.logging && getStoredValue(HHStoredVarPrefixKey + SK.useX50Fights) === "true") {
-                    LogUtils_logHHAuto(`Unable to recharge up to ${p.maxx50} for ${p.pricePerFight * p.maxx50} kobans : current energy : ${p.currentFight}, remaining shards : ${remainingShards}/${getStoredValue(HHStoredVarPrefixKey + SK.minShardsX50)}, kobans : ${HeroHelper.getKoban()}/${Number(getStoredValue(HHStoredVarPrefixKey + SK.kobanBank))}`);
+                    logHHAuto(`Unable to recharge up to ${p.maxx50} for ${p.pricePerFight * p.maxx50} kobans : current energy : ${p.currentFight}, remaining shards : ${remainingShards}/${getStoredValue(HHStoredVarPrefixKey + SK.minShardsX50)}, kobans : ${HeroHelper.getKoban()}/${Number(getStoredValue(HHStoredVarPrefixKey + SK.kobanBank))}`);
                 }
                 if (HeroHelper.getKoban() >= (p.pricePerFight * p.x20BuyAmount) + Number(getStoredValue(HHStoredVarPrefixKey + SK.kobanBank))) {
                     result.max = p.maxx20;
@@ -24740,7 +24952,7 @@ class Troll {
                     result.toBuy = p.x20BuyAmount;
                 }
                 else if (p.logging) {
-                    LogUtils_logHHAuto(`Unable to recharge up to ${p.x20BuyAmount} for ${p.pricePerFight * p.x20BuyAmount} kobans : current energy : ${p.currentFight}, kobans : ${HeroHelper.getKoban()}/${Number(getStoredValue(HHStoredVarPrefixKey + SK.kobanBank))}`);
+                    logHHAuto(`Unable to recharge up to ${p.x20BuyAmount} for ${p.pricePerFight * p.x20BuyAmount} kobans : current energy : ${p.currentFight}, kobans : ${HeroHelper.getKoban()}/${Number(getStoredValue(HHStoredVarPrefixKey + SK.kobanBank))}`);
                 }
             }
         }
@@ -24813,7 +25025,7 @@ class Troll {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/menu/MenuWidgets.ts
+;// ./src/Helper/menu/MenuWidgets.ts
 // MenuWidgets.ts
 //
 // Options rendering: small, reusable HTML builders that turn a text/input id
@@ -24901,7 +25113,7 @@ function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath
     return htmlRet;
 }
 
-;// CONCATENATED MODULE: ./src/Helper/menu/MenuColumnLeft.ts
+;// ./src/Helper/menu/MenuColumnLeft.ts
 // MenuColumnLeft.ts
 //
 // DOM construction (layout): the left column of the #sMenu panel — script
@@ -25001,6 +25213,7 @@ function buildLeftColumn() {
         + `<div class="optionsColumn">`
         + hhMenuSwitch('showCalculatePower')
         + hhMenuSwitch('showAdsBack', '', false, true)
+        + hhMenuSwitch('autoAdsClick')
         + `</div>`
         + `<div class="optionsColumn">`
         + hhMenuSwitch('showRewardsRecap')
@@ -25046,7 +25259,7 @@ function buildLeftColumn() {
         + `</div>`;
 }
 
-;// CONCATENATED MODULE: ./src/Helper/menu/MenuColumnMiddle.ts
+;// ./src/Helper/menu/MenuColumnMiddle.ts
 // MenuColumnMiddle.ts
 //
 // DOM construction (layout): the middle column of the #sMenu panel — missions,
@@ -25306,7 +25519,7 @@ function buildMiddleColumn(debugEnabled) {
         + `</div>`;
 }
 
-;// CONCATENATED MODULE: ./src/Helper/menu/MenuColumnRight.ts
+;// ./src/Helper/menu/MenuColumnRight.ts
 // MenuColumnRight.ts
 //
 // DOM construction (layout): the right column of the #sMenu panel — champions
@@ -25472,7 +25685,7 @@ function buildRightColumn() {
         + `</div>`;
 }
 
-;// CONCATENATED MODULE: ./src/Helper/menu/MenuTemplate.ts
+;// ./src/Helper/menu/MenuTemplate.ts
 // MenuTemplate.ts
 //
 // DOM construction (layout): assembles the full settings panel (div#sMenu) from
@@ -25502,7 +25715,7 @@ function getMenu() {
         + `</div>`;
 }
 
-;// CONCATENATED MODULE: ./src/Helper/HHMenuHelper.ts
+;// ./src/Helper/HHMenuHelper.ts
 // HHMenuHelper.ts
 //
 // The HHAuto settings menu. Historically one ~1000-line class; split by
@@ -25629,7 +25842,7 @@ class HHMenu {
         }
         catch ({ errName, message }) {
             trollOptions.add(this._createHtmlSeparator('Error!'));
-            LogUtils_logHHAuto(`Error filling trolls: ${errName}, ${message}`);
+            logHHAuto(`Error filling trolls: ${errName}, ${message}`);
         }
         trollOptions.add(this._createHtmlSeparator(getTextForUI("otherTrollOption", "elementText")));
         trollOptions.add(this._createHtmlOption('98', getTextForUI("firstTrollWithGirls", "elementText")));
@@ -25651,7 +25864,7 @@ class HHMenu {
         }
         catch ({ errName, message }) {
             loveRaidOptions.add(this._createHtmlSeparator('Error!'));
-            LogUtils_logHHAuto(`Error filling love raids: ${errName}, ${message}`);
+            logHHAuto(`Error filling love raids: ${errName}, ${message}`);
         }
     }
     fillLeagueSelectMenu() {
@@ -25665,7 +25878,7 @@ class HHMenu {
         }
         catch ({ errName, message }) {
             leaguesOptions.add(this._createHtmlOption('0', 'Error!'));
-            LogUtils_logHHAuto(`Error filling leagues: ${errName}, ${message}`);
+            logHHAuto(`Error filling leagues: ${errName}, ${message}`);
         }
     }
     fillLeaguSortMenu() {
@@ -25720,7 +25933,7 @@ function switchHHMenuButton(isActive) {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Market.ts
+;// ./src/Module/Market.ts
 // Market.ts -- Auto-buys items from the in-game market using soft currency.
 //
 // Periodically checks the market shop for available items and purchases them
@@ -25750,7 +25963,7 @@ class Market {
             var kobans = HeroHelper.getKoban();
             if (getStoredValue(HHStoredVarPrefixKey + TK.storeContents) === undefined) {
                 if (!isJSON(getStoredValue(HHStoredVarPrefixKey + TK.storeContents))) {
-                    LogUtils_logHHAuto("Catched error : Could not parse store content.");
+                    logHHAuto("Catched error : Could not parse store content.");
                 }
                 setStoredValue(HHStoredVarPrefixKey + TK.charLevel, 0);
                 return;
@@ -25782,9 +25995,9 @@ class Market {
                     let boosterOwned = HaveBooster.hasOwnProperty(boost) ? Number(HaveBooster[boost]) : 0;
                     for (var n1 = shop[1].length - 1; n1 >= 0; n1--) {
                         if (kobans >= Number(getStoredValue(HHStoredVarPrefixKey + SK.kobanBank)) + Number(shop[1][n1].price_buy) && shop[1][n1].item.currency == "hc" && shop[1][n1].item.identifier == boost && (shop[1][n1].item.rarity == 'legendary' || shop[1][n1].item.rarity == 'mythic') && boosterOwned < MaxBooster) {
-                            LogUtils_logHHAuto({ log: 'wanna buy ', object: shop[1][n1], owning: boosterOwned });
+                            logHHAuto({ log: 'wanna buy ', object: shop[1][n1], owning: boosterOwned });
                             if (kobans >= Number(shop[1][n1].price_buy)) {
-                                LogUtils_logHHAuto({ log: 'Buying : ', object: shop[1][n1] });
+                                logHHAuto({ log: 'Buying : ', object: shop[1][n1] });
                                 // change referer
                                 window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                                 kobans -= Number(shop[1][n1].price_buy);
@@ -25829,7 +26042,7 @@ class Market {
                     }
                 }
                 if (allGiftsPriceSc > 0 && money >= Exp + allGiftsPriceSc) {
-                    LogUtils_logHHAuto('Buy all gifts for price:' + allGiftsPriceSc);
+                    logHHAuto('Buy all gifts for price:' + allGiftsPriceSc);
                     // change referer
                     window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                     money -= allGiftsPriceSc;
@@ -25858,7 +26071,7 @@ class Market {
                         //logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
                         if (money >= Aff + Number(shop[2][n2].price_buy) && money >= Number(shop[2][n2].price_buy) && shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                          {
-                            LogUtils_logHHAuto({ log: 'Buying : ', Object: shop[2][n2] });
+                            logHHAuto({ log: 'Buying : ', Object: shop[2][n2] });
                             // change referer
                             window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                             money -= Number(shop[2][n2].price_buy);
@@ -25898,7 +26111,7 @@ class Market {
                     }
                 }
                 if (allPotionPriceSc > 0 && money >= Exp + allPotionPriceSc) {
-                    LogUtils_logHHAuto('Buy all books for price:' + allPotionPriceSc);
+                    logHHAuto('Buy all books for price:' + allPotionPriceSc);
                     // change referer
                     window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                     money -= allPotionPriceSc;
@@ -25927,7 +26140,7 @@ class Market {
                         //logHHAuto('wanna buy ',shop[3][n3]);
                         if (money >= Exp + Number(shop[3][n3].price_buy) && money >= Number(shop[3][n3].price_buy) && shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                          {
-                            LogUtils_logHHAuto({ log: 'Buying : ', Object: shop[3][n3] });
+                            logHHAuto({ log: 'Buying : ', Object: shop[3][n3] });
                             // change referer
                             window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                             money -= Number(shop[3][n3].price);
@@ -25961,13 +26174,13 @@ class Market {
             //Hero.update("soft_currency", money, false);
         }
         catch (ex) {
-            LogUtils_logHHAuto("Catched error : Could not buy : " + ex);
+            logHHAuto("Catched error : Could not buy : " + ex);
             setStoredValue(HHStoredVarPrefixKey + TK.charLevel, 0);
         }
     }
 }
 
-;// CONCATENATED MODULE: ./src/model/Mission.ts
+;// ./src/model/Mission.ts
 // Models for in-game missions and their rewards.
 // Mission holds the cost, duration, remaining time, completion state,
 // and a reference to the DOM element. MissionRewards describes each reward entry.
@@ -25982,7 +26195,7 @@ class MissionRewards {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Missions.ts
+;// ./src/Module/Missions.ts
 // Missions.ts -- Automates missions: collects completed missions and starts new ones.
 //
 // Missions are time-based tasks that yield rewards. This module checks for
@@ -26033,7 +26246,7 @@ class Missions {
             }
         }
         catch (error) {
-            LogUtils_logHHAuto("Something went wrong, starting first mission in the list ", error);
+            logHHAuto("Something went wrong, starting first mission in the list ", error);
             msn = missionsList[0];
         }
         return msn;
@@ -26041,7 +26254,7 @@ class Missions {
     static run() {
         // returns boolean to set busy
         if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDMissions")) {
-            LogUtils_logHHAuto("Navigating to missions page.");
+            logHHAuto("Navigating to missions page.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"));
             // return busy
             return true;
@@ -26049,26 +26262,26 @@ class Missions {
         else {
             try {
                 const debugEnabled = getStoredValue(HHStoredVarPrefixKey + TK.Debug) === 'true';
-                LogUtils_logHHAuto("On missions page.");
+                logHHAuto("On missions page.");
                 if (RewardHelper.closeRewardPopupIfAny()) {
                     return true;
                 }
                 let canCollect = getStoredValue(HHStoredVarPrefixKey + SK.autoMissionCollect) === "true" && $(".mission_button button:visible[rel='claim']").length > 0 && TimeHelper.canCollectCompetitionActive();
                 var { allGood, missions, missionOngoing } = Missions.parseMissions(canCollect);
                 if (debugEnabled)
-                    LogUtils_logHHAuto("Missions parsed, mission list is:", missions);
+                    logHHAuto("Missions parsed, mission list is:", missions);
                 if (debugEnabled && missionOngoing != null)
-                    LogUtils_logHHAuto("Mission missionOngoing:", missionOngoing);
+                    logHHAuto("Mission missionOngoing:", missionOngoing);
                 if (!allGood && checkTimer('nextMissionTime')) {
-                    LogUtils_logHHAuto("Something went wrong, need to retry in 15secs.");
+                    logHHAuto("Something went wrong, need to retry in 15secs.");
                     setTimer('nextMissionTime', randomInterval(15, 30));
                     return true;
                 }
                 if (missions.length > 0 && missionOngoing == null) {
                     var mission = Missions.getSuitableMission(missions);
-                    LogUtils_logHHAuto(`Selected mission to be started (duration: ${mission.duration}sec):`);
+                    logHHAuto(`Selected mission to be started (duration: ${mission.duration}sec):`);
                     if (debugEnabled)
-                        LogUtils_logHHAuto(mission);
+                        logHHAuto(mission);
                     var missionButton = $(mission.missionObject).find("button:visible[rel='mission_start']").first();
                     if (missionButton.length > 0) {
                         missionButton.trigger('click');
@@ -26076,34 +26289,34 @@ class Missions {
                         missionOngoing.remaining_time = Number(mission.duration);
                     }
                     else {
-                        LogUtils_logHHAuto("Something went wrong, no start button");
+                        logHHAuto("Something went wrong, no start button");
                         setTimer('nextMissionTime', randomInterval(15, 30));
                         return true;
                     }
                 }
                 if (canCollect) {
-                    LogUtils_logHHAuto("Collecting finished mission's reward.");
+                    logHHAuto("Collecting finished mission's reward.");
                     $(".mission_button button:visible[rel='claim']").first().trigger('click');
                     return true;
                 }
                 if (missionOngoing != null) {
-                    LogUtils_logHHAuto("Mission ongoing waiting it ends.");
+                    logHHAuto("Mission ongoing waiting it ends.");
                     if (checkTimer('nextMissionTime'))
                         setTimer('nextMissionTime', missionOngoing.remaining_time + randomInterval(10, 20));
                     return true;
                 }
                 if (missions.length == 0 && missionOngoing == null) {
-                    LogUtils_logHHAuto("No missions detected...!");
+                    logHHAuto("No missions detected...!");
                     // get gift
                     const isAfterGift = $("#missions .end_gift:visible").length > 0;
                     if (isAfterGift) {
                         const buttonAfterGift = $("#missions .end_gift button:visible");
                         if (buttonAfterGift.length > 0) {
-                            LogUtils_logHHAuto("Collecting gift.");
+                            logHHAuto("Collecting gift.");
                             buttonAfterGift.trigger('click');
                         }
                         else {
-                            LogUtils_logHHAuto("Refreshing to collect gift...");
+                            logHHAuto("Refreshing to collect gift...");
                             // C1: safeReload waits for any in-flight game
                             // AJAX before the reload, so an open POST is
                             // not cancelled (issue #1598).
@@ -26113,7 +26326,7 @@ class Missions {
                     }
                     let time = $('.end-gift-timer span[rel="expires"],.after_gift .new-missions-timer span[rel="expires"]').first().text();
                     if (time === undefined || time === null || time.length === 0) {
-                        LogUtils_logHHAuto("New mission time was undefined... Setting it manually to 10min.");
+                        logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                         setTimer('nextMissionTime', randomInterval(10 * 60, 12 * 60));
                     }
                     else
@@ -26121,7 +26334,7 @@ class Missions {
                 }
             }
             catch ({ errName, message }) {
-                LogUtils_logHHAuto(`ERROR during mission run: ${message}, retry in 10min`);
+                logHHAuto(`ERROR during mission run: ${message}, retry in 10min`);
                 setTimer('nextMissionTime', randomInterval(10 * 60, 12 * 60));
             }
             // not busy
@@ -26135,7 +26348,7 @@ class Missions {
         var allGood = true;
         // parse missions
         const allMissions = $(".mission_object");
-        LogUtils_logHHAuto("Found " + allMissions.length + " missions to be parsed.");
+        logHHAuto("Found " + allMissions.length + " missions to be parsed.");
         try {
             allMissions.each((idx, missionObject) => {
                 var data = $.data(missionObject).d;
@@ -26147,7 +26360,7 @@ class Missions {
                     if (data.remaining_time > 0) {
                         // allGood = false;
                         if ($('.finish_in_bar[style*="display:none;"], .finish_in_bar[style*="display: none;"]', missionObject).length === 0) {
-                            LogUtils_logHHAuto("Unfinished mission detected...(" + data.remaining_time + "sec. remaining)");
+                            logHHAuto("Unfinished mission detected...(" + data.remaining_time + "sec. remaining)");
                             missionOngoing = data;
                             data.finished = false;
                         }
@@ -26176,8 +26389,8 @@ class Missions {
             });
         }
         catch (error) {
-            LogUtils_logHHAuto("Catched error : Couldn't parse missions (try again in 15min) : " + error);
-            LogUtils_logHHAuto("Last mission parsed : " + JSON.stringify(lastMissionData));
+            logHHAuto("Catched error : Couldn't parse missions (try again in 15min) : " + error);
+            logHHAuto("Last mission parsed : " + JSON.stringify(lastMissionData));
             setTimer('nextMissionTime', randomInterval(15 * 60, 20 * 60));
             allGood = false;
         }
@@ -26210,8 +26423,8 @@ class Missions {
                         reward.data = Number(slotDiv.innerHTML.replace(/<.*?>/g, '').replace(/\D/g, ''));
                     }
                     catch (e) {
-                        LogUtils_logHHAuto("Catched error : Couldn't parse xp/money data : " + e);
-                        LogUtils_logHHAuto(slotDiv);
+                        logHHAuto("Catched error : Couldn't parse xp/money data : " + e);
+                        logHHAuto(slotDiv);
                     }
                 }
                 // set item details if item
@@ -26220,8 +26433,8 @@ class Missions {
                         reward.data = $.data(slotDiv).d;
                     }
                     catch (e) {
-                        LogUtils_logHHAuto("Catched error : Couldn't parse item reward slot details : " + e);
-                        LogUtils_logHHAuto(slotDiv);
+                        logHHAuto("Catched error : Couldn't parse item reward slot details : " + e);
+                        logHHAuto(slotDiv);
                         reward.type = "unknown";
                     }
                 }
@@ -26229,7 +26442,7 @@ class Missions {
             });
         }
         catch (error) {
-            LogUtils_logHHAuto("Catched error : Couldn't parse rewards for missions : " + error);
+            logHHAuto("Catched error : Couldn't parse rewards for missions : " + error);
         }
         return rewards;
     }
@@ -26291,7 +26504,7 @@ class Missions {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/MonthlyCard.ts
+;// ./src/Module/MonthlyCard.ts
 // MonthlyCard.ts -- Updates input validation patterns for monthly card features
 // based on available energy types.
 //
@@ -26409,12 +26622,12 @@ class MonthlyCards {
             }
         }
         catch (e) {
-            LogUtils_logHHAuto("Catched error : Couldn't parse card info, input patern kept as default : " + e);
+            logHHAuto("Catched error : Couldn't parse card info, input patern kept as default : " + e);
         }
     }
 }
 
-;// CONCATENATED MODULE: ./src/Service/FeaturePopupService.ts
+;// ./src/Service/FeaturePopupService.ts
 // FeaturePopupService.ts
 //
 // Version-gated "What's New" popup to inform users about important changes
@@ -26490,8 +26703,9 @@ class FeaturePopupService {
      * Dismiss counters reset automatically when activated for a new version.
      */
     static shouldShowPopup() {
-        if (FEATURE_POPUP_VERSION === "0")
-            return false;
+        if (false)
+            // removed by dead control flow
+{}
         const currentVersion = GM.info.script.version;
         if (currentVersion !== FEATURE_POPUP_VERSION)
             return false;
@@ -26529,7 +26743,7 @@ class FeaturePopupService {
         const count = Number(getStoredValue(HHStoredVarPrefixKey + TK.featurePopupDismissCount) || "0");
         setStoredValue(HHStoredVarPrefixKey + TK.featurePopupDismissCount, String(count + 1));
         const limitDisplay = FEATURE_POPUP_MAX_REMINDERS >= Number.MAX_SAFE_INTEGER ? '∞' : String(FEATURE_POPUP_MAX_REMINDERS);
-        LogUtils_logHHAuto(`Feature popup postponed (${count + 1}/${limitDisplay}).`);
+        logHHAuto(`Feature popup postponed (${count + 1}/${limitDisplay}).`);
         maskHHPopUp();
     }
     /**
@@ -26537,7 +26751,7 @@ class FeaturePopupService {
      */
     static dismiss() {
         FeaturePopupService.markAsShown();
-        LogUtils_logHHAuto("Feature popup dismissed for version " + FEATURE_POPUP_VERSION + ".");
+        logHHAuto("Feature popup dismissed for version " + FEATURE_POPUP_VERSION + ".");
         maskHHPopUp();
     }
     // ── Private helpers ──
@@ -26568,7 +26782,7 @@ class FeaturePopupService {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Service/SurveyService.ts
+;// ./src/Service/SurveyService.ts
 // SurveyService.ts
 //
 // One-time settings survey that asks users to anonymously share which
@@ -26610,24 +26824,25 @@ class SurveyService {
      * Dismiss counters reset automatically when activated for a new version.
      */
     static shouldShowSurvey() {
-        if (SURVEY_ACTIVE_IN_VERSION === "0")
+        if (true)
             return false;
-        const currentVersion = GM.info.script.version;
-        if (currentVersion !== SURVEY_ACTIVE_IN_VERSION)
-            return false;
+        // removed by dead control flow
+
+        // removed by dead control flow
+
         // Reset dismiss state when activated for a new version
-        const shownForVersion = getStoredValue(HHStoredVarPrefixKey + TK.surveyShown);
-        if (shownForVersion !== "0" && shownForVersion !== SURVEY_ACTIVE_IN_VERSION) {
-            // Different version was tracked before → reset for the new activation
-            setStoredValue(HHStoredVarPrefixKey + TK.surveyShown, "0");
-            setStoredValue(HHStoredVarPrefixKey + TK.surveyDismissCount, "0");
-        }
-        if (shownForVersion === SURVEY_ACTIVE_IN_VERSION)
-            return false;
-        const dismissCount = Number(getStoredValue(HHStoredVarPrefixKey + TK.surveyDismissCount) || "0");
-        if (dismissCount >= MAX_REMIND_COUNT)
-            return false;
-        return true;
+        // removed by dead control flow
+
+        // removed by dead control flow
+
+        // removed by dead control flow
+
+        // removed by dead control flow
+
+        // removed by dead control flow
+
+        // removed by dead control flow
+
     }
     /**
      * Show the survey popup.
@@ -26654,7 +26869,7 @@ class SurveyService {
         // Iterate all SK keys (user settings only)
         for (const keyName of Object.keys(SK)) {
             const storageKey = HHStoredVarPrefixKey + SK[keyName];
-            const varDef = HHStoredVars_HHStoredVars[storageKey];
+            const varDef = HHStoredVars[storageKey];
             if (!varDef || varDef.HHType !== "Setting")
                 continue;
             const currentValue = getStoredValue(storageKey);
@@ -26693,7 +26908,7 @@ class SurveyService {
         const hash = SurveyService.hashString(hashInput);
         const lastHash = getStoredValue(HHStoredVarPrefixKey + TK.surveyLastHash);
         if (lastHash === hash) {
-            LogUtils_logHHAuto("Settings survey skipped: settings unchanged since last submission.");
+            logHHAuto("Settings survey skipped: settings unchanged since last submission.");
             SurveyService.markAsShown();
             SurveyService.showThankYou();
             return;
@@ -26708,18 +26923,18 @@ class SurveyService {
             data: formData,
             onload: function (response) {
                 if (response.status === 200) {
-                    LogUtils_logHHAuto("Settings survey submitted successfully via Google Form.");
+                    logHHAuto("Settings survey submitted successfully via Google Form.");
                     setStoredValue(HHStoredVarPrefixKey + TK.surveyLastHash, hash);
                     SurveyService.markAsShown();
                     SurveyService.showThankYou();
                 }
                 else {
-                    LogUtils_logHHAuto("Settings survey submission failed: " + response.status);
+                    logHHAuto("Settings survey submission failed: " + response.status);
                     SurveyService.showError();
                 }
             },
             onerror: function () {
-                LogUtils_logHHAuto("Settings survey submission error.");
+                logHHAuto("Settings survey submission error.");
                 SurveyService.showError();
             }
         });
@@ -26729,7 +26944,7 @@ class SurveyService {
      */
     static copyToClipboard(data, silent = false) {
         GM_setClipboard(data, 'text');
-        LogUtils_logHHAuto("Settings survey data copied to clipboard.");
+        logHHAuto("Settings survey data copied to clipboard.");
         if (!silent) {
             SurveyService.markAsShown();
             SurveyService.showCopied();
@@ -26747,7 +26962,7 @@ class SurveyService {
     static remindLater() {
         const count = Number(getStoredValue(HHStoredVarPrefixKey + TK.surveyDismissCount) || "0");
         setStoredValue(HHStoredVarPrefixKey + TK.surveyDismissCount, String(count + 1));
-        LogUtils_logHHAuto(`Settings survey postponed (${count + 1}/${MAX_REMIND_COUNT}).`);
+        logHHAuto(`Settings survey postponed (${count + 1}/${MAX_REMIND_COUNT}).`);
         maskHHPopUp();
     }
     /**
@@ -26755,7 +26970,7 @@ class SurveyService {
      */
     static dismiss() {
         SurveyService.markAsShown();
-        LogUtils_logHHAuto("Settings survey permanently dismissed.");
+        logHHAuto("Settings survey permanently dismissed.");
         maskHHPopUp();
     }
     // ── Private helpers ──
@@ -26834,7 +27049,7 @@ class SurveyService {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Service/OrderResolver.ts
+;// ./src/Service/OrderResolver.ts
 /**
  * Build the directed hard/soft edges implied by every block's constraints,
  * restricted to block ids that are actually present in `order`.
@@ -27018,7 +27233,7 @@ function resolveOrder(stored, registry, defaultOrder) {
     return { order: reconciled, warnings };
 }
 
-;// CONCATENATED MODULE: ./src/Service/PipelineOrderService.ts
+;// ./src/Service/PipelineOrderService.ts
 // PipelineOrderService.ts -- "Block Order" reorder popup (v7.37.0 pipeline-block
 // architecture, ADR-001, Roadmap step 17 task 15).
 //
@@ -27072,7 +27287,7 @@ class PipelineOrderService {
     /** Open the reorder popup with the current effective order. */
     static showPopup() {
         if (!registryProvider) {
-            LogUtils_logHHAuto("Block order: registry provider not wired yet.");
+            logHHAuto("Block order: registry provider not wired yet.");
             return;
         }
         const { registry, defaultOrder } = registryProvider();
@@ -27165,7 +27380,7 @@ class PipelineOrderService {
         $('#pipeOrderCancel').off('click').on('click', function () { maskHHPopUp(); });
         $('#pipeOrderReset').off('click').on('click', function () {
             deleteStoredValue(HHStoredVarPrefixKey + TK.pipelineOrder);
-            LogUtils_logHHAuto("Block order reset to default.");
+            logHHAuto("Block order reset to default.");
             maskHHPopUp();
             safeReload();
         });
@@ -27182,14 +27397,14 @@ class PipelineOrderService {
                 deleteStoredValue(HHStoredVarPrefixKey + TK.pipelineOrder);
             else
                 setStoredValue(HHStoredVarPrefixKey + TK.pipelineOrder, JSON.stringify(proposed));
-            LogUtils_logHHAuto("Block order saved.");
+            logHHAuto("Block order saved.");
             maskHHPopUp();
             safeReload();
         });
     }
 }
 
-;// CONCATENATED MODULE: ./src/Service/TooltipService.ts
+;// ./src/Service/TooltipService.ts
 // TooltipService.ts
 //
 // Controls the visibility of help tooltips in the HHAuto settings
@@ -27238,7 +27453,7 @@ function enableToolTipsDisplay(important = false) {
             tooltip.css({ top: tipY, left: tipX });
         }
         catch (err) {
-            LogUtils_logHHAuto('Error in tooltip construction');
+            logHHAuto('Error in tooltip construction');
         }
     });
 }
@@ -27247,7 +27462,7 @@ function disableToolTipsDisplay(important = false) {
     GM_addStyle('.tooltipHH:hover span.tooltipHHtext { display: none' + importantAddendum + '}');
 }
 
-;// CONCATENATED MODULE: ./src/Service/ForbiddenBackoff.ts
+;// ./src/Service/ForbiddenBackoff.ts
 // ForbiddenBackoff.ts
 //
 // Persistent Forbidden counter and exponential backoff calculator
@@ -27343,7 +27558,7 @@ function nextStreakCount(prevCount, prevTimestamp, now) {
  */
 function recordForbidden(storage = defaultStorage(), now = Date.now) {
     if (!storage) {
-        LogUtils_logHHAuto('[ForbiddenBackoff] storage unavailable, Forbidden not recorded');
+        logHHAuto('[ForbiddenBackoff] storage unavailable, Forbidden not recorded');
         return -1;
     }
     let prevCount = 0;
@@ -27368,10 +27583,10 @@ function recordForbidden(storage = defaultStorage(), now = Date.now) {
         storage.setItem(FORBIDDEN_LAST_AT_KEY, String(t));
     }
     catch (e) {
-        LogUtils_logHHAuto('[ForbiddenBackoff] storage write failed, Forbidden not persisted');
+        logHHAuto('[ForbiddenBackoff] storage write failed, Forbidden not persisted');
         return -1;
     }
-    LogUtils_logHHAuto('[ForbiddenBackoff] XHR 403 recorded (streak #' + count + ')');
+    logHHAuto('[ForbiddenBackoff] XHR 403 recorded (streak #' + count + ')');
     return count;
 }
 function defaultStorage() {
@@ -27383,7 +27598,7 @@ function defaultStorage() {
     return null;
 }
 
-;// CONCATENATED MODULE: ./src/Service/HeroBootRecovery.ts
+;// ./src/Service/HeroBootRecovery.ts
 // HeroBootRecovery.ts
 //
 // Self-heal for the boot path when a game page loads but never
@@ -27440,7 +27655,7 @@ function nextHeroGiveupReloadCount(prevReloadCount) {
     return sanitizeHeroGiveupReloadCount(prevReloadCount) + 1;
 }
 
-;// CONCATENATED MODULE: ./src/Service/StartService.ts
+;// ./src/Service/StartService.ts
 // StartService.ts
 //
 // One-time initialization that runs when the script first loads on a
@@ -27533,7 +27748,7 @@ class StartService {
         let previousScriptVersion = getStoredValue(HHStoredVarPrefixKey + TK.scriptversion);
         if (previousScriptVersion != GM.info.script.version) {
             // run action on new script version
-            LogUtils_logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
+            logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + TK.scriptversion, GM.info.script.version);
             // +Raid Stars migration handled below (outside version check)
             if ('7.26.0' === GM.info.script.version) {
@@ -27577,19 +27792,19 @@ class StartService {
     }
 }
 function StartService_setDefaults(force = false) {
-    for (let i of Object.keys(HHStoredVars_HHStoredVars)) {
-        if (HHStoredVars_HHStoredVars[i].storage !== undefined) {
-            let storageItem = getStorageItem(HHStoredVars_HHStoredVars[i].storage);
+    for (let i of Object.keys(HHStoredVars)) {
+        if (HHStoredVars[i].storage !== undefined) {
+            let storageItem = getStorageItem(HHStoredVars[i].storage);
             let isInvalid = false;
             //console.log(storageItem[i], storageItem[i] !== undefined);
-            if (HHStoredVars_HHStoredVars[i].isValid !== undefined && storageItem[i] !== undefined) {
-                isInvalid = !HHStoredVars_HHStoredVars[i].isValid.test(storageItem[i]);
+            if (HHStoredVars[i].isValid !== undefined && storageItem[i] !== undefined) {
+                isInvalid = !HHStoredVars[i].isValid.test(storageItem[i]);
                 if (isInvalid) {
-                    LogUtils_logHHAuto("HHStoredVar " + i + " is invalid, reseting.");
-                    LogUtils_logHHAuto("HHStoredVar " + i + " current value : " + storageItem[i]);
+                    logHHAuto("HHStoredVar " + i + " is invalid, reseting.");
+                    logHHAuto("HHStoredVar " + i + " current value : " + storageItem[i]);
                 }
             }
-            if (HHStoredVars_HHStoredVars[i].default !== undefined) {
+            if (HHStoredVars[i].default !== undefined) {
                 if (storageItem[i] === undefined || force || isInvalid) {
                     setHHStoredVarToDefault(i);
                 }
@@ -27601,7 +27816,7 @@ function StartService_setDefaults(force = false) {
             }
         }
         else {
-            LogUtils_logHHAuto("HHStoredVar " + i + " has no storage defined.");
+            logHHAuto("HHStoredVar " + i + " has no storage defined.");
         }
     }
 }
@@ -27655,7 +27870,7 @@ function hardened_start() {
                 }
                 catch (e) { }
                 const time = nextForbiddenDelaySeconds(count);
-                LogUtils_logHHAuto('HHAUTO WARNING: "Forbidden" detected (#' + count + '), reloading the page in ' + time + ' seconds');
+                logHHAuto('HHAUTO WARNING: "Forbidden" detected (#' + count + '), reloading the page in ' + time + ' seconds');
                 // C1: safeReload combines setTimeout + waitForAjaxIdle + location.reload
                 // and honors the navigation mutex, so concurrent forbidden
                 // pages cannot fire two reloads back-to-back.
@@ -27679,7 +27894,7 @@ function start() {
     // "no Hero" and gave up after ~75s, looking like a freeze. Skip init there;
     // the actual game frame (e.g. /home.html) is unaffected and runs normally.
     if (location.pathname === '/') {
-        LogUtils_logHHAuto('Not a game page (/), skipping init in this frame.');
+        logHHAuto('Not a game page (/), skipping init in this frame.');
         return;
     }
     if (((_a = unsafeWindow.shared) === null || _a === void 0 ? void 0 : _a.Hero) === undefined) {
@@ -27712,15 +27927,15 @@ function start() {
                     sessionStorage.setItem(heroGiveupReloadKey(), String(nextReloads));
                 }
                 catch (e) { /* sessionStorage unavailable */ }
-                LogUtils_logHHAuto('Hero object not available after ' + HERO_MAX_RETRIES + ' retries. Auto-reloading (attempt ' + nextReloads + '/' + HERO_GIVEUP_MAX_RELOADS + ', page=' + location.pathname + ', elapsed=' + elapsed + 'ms).');
+                logHHAuto('Hero object not available after ' + HERO_MAX_RETRIES + ' retries. Auto-reloading (attempt ' + nextReloads + '/' + (/* inlined export .HERO_GIVEUP_MAX_RELOADS */3) + ', page=' + location.pathname + ', elapsed=' + elapsed + 'ms).');
                 safeReload();
             }
             else {
-                LogUtils_logHHAuto('Hero object not available after ' + HERO_MAX_RETRIES + ' retries and ' + HERO_GIVEUP_MAX_RELOADS + ' auto-reloads. Giving up. Try reloading the page. (page=' + location.pathname + ', elapsed=' + elapsed + 'ms)');
+                logHHAuto('Hero object not available after ' + HERO_MAX_RETRIES + ' retries and ' + (/* inlined export .HERO_GIVEUP_MAX_RELOADS */3) + ' auto-reloads. Giving up. Try reloading the page. (page=' + location.pathname + ', elapsed=' + elapsed + 'ms)');
             }
             return;
         }
-        LogUtils_logHHAuto('???no Hero??? (attempt ' + heroRetryCount + '/' + HERO_MAX_RETRIES + ', page=' + location.pathname + ', elapsed=' + elapsed + 'ms)');
+        logHHAuto('???no Hero??? (attempt ' + heroRetryCount + '/' + HERO_MAX_RETRIES + ', page=' + location.pathname + ', elapsed=' + elapsed + 'ms)');
         started = false;
         heroRetryTimer = setTimeout(hardened_start, 5000);
         return;
@@ -27735,10 +27950,10 @@ function start() {
     // line so it is verifiable that shared.Hero was actually found, including
     // how long it took when there were retries.
     if (heroRetryCount > 0) {
-        LogUtils_logHHAuto('Hero object available after ' + heroRetryCount + ' retries (elapsed=' + (Date.now() - heroRetryFirstAt) + 'ms, page=' + location.pathname + ').');
+        logHHAuto('Hero object available after ' + heroRetryCount + ' retries (elapsed=' + (Date.now() - heroRetryFirstAt) + 'ms, page=' + location.pathname + ').');
     }
     else {
-        LogUtils_logHHAuto('Hero object available (page=' + location.pathname + ').');
+        logHHAuto('Hero object available (page=' + location.pathname + ').');
     }
     heroRetryCount = 0;
     heroRetryFirstAt = 0;
@@ -27749,7 +27964,7 @@ function start() {
     }
     catch (e) { /* sessionStorage unavailable */ }
     if ($("a[rel='phoenix_member_login']").length > 0) {
-        LogUtils_logHHAuto('Not logged in, please login first!');
+        logHHAuto('Not logged in, please login first!');
         return;
     }
     StartService.checkVersion();
@@ -27788,7 +28003,7 @@ function start() {
         };
         if (selectionMap[raidStarsVal] !== undefined) {
             setStoredValue(HHStoredVarPrefixKey + SK.plusLoveRaidMythic, selectionMap[raidStarsVal]);
-            LogUtils_logHHAuto("Migrated +Raid Stars value '" + raidStarsVal + "' → '" + selectionMap[raidStarsVal] + "'");
+            logHHAuto("Migrated +Raid Stars value '" + raidStarsVal + "' → '" + selectionMap[raidStarsVal] + "'");
         }
     }
     StartService_setDefaults();
@@ -27998,7 +28213,7 @@ function start() {
         const lastTs = typeof (last === null || last === void 0 ? void 0 : last.dateTime) === 'number' ? last.dateTime : 0;
         if (lastTs > 0 && (Date.now() - lastTs) > COLD_START_THRESHOLD_MS) {
             initialDelayMs = COLD_START_DELAY_MS;
-            LogUtils_logHHAuto('Cold start detected (last activity > ' + Math.round(COLD_START_THRESHOLD_MS / 1000) + 's ago), delaying first autoLoop by ' + initialDelayMs + 'ms');
+            logHHAuto('Cold start detected (last activity > ' + Math.round(COLD_START_THRESHOLD_MS / 1000) + 's ago), delaying first autoLoop by ' + initialDelayMs + 'ms');
         }
     }
     catch (e) { /* fall back to normal delay */ }
@@ -28015,7 +28230,7 @@ function start() {
 }
 ;
 
-;// CONCATENATED MODULE: ./src/Service/BlockScheduler.ts
+;// ./src/Service/BlockScheduler.ts
 var BlockScheduler_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -28335,7 +28550,7 @@ class BlockScheduler {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Service/BlockRunStore.ts
+;// ./src/Service/BlockRunStore.ts
 // BlockRunStore.ts -- reload-safe persistence of the active BlockRun
 // (v7.37.0 pipeline-block architecture, ADR-001).
 //
@@ -28390,7 +28605,7 @@ function clearBlockRun() {
     deleteStoredValue(key());
 }
 
-;// CONCATENATED MODULE: ./src/Service/PipeLogger.ts
+;// ./src/Service/PipeLogger.ts
 // PipeLogger.ts -- structured [PIPE] logging for the block scheduler
 // (v7.37.0 pipeline-block architecture, ADR-001, task 7).
 //
@@ -28459,14 +28674,14 @@ function logEvent(fields) {
     // Per-step "done" is verbose; the run-complete "done" is lean.
     if (ev === "done" && fields.detail !== "run complete" && !isDiagnose())
         return;
-    LogUtils_logHHAuto(formatPipeLine(fields));
+    logHHAuto(formatPipeLine(fields));
 }
 /** Write/refresh the non-rotating context block (R6.16). Prepended to the export via storage. */
 function writeLogContext(ctx) {
     setStoredValue(HHStoredVarPrefixKey + TK.pipelineLogContext, JSON.stringify(ctx));
 }
 
-;// CONCATENATED MODULE: ./src/Module/Bundles.pure.ts
+;// ./src/Module/Bundles.pure.ts
 // Bundles.pure.ts -- Pure decision logic for the free-bundle collector.
 //
 // Extracted from Bundles.getExpiryTime so the 24-hour threshold check
@@ -28497,7 +28712,7 @@ function decideExpiryTime(state) {
     return state.scrapedSeconds;
 }
 
-;// CONCATENATED MODULE: ./src/Module/Bundles.ts
+;// ./src/Module/Bundles.ts
 // Bundles.ts -- Collects free daily and periodic bundles from the shop popup.
 //
 // The game periodically offers free bundle rewards in a popup. This module
@@ -28524,12 +28739,12 @@ class Bundles {
         let scrapedSeconds = null;
         if ($(timerRequest).length > 0) {
             scrapedSeconds = Number(convertTimeToInt($(timerRequest).text()));
-            LogUtils_logHHAuto('freeBundleTimer', scrapedSeconds);
+            logHHAuto('freeBundleTimer', scrapedSeconds);
         }
         const fallbackSeconds = ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
         const decision = decideExpiryTime({ scrapedSeconds, fallbackSeconds });
         if (scrapedSeconds === null || scrapedSeconds >= 24 * 3600) {
-            LogUtils_logHHAuto('ERROR: can\'t get bundle expiry time, default to maxCollectionDelay');
+            logHHAuto('ERROR: can\'t get bundle expiry time, default to maxCollectionDelay');
         }
         return decision;
     }
@@ -28537,44 +28752,44 @@ class Bundles {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
             try {
                 if (getStoredValue(HHStoredVarPrefixKey + SK.autoFreeBundlesCollect) !== "true") {
-                    LogUtils_logHHAuto("Error autoFreeBundlesCollect not activated.");
+                    logHHAuto("Error autoFreeBundlesCollect not activated.");
                     return;
                 }
                 const plusButton = $("header .currency .reversed_tooltip");
                 if (plusButton.length > 0) {
-                    LogUtils_logHHAuto("click button for popup.");
+                    logHHAuto("click button for popup.");
                     plusButton.trigger('click');
                 }
                 else {
-                    LogUtils_logHHAuto("No button for popup. Try again in 5h.");
+                    logHHAuto("No button for popup. Try again in 5h.");
                     setTimer('nextFreeBundlesCollectTime', randomInterval(4 * 60 * 60, 6 * 60 * 60));
                     return false;
                 }
-                LogUtils_logHHAuto("setting autoloop to false");
+                logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 const bundleTabsContainerQuery = "#common-popups .payments-wrapper .payment-tabs";
                 const bundleTabsListQuery = '.starter_offers, .event_bundles, .special_offers, .period_deal';
                 const subTabsQuery = "#common-popups .payments-wrapper .content-container .subtabs-container .card-container";
                 const freeButtonBundleQuery = "#common-popups .payments-wrapper .bundle .bundle-offer-price .blue_button_L:enabled[price='0.00']";
                 function collectFreeBundlesFinished(message, nextFreeBundlesCollectTime) {
-                    LogUtils_logHHAuto(message);
+                    logHHAuto(message);
                     setTimer('nextFreeBundlesCollectTime', nextFreeBundlesCollectTime);
                     $("#common-popups .close_cross").trigger('click'); // Close popup
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "true");
-                    LogUtils_logHHAuto("setting autoloop to true");
+                    logHHAuto("setting autoloop to true");
                     setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + TK.autoLoopTimeMili)));
                 }
                 function parseAndCollectFreeBundles() {
                     const freeBundlesNumber = $(freeButtonBundleQuery).length;
                     if (freeBundlesNumber > 0) {
-                        LogUtils_logHHAuto("Free Bundles found: " + freeBundlesNumber);
+                        logHHAuto("Free Bundles found: " + freeBundlesNumber);
                         let buttonsToCollect = [];
                         for (let currentBundle = 0; currentBundle < freeBundlesNumber; currentBundle++) {
                             buttonsToCollect.push($(freeButtonBundleQuery)[currentBundle]);
                         }
                         function collectFreeBundle() {
                             if (buttonsToCollect.length > 0) {
-                                LogUtils_logHHAuto("Collecting bundle n°" + buttonsToCollect[0].getAttribute('product'));
+                                logHHAuto("Collecting bundle n°" + buttonsToCollect[0].getAttribute('product'));
                                 buttonsToCollect[0].click();
                                 buttonsToCollect.shift();
                                 setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(500, 800));
@@ -28594,14 +28809,14 @@ class Bundles {
                         let freeBundleFound = false;
                         for (let bundleIndex = 0; bundleIndex < bundleTabs.length && !freeBundleFound; bundleIndex++) {
                             bundleTabs[bundleIndex].click();
-                            LogUtils_logHHAuto("Looking in tabs '" + $(bundleTabs[bundleIndex]).attr('type') + "'.");
+                            logHHAuto("Looking in tabs '" + $(bundleTabs[bundleIndex]).attr('type') + "'.");
                             freeBundleFound = parseAndCollectFreeBundles();
                             if (!freeBundleFound && $(subTabsQuery).length > 0) {
                                 const subTabs = $(subTabsQuery);
-                                LogUtils_logHHAuto("Sub tabs found, switching to next one");
+                                logHHAuto("Sub tabs found, switching to next one");
                                 for (let subTabIndex = 1; subTabIndex < subTabs.length && !freeBundleFound; subTabIndex++) {
                                     subTabs[subTabIndex].click();
-                                    LogUtils_logHHAuto("Looking in sub tabs '" + $(subTabs[subTabIndex]).attr('period_deal') + "'.");
+                                    logHHAuto("Looking in sub tabs '" + $(subTabs[subTabIndex]).attr('period_deal') + "'.");
                                     freeBundleFound = parseAndCollectFreeBundles();
                                 }
                             }
@@ -28619,13 +28834,13 @@ class Bundles {
                 return true;
             }
             catch ({ errName, message }) {
-                LogUtils_logHHAuto(`ERROR during free bundles run: ${message}, retry in 1h`);
+                logHHAuto(`ERROR during free bundles run: ${message}, retry in 1h`);
                 setTimer('nextFreeBundlesCollectTime', randomInterval(3600, 4000));
                 return false;
             }
         }
         else {
-            LogUtils_logHHAuto("Navigating to home page.");
+            logHHAuto("Navigating to home page.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             // return busy
             return true;
@@ -28633,7 +28848,7 @@ class Bundles {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/LabyrinthAuto.ts
+;// ./src/Module/LabyrinthAuto.ts
 var LabyrinthAuto_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -28679,7 +28894,7 @@ class LabyrinthAuto {
             // off instead of overflowing the stack. Full continuation model is
             // tracked for the step-17 multi-step scheduler.
             if (depth > 10) {
-                LogUtils_logHHAuto('Labyrinth: max recursion depth reached this tick, backing off.');
+                logHHAuto('Labyrinth: max recursion depth reached this tick, backing off.');
                 setTimer('nextLabyrinthTime', randomInterval(60, 120));
                 return false;
             }
@@ -28687,7 +28902,7 @@ class LabyrinthAuto {
             if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinthEntrance")) {
                 const difficultyButton = $('.difficulty-button:not([disabled])');
                 if (difficultyButton.length === 1) {
-                    LogUtils_logHHAuto(`On Labyrinth entrance page, only one difficulty available, ${difficultyButton.text().trim()}, select it.`);
+                    logHHAuto(`On Labyrinth entrance page, only one difficulty available, ${difficultyButton.text().trim()}, select it.`);
                     difficultyButton.trigger('click');
                     yield TimeHelper.sleep(randomInterval(200, 400));
                     $('#labyrinth_confirm_difficulty button.blue_button_L').trigger('click');
@@ -28699,7 +28914,7 @@ class LabyrinthAuto {
                     const difficultyToSelect = LabyrinthAuto.LABYRINTH_SELECTOR[parseInt(chooseDifficulty)];
                     const buttonToSelect = $(`.difficulty-button.difficulty-${difficultyToSelect}:not([disabled])`);
                     if (buttonToSelect.length === 1) {
-                        LogUtils_logHHAuto(`On Labyrinth entrance page, selecting ${difficultyToSelect} difficulty.`);
+                        logHHAuto(`On Labyrinth entrance page, selecting ${difficultyToSelect} difficulty.`);
                         buttonToSelect.trigger('click');
                         yield TimeHelper.sleep(randomInterval(200, 400));
                         $('#labyrinth_confirm_difficulty button.blue_button_L').trigger('click');
@@ -28707,28 +28922,28 @@ class LabyrinthAuto {
                         return true;
                     }
                     else {
-                        LogUtils_logHHAuto(`On Labyrinth entrance page, ${difficultyToSelect} difficulty not available, manual selection needed.`);
+                        logHHAuto(`On Labyrinth entrance page, ${difficultyToSelect} difficulty not available, manual selection needed.`);
                     }
                 }
                 setTimer('nextLabyrinthTime', randomInterval(600, 700));
                 return false;
             }
             else if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinthPoolSelect")) {
-                LogUtils_logHHAuto("On Labyrinthpool select.");
+                logHHAuto("On Labyrinthpool select.");
                 $('button.blue_button_L[rel="labyrinth_auto_assign"]').trigger('click');
                 yield TimeHelper.sleep(randomInterval(200, 400));
                 $('button.blue_button_L[rel="labyrinth_team_confirmation"]').trigger('click');
                 return true;
             }
             else if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinth")) {
-                LogUtils_logHHAuto("On Labyrinth page.");
+                logHHAuto("On Labyrinth page.");
                 yield TimeHelper.sleep(randomInterval(500, 800));
                 if (this.closeRewards()) {
                     if (this.debugEnabled)
-                        LogUtils_logHHAuto('Some rewards popup closed');
+                        logHHAuto('Some rewards popup closed');
                 }
                 if ($('.cleared-labyrinth-container:visible').length > 0) {
-                    LogUtils_logHHAuto("Labyrinth ended.");
+                    logHHAuto("Labyrinth ended.");
                     setTimer('nextLabyrinthTime', Labyrinth.getResetTime() + randomInterval(7200, 8000));
                     return false;
                 }
@@ -28742,28 +28957,28 @@ class LabyrinthAuto {
                     Labyrinth.sim();
                     yield TimeHelper.sleep(randomInterval(200, 400));
                     if ($('.labChosen').length <= 0) {
-                        LogUtils_logHHAuto("Issue to find labyrinth next step button, retry in 60secs.");
+                        logHHAuto("Issue to find labyrinth next step button, retry in 60secs.");
                         setTimer('nextLabyrinthTime', randomInterval(60, 70));
                         return true;
                     }
                 }
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 if (this.debugEnabled)
-                    LogUtils_logHHAuto("setting autoloop to false");
+                    logHHAuto("setting autoloop to false");
                 const autoLabySweep = getStoredValue(HHStoredVarPrefixKey + SK.autoLabySweep) === "true";
                 const sweepFloorButton = $('#sweeping-floor:not([disabled])');
                 if (autoLabySweep && sweepFloorButton.length > 0) {
-                    LogUtils_logHHAuto("Auto laby sweep enabled, triggering sweep.");
+                    logHHAuto("Auto laby sweep enabled, triggering sweep.");
                     sweepFloorButton.trigger('click');
                     yield TimeHelper.sleep(randomInterval(1000, 1500));
                     if (this.debugEnabled)
-                        LogUtils_logHHAuto("Confirm sweep.");
+                        logHHAuto("Confirm sweep.");
                     $("#labyrinth_sweeping_preview_popup #popup_confirm.blue_button_L").trigger('click');
                     yield TimeHelper.sleep(randomInterval(1500, 2000));
                     // Close reward popup or wait until it opens
                     for (let i = 0; i < 3; i++) {
                         if (this.debugEnabled)
-                            LogUtils_logHHAuto("Close seep reward popup.");
+                            logHHAuto("Close seep reward popup.");
                         const popupOpened = this.closeRewards();
                         yield TimeHelper.sleep(randomInterval(800, 1300));
                         if (popupOpened)
@@ -28784,35 +28999,35 @@ class LabyrinthAuto {
                 return true;
             }
             else if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinthPreBattle")) {
-                LogUtils_logHHAuto("On labyrinth-pre-battle page.");
+                logHHAuto("On labyrinth-pre-battle page.");
                 if (this.getNumberSelectedGirl() === 7) {
                     const templeID = queryStringGetParam(window.location.search, 'id_opponent');
-                    LogUtils_logHHAuto("Go and fight labyrinth :" + templeID);
+                    logHHAuto("Go and fight labyrinth :" + templeID);
                     const labyrinthBattleButton = $("#pre-battle .buttons-container .blue_button_L");
                     if (labyrinthBattleButton.length > 0) {
                         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                        LogUtils_logHHAuto("setting autoloop to false");
+                        logHHAuto("setting autoloop to false");
                         labyrinthBattleButton[0].click();
                     }
                     else {
-                        LogUtils_logHHAuto("Issue to find labyrinth battle button retry in 60secs.");
+                        logHHAuto("Issue to find labyrinth battle button retry in 60secs.");
                         setTimer('nextLabyrinthTime', randomInterval(60, 70));
                     }
                 }
                 else if (this.getNumberSelectedGirl() < 7) {
-                    LogUtils_logHHAuto("Not enough girls, Edit team.");
+                    logHHAuto("Not enough girls, Edit team.");
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDEditLabyrinthTeam"));
                 }
                 else {
-                    LogUtils_logHHAuto("Error in parsing, disable laby.");
+                    logHHAuto("Error in parsing, disable laby.");
                     setStoredValue(HHStoredVarPrefixKey + SK.autoLabyrinth, "false");
                 }
                 return true;
             }
             else if (page === ConfigHelper.getHHScriptVars("pagesIDEditLabyrinthTeam")) {
-                LogUtils_logHHAuto("Fill team.");
+                logHHAuto("Fill team.");
                 const numberOfGirlsRemaining = Labyrinth.getRemainingNumberOfGirl();
-                LogUtils_logHHAuto(`Number of girls remaining: ${numberOfGirlsRemaining}`);
+                logHHAuto(`Number of girls remaining: ${numberOfGirlsRemaining}`);
                 if (numberOfGirlsRemaining >= 7) {
                     const customTeamBuilder = getStoredValue(HHStoredVarPrefixKey + SK.autoLabyCustomTeamBuilder) === "true";
                     if (customTeamBuilder) {
@@ -28833,12 +29048,12 @@ class LabyrinthAuto {
                     }
                     else {
                         if (this.debugEnabled)
-                            LogUtils_logHHAuto('Not enough girl selected, retry...');
+                            logHHAuto('Not enough girl selected, retry...');
                         return this.run(depth + 1);
                     }
                 }
                 else {
-                    LogUtils_logHHAuto('Not enough girl to continue. Stopping');
+                    logHHAuto('Not enough girl to continue. Stopping');
                     setTimer('nextLabyrinthTime', randomInterval(5 * 60 * 60, 7 * 60 * 60));
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return true;
@@ -28874,7 +29089,7 @@ LabyrinthAuto.NORMAL = LABY_DIFFICULTY.NORMAL;
 LabyrinthAuto.HARD = LABY_DIFFICULTY.HARD;
 LabyrinthAuto.LABYRINTH_SELECTOR = ['easy', 'normal', 'hard'];
 
-;// CONCATENATED MODULE: ./src/Module/harem/HaremSalary.ts
+;// ./src/Module/harem/HaremSalary.ts
 var HaremSalary_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -28932,26 +29147,26 @@ class HaremSalary {
                         if (enoughSalaryToCollect) {
                             const getButtonClass = salaryButton.attr("class") || '';
                             if (getButtonClass.indexOf("blue_button_L") !== -1 || getButtonClass.indexOf("round_blue_button") !== -1) {
-                                LogUtils_logHHAuto('Collected all salary');
+                                logHHAuto('Collected all salary');
                                 salaryButton.trigger('click');
                                 yield TimeHelper.sleep(randomInterval(200, 400));
                                 setTimer('nextSalaryTime', randomInterval(60, 180));
                                 return false;
                             }
                             else {
-                                LogUtils_logHHAuto("Unknown salary button color : " + getButtonClass);
+                                logHHAuto("Unknown salary button color : " + getButtonClass);
                                 setTimer('nextSalaryTime', randomInterval(60, 180));
                             }
                         }
                         else {
-                            LogUtils_logHHAuto("Not enough salary to collect, wait");
+                            logHHAuto("Not enough salary to collect, wait");
                             setTimer('nextSalaryTime', randomInterval(60, 180));
                         }
                     }
                 }
             }
             catch (ex) {
-                LogUtils_logHHAuto("Catched error : Could not collect salary... " + ex);
+                logHHAuto("Catched error : Could not collect salary... " + ex);
                 setTimer('nextSalaryTime', randomInterval(60, 180));
                 // return not busy
                 return false;
@@ -28961,7 +29176,7 @@ class HaremSalary {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/GenericBattle.ts
+;// ./src/Module/GenericBattle.ts
 // GenericBattle.ts -- Handles the battle result page UI across all fight types.
 //
 // When a battle completes (troll, event, league, etc.), this module manages
@@ -28994,9 +29209,9 @@ class GenericBattle {
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle")) {
-            LogUtils_logHHAuto("On battle page.");
+            logHHAuto("On battle page.");
             if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") && getStoredValue(HHStoredVarPrefixKey + SK.autoLeagues) === "true") {
-                LogUtils_logHHAuto("Reloading after league fight.");
+                logHHAuto("Reloading after league fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"), {}, randomInterval(4000, 5000));
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle")) {
@@ -29011,54 +29226,54 @@ class GenericBattle {
                 if (getStoredValue(HHStoredVarPrefixKey + SK.plusEvent) === "true" && (eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.girl_id) && !(eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.is_mythic)
                     ||
                         getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythic) === "true" && (eventMythicGirl === null || eventMythicGirl === void 0 ? void 0 : eventMythicGirl.girl_id) && (eventMythicGirl === null || eventMythicGirl === void 0 ? void 0 : eventMythicGirl.is_mythic)) {
-                    LogUtils_logHHAuto("Event ongoing search for girl rewards in popup.");
+                    logHHAuto("Event ongoing search for girl rewards in popup.");
                     RewardHelper.ObserveAndGetGirlRewards();
                 }
                 else {
                     LoveRaidManager.getTrollRaids().forEach((raid) => {
                         if (raid.trollId === Number(troll_id)) {
-                            LogUtils_logHHAuto("Event ongoing search for girl rewards in popup.");
+                            logHHAuto("Event ongoing search for girl rewards in popup.");
                             RewardHelper.ObserveAndGetGirlRewards();
                             return true;
                         }
                     });
                     if (troll_id !== null) {
-                        LogUtils_logHHAuto("Go back to Troll after Troll fight.");
+                        logHHAuto("Go back to Troll after Troll fight.");
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"), { id_opponent: troll_id }, randomInterval(2000, 4000));
                     }
                     else {
-                        LogUtils_logHHAuto("Go to home after unknown troll fight.");
+                        logHHAuto("Go to home after unknown troll fight.");
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"), {}, randomInterval(2000, 4000));
                     }
                 }
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") && getStoredValue(HHStoredVarPrefixKey + SK.autoSeason) === "true") {
-                LogUtils_logHHAuto("Go back to Season arena after Season fight.");
+                logHHAuto("Go back to Season arena after Season fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"), {}, randomInterval(2000, 4000));
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle") && getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrill) === "true") {
-                LogUtils_logHHAuto("Go back to Penta drill arena after fight.");
+                logHHAuto("Go back to Penta drill arena after fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"), {}, randomInterval(5000, 8000));
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") && (getStoredValue(HHStoredVarPrefixKey + SK.autoPantheon) === "true" || DailyGoals.isPantheonDailyGoal())) {
-                LogUtils_logHHAuto("Go back to Pantheon arena after Pantheon temple.");
+                logHHAuto("Go back to Pantheon arena after Pantheon temple.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDPantheon"), {}, randomInterval(2000, 4000));
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle") && getStoredValue(HHStoredVarPrefixKey + SK.autoLabyrinth) === "true") {
-                LogUtils_logHHAuto("Go back to Labyrinth after fight.");
+                logHHAuto("Go back to Labyrinth after fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDLabyrinth"), {}, randomInterval(2000, 4000));
             }
             return true;
         }
         else {
-            LogUtils_logHHAuto('Unable to identify page.');
+            logHHAuto('Unable to identify page.');
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             return;
         }
     }
 }
 
-;// CONCATENATED MODULE: ./src/Service/Pipeline.config.ts
+;// ./src/Service/Pipeline.config.ts
 var Pipeline_config_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -29077,6 +29292,7 @@ var Pipeline_config_awaiter = (undefined && undefined.__awaiter) || function (th
 // array below: first element runs first. Reordering = move a line.
 //
 // Used by: Scheduler.ts
+
 
 
 
@@ -29182,7 +29398,7 @@ function fromDescriptor(descriptor, opts) {
                 name: descriptor.action,
                 fn: (ctx) => Pipeline_config_awaiter(this, void 0, void 0, function* () {
                     try {
-                        LogUtils_logHHAuto(descriptor.name);
+                        logHHAuto(descriptor.name);
                         const result = yield descriptor.execute();
                         ctx.busy = typeof result === 'boolean' ? result : true;
                         ctx.lastActionPerformed = descriptor.action;
@@ -29453,7 +29669,7 @@ const handleLeague = {
         },
     ],
     onFailure: (_ctx, failedStep, reason) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
-        LogUtils_logHHAuto('[Pipeline] handleLeague failed at ' + failedStep + ': ' + reason);
+        logHHAuto('[Pipeline] handleLeague failed at ' + failedStep + ': ' + reason);
     }),
     totalTimeoutMs: 30000,
 };
@@ -29513,7 +29729,7 @@ const handleShop = {
             name: 'updateShop',
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    LogUtils_logHHAuto('Time to check shop.');
+                    logHHAuto('Time to check shop.');
                     const result = Shop.updateShop();
                     ctx.busy = result === true;
                     ctx.lastActionPerformed = 'shop';
@@ -29616,6 +29832,23 @@ const handleMissions = fromDescriptor({
             && getStoredValue(HHStoredVarPrefixKey + SK.autoSideQuest) === 'true';
         return !(autoQuest || autoSideQuest);
     },
+});
+// Reward-ad clicker (issue #1746). Home-page only; clicks a whitelisted
+// "Try it now" tile, closes the ad tab it opens and confirms "Get the reward".
+// runAdCycle arms nextAdsTime on every exit path, so the isReady checkTimer
+// gate rate-limits re-entry -- no unbounded retry. Returns true when it acted,
+// so the applySlotHold wrapper (BlockPipeline.toBlock) keeps the slot for the
+// single-step cycle before releasing it once the timer is armed.
+const handleKobanAds = fromDescriptor({
+    name: "Time to check reward ads.",
+    action: "ads",
+    isReady: () => AdsService.isAdClickActivated() && checkTimer('nextAdsTime'),
+    execute: () => AdsService.runAdCycle(),
+}, {
+    minIntervalMs: 5000,
+    handlerName: "handleKobanAds",
+    // The reward-ad tiles live on the Home page only.
+    extraPrecondition: (ctx) => ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDHome'),
 });
 const handleChampion = fromDescriptor({
     name: "Time to check on champions!",
@@ -29754,21 +29987,21 @@ const handlePlaceOfPower = {
                     let popToStart = getStoredJSON(HHStoredVarPrefixKey + TK.PopToStart, []);
                     const popToStartExist = getStoredValue(HHStoredVarPrefixKey + TK.PopToStart) ? true : false;
                     if (!popToStartExist) {
-                        LogUtils_logHHAuto('Go and collect pop');
+                        logHHAuto('Go and collect pop');
                         ctx.busy = yield PlaceOfPower.collectAndUpdate();
                     }
                     const indexes = getStoredValue(HHStoredVarPrefixKey + SK.autoPowerPlacesIndexFilter).split(';');
                     popToStart = getStoredJSON(HHStoredVarPrefixKey + TK.PopToStart, []);
                     for (const pop of popToStart) {
                         if (ctx.busy === false && !indexes.includes(String(pop))) {
-                            LogUtils_logHHAuto('PoP is no longer in list :' + pop + ' removing it from start list.');
+                            logHHAuto('PoP is no longer in list :' + pop + ' removing it from start list.');
                             PlaceOfPower.removePopFromPopToStart(pop);
                         }
                     }
                     popToStart = getStoredJSON(HHStoredVarPrefixKey + TK.PopToStart, []);
                     for (const index of indexes) {
                         if (ctx.busy === false && popToStart.includes(Number(index))) {
-                            LogUtils_logHHAuto('Time to do PowerPlace' + index + '.');
+                            logHHAuto('Time to do PowerPlace' + index + '.');
                             ctx.busy = yield PlaceOfPower.doPowerPlacesStuff(index);
                             ctx.lastActionPerformed = 'pop';
                         }
@@ -29907,7 +30140,7 @@ const handleTrollBattle = {
                                 ? (ctx.currentPower > 0 || Troll.canBuyFightForRaid(loveRaid, false).canBuy)
                                 : (energyAboveThreshold || Troll.canBuyFightForRaid(loveRaid, false).canBuy)));
                     if (shouldFight) {
-                        LogUtils_logHHAuto('Troll:', { threshold: threshold, runThreshold: runThreshold, TrollHumanLikeRun: humanLikeRun });
+                        logHHAuto('Troll:', { threshold: threshold, runThreshold: runThreshold, TrollHumanLikeRun: humanLikeRun });
                         setStoredValue(HHStoredVarPrefixKey + TK.battlePowerRequired, '0');
                         ctx.busy = true;
                         if (getStoredValue(HHStoredVarPrefixKey + SK.autoQuest) !== 'true' || getStoredValue(HHStoredVarPrefixKey + TK.questRequirement)[0] !== 'P') {
@@ -29916,7 +30149,7 @@ const handleTrollBattle = {
                                 ctx.lastActionPerformed = 'troll';
                         }
                         else if (getStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle) === 'true') {
-                            LogUtils_logHHAuto('AutoBattle disabled for power collection for AutoQuest.');
+                            logHHAuto('AutoBattle disabled for power collection for AutoQuest.');
                             document.getElementById('autoTrollBattle').checked = false;
                             setStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle, 'false');
                             ctx.busy = false;
@@ -29932,7 +30165,7 @@ const handleTrollBattle = {
                             setStoredValue(HHStoredVarPrefixKey + TK.TrollHumanLikeRun, 'false');
                         }
                         if (ctx.currentPower === 0 && wouldFightWithPower(eventGirl, eventMythicGirl, raidStarsRaid, loveRaid)) {
-                            LogUtils_logHHAuto('Troll fight pending: waiting for energy refill.');
+                            logHHAuto('Troll fight pending: waiting for energy refill.');
                             setStoredValue(HHStoredVarPrefixKey + TK.trollWaitForEnergy, 'true');
                         }
                     }
@@ -29991,17 +30224,17 @@ const handlePachinko = {
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
                     if (ctx.busy === false && ConfigHelper.getHHScriptVars('isEnabledMythicPachinko', false) && checkTimer('nextPachinko2Time')) {
-                        LogUtils_logHHAuto('Time to fetch Mythic Pachinko.');
+                        logHHAuto('Time to fetch Mythic Pachinko.');
                         ctx.busy = yield Pachinko.getMythicPachinko();
                         ctx.lastActionPerformed = 'pachinko';
                     }
                     if (ctx.busy === false && ConfigHelper.getHHScriptVars('isEnabledGreatPachinko', false) && checkTimer('nextPachinkoTime')) {
-                        LogUtils_logHHAuto('Time to fetch Great Pachinko.');
+                        logHHAuto('Time to fetch Great Pachinko.');
                         ctx.busy = yield Pachinko.getGreatPachinko();
                         ctx.lastActionPerformed = 'pachinko';
                     }
                     if (ctx.busy === false && ConfigHelper.getHHScriptVars('isEnabledEquipmentPachinko', false) && checkTimer('nextPachinkoEquipTime')) {
-                        LogUtils_logHHAuto('Time to fetch Equipment Pachinko.');
+                        logHHAuto('Time to fetch Equipment Pachinko.');
                         ctx.busy = yield Pachinko.getEquipmentPachinko();
                         ctx.lastActionPerformed = 'pachinko';
                     }
@@ -30056,14 +30289,14 @@ const handleQuest = {
                     const routeHomeIfWaitingOnQuest = () => {
                         const onQuestPage = ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDQuest') || ctx.currentPage === 'side-quests';
                         if (!ctx.busy && onQuestPage) {
-                            LogUtils_logHHAuto('Quest waiting for resources, returning home.');
+                            logHHAuto('Quest waiting for resources, returning home.');
                             ctx.busy = gotoPage(ConfigHelper.getHHScriptVars('pagesIDHome'));
                         }
                     };
                     if (questRequirement === 'battle') {
                         if (ConfigHelper.getHHScriptVars('isEnabledTrollBattle', false) && getStoredValue(HHStoredVarPrefixKey + TK.autoTrollBattleSaveQuest) === 'false') {
-                            LogUtils_logHHAuto('Quest requires battle.');
-                            LogUtils_logHHAuto('prepare to save one battle for quest');
+                            logHHAuto('Quest requires battle.');
+                            logHHAuto('prepare to save one battle for quest');
                             setStoredValue(HHStoredVarPrefixKey + TK.autoTrollBattleSaveQuest, 'true');
                             if (getStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle) !== 'true') {
                                 ctx.busy = yield Troll.doBossBattle();
@@ -30072,16 +30305,16 @@ const handleQuest = {
                     }
                     else if (questRequirement[0] === '$') {
                         if (Number(questRequirement.substr(1)) < getHHVars('Hero.currencies.soft_currency')) {
-                            LogUtils_logHHAuto('Continuing quest, required money obtained.');
+                            logHHAuto('Continuing quest, required money obtained.');
                             setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, 'none');
                             ctx.busy = QuestHelper.run();
                         }
                         else {
                             setStoredValue(HHStoredVarPrefixKey + TK.paranoiaQuestBlocked, 'true');
                             if (isNaN(Number(questRequirement.substr(1)))) {
-                                LogUtils_logHHAuto(questRequirement);
+                                logHHAuto(questRequirement);
                                 setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, 'none');
-                                LogUtils_logHHAuto('Invalid money in session storage quest requirement !');
+                                logHHAuto('Invalid money in session storage quest requirement !');
                             }
                             ctx.busy = false;
                         }
@@ -30092,7 +30325,7 @@ const handleQuest = {
                         const energyCurrent = QuestHelper.getEnergy();
                         if (energyNeeded <= energyCurrent) {
                             if (Number(energyCurrent) > Number(getStoredValue(HHStoredVarPrefixKey + SK.autoQuestThreshold)) || ParanoiaService.checkParanoiaSpendings('quest') > 0) {
-                                LogUtils_logHHAuto('Continuing quest, required energy obtained.');
+                                logHHAuto('Continuing quest, required energy obtained.');
                                 setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, 'none');
                                 ctx.busy = QuestHelper.run();
                             }
@@ -30109,12 +30342,12 @@ const handleQuest = {
                     else if (questRequirement[0] === 'P') {
                         const neededPower = Number(questRequirement.substr(1));
                         if (ctx.currentPower < neededPower) {
-                            LogUtils_logHHAuto('Quest requires ' + neededPower + ' Battle Power for advancement. Waiting...');
+                            logHHAuto('Quest requires ' + neededPower + ' Battle Power for advancement. Waiting...');
                             ctx.busy = false;
                             setStoredValue(HHStoredVarPrefixKey + TK.paranoiaQuestBlocked, 'true');
                         }
                         else {
-                            LogUtils_logHHAuto('Battle Power obtained, resuming quest...');
+                            logHHAuto('Battle Power obtained, resuming quest...');
                             setStoredValue(HHStoredVarPrefixKey + TK.questRequirement, 'none');
                             ctx.busy = QuestHelper.run();
                         }
@@ -30123,12 +30356,12 @@ const handleQuest = {
                     else if (questRequirement === 'unknownQuestButton') {
                         setStoredValue(HHStoredVarPrefixKey + TK.paranoiaQuestBlocked, 'true');
                         if (getStoredValue(HHStoredVarPrefixKey + SK.autoQuest) === 'true') {
-                            LogUtils_logHHAuto('AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.');
+                            logHHAuto('AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.');
                             document.getElementById('autoQuest').checked = false;
                             setStoredValue(HHStoredVarPrefixKey + SK.autoQuest, 'false');
                         }
                         if (getStoredValue(HHStoredVarPrefixKey + SK.autoSideQuest) === 'true') {
-                            LogUtils_logHHAuto('AutoQuest disabled.HHAuto_Setting_autoSideQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.');
+                            logHHAuto('AutoQuest disabled.HHAuto_Setting_autoSideQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.');
                             document.getElementById('autoSideQuest').checked = false;
                             setStoredValue(HHStoredVarPrefixKey + SK.autoSideQuest, 'false');
                         }
@@ -30138,12 +30371,12 @@ const handleQuest = {
                     else if (questRequirement === 'errorInAutoBattle') {
                         setStoredValue(HHStoredVarPrefixKey + TK.paranoiaQuestBlocked, 'true');
                         if (getStoredValue(HHStoredVarPrefixKey + SK.autoQuest) === 'true') {
-                            LogUtils_logHHAuto('AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.');
+                            logHHAuto('AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.');
                             document.getElementById('autoQuest').checked = false;
                             setStoredValue(HHStoredVarPrefixKey + SK.autoQuest, 'false');
                         }
                         if (getStoredValue(HHStoredVarPrefixKey + SK.autoSideQuest) === 'true') {
-                            LogUtils_logHHAuto('AutoQuest disabled.HHAuto_Setting_autoSideQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.');
+                            logHHAuto('AutoQuest disabled.HHAuto_Setting_autoSideQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.');
                             document.getElementById('autoSideQuest').checked = false;
                             setStoredValue(HHStoredVarPrefixKey + SK.autoSideQuest, 'false');
                         }
@@ -30166,12 +30399,12 @@ const handleQuest = {
                         // to wait for quest progress.
                         setStoredValue(HHStoredVarPrefixKey + TK.paranoiaQuestBlocked, 'true');
                         if (getStoredValue(HHStoredVarPrefixKey + SK.autoQuest) === 'true') {
-                            LogUtils_logHHAuto('AutoQuest disabled. The current quest step requires an outfit change. Please manually proceed the current quest screen.');
+                            logHHAuto('AutoQuest disabled. The current quest step requires an outfit change. Please manually proceed the current quest screen.');
                             document.getElementById('autoQuest').checked = false;
                             setStoredValue(HHStoredVarPrefixKey + SK.autoQuest, 'false');
                         }
                         if (getStoredValue(HHStoredVarPrefixKey + SK.autoSideQuest) === 'true') {
-                            LogUtils_logHHAuto('AutoQuest disabled. The current side-quest step requires an outfit change. Please manually proceed the current quest screen.');
+                            logHHAuto('AutoQuest disabled. The current side-quest step requires an outfit change. Please manually proceed the current quest screen.');
                             document.getElementById('autoSideQuest').checked = false;
                             setStoredValue(HHStoredVarPrefixKey + SK.autoSideQuest, 'false');
                         }
@@ -30193,13 +30426,13 @@ const handleQuest = {
                         // the quest page, route back home so the normal loop resumes.
                         const onQuestPage = ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDQuest') || ctx.currentPage === 'side-quests';
                         if (!ctx.busy && onQuestPage) {
-                            LogUtils_logHHAuto('Nothing to do on quest page, returning home.');
+                            logHHAuto('Nothing to do on quest page, returning home.');
                             ctx.busy = gotoPage(ConfigHelper.getHHScriptVars('pagesIDHome'));
                         }
                     }
                     else {
                         setStoredValue(HHStoredVarPrefixKey + TK.paranoiaQuestBlocked, 'true');
-                        LogUtils_logHHAuto('Invalid quest requirement : ' + questRequirement);
+                        logHHAuto('Invalid quest requirement : ' + questRequirement);
                         ctx.busy = false;
                     }
                     if (ctx.busy)
@@ -30251,7 +30484,7 @@ const handleSeason = {
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
                     if (Season.isTimeToFight()) {
-                        LogUtils_logHHAuto('Time to fight in Season.');
+                        logHHAuto('Time to fight in Season.');
                         ctx.busy = yield Season.run();
                         ctx.lastActionPerformed = 'season';
                         // Slot-hold (issue #1796): a fight was launched -- keep the run so
@@ -30319,7 +30552,7 @@ const handlePentaDrill = {
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
                     if (PentaDrill.isTimeToFight()) {
-                        LogUtils_logHHAuto('Time to fight in PentaDrill.');
+                        logHHAuto('Time to fight in PentaDrill.');
                         PentaDrill.run();
                         ctx.busy = true;
                         ctx.lastActionPerformed = 'pentaDrill';
@@ -30373,7 +30606,7 @@ const handlePantheon = {
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
                     if (Pantheon.isTimeToFight()) {
-                        LogUtils_logHHAuto('Time to do Pantheon.');
+                        logHHAuto('Time to do Pantheon.');
                         Pantheon.run();
                         ctx.busy = true;
                         ctx.lastActionPerformed = 'pantheon';
@@ -30442,7 +30675,7 @@ const handleChampionTicket = {
                             currency: 'energy_quest',
                             amount: '1',
                         };
-                        LogUtils_logHHAuto('Buying ticket with energy');
+                        logHHAuto('Buying ticket with energy');
                         getHHAjax()(params, function (data) {
                             Hero.updates(data.hero_changes);
                             // Route the post-purchase reload through safeReload so any
@@ -30458,7 +30691,7 @@ const handleChampionTicket = {
                     // suppressing ticks during the reload itself. See ChampionTicket
                     // race-window discussion in REVIEW_AutoLoop_Findings.md F1.
                     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, 'false');
-                    LogUtils_logHHAuto('setting autoloop to false');
+                    logHHAuto('setting autoloop to false');
                     ctx.busy = true;
                     setTimeout(buyTicket, randomInterval(800, 1600));
                     ctx.lastActionPerformed = 'champion';
@@ -30496,7 +30729,7 @@ const handleSeasonCollect = {
             name: 'collectSeason',
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    LogUtils_logHHAuto('Time to go and check Season for collecting reward.');
+                    logHHAuto('Time to go and check Season for collecting reward.');
                     ctx.busy = Season.goAndCollect();
                     ctx.lastActionPerformed = 'season';
                     return { ok: true };
@@ -30533,7 +30766,7 @@ const handlePentaDrillCollect = {
             name: 'collectPentaDrill',
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    LogUtils_logHHAuto('Time to go and check PentaDrill for collecting reward.');
+                    logHHAuto('Time to go and check PentaDrill for collecting reward.');
                     ctx.busy = PentaDrill.goAndCollect();
                     ctx.lastActionPerformed = 'pentaDrill';
                     return { ok: true };
@@ -30570,7 +30803,7 @@ const handleSeasonalEventCollect = {
             name: 'collectSeasonalEvent',
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    LogUtils_logHHAuto('Time to go and check SeasonalEvent for collecting reward.');
+                    logHHAuto('Time to go and check SeasonalEvent for collecting reward.');
                     ctx.busy = SeasonalEvent.goAndCollect();
                     ctx.lastActionPerformed = 'seasonal';
                     return { ok: true };
@@ -30607,7 +30840,7 @@ const handlePoVCollect = {
             name: 'collectPoV',
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    LogUtils_logHHAuto('Time to go and check Path of Valor for collecting reward.');
+                    logHHAuto('Time to go and check Path of Valor for collecting reward.');
                     ctx.busy = PathOfValue.goAndCollect();
                     ctx.lastActionPerformed = 'pov';
                     return { ok: true };
@@ -30644,7 +30877,7 @@ const handlePoGCollect = {
             name: 'collectPoG',
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    LogUtils_logHHAuto('Time to go and check Path of Glory for collecting reward.');
+                    logHHAuto('Time to go and check Path of Glory for collecting reward.');
                     ctx.busy = PathOfGlory.goAndCollect();
                     ctx.lastActionPerformed = 'pog';
                     return { ok: true };
@@ -30715,7 +30948,7 @@ const handleBossBangParse = {
             name: 'parseBossBang',
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    LogUtils_logHHAuto('Going to parse boss bang event.');
+                    logHHAuto('Going to parse boss bang event.');
                     ctx.busy = yield EventModule.parseEventPage(ctx.bossBangEventIDs[0]);
                     ctx.lastActionPerformed = 'event';
                     return { ok: true };
@@ -30753,7 +30986,7 @@ const handleBossBangFight = {
             name: 'fightBossBang',
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    LogUtils_logHHAuto('Going to fight boss bang.');
+                    logHHAuto('Going to fight boss bang.');
                     ctx.busy = yield BossBang.goToFightPage(ctx.bossBangEventIDs[0]);
                     ctx.lastActionPerformed = 'bossBang';
                     return { ok: true };
@@ -30786,7 +31019,7 @@ const handleGoHome = {
             name: 'gotoHome',
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    LogUtils_logHHAuto('Back to home page at the end of actions');
+                    logHHAuto('Back to home page at the end of actions');
                     deleteStoredValue(HHStoredVarPrefixKey + TK.LastPageCalled);
                     ctx.busy = gotoPage(ConfigHelper.getHHScriptVars('pagesIDHome'));
                     return { ok: true };
@@ -30870,11 +31103,12 @@ const pipeline = [
     handlePantheon,
     handlePentaDrill,
     handleLabyrinth,
+    handleKobanAds,
     handleGenericBattle,
     handleGoHome,
 ];
 
-;// CONCATENATED MODULE: ./src/Service/BlockPipeline.ts
+;// ./src/Service/BlockPipeline.ts
 var BlockPipeline_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -31014,7 +31248,7 @@ function buildScheduler() {
     const stored = getStoredJSON(HHStoredVarPrefixKey + TK.pipelineOrder, null);
     const resolved = resolveOrder(stored, registry, defaultOrder);
     for (const w of resolved.warnings)
-        LogUtils_logHHAuto(`[Scheduler] order: ${w.message}`);
+        logHHAuto(`[Scheduler] order: ${w.message}`);
     // Refresh the non-rotating log context block (R6.16): version/platform/order/
     // disabled blocks/diagnose flag, prepended to the user debug export.
     const disabledMap = blockPorts.getAutoDisabled();
@@ -31040,7 +31274,7 @@ function getBlockScheduler() {
     return _scheduler;
 }
 
-;// CONCATENATED MODULE: ./src/index.ts
+;// ./src/index.ts
 // index.ts - HHAuto entry point
 //
 // This is the Tampermonkey userscript entry point. It augments the
@@ -31097,9 +31331,9 @@ function wireMenuPorts() {
         getStoredValue: getStoredValue,
         getStorageItem: getStorageItem,
         setStoredValue: setStoredValue,
-        HHStoredVars: HHStoredVars_HHStoredVars,
+        HHStoredVars: HHStoredVars,
         storedVarPrefix: HHStoredVarPrefixKey,
-        logHHAuto: LogUtils_logHHAuto,
+        logHHAuto: logHHAuto,
         setDefaults: StartService_setDefaults,
         isDisplayedHHPopUp: isDisplayedHHPopUp,
     });

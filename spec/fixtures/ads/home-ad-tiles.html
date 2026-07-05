@@ -1,0 +1,31 @@
+<!--
+  DOM fixture for the Home-page reward ads (issue #1746).
+
+  Captured from a live session (maintainer, 2026-07). The reward ads are
+  cross-promo buttons whose onclick calls the game's redirect helper:
+
+    shared.hh_crosspromo.redirectToCrosspromo(<id>, '<targetUrl>', 1, 1)
+
+  Each ad is identified by that numeric cross-promo id and its target URL; the
+  button text is "Try it now". After the opened ad tab is closed, the game shows
+  a confirm button carrying the `confirm_blue_button` attribute (its text is a
+  localized "OK"). Selectors used by AdsService:
+    * ad buttons:      button[onclick*="redirectToCrosspromo"]
+    * confirm button:  button[confirm_blue_button]
+-->
+<div id="home_ads_root">
+  <button class="blue_text_button small" onclick="shared.hh_crosspromo.redirectToCrosspromo(52, 'https://www.pornstarharem.com/', 1, 1)">
+    Try it now
+  </button>
+
+  <button class="blue_text_button small" onclick="shared.hh_crosspromo.redirectToCrosspromo(99, 'https://gamingadlt.com/?offer=6691&amp;uid=028fc1a0-06ce-42c2-9bd8-34042c7f6f9e&amp;utm_source=AW', 1, 1)">
+    Try it now
+  </button>
+
+  <button class="blue_text_button small" onclick="shared.hh_crosspromo.redirectToCrosspromo(101, 'https://www.gaming-adult.com/b74a9af3-3553-454e-b0ec-2dea4ea98b6b?source_id=hentaiheroes', 1, 1)">
+    Try it now
+  </button>
+</div>
+
+<!-- Confirm button shown after an ad tab is closed. -->
+<button class="blue_button_L" close_callback="" confirm_blue_button="" id="">OK</button>

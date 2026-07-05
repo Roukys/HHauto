@@ -99,6 +99,7 @@ export function buildLeftColumn(): string {
                     +`<div class="optionsColumn">`
                         + hhMenuSwitch('showCalculatePower')
                         + hhMenuSwitch('showAdsBack', '', false, true)
+                        + hhMenuSwitch('autoAdsClick')
                     +`</div>`
                     +`<div class="optionsColumn">`
                         + hhMenuSwitch('showRewardsRecap')

@@ -39,6 +39,7 @@ import { getHHVars } from "../Helper/HHHelper";
 import { getStoredValue, setStoredValue, getStoredJSON, deleteStoredValue } from "../Helper/StorageHelper";
 import { checkTimer, setTimer, getTimer, getSecondsLeft } from "../Helper/TimerHelper";
 import { getLimitTimeBeforeEnd, randomInterval } from "../Helper/TimeHelper";
+import { AdsService } from "./AdsService";
 import { ParanoiaService } from "./ParanoiaService";
 import { gotoPage } from "./PageNavigationService";
 import { safeReload } from "./PageNavigationService";
@@ -597,6 +598,24 @@ const handleMissions = fromDescriptor({
       && getStoredValue(HHStoredVarPrefixKey + SK.autoSideQuest) === 'true';
     return !(autoQuest || autoSideQuest);
   },
+});
+
+// Reward-ad clicker (issue #1746). Home-page only; clicks a whitelisted
+// "Try it now" tile, closes the ad tab it opens and confirms "Get the reward".
+// runAdCycle arms nextAdsTime on every exit path, so the isReady checkTimer
+// gate rate-limits re-entry -- no unbounded retry. Returns true when it acted,
+// so the applySlotHold wrapper (BlockPipeline.toBlock) keeps the slot for the
+// single-step cycle before releasing it once the timer is armed.
+const handleKobanAds = fromDescriptor({
+  name: "Time to check reward ads.",
+  action: "ads",
+  isReady: () => AdsService.isAdClickActivated() && checkTimer('nextAdsTime'),
+  execute: () => AdsService.runAdCycle(),
+}, {
+  minIntervalMs: 5_000,
+  handlerName: "handleKobanAds",
+  // The reward-ad tiles live on the Home page only.
+  extraPrecondition: (ctx) => ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDHome'),
 });
 
 const handleChampion = fromDescriptor({
@@ -1757,6 +1776,7 @@ export const pipeline: HandlerConfig[] = [
   handlePantheon,
   handlePentaDrill,
   handleLabyrinth,
+  handleKobanAds,
   handleGenericBattle,
   handleGoHome,
 ];
