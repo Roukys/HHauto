@@ -9,15 +9,105 @@
 // Also detects cross-game promo popups and sex-friends ads that use
 // a different DOM structure than regular ads.
 //
-// Used by: StartService (on page load)
+// Reward-ad automation (issue #1746): the Home page shows one or more
+// cross-promo reward ads, each a `<button>` whose onclick calls
+// `shared.hh_crosspromo.redirectToCrosspromo(id, url, 1, 1)` and whose text
+// is "Try it now". runAdCycle() (master switch autoAdsClick, off by default)
+// handles the ads one per tick: it clicks a button, closes the ad tab it opens
+// and then confirms the reward with the game's OK button
+// (`button[confirm_blue_button]`), before moving on to the next ad shortly
+// after. The tab is closed via the handle returned by a temporarily wrapped
+// `unsafeWindow.open` -- a window a script opened may be closed again by its
+// opener, cross-origin notwithstanding. An ad already handled this page session
+// is never clicked again (its button can linger until the page reloads). Every
+// failure path (popup blocker, missing confirm button, no ad present) logs and
+// arms a cooldown timer instead of retrying in a tight loop.
+//
+// Used by: StartService (on page load), Pipeline.config (handleKobanAds)
 
 import { ConfigHelper } from "../Helper/ConfigHelper";
 import { getStoredValue } from "../Helper/StorageHelper";
 import { randomInterval } from "../Helper/TimeHelper";
+import { setTimer } from "../Helper/TimerHelper";
+import { logHHAuto } from "../Utils/LogUtils";
 import { HHStoredVarPrefixKey } from "../config/HHStoredVars";
 import { SK } from "../config/StorageKeys";
 
+/** Minimal shape of the global `open` used by the capture wrapper (testable). */
+export interface WindowOpener {
+    open: (...args: unknown[]) => Window | null;
+}
+
+// Cooldown windows (seconds). Never a tight retry loop (issue #1746 acceptance).
+// DONE: nothing left to do (all ads handled / none present) -- rest a while.
+// NEXT: more ads to handle, or an OK button expected shortly -- come back soon.
+// BLOCKED: a popup blocker stopped the ad tab -- back off, retrying won't help.
+const AD_COOLDOWN_DONE: [number, number] = [15 * 60, 20 * 60];
+const AD_COOLDOWN_NEXT: [number, number] = [60, 3 * 60];
+const AD_COOLDOWN_BLOCKED: [number, number] = [20 * 60, 30 * 60];
+
+// The reward-ad "Try it now" button is identified by its onclick calling the
+// game's cross-promo redirect. Matching the handler (not a wrapper class or the
+// localized button text) keeps the selector stable across layout/locale changes
+// and never matches the OK confirm button (which has no such onclick).
+const AD_BUTTON_SELECTOR = 'button[onclick*="redirectToCrosspromo"]';
+// The reward is confirmed back in the game tab with the OK button, marked by
+// the `confirm_blue_button` attribute (locale-independent, unlike its text).
+const AD_CONFIRM_SELECTOR = 'button[confirm_blue_button]';
+
+/** Stable key for one ad button (its onclick carries the cross-promo id + url). */
+function adKey(btn: HTMLElement): string {
+    return btn.getAttribute("onclick") || btn.outerHTML;
+}
+
+/**
+ * Temporarily wrap `win.open`, run `clickFn` (which is expected to trigger the
+ * ad's own synchronous `window.open`) and return the captured window handle.
+ * The original `open` is ALWAYS restored (try/finally), even if `clickFn`
+ * throws, so no other window.open user is affected. Pure/host-agnostic so it
+ * can be unit-tested with a mock opener.
+ */
+export function captureOpenedWindow(win: WindowOpener, clickFn: () => void): Window | null {
+    let handle: Window | null = null;
+    const original = win.open;
+    win.open = function (this: unknown, ...args: unknown[]): Window | null {
+        const w = original.apply(win, args) as Window | null;
+        handle = w;
+        return w;
+    } as WindowOpener["open"];
+    try {
+        clickFn();
+    } finally {
+        win.open = original;
+    }
+    return handle;
+}
+
+/**
+ * Find every reward-ad "Try it now" button currently on the page. Exported for
+ * testing.
+ */
+export function findAdButtons(): HTMLElement[] {
+    return Array.from(document.querySelectorAll<HTMLElement>(AD_BUTTON_SELECTOR));
+}
+
+/**
+ * Find the game's reward-confirm ("OK") button, or null. Exported for testing.
+ */
+export function findConfirmButton(): HTMLElement | null {
+    return document.querySelector<HTMLElement>(AD_CONFIRM_SELECTOR);
+}
+
+function adsDelay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export class AdsService {
+    // Ads clicked during this page session, keyed by adKey(). Prevents
+    // re-clicking an ad whose button lingers after it has been watched (the
+    // set is cleared naturally when the page reloads and the script re-inits).
+    static handledAdKeys: Set<string> = new Set<string>();
+
     static closeHomeAds() {
         if ($('#ad_home close:visible').length) {
             setTimeout(() => {
@@ -57,5 +147,109 @@ export class AdsService {
                 GM_addStyle('#ad_harem {margin-top: 5rem !important; }');
             }
         }
+    }
+
+    /** True when the reward-ad automation master switch is enabled. */
+    static isAdClickActivated(): boolean {
+        return getStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick) === "true";
+    }
+
+    /** Ad buttons not yet handled this page session. Exported via the class for testing. */
+    static findUnhandledAdButtons(): HTMLElement[] {
+        return findAdButtons().filter(b => !AdsService.handledAdKeys.has(adKey(b)));
+    }
+
+    /**
+     * Poll for the reward-confirm ("OK") button up to `timeoutMs`. Resolves with
+     * the button once it appears, or null on timeout (never loops forever). The
+     * OK button can show up a few seconds after the ad tab closes, so the wait
+     * is generous.
+     */
+    static async waitForConfirmButton(timeoutMs = 15000, pollMs = 500): Promise<HTMLElement | null> {
+        const deadline = Date.now() + timeoutMs;
+        for (;;) {
+            const btn = findConfirmButton();
+            if (btn) return btn;
+            if (Date.now() >= deadline) return null;
+            await adsDelay(pollMs);
+        }
+    }
+
+    /**
+     * One reward-ad step on the Home page (issue #1746). Handles a single ad per
+     * call and comes back soon (NEXT cooldown) while more remain, so all ads are
+     * drained over a few ticks rather than one every 15-20 min:
+     *   1. If an OK confirm button is already present (from a previous step),
+     *      click it and come back soon (more ads may follow).
+     *   2. Otherwise pick the first not-yet-handled "Try it now" button.
+     *   3. Wrap unsafeWindow.open, click it, capture the ad-tab handle. No handle
+     *      (popup blocker) -> log + long back-off, no retry.
+     *   4. Mark the ad handled (so its lingering button is never re-clicked),
+     *      wait 3-5 s, close the handle.
+     *   5. Wait (up to 15 s) for the OK button and click it.
+     *   6. Arm NEXT when more ads remain or the OK has not shown yet, else DONE.
+     *
+     * Every exit path arms `nextAdsTime`, so the caller's precondition
+     * (checkTimer) rate-limits re-entry -- there is no unbounded retry loop.
+     * Returns true when an action was taken (drives the pipeline slot-hold).
+     */
+    static async runAdCycle(): Promise<boolean> {
+        if (!AdsService.isAdClickActivated()) return false;
+
+        // Confirm a reward left over from an earlier (possibly interrupted) step.
+        const pending = findConfirmButton();
+        if (pending) {
+            logHHAuto("Ads: confirming pending reward (OK).");
+            pending.click();
+            setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_NEXT));
+            return true;
+        }
+
+        const buttons = AdsService.findUnhandledAdButtons();
+        if (buttons.length === 0) {
+            logHHAuto("Ads: no new reward ad to click.");
+            setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_DONE));
+            return false;
+        }
+
+        const target = buttons[0];
+        logHHAuto("Ads: clicking reward ad ('Try it now'). " + (buttons.length - 1) + " more waiting.");
+        const handle = captureOpenedWindow(unsafeWindow as unknown as WindowOpener, () => {
+            target.click();
+        });
+
+        if (!handle) {
+            // Popup blocker (or the ad did not open synchronously): do NOT retry
+            // in a loop -- log and back off. Not marked handled (nothing opened).
+            logHHAuto("Ads: no ad-tab handle captured (popup blocker?). Backing off.");
+            setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_BLOCKED));
+            return false;
+        }
+
+        // Watched: never click this ad again this session, even if its button
+        // lingers after the reward is claimed.
+        AdsService.handledAdKeys.add(adKey(target));
+
+        await adsDelay(randomInterval(3000, 5000));
+        try {
+            handle.close();
+        } catch (err) {
+            logHHAuto("Ads: could not close ad tab: " + String(err));
+        }
+
+        const confirmBtn = await AdsService.waitForConfirmButton();
+        if (confirmBtn) {
+            logHHAuto("Ads: reward available, confirming (OK).");
+            confirmBtn.click();
+        } else {
+            logHHAuto("Ads: reward confirm (OK) not visible yet, will retry shortly.");
+        }
+
+        // Come back soon if more ads remain, or if the OK has not appeared yet
+        // (the pending-confirm check at the top of the next step will catch it).
+        const moreAds = AdsService.findUnhandledAdButtons().length > 0;
+        const cooldown = (confirmBtn && !moreAds) ? AD_COOLDOWN_DONE : AD_COOLDOWN_NEXT;
+        setTimer("nextAdsTime", randomInterval(...cooldown));
+        return true;
     }
 }

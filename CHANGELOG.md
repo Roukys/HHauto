@@ -7,6 +7,17 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.4.0 - Optional reward-ad auto-clicker
+
+- New "Auto reward ads" option (issue #1746, off by default). When enabled,
+  the script clicks the Home-page reward ads for you: it presses "Try it now",
+  closes the advertising tab that opens after a few seconds, and then confirms
+  the reward with the game's OK button. It handles every available reward ad.
+- Ad blockers must be disabled for the ads to appear. The feature is
+  rate-limited by a cooldown and never retries in a loop: if a popup blocker
+  stops the ad tab from opening, or the confirm button never shows, or no ad is
+  present, it simply logs the reason and waits for the next cooldown window.
+
 ### v8.1.7 - League no longer freezes on the result screen
 
 - **League fights no longer freeze on the result panel.** After a single
