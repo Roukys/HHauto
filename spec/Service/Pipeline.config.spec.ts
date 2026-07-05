@@ -28,6 +28,7 @@ jest.mock('../../src/Module/Shop', () => ({
 jest.mock('../../src/Module/Booster', () => ({
   Booster: {
     autoEquipBoosters: jest.fn().mockResolvedValue(false),
+    parseMythicBoosterList: jest.fn().mockReturnValue([]),
   },
 }));
 

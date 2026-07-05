@@ -79,4 +79,5 @@ HHAuto_ToolTips.es['timerResetButton'] = { version: "5.6.24", elementText: "Rest
 HHAuto_ToolTips.es['timerLeftTime'] = { version: "5.6.24", elementText: "", tooltip: "Tiempo restante"};
 HHAuto_ToolTips.es['timerResetNoTimer'] = { version: "5.6.24", elementText: "No hay temporizador seleccionado", tooltip: ""};
 HHAuto_ToolTips.es['povTitle'] = { version: "5.20.3", elementText: "Camino del Valor"};
+HHAuto_ToolTips.es['autoEquipMythicBooster'] = { version: "8.3.0", elementText: "Mythic Slot", tooltip: "(up to 5 codes separated by ;)<br>Mythic boosters to keep equipped. The game offers 5 mythic slots (one equipped booster per kind): every listed booster you own that is not equipped yet is placed into a free slot, in list order (order = priority). Empty field = off.<br>Example: MB1;MB2;MB5;MB8;MB12<br>Equipped boosters are never replaced and nothing is bought (only equips from inventory).<br>The Sandalwood auto-equip keeps control of MB1: while active, MB1 on this list is skipped and one slot is kept free for Sandalwood."};
 HHAuto_ToolTips.es['pogTitle'] = { version: "5.20.3", elementText: "Camino de la Gloria"};

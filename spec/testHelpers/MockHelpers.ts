@@ -122,7 +122,9 @@ export class MockHelper{
         }));
 
         const status = { normal, mythic };
-        localStorage.setItem(HHStoredVarPrefixKey + TK.boosterStatus, JSON.stringify(status));
+        // boosterStatus is registered as a sessionStorage-backed Temp var
+        // (see HHStoredVars); getBoosterFromStorage reads it from there.
+        sessionStorage.setItem(HHStoredVarPrefixKey + TK.boosterStatus, JSON.stringify(status));
     }
 
     /**
