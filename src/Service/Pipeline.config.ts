@@ -63,7 +63,11 @@ export type InterruptPolicy = 'always' | 'never';
  * Result of a single pipeline step execution.
  */
 export type StepResult =
-  | { ok: true }
+  // repeat: explicit slot-hold -- the scheduler re-runs the SAME step instead
+  // of completing the run (passed through by BlockPipeline.applySlotHold,
+  // issue #1796). Used where ctx.busy is not set but the block's session
+  // must continue (league navigation, season inter-fight pause).
+  | { ok: true; repeat?: boolean }
   | { ok: false; reason: string; retryable: boolean };
 
 /**
@@ -394,6 +398,13 @@ const handleLeague: HandlerConfig = {
           if (LeagueHelper.isTimeToFight()) {
             LeagueHelper.doLeagueBattle();
             ctx.lastActionPerformed = 'league';
+            // Slot-hold (issue #1796): doLeagueBattle arms nextLeaguesTime on
+            // every stop decision (no power, no valid targets, demote guard,
+            // league end). No timer armed means the league session continues
+            // (a navigation to the leaderboard or a fight was launched) --
+            // keep the run so no other block interleaves. checkTimer() is
+            // true while NO timer is pending.
+            if (checkTimer('nextLeaguesTime')) return { ok: true, repeat: true };
             return { ok: true };
           }
           // Fight not possible right now (energy below threshold,
@@ -1156,6 +1167,16 @@ const handleQuest: HandlerConfig = {
   }],
 };
 
+// True while Season.run's short inter-fight pause is running: after launching
+// a fight it arms nextSeasonTime with ~5s (see Season.run "Going to crush"
+// path). The genuine session-stop timers are 15-35 minutes, so anything this
+// short is a pause BETWEEN fights of one session, not a session end.
+// Used for the slot-hold below (issue #1796).
+function seasonInterFightPause(): boolean {
+  const left = getSecondsLeft('nextSeasonTime');
+  return left > 0 && left <= 15;
+}
+
 const handleSeason: HandlerConfig = {
   name: 'handleSeason',
   minIntervalMs: 2_000,
@@ -1168,7 +1189,10 @@ const handleSeason: HandlerConfig = {
     if (getStoredValue(HHStoredVarPrefixKey + TK.autoLoop) !== 'true') return false;
     if (!ctx.canCollectCompetitionActive) return false;
     if (ctx.lastActionPerformed !== 'none' && ctx.lastActionPerformed !== 'season') return false;
-    if (!Season.isTimeToFight() && !checkTimer('nextSeasonTime')) return false;
+    // The inter-fight pause keeps the block eligible so a held run survives
+    // the ~5s between two fights (issue #1796: releasing here opened a
+    // one-tick window in which other blocks navigated away mid-session).
+    if (!Season.isTimeToFight() && !checkTimer('nextSeasonTime') && !seasonInterFightPause()) return false;
     return true;
   },
   steps: [{
@@ -1179,6 +1203,21 @@ const handleSeason: HandlerConfig = {
           logHHAuto('Time to fight in Season.');
           ctx.busy = await Season.run();
           ctx.lastActionPerformed = 'season';
+          // Slot-hold (issue #1796): a fight was launched -- keep the run so
+          // the season session continues fight after fight. The continuation
+          // re-checks the precondition; a genuine session end (energy below
+          // threshold, max tier, no opponent) arms a long timer and falls
+          // through to run completion below.
+          if (ctx.busy) return { ok: true, repeat: true };
+        } else if (seasonInterFightPause()
+            && ctx.currentPage !== ConfigHelper.getHHScriptVars('pagesIDSeasonBattle')) {
+          // Wait in-slot through the short pause between two fights instead
+          // of completing the run: completion starts the 2s minInterval
+          // cool-down, and that one-tick window is exactly where other
+          // blocks used to interleave (issue #1796). On the battle page the
+          // slot is NOT held so the battle-result handling keeps its turn.
+          ctx.lastActionPerformed = 'season';
+          return { ok: true, repeat: true };
         } else if (checkTimer('nextSeasonTime')) {
           if (getStoredValue(HHStoredVarPrefixKey + TK.SeasonHumanLikeRun) === 'true') {
             setStoredValue(HHStoredVarPrefixKey + TK.SeasonHumanLikeRun, 'false');

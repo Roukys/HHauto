@@ -56,6 +56,9 @@ jest.mock('../../src/Helper/HHHelper', () => ({
 
 jest.mock('../../src/Helper/TimerHelper', () => ({
   checkTimer: jest.fn().mockReturnValue(false),
+  setTimer: jest.fn(),
+  getTimer: jest.fn().mockReturnValue(-1),
+  getSecondsLeft: jest.fn().mockReturnValue(-1),
 }));
 
 jest.mock('../../src/Helper/ConfigHelper', () => ({
@@ -102,6 +105,8 @@ jest.mock('../../src/Service/PageNavigationService', () => ({
 }));
 
 import { pipeline, getStaleEventIDs, pruneExpiredEvents } from '../../src/Service/Pipeline.config';
+import { Season } from '../../src/Module/Events/Season';
+import { applySlotHold } from '../../src/Service/BlockPipeline';
 import { getStoredValue, setStoredValue, deleteStoredValue } from '../../src/Helper/StorageHelper';
 import { AutoLoopContext } from '../../src/Service/AutoLoopContext';
 const getStoredValueMock = getStoredValue as jest.Mock;
@@ -1047,6 +1052,107 @@ describe('Pipeline.config', () => {
       });
       const ctx = makeCtx({ canCollectCompetitionActive: true, currentPage: 'pagesIDQuest' });
       expect(missionsHandler.precondition(ctx)).toBe(true);
+    });
+  });
+  describe('fight-block slot-hold (issue #1796)', () => {
+    // Regression for issue #1796: fight blocks completed their run after every
+    // single fight; the minInterval cool-down that follows a completed run
+    // opened a one-tick window in which another qualifying block navigated
+    // away (observed live: league<->raid ping-pong with one full leaderboard
+    // navigation per raid fight, quest ticks between season fights). The fix
+    // returns repeat:true while a fight session is ongoing so the scheduler
+    // keeps the slot (gate-hold-return, persisted across reloads).
+    const seasonHandler = pipeline.find(h => h.name === 'handleSeason')!;
+    const leagueHandler = pipeline.find(h => h.name === 'handleLeague')!;
+    const TimerMock = jest.requireMock('../../src/Helper/TimerHelper') as Record<string, jest.Mock>;
+    const LeagueMock = jest.requireMock('../../src/Module/League').LeagueHelper as Record<string, jest.Mock>;
+    const ConfigHelperMock = jest.requireMock('../../src/Helper/ConfigHelper').ConfigHelper as { getHHScriptVars: jest.Mock };
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      getStoredValueMock.mockReset();
+      getStoredValueMock.mockReturnValue('[]');
+      TimerMock.checkTimer.mockReturnValue(false);
+      TimerMock.getSecondsLeft.mockReturnValue(-1);
+      LeagueMock.isTimeToFight.mockReturnValue(true);
+      ConfigHelperMock.getHHScriptVars.mockReturnValue(true);
+    });
+
+    it('handleSeason repeats after launching a fight', async () => {
+      jest.spyOn(Season, 'isTimeToFight').mockReturnValue(true);
+      jest.spyOn(Season, 'run').mockResolvedValue(true);
+      const result = await seasonHandler.steps[0].fn(makeCtx());
+      expect(result).toEqual({ ok: true, repeat: true });
+    });
+
+    it('handleSeason completes when the fight could not be launched', async () => {
+      jest.spyOn(Season, 'isTimeToFight').mockReturnValue(true);
+      jest.spyOn(Season, 'run').mockResolvedValue(false);
+      const result = await seasonHandler.steps[0].fn(makeCtx());
+      expect(result).toEqual({ ok: true });
+    });
+
+    it('handleSeason holds the slot during the short inter-fight pause', async () => {
+      jest.spyOn(Season, 'isTimeToFight').mockReturnValue(false);
+      TimerMock.getSecondsLeft.mockReturnValue(5);
+      ConfigHelperMock.getHHScriptVars.mockImplementation((key: string) => key);
+      const ctx = makeCtx({ currentPage: 'pagesIDHome' });
+      const result = await seasonHandler.steps[0].fn(ctx);
+      expect(result).toEqual({ ok: true, repeat: true });
+      expect(ctx.lastActionPerformed).toBe('season');
+    });
+
+    it('handleSeason does not hold the pause slot on the season battle page', async () => {
+      jest.spyOn(Season, 'isTimeToFight').mockReturnValue(false);
+      TimerMock.getSecondsLeft.mockReturnValue(5);
+      ConfigHelperMock.getHHScriptVars.mockImplementation((key: string) => key);
+      const ctx = makeCtx({ currentPage: 'pagesIDSeasonBattle' });
+      const result = await seasonHandler.steps[0].fn(ctx);
+      expect(result).toEqual({ ok: true });
+    });
+
+    it('handleSeason precondition stays true during the inter-fight pause', () => {
+      jest.spyOn(Season, 'isTimeToFight').mockReturnValue(false);
+      TimerMock.getSecondsLeft.mockReturnValue(5);
+      getStoredValueMock.mockReturnValue('true');
+      const ctx = makeCtx({ canCollectCompetitionActive: true });
+      expect(seasonHandler.precondition(ctx)).toBe(true);
+    });
+
+    it('handleSeason precondition releases once only a long timer remains', () => {
+      jest.spyOn(Season, 'isTimeToFight').mockReturnValue(false);
+      TimerMock.getSecondsLeft.mockReturnValue(1800);
+      getStoredValueMock.mockReturnValue('true');
+      const ctx = makeCtx({ canCollectCompetitionActive: true });
+      expect(seasonHandler.precondition(ctx)).toBe(false);
+    });
+
+    it('handleLeague repeats while no stop timer was armed', async () => {
+      LeagueMock.isTimeToFight.mockReturnValue(true);
+      TimerMock.checkTimer.mockReturnValue(true); // no pending nextLeaguesTime
+      const result = await leagueHandler.steps[0].fn(makeCtx());
+      expect(result).toEqual({ ok: true, repeat: true });
+    });
+
+    it('handleLeague completes once doLeagueBattle armed a stop timer', async () => {
+      LeagueMock.isTimeToFight.mockReturnValue(true);
+      TimerMock.checkTimer.mockReturnValue(false); // nextLeaguesTime pending
+      const result = await leagueHandler.steps[0].fn(makeCtx());
+      expect(result).toEqual({ ok: true });
+    });
+
+    it('applySlotHold passes an explicit step repeat through even when busy is false', () => {
+      expect(applySlotHold({ ok: true, repeat: true }, false)).toEqual({ ok: true, repeat: true });
+    });
+
+    it('applySlotHold still holds on busy and releases on idle', () => {
+      expect(applySlotHold({ ok: true }, true)).toEqual({ ok: true, repeat: true });
+      expect(applySlotHold({ ok: true }, false)).toEqual({ ok: true });
+    });
+
+    it('applySlotHold passes failures through untouched', () => {
+      const fail = { ok: false as const, reason: 'x', retryable: true };
+      expect(applySlotHold(fail, true)).toBe(fail);
     });
   });
 });
