@@ -19,8 +19,8 @@
 // Used by: StartService (on init), AutoLoop (button state refresh),
 // StorageHelper (getMenuValues), and feature modules that inject menu rows.
 
-import { LabyrinthAuto } from '../Module/LabyrinthAuto';
-import { LeagueHelper } from '../Module/League';
+import { LABY_DIFFICULTY } from '../Module/LabyrinthDifficulty';
+import { LEAGUE_SORT } from '../Module/LeagueSortModes';
 import { Troll } from '../Module/Troll';
 import { LoveRaidManager } from "../Module/Events/LoveRaidManager";
 import { logHHAuto } from "../Utils/LogUtils";
@@ -190,9 +190,9 @@ export class HHMenu {
 
     fillLeaguSortMenu() {
         var sortsOptions = <HTMLSelectElement>document.getElementById("autoLeaguesSortMode");
-        sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_DISPLAYED, getTextForUI("autoLeaguesdisplayedOrder", "elementText")));
-        sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_POWER, getTextForUI("autoLeaguesPower", "elementText")));
-        sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_POWERCALC, getTextForUI("autoLeaguesPowerCalc", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LEAGUE_SORT.DISPLAYED, getTextForUI("autoLeaguesdisplayedOrder", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LEAGUE_SORT.POWER, getTextForUI("autoLeaguesPower", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LEAGUE_SORT.POWERCALC, getTextForUI("autoLeaguesPowerCalc", "elementText")));
     }
 
     fillRaidStarsMenu() {
@@ -205,9 +205,9 @@ export class HHMenu {
 
     fillLabyDifficultyMenu() {
         var sortsOptions = <HTMLSelectElement>document.getElementById("autoLabyDifficulty");
-        sortsOptions.add(this._createHtmlOption(LabyrinthAuto.EASY, getTextForUI("autoLabyDifficultyEasy", "elementText")));
-        sortsOptions.add(this._createHtmlOption(LabyrinthAuto.NORMAL, getTextForUI("autoLabyDifficultyNormal", "elementText")));
-        sortsOptions.add(this._createHtmlOption(LabyrinthAuto.HARD, getTextForUI("autoLabyDifficultyHard", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LABY_DIFFICULTY.EASY, getTextForUI("autoLabyDifficultyEasy", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LABY_DIFFICULTY.NORMAL, getTextForUI("autoLabyDifficultyNormal", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LABY_DIFFICULTY.HARD, getTextForUI("autoLabyDifficultyHard", "elementText")));
     }
 
     // replaceMenuIconWithWarning() {

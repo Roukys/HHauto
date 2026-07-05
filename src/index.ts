@@ -18,6 +18,8 @@ import { autoLoop, setBlockTick } from "./Service/AutoLoop";
 import { getBlockScheduler, buildRegistryAndOrder } from "./Service/BlockPipeline";
 import { setPipelineRegistryProvider } from "./Service/PipelineOrderService";
 import { setPachinkoAutoLoopKick } from "./Module/Pachinko";
+import { setHeroAutoLoopKick } from "./Helper/HeroHelper";
+import { setSetDefaultsRef } from "./Helper/StorageHelper";
 import { setMenuPorts } from "./Helper/menu/MenuPorts";
 import { ConfigHelper } from "./Helper/ConfigHelper";
 import { getTextForUI } from "./Helper/LanguageHelper";
@@ -112,6 +114,12 @@ declare global {
 // Inject the autoLoop kick into Pachinko so it can restart the loop after a
 // run without a static Module->Service import (lesson zirkulaerer-import-tdz-crash).
 setPachinkoAutoLoopKick(autoLoop);
+// Same pattern for HeroHelper's page-not-ready retry (ARCH-001: the static
+// HeroHelper -> AutoLoop import sat in 154 baseline cycles).
+setHeroAutoLoopKick(autoLoop);
+// And for StorageHelper's settings-reset path (ARCH-001: the static
+// StorageHelper -> StartService import sat in 127 baseline cycles).
+setSetDefaultsRef(setDefaults);
 
 // Inject the block-scheduler tick into AutoLoop from the boot path (instead of
 // a static AutoLoop->BlockPipeline import) to avoid an import cycle / TDZ

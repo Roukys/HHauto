@@ -22,12 +22,13 @@ import {
     logHHAuto
 } from "../Utils/LogUtils";
 import { Labyrinth } from "./Labyrinth";
+import { LABY_DIFFICULTY } from "./LabyrinthDifficulty";
 import { RelicManager } from "./RelicManager";
 
 export class LabyrinthAuto {
-    static EASY: string = "0";
-    static NORMAL: string = "1";
-    static HARD: string = "2";
+    static EASY: string = LABY_DIFFICULTY.EASY;
+    static NORMAL: string = LABY_DIFFICULTY.NORMAL;
+    static HARD: string = LABY_DIFFICULTY.HARD;
     static LABYRINTH_SELECTOR: string[] = ['easy', 'normal', 'hard'];
     debugEnabled: boolean;
 

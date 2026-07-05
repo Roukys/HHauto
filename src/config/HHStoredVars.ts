@@ -4,8 +4,17 @@
 import { getTextForUI } from "../Helper/LanguageHelper";
 import { deleteStoredValue, getAndStoreCollectPreferences } from "../Helper/StorageHelper";
 import { clearTimer } from "../Helper/TimerHelper";
-import { PlaceOfPower } from "../Module/PlaceOfPower";
 import { SK, TK } from './StorageKeys';
+
+// Local copy of PlaceOfPower.cleanTempPopToStart: deletes the temporary POP
+// scheduling state so it is rebuilt after a PoP setting change. Importing
+// PlaceOfPower here put a Module import into this config file and routed 253
+// of the 348 baseline import cycles through the HHStoredVars -> PlaceOfPower
+// edge (ARCH-001). Config must not depend on Modules.
+function cleanTempPopToStart() {
+    deleteStoredValue(HHStoredVarPrefixKey + TK.PopUnableToStart);
+    deleteStoredValue(HHStoredVarPrefixKey + TK.PopToStart);
+}
 
 export const HHStoredVars: Record<string, any> = {};
 //Settings Vars
@@ -532,7 +541,7 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlaces] =
     kobanUsing:false,
     newValueFunction: function () {
         clearTimer('minPowerPlacesTime');
-        PlaceOfPower.cleanTempPopToStart();
+        cleanTempPopToStart();
     }
 };
 HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesAll] =
@@ -548,7 +557,7 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesAll] =
     newValueFunction:function()
     {
         clearTimer('minPowerPlacesTime');
-        PlaceOfPower.cleanTempPopToStart();
+        cleanTempPopToStart();
     }
 };
 HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesPrecision] =
@@ -597,7 +606,7 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoPowerPlacesIndexFilter] =
     newValueFunction:function()
     {
         clearTimer('minPowerPlacesTime');
-        PlaceOfPower.cleanTempPopToStart();
+        cleanTempPopToStart();
     }
 };
 HHStoredVars[HHStoredVarPrefixKey + SK.autoQuest] =

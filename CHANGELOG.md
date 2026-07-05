@@ -7,6 +7,16 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.1.6 - Internal refactoring: import-cycle backbone broken
+
+- No functional changes. Six high-frequency import edges were untangled
+  (config no longer imports feature modules, menu selects read shared
+  constants from leaf files, cross-layer calls are injected at boot), which
+  collapsed the frozen import-cycle baseline from 348 to 86. These cycles
+  were the root cause of the historic boot crashes; every stage of this
+  cleanup can only shrink the baseline, never grow it (see
+  docs-internal/adr-002-import-cycle-reduction.md).
+
 ### v8.1.5 - Internal refactoring: typed globals, menu module split
 
 - No functional changes. The game globals the script reads are now properly

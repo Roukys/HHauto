@@ -35,12 +35,13 @@ import { BDSMSimu } from "../model/BDSMSimu";
 import { KKLeagueOpponent } from "../model/KK/KKLeagueOpponent";
 import { LeagueOpponent } from "../model/LeagueOpponent";
 import { Booster } from "./Booster";
+import { LEAGUE_SORT } from "./LeagueSortModes";
 
 export class LeagueHelper {
 
-    static SORT_DISPLAYED = '0';
-    static SORT_POWER = '1';
-    static SORT_POWERCALC = '2';
+    static SORT_DISPLAYED = LEAGUE_SORT.DISPLAYED;
+    static SORT_POWER = LEAGUE_SORT.POWER;
+    static SORT_POWERCALC = LEAGUE_SORT.POWERCALC;
 
     /* get time in sec */
     static getLeagueEndTime(){
