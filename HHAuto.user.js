@@ -29413,6 +29413,14 @@ const handleLeague = {
                     if (LeagueHelper.isTimeToFight()) {
                         LeagueHelper.doLeagueBattle();
                         ctx.lastActionPerformed = 'league';
+                        // Slot-hold (issue #1796): doLeagueBattle arms nextLeaguesTime on
+                        // every stop decision (no power, no valid targets, demote guard,
+                        // league end). No timer armed means the league session continues
+                        // (a navigation to the leaderboard or a fight was launched) --
+                        // keep the run so no other block interleaves. checkTimer() is
+                        // true while NO timer is pending.
+                        if (checkTimer('nextLeaguesTime'))
+                            return { ok: true, repeat: true };
                         return { ok: true };
                     }
                     // Fight not possible right now (energy below threshold,
@@ -30197,6 +30205,15 @@ const handleQuest = {
             }),
         }],
 };
+// True while Season.run's short inter-fight pause is running: after launching
+// a fight it arms nextSeasonTime with ~5s (see Season.run "Going to crush"
+// path). The genuine session-stop timers are 15-35 minutes, so anything this
+// short is a pause BETWEEN fights of one session, not a session end.
+// Used for the slot-hold below (issue #1796).
+function seasonInterFightPause() {
+    const left = getSecondsLeft('nextSeasonTime');
+    return left > 0 && left <= 15;
+}
 const handleSeason = {
     name: 'handleSeason',
     minIntervalMs: 2000,
@@ -30215,7 +30232,10 @@ const handleSeason = {
             return false;
         if (ctx.lastActionPerformed !== 'none' && ctx.lastActionPerformed !== 'season')
             return false;
-        if (!Season.isTimeToFight() && !checkTimer('nextSeasonTime'))
+        // The inter-fight pause keeps the block eligible so a held run survives
+        // the ~5s between two fights (issue #1796: releasing here opened a
+        // one-tick window in which other blocks navigated away mid-session).
+        if (!Season.isTimeToFight() && !checkTimer('nextSeasonTime') && !seasonInterFightPause())
             return false;
         return true;
     },
@@ -30227,6 +30247,23 @@ const handleSeason = {
                         logHHAuto('Time to fight in Season.');
                         ctx.busy = yield Season.run();
                         ctx.lastActionPerformed = 'season';
+                        // Slot-hold (issue #1796): a fight was launched -- keep the run so
+                        // the season session continues fight after fight. The continuation
+                        // re-checks the precondition; a genuine session end (energy below
+                        // threshold, max tier, no opponent) arms a long timer and falls
+                        // through to run completion below.
+                        if (ctx.busy)
+                            return { ok: true, repeat: true };
+                    }
+                    else if (seasonInterFightPause()
+                        && ctx.currentPage !== ConfigHelper.getHHScriptVars('pagesIDSeasonBattle')) {
+                        // Wait in-slot through the short pause between two fights instead
+                        // of completing the run: completion starts the 2s minInterval
+                        // cool-down, and that one-tick window is exactly where other
+                        // blocks used to interleave (issue #1796). On the battle page the
+                        // slot is NOT held so the battle-result handling keeps its turn.
+                        ctx.lastActionPerformed = 'season';
+                        return { ok: true, repeat: true };
                     }
                     else if (checkTimer('nextSeasonTime')) {
                         if (getStoredValue(HHStoredVarPrefixKey + TK.SeasonHumanLikeRun) === 'true') {
@@ -30878,6 +30915,14 @@ var BlockPipeline_awaiter = (undefined && undefined.__awaiter) || function (this
  */
 function applySlotHold(r, busy) {
     if (!r.ok)
+        return r;
+    // An explicit repeat from the step wins (issue #1796): steps use it to hold
+    // the slot when busy is not set -- e.g. handleLeague right after launching
+    // a leaderboard navigation, or handleSeason waiting in-slot through the
+    // short inter-fight pause. Without this passthrough those holds were
+    // silently stripped and the released slot opened the one-tick window in
+    // which another block navigated away mid-session.
+    if (r.repeat)
         return r;
     return busy ? { ok: true, repeat: true } : { ok: true };
 }

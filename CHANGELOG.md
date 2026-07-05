@@ -7,9 +7,16 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
-### v8.1.6 - Internal refactoring: import-cycle backbone broken
+### v8.1.6 - Fights no longer interleave, import-cycle backbone broken
 
-- No functional changes. Six high-frequency import edges were untangled
+- Fight sessions stay together (issue #1796): the automation no longer hops
+  to another activity between two fights of the same session. Previously,
+  each single season/league/raid fight released its scheduler slot for one
+  tick, and another module could grab it and navigate away (e.g. a full
+  league-screen visit between every raid fight). A block now holds its slot
+  until its own stop condition is reached -- energy exhausted, target
+  rank/tier reached, or its cool-down timer armed.
+- Six high-frequency import edges were untangled
   (config no longer imports feature modules, menu selects read shared
   constants from leaf files, cross-layer calls are injected at boot), which
   collapsed the frozen import-cycle baseline from 348 to 86. These cycles
