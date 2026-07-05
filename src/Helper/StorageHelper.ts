@@ -37,15 +37,32 @@
 // and quota-retry contracts.
 //
 // Used by: Every module and helper in the project.
-import { setDefaults } from "../Service/StartService";
 import { fillHHPopUp } from "../Utils/HHPopup";
 import { cleanLogsInStorage, logHHAuto } from "../Utils/LogUtils";
 import { safeJsonParse } from "../Utils/Utils";
 import { HHStoredVarPrefixKey, HHStoredVars } from "../config/HHStoredVars";
 import { SK, TK } from "../config/StorageKeys";
 import { ConfigHelper } from "./ConfigHelper";
-import { getMenuValues } from "./HHMenuHelper";
+// Import from the leaf module directly (not the HHMenuHelper facade) so this
+// helper does not join HHMenuHelper's import cycles (ARCH-001).
+import { getMenuValues } from "./menu/MenuSettings";
 import { getTextForUI } from "./LanguageHelper";
+
+// setDefaults reference, injected from the boot path (src/index.ts) instead
+// of a static Helper -> Service/StartService import: that edge sat in 127 of
+// the baseline import cycles (ARCH-001; pattern: setPachinkoAutoLoopKick,
+// lesson zirkulaerer-import-tdz-crash). Loud guard instead of a silent noop:
+// a missed wiring must fail visibly, not skip the defaults reset.
+let setDefaultsRef: ((forceDefault?: boolean) => void) | null = null;
+export function setSetDefaultsRef(fn: (forceDefault?: boolean) => void) {
+    setDefaultsRef = fn;
+}
+function setDefaults(forceDefault?: boolean) {
+    if (!setDefaultsRef) {
+        throw new Error("StorageHelper.setDefaults used before setSetDefaultsRef() was called");
+    }
+    setDefaultsRef(forceDefault);
+}
 
 export function getStoredJSON<T>(key: string, defaultValue: T, reviver?: (key: string, value: any) => any): T {
     const val = getStoredValue(key);
