@@ -26,6 +26,13 @@ Older entries below were migrated 1:1 from `README.md`.
   automation stalled on the result screen. The new page is now handled exactly
   like the old season battle page: the script takes over the result and
   returns to the Season arena.
+- **No more stale pachinko page after a full auto-run** (issue #1799). After
+  an auto-pachinko run finished, the pachinko page kept showing games as
+  still playable even though the script had already played them (a refresh
+  made them disappear -- a display-only desync, no missed play). The
+  run-finished step now reloads the pachinko page once, the same way an F5
+  would, so the page always matches what was actually played. Orb counting
+  is unaffected.
 
 ### v8.1.7 - League no longer freezes on the result screen
 
