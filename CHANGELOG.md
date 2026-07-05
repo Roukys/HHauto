@@ -7,6 +7,38 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.3.0 - Auto-equip mythic boosters into free mythic slots
+
+- New "Mythic Slot" text field under Auto-Equip (issue #1781), styled like the
+  normal Slot Config: enter a priority list of up to 5 mythic booster codes
+  separated by `;` (e.g. `MB1;MB2;MB5;MB8;MB12`, MB1 Sandalwood … MB12 Shiny
+  Aura). The game offers 5 mythic slots with at most one equipped booster per
+  kind — every listed booster you own that is not equipped yet is placed into
+  a free slot, in list order. Empty field = off (unchanged behaviour).
+- Equipped mythic boosters are never replaced and nothing is bought — the
+  script only equips what you already own (purchasing stays with the Auto-Buy
+  filter).
+- The Sandalwood auto-equip (+Event / +Mythic / +Raid Sandalwood) keeps
+  control of MB1: while active, MB1 on the list is left to the Sandalwood
+  logic and one mythic slot is kept free for it — the other listed boosters
+  are still equipped alongside. Sandalwood behaviour is unchanged.
+- Free mythic slots are re-checked promptly (within a few minutes) even when
+  your normal boosters still have hours to run, so a wanted mythic booster
+  gets equipped soon instead of waiting for the normal boosters to expire.
+- Some differently named boosters grant the same in-game bonus and cannot be
+  equipped together; the game refuses those with a conflict popup. The rest of
+  the list is still equipped, the page reloads once to clear the popup (it
+  cannot be closed programmatically) and the conflicting booster is remembered
+  as blocked until the equipped mythic boosters change -- then it is re-tried
+  automatically, without popping the conflict window every few minutes.
+- The script now notices in real time when a mythic booster runs out of
+  charges: fights burn the tracked counters (league/season/pantheon/troll/
+  team-battle/Place-of-Power, matching each booster's kind), so a freed
+  mythic slot -- and a booster that was waiting on a bonus conflict -- is
+  picked up right away instead of waiting for the next market visit. As a
+  safety net, while a booster waits on a conflict the auto-equip check runs
+  at least hourly.
+
 ### v8.2.0 - Reward-ad auto-clicker, new pvp-arena battle page, pachinko display fix
 
 - New "Auto reward ads" option (issue #1746, off by default). When enabled,

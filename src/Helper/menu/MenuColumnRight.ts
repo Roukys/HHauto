@@ -84,6 +84,9 @@ export function buildRightColumn(): string {
                         + hhMenuSwitch('autoEquipBoosters')
                         + hhMenuInput('autoEquipBoostersSlots', HHAuto_inputPattern.autoEquipBoostersSlots, 'text-align:center; width:70px')
                     +`</div>`
+                    +`<div class="internalOptionsRow" style="justify-content: flex-end">`
+                        + hhMenuInput('autoEquipMythicBooster', HHAuto_inputPattern.autoEquipMythicBooster, 'text-align:center; width:70px')
+                    +`</div>`
                     +`<div class="internalOptionsRow">`
                         + hhMenuSwitchWithImg('showMarketTools', 'design/menu/panel.svg')
                         + hhMenuSwitch('updateMarket')
