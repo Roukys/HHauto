@@ -8,8 +8,11 @@ import { TimeHelper } from '../../src/Helper/TimeHelper';
 import { getStoredValue, setStoredValue } from '../../src/Helper/StorageHelper';
 import { HHStoredVarPrefixKey } from '../../src/config/HHStoredVars';
 import { TK } from '../../src/config/StorageKeys';
-import { gotoPage } from '../../src/Service/PageNavigationService';
+import { gotoPage, safeReload } from '../../src/Service/PageNavigationService';
+import { fillHHPopUp } from '../../src/Utils/HHPopup';
+import { setMenuPorts } from '../../src/Helper/menu/MenuPorts';
 import { MockHelper } from '../testHelpers/MockHelpers';
+import { buildTestPorts } from '../Helper/menu/menuTestPorts';
 
 // Mock navigation so off-page handling does not touch window.location.
 jest.mock('../../src/Service/PageNavigationService', () => ({
@@ -20,6 +23,7 @@ jest.mock('../../src/Service/PageNavigationService', () => ({
 }));
 
 const gotoPageMock = gotoPage as jest.Mock;
+const safeReloadMock = safeReload as jest.Mock;
 
 describe("Pachinko", function() {
   describe("getHumanPachinkoFromOrbName", function() {
@@ -210,6 +214,112 @@ describe("Pachinko", function() {
       jest.runAllTimers();
       // Off-page path returns before scheduling the kick.
       expect(kick).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("playXPachinko_func run-finished reload (issue 1799)", function() {
+    // After a full auto-pachinko run, the played-games grid on the pachinko
+    // page can stay out of sync with the server (games that were actually
+    // played still render as playable until an F5). The run-finished branch
+    // now issues a single safeReload() to clear that stale DOM, without
+    // touching the issue-1745 orb bookkeeping (serverOrbsLeft / retry).
+    const PACHINKO_PAGE = ConfigHelper.getHHScriptVars("pagesIDPachinko");
+    const ORB_NAME = "o_m1";
+
+    // Builds the minimal DOM for an in-progress X-run: the game's own orb
+    // button/counter, and the HHAuto popup shown while playXPachinko_func is
+    // polling (created lazily by fillHHPopUp, exactly like pachinkoPlayXTimes
+    // does before it first schedules playXPachinko_func).
+    function renderRunInProgress(domOrbsLeft: number) {
+      document.body.innerHTML =
+        `<!DOCTYPE html><div id="hh_hentai" page="${PACHINKO_PAGE}">` +
+        `<div class="playing-zone"><div class="btns-section">` +
+        `<button class="blue_button_L" orb_name="${ORB_NAME}"><span total_orbs>${domOrbsLeft}</span></button>` +
+        `</div></div></div>`;
+
+      fillHHPopUp("PachinkoPlay", "Pachinko", '<p id="PachinkoPlayedTimes">0/0</p>');
+
+      const select = document.createElement('select');
+      const option = document.createElement('option');
+      option.value = ORB_NAME;
+      select.appendChild(option);
+      select.selectedIndex = 0;
+      Pachinko.pachinkoSelector = select;
+      Pachinko.stopFirstGirlChecked = false;
+      Pachinko.ByPassNoGirlChecked = false;
+    }
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      localStorage.clear();
+      sessionStorage.clear();
+      document.body.innerHTML = "";
+      safeReloadMock.mockClear();
+      jest.spyOn(RewardHelper, "closeRewardPopupIfAny").mockReturnValue(false as never);
+      // buildPachinkoSelectPopUp (called by the finished-run branch) renders
+      // hhMenuSwitch rows, which read through MenuPorts.
+      setMenuPorts(buildTestPorts({
+        getTextForUI: (id: string, type: string) => `${id}:${type}`,
+      }));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+      jest.restoreAllMocks();
+      localStorage.clear();
+      sessionStorage.clear();
+      document.body.innerHTML = "";
+      Pachinko.serverOrbsLeft = undefined;
+      Pachinko.retry = 0;
+    });
+
+    it("reloads the pachinko page exactly once when a run finishes on-page", async function() {
+      renderRunInProgress(0);
+      Pachinko.orbLeftOnAutoStart = 5;
+      Pachinko.orbsToGo = 5;
+      Pachinko.serverOrbsLeft = 0; // server-authoritative: all 5 orbs spent, 0 left.
+      Pachinko.retry = 0;
+
+      await Pachinko.playXPachinko_func();
+
+      expect(safeReloadMock).toHaveBeenCalledTimes(1);
+      // The issue-1745 orb bookkeeping must stay exactly as the server
+      // reported it -- the display fix must not touch it.
+      expect(Pachinko.serverOrbsLeft).toBe(0);
+      expect(Pachinko.retry).toBe(0);
+    });
+
+    it("does not reload while the run is still pulling (target not reached)", async function() {
+      renderRunInProgress(3);
+      Pachinko.orbLeftOnAutoStart = 5;
+      Pachinko.orbsToGo = 5;
+      Pachinko.serverOrbsLeft = 3; // 2 spent so far, target 5 not reached -> continues.
+
+      await Pachinko.playXPachinko_func();
+
+      expect(safeReloadMock).not.toHaveBeenCalled();
+    });
+
+    it("does not reload when the run finishes off the pachinko page", async function() {
+      renderRunInProgress(0);
+      document.getElementById("hh_hentai")!.setAttribute("page", "home");
+      Pachinko.orbLeftOnAutoStart = 5;
+      Pachinko.orbsToGo = 5;
+      Pachinko.serverOrbsLeft = 0;
+
+      await Pachinko.playXPachinko_func();
+
+      expect(safeReloadMock).not.toHaveBeenCalled();
+    });
+
+    it("does not reload when the retry-failure path is taken instead of a clean finish", function() {
+      // Verifies the failure/retry path (stopXPachinkoFailure, issue-1799
+      // ticket asked to confirm this is unrelated) never triggers the new
+      // reload -- only the natural "run finished" branch does.
+      Pachinko.retry = 0;
+      Pachinko.stopXPachinkoFailure();
+
+      expect(safeReloadMock).not.toHaveBeenCalled();
     });
   });
 });

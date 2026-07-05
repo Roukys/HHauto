@@ -19113,6 +19113,19 @@ class Pachinko {
                 logHHAuto(`Pachinko run finished: spent ${spendedOrbs}/${Pachinko.orbsToGo} orbs, ${currentOrbsLeft} left.`);
                 maskHHPopUp();
                 Pachinko.buildPachinkoSelectPopUp(spendedOrbs);
+                // The played-games grid on the pachinko page can fall out of sync with
+                // the server after a full auto-run: games that were actually played
+                // still render as playable until the page is refreshed (issue #1799,
+                // a recurrence of the same KinKoid-side desync fixed before for orb
+                // over-consumption in issue 1745 -- this is display-only, orb
+                // accounting above is untouched). A single safeReload() clears the
+                // stale DOM the same way an F5 would. Route through safeReload rather
+                // than a direct location.reload() so any in-flight play/claim AJAX
+                // from the last pull can settle first -- a direct reload can cancel
+                // that request and trigger the Forbidden race (issue #1598).
+                if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPachinko")) {
+                    safeReload();
+                }
                 return;
             }
         });
