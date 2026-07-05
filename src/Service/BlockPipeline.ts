@@ -38,6 +38,13 @@ import { HandlerConfig, pipeline } from "./Pipeline.config";
  */
 export function applySlotHold(r: BlockStepResult, busy: boolean): BlockStepResult {
   if (!r.ok) return r;
+  // An explicit repeat from the step wins (issue #1796): steps use it to hold
+  // the slot when busy is not set -- e.g. handleLeague right after launching
+  // a leaderboard navigation, or handleSeason waiting in-slot through the
+  // short inter-fight pause. Without this passthrough those holds were
+  // silently stripped and the released slot opened the one-tick window in
+  // which another block navigated away mid-session.
+  if (r.repeat) return r;
   return busy ? { ok: true, repeat: true } : { ok: true };
 }
 
