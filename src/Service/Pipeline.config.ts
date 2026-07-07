@@ -401,10 +401,21 @@ const handleLeague: HandlerConfig = {
             // Slot-hold (issue #1796): doLeagueBattle arms nextLeaguesTime on
             // every stop decision (no power, no valid targets, demote guard,
             // league end). No timer armed means the league session continues
-            // (a navigation to the leaderboard or a fight was launched) --
-            // keep the run so no other block interleaves. checkTimer() is
-            // true while NO timer is pending.
-            if (checkTimer('nextLeaguesTime')) return { ok: true, repeat: true };
+            // (a navigation home->leaderboard is under way) -- keep the run so
+            // no other block interleaves. checkTimer() is true while NO timer
+            // is pending.
+            //
+            // But NOT on the league-battle result page: there doLeagueBattle is
+            // a no-op that arms no timer, so checkTimer stays true and the hold
+            // would repeat forever, starving handleGenericBattle (later in the
+            // pipeline) which parses the result and navigates on -- observed
+            // live as a freeze on the result panel after one fight (#1796
+            // regression in 8.1.6). handleSeason already excludes its own battle
+            // page for the same reason; mirror it here.
+            if (checkTimer('nextLeaguesTime')
+                && ctx.currentPage !== ConfigHelper.getHHScriptVars('pagesIDLeagueBattle')) {
+              return { ok: true, repeat: true };
+            }
             return { ok: true };
           }
           // Fight not possible right now (energy below threshold,
