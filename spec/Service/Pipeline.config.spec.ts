@@ -1141,6 +1141,20 @@ describe('Pipeline.config', () => {
       expect(result).toEqual({ ok: true });
     });
 
+    it('handleLeague does not hold the slot on the league battle page', async () => {
+      // #1796 regression (8.1.6): on the league-battle result page doLeagueBattle
+      // is a no-op that arms no timer, so checkTimer stays true. Without the
+      // page guard the slot-hold repeated forever and starved handleGenericBattle
+      // (the block that parses the result and navigates on) -> freeze on the
+      // result panel. The run must complete here so the slot is released.
+      LeagueMock.isTimeToFight.mockReturnValue(true);
+      TimerMock.checkTimer.mockReturnValue(true); // timer expired -> would repeat off-page
+      ConfigHelperMock.getHHScriptVars.mockImplementation((key: string) => key);
+      const ctx = makeCtx({ currentPage: 'pagesIDLeagueBattle' });
+      const result = await leagueHandler.steps[0].fn(ctx);
+      expect(result).toEqual({ ok: true });
+    });
+
     it('applySlotHold passes an explicit step repeat through even when busy is false', () => {
       expect(applySlotHold({ ok: true, repeat: true }, false)).toEqual({ ok: true, repeat: true });
     });
