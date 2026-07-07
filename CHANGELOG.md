@@ -7,6 +7,13 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.1.7 - League no longer freezes on the result screen
+
+- **League fights no longer freeze on the result panel.** After a single
+  league fight the automation could get stuck on the fight-result screen
+  instead of moving on to the next fight. It now hands the result screen
+  over correctly and continues the session.
+
 ### v8.1.6 - Fights no longer interleave, import-cycle backbone broken
 
 - Fight sessions stay together (issue #1796): the automation no longer hops
