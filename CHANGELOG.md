@@ -11,8 +11,11 @@ Older entries below were migrated 1:1 from `README.md`.
 
 - New "Auto reward ads" option (issue #1746, off by default). When enabled,
   the script clicks the Home-page reward ads for you: it presses "Try it now",
-  closes the advertising tab that opens after a few seconds, and then confirms
-  the reward with the game's OK button. It handles every available reward ad.
+  closes the advertising tab that opens after a few seconds, confirms the
+  reward with the game's OK button and reloads the page so the next ad can
+  appear. It works through every available reward ad, one after the other.
+- The browser must allow pop-ups for the game site (add an exception), and ad
+  blockers must be disabled -- otherwise the advertising tab cannot open.
 - Ad blockers must be disabled for the ads to appear. The feature is
   rate-limited by a cooldown and never retries in a loop: if a popup blocker
   stops the ad tab from opening, or the confirm button never shows, or no ad is
