@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.4.0
+// @version      8.2.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -155,7 +155,7 @@ HHAuto_ToolTips.en['autoEquipBoostersSlots'] = { version: "7.30.0", elementText:
 HHAuto_ToolTips.en['autoSeasonPassReds'] = { version: "5.6.24", elementText: "Pass 3 reds", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>(" + HHAuto_ToolTips.en['spendKobans0'].elementText + " must be ON)</p>Use kobans to renew Season opponents if 3 reds" };
 HHAuto_ToolTips.en['showCalculatePower'] = { version: "6.8.0", elementText: "PowerCalc", tooltip: "Display battle simulation indicator for Leagues, battle, Seasons " };
 HHAuto_ToolTips.en['showAdsBack'] = { version: "5.34.15", elementText: "Move ads to the back", tooltip: "Move the ads section to the background." };
-HHAuto_ToolTips.en['autoAdsClick'] = { version: "8.4.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
+HHAuto_ToolTips.en['autoAdsClick'] = { version: "8.2.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
 //HHAuto_ToolTips.en['calculatePowerLimits'] = { version: "5.6.24", elementText: "Own limits", tooltip: "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
 HHAuto_ToolTips.en['showInfo'] = { version: "5.6.24", elementText: "Show info", tooltip: "if enabled : show info on script values and next runs" };
 HHAuto_ToolTips.en['showInfoLeft'] = { version: "5.23.0", elementText: "Show info Left", tooltip: "Show info on left side vs on right side" };
@@ -520,7 +520,7 @@ HHAuto_ToolTips.fr['autoBuyBoostersFilter'] = { version: "5.6.24", elementText: 
 HHAuto_ToolTips.fr['autoSeasonPassReds'] = { version: "5.6.24", elementText: "Passer 3 rouges", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>(" + HHAuto_ToolTips.fr['spendKobans0'].elementText + " doit être activé)</p>Utilise des kobans pour renouveler les adversaires de la saison si PowerCalc détermine 3 combats rouges (perdus)." };
 HHAuto_ToolTips.fr['showCalculatePower'] = { version: "6.8.0", elementText: "PowerCalc", tooltip: "Si activé : affiche le résultat des calculs du module PowerCalc (Simulateur de combats pour Ligues, Trolls, Saisons)." };
 HHAuto_ToolTips.fr['showAdsBack'] = { version: "5.34.15", elementText: "Move ads to the back", tooltip: "Si activé : deplace les pubs à l'arrière plan." };
-HHAuto_ToolTips.fr['autoAdsClick'] = { version: "8.4.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
+HHAuto_ToolTips.fr['autoAdsClick'] = { version: "8.2.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
 //HHAuto_ToolTips.fr['calculatePowerLimits'] = { version: "5.6.24", elementText: "Limites perso", tooltip: "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
 HHAuto_ToolTips.fr['showInfo'] = { version: "5.6.24", elementText: "Infos", tooltip: "Si activé : affiche une fenêtre d'informations sur le script." };
 HHAuto_ToolTips.fr['showInfoLeft'] = { version: "5.23.0", elementText: "Infos à gauche", tooltip: "Affiche la fenêtre d'information à gauche plutot qu'à droite" };
@@ -660,7 +660,7 @@ HHAuto_ToolTips.de['gitHub'] = { version: "5.6.24", elementText: "GitHub", toolt
 HHAuto_ToolTips.de['saveConfig'] = { version: "5.6.24", elementText: "Save Config", tooltip: "Erlaube die Einstellung zu speichern." };
 HHAuto_ToolTips.de['loadConfig'] = { version: "5.6.24", elementText: "Load Config", tooltip: "Erlaube die Einstellung zu laden." };
 HHAuto_ToolTips.de['master'] = { version: "5.6.24", elementText: "Master Schalter", tooltip: "An/Aus Schalter für das Skript" };
-HHAuto_ToolTips.de['autoAdsClick'] = { version: "8.4.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
+HHAuto_ToolTips.de['autoAdsClick'] = { version: "8.2.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
 HHAuto_ToolTips.de['settPerTab'] = { version: "5.6.24", elementText: "Einstellung per Tab", tooltip: "Erlaube die Einstellungen nur für diesen Tab zu setzen." };
 HHAuto_ToolTips.de['paranoia'] = { version: "5.6.24", elementText: "Paranoia Modus", tooltip: "Erlaube es Schlaf zu simulieren und einen menschlichen Nutzer (wird weiter dokumentiert)" };
 HHAuto_ToolTips.de['paranoiaSpendsBefore'] = { version: "5.6.24", elementText: "Gib Punkte aus vor...", tooltip: "Wenn gewollt, werden Punkte für Optionen ausgegeben (Quest, Troll, Liga und Season)<br> nur wenn sie aktiviert sind<br>und gibt Punkt aus die über dem maximal Limit sind<br> z.B.: Du hast die Power für Troll von 17, gehst aber für 4h45 in den Paranoia Modus,<br> dass heißt 17+10 Punkte (aufgerundet), welches über dem Max von 20 wäre.<br> Es würden dann 9 Punkte ausgegeben, sodass du nur bei 19 Punkten bleibst bis zum Ende des Paranoia Modus um einen Verlust zu verhindern." };
@@ -735,7 +735,7 @@ HHAuto_ToolTips.es['gitHub'] = { version: "5.6.24", elementText: "GitHub", toolt
 HHAuto_ToolTips.es['saveConfig'] = { version: "5.6.24", elementText: "Salvar config.", tooltip: "Permite salvar la configuración." };
 HHAuto_ToolTips.es['loadConfig'] = { version: "5.6.24", elementText: "Cargar config", tooltip: "Permite cargar la configuración." };
 HHAuto_ToolTips.es['master'] = { version: "5.6.24", elementText: "Switch maestro", tooltip: "Interruptor de Encendido/Apagado para el script completo" };
-HHAuto_ToolTips.es['autoAdsClick'] = { version: "8.4.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
+HHAuto_ToolTips.es['autoAdsClick'] = { version: "8.2.0", elementText: "Auto reward ads", tooltip: "Automatically click the Home-page reward ads (\"Try it now\"), close the ad tab they open and confirm the reward (OK). Clicks every available reward ad. Requires ad blockers to be disabled. Rate-limited by a cooldown." };
 HHAuto_ToolTips.es['settPerTab'] = { version: "5.6.24", elementText: "Configuración por ventana", tooltip: "Aplica las opciones sólo a esta ventana" };
 HHAuto_ToolTips.es['paranoia'] = { version: "5.6.24", elementText: "Modo Paranoia", tooltip: "Permite simular sueño, y un usuario humano (Pendiente de documentación)" };
 HHAuto_ToolTips.es['paranoiaSpendsBefore'] = { version: "5.6.24", elementText: "Gasta puntos antes", tooltip: "\'On\' gastará puntos para opciones (aventura, villanos, ligas y temporada) sólo si éstos están habilitados y gasta puntos que estarían por encima de los límites máximos.<br>Ej : Tienes energia para 17 combates de villanos, pero estarás 4h45m en paranoia.<br> Esto es tener 17+10 combates (redondeado al entero superior), estando así por encima del máximo de 20<br> gastará 8 combates para quedar con 19 al final de la Paranoia, evitando perder puntos." };
