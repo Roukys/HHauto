@@ -30,10 +30,11 @@ export class GenericBattle {
     static doBattle()
     {
         if (
-            getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") 
-            || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle") 
-            || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") 
-            || getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle") 
+            getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDPvpArena")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle") )
         {
@@ -88,8 +89,12 @@ export class GenericBattle {
                 }
 
             }
-            else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") && getStoredValue(HHStoredVarPrefixKey+SK.autoSeason) === "true")
+            else if ((getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDPvpArena"))
+                && getStoredValue(HHStoredVarPrefixKey+SK.autoSeason) === "true")
             {
+                // pvp-arena is the new page the game shows season fights on
+                // (July 2026); handle it exactly like the old season-battle
+                // result page.
                 logHHAuto("Go back to Season arena after Season fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"),{},randomInterval(2000,4000));
             }

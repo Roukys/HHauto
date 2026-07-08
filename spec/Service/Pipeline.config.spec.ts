@@ -988,12 +988,21 @@ describe('Pipeline.config', () => {
       'pagesIDLeagueBattle',
       'pagesIDTrollBattle',
       'pagesIDSeasonBattle',
+      'pagesIDPvpArena',
       'pagesIDPentaDrillBattle',
       'pagesIDPantheonBattle',
       'pagesIDLabyrinthBattle',
     ])('handleTrollBattle yields battle-result page %s', (page) => {
       const ctx = makeCtx({ canCollectCompetitionActive: true, currentPage: page });
       expect(trollHandler.precondition(ctx)).toBe(false);
+    });
+
+    it('handleGenericBattle precondition returns true on the new pvp-arena result page', () => {
+      // The game moved season fights to /pvp-arena.html (July 2026). Without
+      // this page in the battle-result list the script never takes over after
+      // a season fight (no skip, no confirm, no return to the arena).
+      const ctx = makeCtx({ canCollectCompetitionActive: true, currentPage: 'pagesIDPvpArena' });
+      expect(genericHandler.precondition(ctx)).toBe(true);
     });
   });
 
@@ -1107,6 +1116,17 @@ describe('Pipeline.config', () => {
       TimerMock.getSecondsLeft.mockReturnValue(5);
       ConfigHelperMock.getHHScriptVars.mockImplementation((key: string) => key);
       const ctx = makeCtx({ currentPage: 'pagesIDSeasonBattle' });
+      const result = await seasonHandler.steps[0].fn(ctx);
+      expect(result).toEqual({ ok: true });
+    });
+
+    it('handleSeason does not hold the pause slot on the new pvp-arena battle page', async () => {
+      // Season fights land on /pvp-arena.html since July 2026; the slot must
+      // be released there too so handleGenericBattle can take over the result.
+      jest.spyOn(Season, 'isTimeToFight').mockReturnValue(false);
+      TimerMock.getSecondsLeft.mockReturnValue(5);
+      ConfigHelperMock.getHHScriptVars.mockImplementation((key: string) => key);
+      const ctx = makeCtx({ currentPage: 'pagesIDPvpArena' });
       const result = await seasonHandler.steps[0].fn(ctx);
       expect(result).toEqual({ ok: true });
     });

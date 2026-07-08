@@ -801,6 +801,8 @@ function isGenericBattleResultPage(currentPage: string): boolean {
     ConfigHelper.getHHScriptVars('pagesIDLeagueBattle'),
     ConfigHelper.getHHScriptVars('pagesIDTrollBattle'),
     ConfigHelper.getHHScriptVars('pagesIDSeasonBattle'),
+    // pvp-arena: the page the game shows season fights on since July 2026.
+    ConfigHelper.getHHScriptVars('pagesIDPvpArena'),
     ConfigHelper.getHHScriptVars('pagesIDPentaDrillBattle'),
     ConfigHelper.getHHScriptVars('pagesIDPantheonBattle'),
     ConfigHelper.getHHScriptVars('pagesIDLabyrinthBattle'),
@@ -1240,7 +1242,8 @@ const handleSeason: HandlerConfig = {
           // through to run completion below.
           if (ctx.busy) return { ok: true, repeat: true };
         } else if (seasonInterFightPause()
-            && ctx.currentPage !== ConfigHelper.getHHScriptVars('pagesIDSeasonBattle')) {
+            && ctx.currentPage !== ConfigHelper.getHHScriptVars('pagesIDSeasonBattle')
+            && ctx.currentPage !== ConfigHelper.getHHScriptVars('pagesIDPvpArena')) {
           // Wait in-slot through the short pause between two fights instead
           // of completing the run: completion starts the 2s minInterval
           // cool-down, and that one-tick window is exactly where other

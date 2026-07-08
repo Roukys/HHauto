@@ -17,6 +17,12 @@ Older entries below were migrated 1:1 from `README.md`.
   rate-limited by a cooldown and never retries in a loop: if a popup blocker
   stops the ad tab from opening, or the confirm button never shows, or no ad is
   present, it simply logs the reason and waits for the next cooldown window.
+- **Season fights work again on the game's new battle page.** The game moved
+  season/PvP fights to a new `pvp-arena` page, which the script did not
+  recognize -- after a fight nothing was skipped or confirmed and the
+  automation stalled on the result screen. The new page is now handled exactly
+  like the old season battle page: the script takes over the result and
+  returns to the Season arena.
 
 ### v8.1.7 - League no longer freezes on the result screen
 
