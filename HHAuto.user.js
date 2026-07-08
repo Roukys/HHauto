@@ -9084,6 +9084,12 @@ HHEnvVariables["global"].pagesKnownList.push("TrollBattle");
 HHEnvVariables["global"].pagesIDSeasonBattle = "season-battle";
 HHEnvVariables["global"].pagesURLSeasonBattle = "/season-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("SeasonBattle");
+// The game moved season/PvP fights to a new page (July 2026); without this
+// registration the script treats the fight result page as unknown and never
+// takes over after a season fight.
+HHEnvVariables["global"].pagesIDPvpArena = "pvp-arena";
+HHEnvVariables["global"].pagesURLPvpArena = "/pvp-arena.html";
+HHEnvVariables["global"].pagesKnownList.push("PvpArena");
 HHEnvVariables["global"].pagesIDPantheonBattle = "pantheon-battle";
 HHEnvVariables["global"].pagesURLPantheonBattle = "/pantheon-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("PantheonBattle");
@@ -29206,6 +29212,7 @@ class GenericBattle {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDPvpArena")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle")) {
@@ -29247,7 +29254,11 @@ class GenericBattle {
                     }
                 }
             }
-            else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") && getStoredValue(HHStoredVarPrefixKey + SK.autoSeason) === "true") {
+            else if ((getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDPvpArena"))
+                && getStoredValue(HHStoredVarPrefixKey + SK.autoSeason) === "true") {
+                // pvp-arena is the new page the game shows season fights on
+                // (July 2026); handle it exactly like the old season-battle
+                // result page.
                 logHHAuto("Go back to Season arena after Season fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"), {}, randomInterval(2000, 4000));
             }
@@ -30036,6 +30047,8 @@ function isGenericBattleResultPage(currentPage) {
         ConfigHelper.getHHScriptVars('pagesIDLeagueBattle'),
         ConfigHelper.getHHScriptVars('pagesIDTrollBattle'),
         ConfigHelper.getHHScriptVars('pagesIDSeasonBattle'),
+        // pvp-arena: the page the game shows season fights on since July 2026.
+        ConfigHelper.getHHScriptVars('pagesIDPvpArena'),
         ConfigHelper.getHHScriptVars('pagesIDPentaDrillBattle'),
         ConfigHelper.getHHScriptVars('pagesIDPantheonBattle'),
         ConfigHelper.getHHScriptVars('pagesIDLabyrinthBattle'),
@@ -30496,7 +30509,8 @@ const handleSeason = {
                             return { ok: true, repeat: true };
                     }
                     else if (seasonInterFightPause()
-                        && ctx.currentPage !== ConfigHelper.getHHScriptVars('pagesIDSeasonBattle')) {
+                        && ctx.currentPage !== ConfigHelper.getHHScriptVars('pagesIDSeasonBattle')
+                        && ctx.currentPage !== ConfigHelper.getHHScriptVars('pagesIDPvpArena')) {
                         // Wait in-slot through the short pause between two fights instead
                         // of completing the run: completion starts the 2s minInterval
                         // cool-down, and that one-tick window is exactly where other
