@@ -316,6 +316,13 @@ HHEnvVariables["global"].pagesIDSeasonBattle = "season-battle";
 HHEnvVariables["global"].pagesURLSeasonBattle = "/season-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("SeasonBattle");
 
+// The game moved season/PvP fights to a new page (July 2026); without this
+// registration the script treats the fight result page as unknown and never
+// takes over after a season fight.
+HHEnvVariables["global"].pagesIDPvpArena = "pvp-arena";
+HHEnvVariables["global"].pagesURLPvpArena = "/pvp-arena.html";
+HHEnvVariables["global"].pagesKnownList.push("PvpArena");
+
 HHEnvVariables["global"].pagesIDPantheonBattle = "pantheon-battle";
 HHEnvVariables["global"].pagesURLPantheonBattle = "/pantheon-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("PantheonBattle");
