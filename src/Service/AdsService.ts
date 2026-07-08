@@ -130,10 +130,31 @@ function adsDelay(ms: number): Promise<void> {
 }
 
 export class AdsService {
-    // Ads clicked during this page session, keyed by adKey(). Prevents
-    // re-clicking an ad whose button lingers after it has been watched (the
-    // set is cleared naturally when the page reloads and the script re-inits).
-    static handledAdKeys: Set<string> = new Set<string>();
+    // Ads clicked recently, keyed by adKey() with the click timestamp.
+    // Prevents re-clicking an ad whose button lingers after it has been
+    // watched -- but only for HANDLED_TTL_MS: reward ads are repeatable
+    // after the game's own cooldown, so a permanent per-session skip would
+    // wrongly ignore an ad that became available again (or whose reward
+    // never got credited on a failed attempt).
+    static handledAdKeys: Map<string, number> = new Map<string, number>();
+
+    /** How long a clicked ad is skipped before it may be clicked again. */
+    static HANDLED_TTL_MS = 30 * 60 * 1000;
+
+    /** How long after an ad click a stray visible OK is treated as OUR
+     *  pending reward confirm. Outside this window the generic confirm
+     *  popup on screen belongs to something else and must not be clicked. */
+    static PENDING_CONFIRM_WINDOW_MS = 10 * 60 * 1000;
+
+    /** True when an ad was clicked recently enough that a visible confirm
+     *  popup can be attributed to it. */
+    static hasRecentAdClick(): boolean {
+        const now = Date.now();
+        for (const ts of AdsService.handledAdKeys.values()) {
+            if (now - ts < AdsService.PENDING_CONFIRM_WINDOW_MS) return true;
+        }
+        return false;
+    }
 
     static closeHomeAds() {
         if ($('#ad_home close:visible').length) {
@@ -181,8 +202,14 @@ export class AdsService {
         return getStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick) === "true";
     }
 
-    /** Ad buttons not yet handled this page session. Exported via the class for testing. */
+    /** Ad buttons not clicked within the last HANDLED_TTL_MS (expired
+     *  entries are pruned so the ad becomes clickable again after the
+     *  game's own cooldown). Exported via the class for testing. */
     static findUnhandledAdButtons(): HTMLElement[] {
+        const now = Date.now();
+        for (const [key, ts] of AdsService.handledAdKeys) {
+            if (now - ts >= AdsService.HANDLED_TTL_MS) AdsService.handledAdKeys.delete(key);
+        }
         return findAdButtons().filter(b => !AdsService.handledAdKeys.has(adKey(b)));
     }
 
@@ -227,9 +254,13 @@ export class AdsService {
     static async runAdCycle(): Promise<boolean> {
         if (!AdsService.isAdClickActivated()) return false;
 
-        // Confirm a reward left over from an earlier (possibly interrupted) step.
+        // Confirm a reward left over from an earlier (possibly interrupted)
+        // step -- but ONLY shortly after one of our own ad clicks. The game
+        // uses the same confirm_blue_button popup for many dialogs; a stray
+        // visible OK long after any ad click belongs to something else and
+        // must not be auto-confirmed.
         const pending = findConfirmButton();
-        if (pending) {
+        if (pending && AdsService.hasRecentAdClick()) {
             logHHAuto("Ads: confirming pending reward (OK).");
             pending.click();
             setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_NEXT));
@@ -238,7 +269,10 @@ export class AdsService {
 
         const buttons = AdsService.findUnhandledAdButtons();
         if (buttons.length === 0) {
-            logHHAuto("Ads: no new reward ad to click.");
+            const total = findAdButtons().length;
+            logHHAuto("Ads: no new reward ad to click ("
+                + total + " ad button(s) on the page, "
+                + AdsService.handledAdKeys.size + " on re-click cooldown).");
             setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_DONE));
             return false;
         }
@@ -274,9 +308,9 @@ export class AdsService {
             return false;
         }
 
-        // Watched: never click this ad again this session, even if its button
+        // Watched: skip this ad for HANDLED_TTL_MS, even if its button
         // lingers after the reward is claimed.
-        AdsService.handledAdKeys.add(adKey(target));
+        AdsService.handledAdKeys.set(adKey(target), Date.now());
 
         if (confirmBtn) {
             logHHAuto("Ads: reward available, confirming (OK).");
