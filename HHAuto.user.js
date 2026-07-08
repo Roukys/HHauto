@@ -21762,11 +21762,14 @@ var AdsService_awaiter = (undefined && undefined.__awaiter) || function (thisArg
 
 
 // Cooldown windows (seconds). Never a tight retry loop (issue #1746 acceptance).
-// RECHECK: normal pacing -- scan again shortly, so an ad button is clicked
-//          soon after it appears (maintainer requirement), and a pending OK
-//          is picked up quickly. Scanning is a cheap DOM query.
-// BLOCKED: a popup blocker stopped the ad tab -- back off, retrying won't help.
-const AD_COOLDOWN_RECHECK = [60, 3 * 60];
+// RECHECK: normal pacing -- the reward ads appear in short bursts (several in
+//          a row, then none until the next day), so the scan runs every few
+//          seconds to catch the whole burst (maintainer requirement). The scan
+//          itself is a cheap DOM query; the pipeline's minIntervalMs and this
+//          timer keep it from busy-looping.
+// BLOCKED: a popup blocker stopped the ad tab -- back off, retrying won't help
+//          (fix is a browser popup exception for the game site).
+const AD_COOLDOWN_RECHECK = [5, 10];
 const AD_COOLDOWN_BLOCKED = [20 * 60, 30 * 60];
 // The reward-ad "Try it now" button is identified by its onclick calling the
 // game's cross-promo redirect. Matching the handler (not a wrapper class or the
@@ -21916,8 +21919,8 @@ class AdsService {
     }
     /**
      * One reward-ad step on the Home page (issue #1746). Handles a single ad
-     * per call and re-checks every 1-3 minutes, so an ad button is clicked
-     * soon after it appears:
+     * per call and re-checks every few seconds, so a whole burst of ads is
+     * worked through back to back:
      *   1. If an OK confirm button is already visible (from a previous step),
      *      click it and come back soon (more ads may follow).
      *   2. Otherwise pick the first visible "Try it now" button -- a visible
