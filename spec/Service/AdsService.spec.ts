@@ -155,9 +155,11 @@ describe("AdsService.runAdCycle", () => {
         expect(checkTimer("nextAdsTime")).toBe(false); // cooldown armed -> no tight loop
     });
 
-    it("confirms a pending reward (OK) left over from a previous cycle", async () => {
+    it("confirms a pending reward (OK) left over from a recent ad click", async () => {
         setStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick, "true");
         document.body.innerHTML = `<button confirm_blue_button="">OK</button>`;
+        // An ad was clicked moments ago -- the visible OK is our reward confirm.
+        AdsService.handledAdKeys.set("some-ad", Date.now());
         const clickSpy = jest.fn();
         (document.querySelector("button[confirm_blue_button]") as HTMLElement).addEventListener("click", clickSpy);
 
@@ -165,6 +167,19 @@ describe("AdsService.runAdCycle", () => {
         expect(acted).toBe(true);
         expect(clickSpy).toHaveBeenCalled();
         expect(checkTimer("nextAdsTime")).toBe(false);
+    });
+
+    it("does NOT auto-confirm a stray OK dialog without a recent ad click", async () => {
+        setStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick, "true");
+        // A generic confirm popup is open, but no ad was clicked recently --
+        // this OK belongs to some other dialog and must not be pressed.
+        document.body.innerHTML = `<button confirm_blue_button="">OK</button>`;
+        const clickSpy = jest.fn();
+        (document.querySelector("button[confirm_blue_button]") as HTMLElement).addEventListener("click", clickSpy);
+
+        const acted = await AdsService.runAdCycle();
+        expect(clickSpy).not.toHaveBeenCalled();
+        expect(acted).toBe(false); // falls through to "no new reward ad"
     });
 
     it("backs off (no retry) when neither a tab handle nor a confirm appears (popup blocker)", async () => {
@@ -233,11 +248,23 @@ describe("AdsService.runAdCycle", () => {
         expect(checkTimer("nextAdsTime")).toBe(false); // success cooldown armed
     });
 
-    it("skips ads it already handled this session", () => {
+    it("skips ads clicked within the re-click cooldown", () => {
         document.body.innerHTML = adButtonHtml(52, "a") + adButtonHtml(99, "b");
         expect(AdsService.findUnhandledAdButtons().length).toBe(2);
-        AdsService.handledAdKeys.add(document.getElementById("a")!.getAttribute("onclick")!);
+        AdsService.handledAdKeys.set(document.getElementById("a")!.getAttribute("onclick")!, Date.now());
         expect(AdsService.findUnhandledAdButtons().map(x => x.id)).toEqual(["b"]);
+    });
+
+    it("clicks an ad again once its re-click cooldown expired (repeatable reward ads)", () => {
+        document.body.innerHTML = adButtonHtml(52, "a");
+        // Clicked more than HANDLED_TTL_MS ago -- the game's own cooldown is
+        // over and the lingering button is a fresh, clickable ad again.
+        AdsService.handledAdKeys.set(
+            document.getElementById("a")!.getAttribute("onclick")!,
+            Date.now() - AdsService.HANDLED_TTL_MS - 1000,
+        );
+        expect(AdsService.findUnhandledAdButtons().map(x => x.id)).toEqual(["a"]);
+        expect(AdsService.handledAdKeys.size).toBe(0); // expired entry pruned
     });
 
     it("drains multiple ads over successive steps without re-clicking a handled one", async () => {
