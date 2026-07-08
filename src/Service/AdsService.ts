@@ -40,11 +40,11 @@ export interface WindowOpener {
 }
 
 // Cooldown windows (seconds). Never a tight retry loop (issue #1746 acceptance).
-// DONE: nothing left to do (all ads handled / none present) -- rest a while.
-// NEXT: more ads to handle, or an OK button expected shortly -- come back soon.
+// RECHECK: normal pacing -- scan again shortly, so an ad button is clicked
+//          soon after it appears (maintainer requirement), and a pending OK
+//          is picked up quickly. Scanning is a cheap DOM query.
 // BLOCKED: a popup blocker stopped the ad tab -- back off, retrying won't help.
-const AD_COOLDOWN_DONE: [number, number] = [15 * 60, 20 * 60];
-const AD_COOLDOWN_NEXT: [number, number] = [60, 3 * 60];
+const AD_COOLDOWN_RECHECK: [number, number] = [60, 3 * 60];
 const AD_COOLDOWN_BLOCKED: [number, number] = [20 * 60, 30 * 60];
 
 // The reward-ad "Try it now" button is identified by its onclick calling the
@@ -210,9 +210,9 @@ export class AdsService {
     }
 
     /**
-     * One reward-ad step on the Home page (issue #1746). Handles a single ad per
-     * call and comes back soon (NEXT cooldown) while more remain, so all ads are
-     * drained over a few ticks rather than one every 15-20 min:
+     * One reward-ad step on the Home page (issue #1746). Handles a single ad
+     * per call and re-checks every 1-3 minutes, so an ad button is clicked
+     * soon after it appears:
      *   1. If an OK confirm button is already visible (from a previous step),
      *      click it and come back soon (more ads may follow).
      *   2. Otherwise pick the first visible "Try it now" button -- a visible
@@ -224,8 +224,8 @@ export class AdsService {
      *      the reward may still be credited (the tab may have opened through a
      *      path the wrapper cannot see).
      *   5. Wait (up to 60 s) for the visible OK button and click it.
-     *   6. Cooldowns: OK confirmed or tab handled -> NEXT while more remains,
-     *      else DONE. Neither handle nor OK -> popup blocker, long back-off.
+     *   6. Arm the 1-3 min RECHECK -- except when neither a tab nor an OK was
+     *      seen (popup blocker): then the long BLOCKED back-off.
      *
      * Every exit path arms `nextAdsTime`, so the caller's precondition
      * (checkTimer) rate-limits re-entry -- there is no unbounded retry loop.
@@ -243,14 +243,14 @@ export class AdsService {
         if (pending && AdsService.hasRecentAdClick()) {
             logHHAuto("Ads: confirming pending reward (OK).");
             pending.click();
-            setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_NEXT));
+            setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_RECHECK));
             return true;
         }
 
         const buttons = findAdButtons();
         if (buttons.length === 0) {
             logHHAuto("Ads: no reward ad on the page.");
-            setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_DONE));
+            setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_RECHECK));
             return false;
         }
 
@@ -292,11 +292,10 @@ export class AdsService {
             logHHAuto("Ads: reward confirm (OK) not visible yet, will retry shortly.");
         }
 
-        // Come back soon if more ads remain, or if the OK has not appeared yet
-        // (the pending-confirm check at the top of the next step will catch it).
-        const moreAds = findAdButtons().length > 0;
-        const cooldown = (confirmBtn && !moreAds) ? AD_COOLDOWN_DONE : AD_COOLDOWN_NEXT;
-        setTimer("nextAdsTime", randomInterval(...cooldown));
+        // Come back soon: for the next ad, for a late OK (the pending-confirm
+        // check at the top of the next step catches it), or to spot a newly
+        // appearing ad quickly.
+        setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_RECHECK));
         return true;
     }
 }
