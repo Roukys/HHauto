@@ -255,7 +255,17 @@ export class AdsService {
         }
 
         const target = buttons[0];
-        logHHAuto("Ads: clicking reward ad ('Try it now'). " + (buttons.length - 1) + " more waiting.");
+        // Name the ad in the log (cross-promo id + target host from the
+        // onclick) so a "was ad X clicked?" question is answerable from the
+        // debug log alone.
+        const onclick = target.getAttribute("onclick") || "";
+        const adMatch = onclick.match(/redirectToCrosspromo\((\d+),\s*'([^']*)'/);
+        let adName = adMatch ? adMatch[1] : "?";
+        try {
+            if (adMatch) adName += " -> " + new URL(adMatch[2]).host;
+        } catch { /* keep the plain id when the URL does not parse */ }
+        logHHAuto("Ads: clicking reward ad ('Try it now', id " + adName + "). "
+            + (buttons.length - 1) + " more waiting.");
         AdsService.lastAdClickAt = Date.now();
         const handle = await captureOpenedWindow(unsafeWindow as unknown as WindowOpener, () => {
             target.click();
