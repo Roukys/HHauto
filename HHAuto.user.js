@@ -21761,6 +21761,7 @@ var AdsService_awaiter = (undefined && undefined.__awaiter) || function (thisArg
 
 
 
+
 // Cooldown windows (seconds). Never a tight retry loop (issue #1746 acceptance).
 // RECHECK: normal pacing -- the reward ads appear in short bursts (several in
 //          a row, then none until the next day), so the scan runs every few
@@ -21953,6 +21954,7 @@ class AdsService {
                 logHHAuto("Ads: confirming pending reward (OK).");
                 pending.click();
                 setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_RECHECK));
+                AdsService.reloadForNextAd();
                 return true;
             }
             const buttons = findAdButtons();
@@ -22011,10 +22013,25 @@ class AdsService {
             }
             // Come back soon: for the next ad, for a late OK (the pending-confirm
             // check at the top of the next step catches it), or to spot a newly
-            // appearing ad quickly.
+            // appearing ad quickly. Timer is armed BEFORE the reload so it
+            // survives into the fresh page (timers live in sessionStorage).
             setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_RECHECK));
+            if (confirmBtn) {
+                AdsService.reloadForNextAd();
+            }
             return true;
         });
+    }
+    /**
+     * The Home page only renders the next reward ad after a reload (maintainer
+     * observation: one F5 is needed after "OK"). Routed through safeReload()
+     * so any in-flight claim AJAX settles first -- never a direct
+     * location.reload() (same guard as the champion/pachinko flows,
+     * issue #1598).
+     */
+    static reloadForNextAd() {
+        logHHAuto("Ads: reloading the page so the next reward ad can appear.");
+        safeReload();
     }
 }
 // There is deliberately NO own re-click bookkeeping (maintainer

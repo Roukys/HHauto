@@ -12,6 +12,16 @@ import { HHStoredVarPrefixKey } from "../../src/config/HHStoredVars";
 import { SK } from "../../src/config/StorageKeys";
 import { setStoredValue } from "../../src/Helper/StorageHelper";
 import { clearTimer, checkTimer } from "../../src/Helper/TimerHelper";
+import { safeReload } from "../../src/Service/PageNavigationService";
+
+// The page must be reloaded after a claimed reward (the game only renders the
+// next ad after a reload); mock navigation so tests never touch location.
+jest.mock("../../src/Service/PageNavigationService", () => ({
+    safeReload: jest.fn(),
+    gotoPage: jest.fn(),
+    safeNavigateHref: jest.fn(),
+}));
+const safeReloadMock = safeReload as jest.Mock;
 
 function loadHtmlFixture(name: string): string {
     return fs.readFileSync(path.join(__dirname, "..", "fixtures", "ads", `${name}.html`), "utf-8");
@@ -131,6 +141,7 @@ describe("AdsService.runAdCycle", () => {
         clearTimer("nextAdsTime");
         document.body.innerHTML = "";
         AdsService.lastAdClickAt = 0;
+        safeReloadMock.mockClear();
         savedOpen = (unsafeWindow as unknown as { open: typeof window.open }).open;
         installCrossPromo();
         setStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick, "false");
@@ -167,6 +178,8 @@ describe("AdsService.runAdCycle", () => {
         expect(acted).toBe(true);
         expect(clickSpy).toHaveBeenCalled();
         expect(checkTimer("nextAdsTime")).toBe(false);
+        // The next ad only renders after a reload.
+        expect(safeReloadMock).toHaveBeenCalledTimes(1);
     });
 
     it("does NOT auto-confirm a stray OK dialog without a recent ad click", async () => {
@@ -244,6 +257,24 @@ describe("AdsService.runAdCycle", () => {
         expect(closeSpy).toHaveBeenCalled();
         expect(confirmClick).toHaveBeenCalled();
         expect(checkTimer("nextAdsTime")).toBe(false); // success cooldown armed
+        // Claimed -> reload so the game renders the next ad.
+        expect(safeReloadMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not reload when no reward was confirmed", async () => {
+        jest.useFakeTimers();
+        setStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick, "true");
+        document.body.innerHTML = adButtonHtml();
+        // Tab opens and closes, but the OK never shows up.
+        const fakeWin = { close: jest.fn() } as unknown as Window;
+        (unsafeWindow as unknown as { open: jest.Mock }).open = jest.fn(() => fakeWin);
+
+        const p = AdsService.runAdCycle();
+        await jest.advanceTimersByTimeAsync(6000);  // close delay
+        await jest.advanceTimersByTimeAsync(61000); // confirm wait times out
+        await p;
+
+        expect(safeReloadMock).not.toHaveBeenCalled();
     });
 
     it("clicks a visible ad button even when the same ad was clicked before (no own cooldown)", async () => {
