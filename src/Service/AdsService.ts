@@ -30,6 +30,7 @@ import { ConfigHelper } from "../Helper/ConfigHelper";
 import { getStoredValue } from "../Helper/StorageHelper";
 import { randomInterval } from "../Helper/TimeHelper";
 import { setTimer } from "../Helper/TimerHelper";
+import { safeReload } from "./PageNavigationService";
 import { logHHAuto } from "../Utils/LogUtils";
 import { HHStoredVarPrefixKey } from "../config/HHStoredVars";
 import { SK } from "../config/StorageKeys";
@@ -247,6 +248,7 @@ export class AdsService {
             logHHAuto("Ads: confirming pending reward (OK).");
             pending.click();
             setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_RECHECK));
+            AdsService.reloadForNextAd();
             return true;
         }
 
@@ -307,8 +309,25 @@ export class AdsService {
 
         // Come back soon: for the next ad, for a late OK (the pending-confirm
         // check at the top of the next step catches it), or to spot a newly
-        // appearing ad quickly.
+        // appearing ad quickly. Timer is armed BEFORE the reload so it
+        // survives into the fresh page (timers live in sessionStorage).
         setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_RECHECK));
+
+        if (confirmBtn) {
+            AdsService.reloadForNextAd();
+        }
         return true;
+    }
+
+    /**
+     * The Home page only renders the next reward ad after a reload (maintainer
+     * observation: one F5 is needed after "OK"). Routed through safeReload()
+     * so any in-flight claim AJAX settles first -- never a direct
+     * location.reload() (same guard as the champion/pachinko flows,
+     * issue #1598).
+     */
+    static reloadForNextAd(): void {
+        logHHAuto("Ads: reloading the page so the next reward ad can appear.");
+        safeReload();
     }
 }
