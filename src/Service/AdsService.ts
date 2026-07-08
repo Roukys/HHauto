@@ -61,22 +61,29 @@ function adKey(btn: HTMLElement): string {
 }
 
 /**
- * Temporarily wrap `win.open`, run `clickFn` (which is expected to trigger the
- * ad's own synchronous `window.open`) and return the captured window handle.
- * The original `open` is ALWAYS restored (try/finally), even if `clickFn`
- * throws, so no other window.open user is affected. Pure/host-agnostic so it
- * can be unit-tested with a mock opener.
+ * Temporarily wrap `win.open`, run `clickFn` and return the captured window
+ * handle. The game's cross-promo redirect does NOT open the ad tab
+ * synchronously inside the click (it fires a tracking request first), so the
+ * wrapper stays installed for up to `timeoutMs` and resolves as soon as the
+ * first `open` call happens. The original `open` is ALWAYS restored
+ * (try/finally), even if `clickFn` throws or the timeout expires, so no other
+ * window.open user is affected. Pure/host-agnostic so it can be unit-tested
+ * with a mock opener.
  */
-export function captureOpenedWindow(win: WindowOpener, clickFn: () => void): Window | null {
+export async function captureOpenedWindow(win: WindowOpener, clickFn: () => void, timeoutMs = 8000, pollMs = 200): Promise<Window | null> {
     let handle: Window | null = null;
     const original = win.open;
     win.open = function (this: unknown, ...args: unknown[]): Window | null {
         const w = original.apply(win, args) as Window | null;
-        handle = w;
+        if (!handle) handle = w;
         return w;
     } as WindowOpener["open"];
     try {
         clickFn();
+        const deadline = Date.now() + timeoutMs;
+        while (!handle && Date.now() < deadline) {
+            await adsDelay(pollMs);
+        }
     } finally {
         win.open = original;
     }
@@ -92,10 +99,30 @@ export function findAdButtons(): HTMLElement[] {
 }
 
 /**
- * Find the game's reward-confirm ("OK") button, or null. Exported for testing.
+ * True unless the element (or an ancestor) is explicitly hidden. Deliberately
+ * tolerant -- only inline/computed `display:none` / `visibility:hidden` count
+ * as hidden -- so it works both in the browser and in jsdom (which has no
+ * layout, so offset-based visibility checks always report hidden there).
+ * Exported for testing.
+ */
+export function isElementDisplayed(el: HTMLElement): boolean {
+    let node: HTMLElement | null = el;
+    while (node) {
+        const style = window.getComputedStyle(node);
+        if (style.display === "none" || style.visibility === "hidden") return false;
+        node = node.parentElement;
+    }
+    return true;
+}
+
+/**
+ * Find the game's VISIBLE reward-confirm ("OK") button, or null. The game can
+ * keep hidden confirm-popup templates in the DOM, so the first selector match
+ * is not necessarily the popup the user sees. Exported for testing.
  */
 export function findConfirmButton(): HTMLElement | null {
-    return document.querySelector<HTMLElement>(AD_CONFIRM_SELECTOR);
+    const candidates = Array.from(document.querySelectorAll<HTMLElement>(AD_CONFIRM_SELECTOR));
+    return candidates.find(isElementDisplayed) ?? null;
 }
 
 function adsDelay(ms: number): Promise<void> {
@@ -160,12 +187,13 @@ export class AdsService {
     }
 
     /**
-     * Poll for the reward-confirm ("OK") button up to `timeoutMs`. Resolves with
-     * the button once it appears, or null on timeout (never loops forever). The
-     * OK button can show up a few seconds after the ad tab closes, so the wait
-     * is generous.
+     * Poll for the visible reward-confirm ("OK") button up to `timeoutMs`.
+     * Resolves with the button once it appears, or null on timeout (never
+     * loops forever). The OK button can show up well after the ad tab closes
+     * (the reward is only credited server-side once the watch counted), so
+     * the wait is generous.
      */
-    static async waitForConfirmButton(timeoutMs = 15000, pollMs = 500): Promise<HTMLElement | null> {
+    static async waitForConfirmButton(timeoutMs = 60000, pollMs = 500): Promise<HTMLElement | null> {
         const deadline = Date.now() + timeoutMs;
         for (;;) {
             const btn = findConfirmButton();
@@ -179,15 +207,18 @@ export class AdsService {
      * One reward-ad step on the Home page (issue #1746). Handles a single ad per
      * call and comes back soon (NEXT cooldown) while more remain, so all ads are
      * drained over a few ticks rather than one every 15-20 min:
-     *   1. If an OK confirm button is already present (from a previous step),
+     *   1. If an OK confirm button is already visible (from a previous step),
      *      click it and come back soon (more ads may follow).
      *   2. Otherwise pick the first not-yet-handled "Try it now" button.
-     *   3. Wrap unsafeWindow.open, click it, capture the ad-tab handle. No handle
-     *      (popup blocker) -> log + long back-off, no retry.
-     *   4. Mark the ad handled (so its lingering button is never re-clicked),
-     *      wait 3-5 s, close the handle.
-     *   5. Wait (up to 15 s) for the OK button and click it.
-     *   6. Arm NEXT when more ads remain or the OK has not shown yet, else DONE.
+     *   3. Wrap unsafeWindow.open, click it and capture the ad-tab handle --
+     *      the game opens the tab AFTER a tracking round-trip, so the wrapper
+     *      stays armed for a few seconds instead of only during the click.
+     *   4. With a handle: wait 3-5 s, close the tab. Without one: keep going,
+     *      the reward may still be credited (the tab may have opened through a
+     *      path the wrapper cannot see).
+     *   5. Wait (up to 60 s) for the visible OK button and click it.
+     *   6. Cooldowns: OK confirmed or tab handled -> NEXT while more remains,
+     *      else DONE. Neither handle nor OK -> popup blocker, long back-off.
      *
      * Every exit path arms `nextAdsTime`, so the caller's precondition
      * (checkTimer) rate-limits re-entry -- there is no unbounded retry loop.
@@ -214,14 +245,31 @@ export class AdsService {
 
         const target = buttons[0];
         logHHAuto("Ads: clicking reward ad ('Try it now'). " + (buttons.length - 1) + " more waiting.");
-        const handle = captureOpenedWindow(unsafeWindow as unknown as WindowOpener, () => {
+        const handle = await captureOpenedWindow(unsafeWindow as unknown as WindowOpener, () => {
             target.click();
         });
 
-        if (!handle) {
-            // Popup blocker (or the ad did not open synchronously): do NOT retry
-            // in a loop -- log and back off. Not marked handled (nothing opened).
-            logHHAuto("Ads: no ad-tab handle captured (popup blocker?). Backing off.");
+        if (handle) {
+            await adsDelay(randomInterval(3000, 5000));
+            try {
+                handle.close();
+            } catch (err) {
+                logHHAuto("Ads: could not close ad tab: " + String(err));
+            }
+        } else {
+            // The tab may still have opened through a path the wrapper cannot
+            // see (or a popup blocker stopped it) -- wait for the confirm
+            // before deciding which of the two it was.
+            logHHAuto("Ads: no ad-tab handle captured, waiting for the reward confirm anyway.");
+        }
+
+        const confirmBtn = await AdsService.waitForConfirmButton();
+
+        if (!handle && !confirmBtn) {
+            // Neither a tab we control nor a reward confirm: popup blocker.
+            // Do NOT retry in a loop -- log, leave the ad unhandled and back
+            // off for a long cooldown.
+            logHHAuto("Ads: no ad tab and no reward confirm (popup blocker?). Backing off.");
             setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_BLOCKED));
             return false;
         }
@@ -230,14 +278,6 @@ export class AdsService {
         // lingers after the reward is claimed.
         AdsService.handledAdKeys.add(adKey(target));
 
-        await adsDelay(randomInterval(3000, 5000));
-        try {
-            handle.close();
-        } catch (err) {
-            logHHAuto("Ads: could not close ad tab: " + String(err));
-        }
-
-        const confirmBtn = await AdsService.waitForConfirmButton();
         if (confirmBtn) {
             logHHAuto("Ads: reward available, confirming (OK).");
             confirmBtn.click();
