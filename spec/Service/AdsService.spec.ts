@@ -130,7 +130,7 @@ describe("AdsService.runAdCycle", () => {
     beforeEach(() => {
         clearTimer("nextAdsTime");
         document.body.innerHTML = "";
-        AdsService.handledAdKeys.clear();
+        AdsService.lastAdClickAt = 0;
         savedOpen = (unsafeWindow as unknown as { open: typeof window.open }).open;
         installCrossPromo();
         setStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick, "false");
@@ -159,7 +159,7 @@ describe("AdsService.runAdCycle", () => {
         setStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick, "true");
         document.body.innerHTML = `<button confirm_blue_button="">OK</button>`;
         // An ad was clicked moments ago -- the visible OK is our reward confirm.
-        AdsService.handledAdKeys.set("some-ad", Date.now());
+        AdsService.lastAdClickAt = Date.now();
         const clickSpy = jest.fn();
         (document.querySelector("button[confirm_blue_button]") as HTMLElement).addEventListener("click", clickSpy);
 
@@ -194,7 +194,6 @@ describe("AdsService.runAdCycle", () => {
         const acted = await p;
         expect(acted).toBe(false);
         expect(checkTimer("nextAdsTime")).toBe(false); // long cooldown armed
-        expect(AdsService.handledAdKeys.size).toBe(0); // stays retryable later
     });
 
     it("still confirms the reward when the tab opened through a path the wrapper cannot see", async () => {
@@ -218,7 +217,6 @@ describe("AdsService.runAdCycle", () => {
 
         expect(acted).toBe(true);
         expect(confirmClick).toHaveBeenCalled();
-        expect(AdsService.handledAdKeys.size).toBe(1); // watched, not re-clicked
     });
 
     it("clicks an ad, closes the tab, then confirms the reward (OK)", async () => {
@@ -248,51 +246,66 @@ describe("AdsService.runAdCycle", () => {
         expect(checkTimer("nextAdsTime")).toBe(false); // success cooldown armed
     });
 
-    it("skips ads clicked within the re-click cooldown", () => {
-        document.body.innerHTML = adButtonHtml(52, "a") + adButtonHtml(99, "b");
-        expect(AdsService.findUnhandledAdButtons().length).toBe(2);
-        AdsService.handledAdKeys.set(document.getElementById("a")!.getAttribute("onclick")!, Date.now());
-        expect(AdsService.findUnhandledAdButtons().map(x => x.id)).toEqual(["b"]);
-    });
-
-    it("clicks an ad again once its re-click cooldown expired (repeatable reward ads)", () => {
+    it("clicks a visible ad button even when the same ad was clicked before (no own cooldown)", async () => {
+        // Maintainer decision: a visible button is always clickable -- the
+        // game removes used buttons itself. No re-click bookkeeping.
+        jest.useFakeTimers();
+        setStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick, "true");
         document.body.innerHTML = adButtonHtml(52, "a");
-        // Clicked more than HANDLED_TTL_MS ago -- the game's own cooldown is
-        // over and the lingering button is a fresh, clickable ad again.
-        AdsService.handledAdKeys.set(
-            document.getElementById("a")!.getAttribute("onclick")!,
-            Date.now() - AdsService.HANDLED_TTL_MS - 1000,
-        );
-        expect(AdsService.findUnhandledAdButtons().map(x => x.id)).toEqual(["a"]);
-        expect(AdsService.handledAdKeys.size).toBe(0); // expired entry pruned
+        AdsService.lastAdClickAt = Date.now() - 20 * 60 * 1000; // clicked long ago
+
+        const closeSpy = jest.fn(() => {
+            document.body.insertAdjacentHTML("beforeend", `<button id="okBtn" confirm_blue_button="">OK</button>`);
+        });
+        const fakeWin = { close: closeSpy } as unknown as Window;
+        (unsafeWindow as unknown as { open: jest.Mock }).open = jest.fn(() => fakeWin);
+
+        const p = AdsService.runAdCycle();
+        await jest.advanceTimersByTimeAsync(6000);
+        await jest.advanceTimersByTimeAsync(1000);
+        const acted = await p;
+
+        expect(acted).toBe(true);
+        expect(closeSpy).toHaveBeenCalled(); // the ad was clicked and its tab closed
     });
 
-    it("drains multiple ads over successive steps without re-clicking a handled one", async () => {
+    it("drains multiple ads over successive steps as the game removes used buttons", async () => {
         jest.useFakeTimers();
         setStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick, "true");
         document.body.innerHTML = adButtonHtml(52, "a") + adButtonHtml(99, "b");
 
-        const fakeWin = { close: jest.fn() } as unknown as Window;
+        // The game removes the clicked button and shows the OK confirm once
+        // the ad tab closes.
+        let clicked: HTMLElement | null = null;
+        document.body.addEventListener("click", (e) => {
+            const btn = (e.target as HTMLElement).closest("button[onclick]") as HTMLElement | null;
+            if (btn) clicked = btn;
+        });
+        const fakeWin = {
+            close: jest.fn(() => {
+                clicked?.remove();
+                document.body.insertAdjacentHTML("beforeend", `<button confirm_blue_button="">OK</button>`);
+            }),
+        } as unknown as Window;
         const openSpy = jest.fn(() => fakeWin);
         (unsafeWindow as unknown as { open: jest.Mock }).open = openSpy;
 
-        // Step 1: clicks the first ad; the second stays unhandled.
+        // Step 1: clicks ad "a"; the game removes it on claim.
         const p1 = AdsService.runAdCycle();
-        await jest.advanceTimersByTimeAsync(6000);  // 3-5s close delay
-        await jest.advanceTimersByTimeAsync(61000); // 60s confirm wait times out (no OK)
+        await jest.advanceTimersByTimeAsync(6000); // close delay + confirm poll
+        await jest.advanceTimersByTimeAsync(1000);
         await p1;
+        expect(findAdButtons().map(x => x.id)).toEqual(["b"]);
 
-        expect(AdsService.handledAdKeys.size).toBe(1);
-        expect(AdsService.findUnhandledAdButtons().map(x => x.id)).toEqual(["b"]);
-
-        // Step 2: clicks the remaining ad, not the already-handled one.
+        // Step 2: clicks the remaining ad "b".
         clearTimer("nextAdsTime");
+        document.querySelector("button[confirm_blue_button]")?.remove();
         const p2 = AdsService.runAdCycle();
         await jest.advanceTimersByTimeAsync(6000);
-        await jest.advanceTimersByTimeAsync(61000);
+        await jest.advanceTimersByTimeAsync(1000);
         await p2;
 
-        expect(AdsService.handledAdKeys.size).toBe(2);
-        expect(openSpy).toHaveBeenCalledTimes(2); // exactly two ads opened, no re-click
+        expect(findAdButtons().length).toBe(0);
+        expect(openSpy).toHaveBeenCalledTimes(2);
     });
 });
