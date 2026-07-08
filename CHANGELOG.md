@@ -7,19 +7,17 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
-### v8.4.0 - Optional reward-ad auto-clicker
+### v8.2.0 - Reward-ad auto-clicker, new pvp-arena battle page, pachinko display fix
 
 - New "Auto reward ads" option (issue #1746, off by default). When enabled,
   the script clicks the Home-page reward ads for you: it presses "Try it now",
   closes the advertising tab that opens after a few seconds, confirms the
   reward with the game's OK button and reloads the page so the next ad can
   appear. It works through every available reward ad, one after the other.
-- The browser must allow pop-ups for the game site (add an exception), and ad
-  blockers must be disabled -- otherwise the advertising tab cannot open.
-- Ad blockers must be disabled for the ads to appear. The feature is
-  rate-limited by a cooldown and never retries in a loop: if a popup blocker
-  stops the ad tab from opening, or the confirm button never shows, or no ad is
-  present, it simply logs the reason and waits for the next cooldown window.
+- Ad blockers must be disabled for the ads to appear, and the browser should
+  allow pop-ups for the game site. The feature never retries in a tight loop:
+  if the ad tab cannot open, the confirm button never shows, or no ad is
+  present, it simply logs the reason and waits for the next check window.
 - **Season fights work again on the game's new battle page.** The game moved
   season/PvP fights to a new `pvp-arena` page, which the script did not
   recognize -- after a fight nothing was skipped or confirmed and the
