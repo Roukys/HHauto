@@ -21738,8 +21738,9 @@ TeamModule.lastMainSum = {};
 // (`button[confirm_blue_button]`), before moving on to the next ad shortly
 // after. The tab is closed via the handle returned by a temporarily wrapped
 // `unsafeWindow.open` -- a window a script opened may be closed again by its
-// opener, cross-origin notwithstanding. An ad already handled this page session
-// is never clicked again (its button can linger until the page reloads). Every
+// opener, cross-origin notwithstanding. A visible ad button is always
+// clickable (the game removes used buttons itself and re-shows them when
+// they are available again), so there is no own re-click bookkeeping. Every
 // failure path (popup blocker, missing confirm button, no ad present) logs and
 // arms a cooldown timer instead of retrying in a tight loop.
 //
@@ -21775,10 +21776,6 @@ const AD_BUTTON_SELECTOR = 'button[onclick*="redirectToCrosspromo"]';
 // The reward is confirmed back in the game tab with the OK button, marked by
 // the `confirm_blue_button` attribute (locale-independent, unlike its text).
 const AD_CONFIRM_SELECTOR = 'button[confirm_blue_button]';
-/** Stable key for one ad button (its onclick carries the cross-promo id + url). */
-function adKey(btn) {
-    return btn.getAttribute("onclick") || btn.outerHTML;
-}
 /**
  * Temporarily wrap `win.open`, run `clickFn` and return the captured window
  * handle. The game's cross-promo redirect does NOT open the ad tab
@@ -21853,12 +21850,8 @@ class AdsService {
     /** True when an ad was clicked recently enough that a visible confirm
      *  popup can be attributed to it. */
     static hasRecentAdClick() {
-        const now = Date.now();
-        for (const ts of AdsService.handledAdKeys.values()) {
-            if (now - ts < AdsService.PENDING_CONFIRM_WINDOW_MS)
-                return true;
-        }
-        return false;
+        return AdsService.lastAdClickAt > 0
+            && Date.now() - AdsService.lastAdClickAt < AdsService.PENDING_CONFIRM_WINDOW_MS;
     }
     static closeHomeAds() {
         if ($('#ad_home close:visible').length) {
@@ -21901,17 +21894,6 @@ class AdsService {
     static isAdClickActivated() {
         return getStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick) === "true";
     }
-    /** Ad buttons not clicked within the last HANDLED_TTL_MS (expired
-     *  entries are pruned so the ad becomes clickable again after the
-     *  game's own cooldown). Exported via the class for testing. */
-    static findUnhandledAdButtons() {
-        const now = Date.now();
-        for (const [key, ts] of AdsService.handledAdKeys) {
-            if (now - ts >= AdsService.HANDLED_TTL_MS)
-                AdsService.handledAdKeys.delete(key);
-        }
-        return findAdButtons().filter(b => !AdsService.handledAdKeys.has(adKey(b)));
-    }
     /**
      * Poll for the visible reward-confirm ("OK") button up to `timeoutMs`.
      * Resolves with the button once it appears, or null on timeout (never
@@ -21938,7 +21920,8 @@ class AdsService {
      * drained over a few ticks rather than one every 15-20 min:
      *   1. If an OK confirm button is already visible (from a previous step),
      *      click it and come back soon (more ads may follow).
-     *   2. Otherwise pick the first not-yet-handled "Try it now" button.
+     *   2. Otherwise pick the first visible "Try it now" button -- a visible
+     *      button is always clickable (the game removes used ones itself).
      *   3. Wrap unsafeWindow.open, click it and capture the ad-tab handle --
      *      the game opens the tab AFTER a tracking round-trip, so the wrapper
      *      stays armed for a few seconds instead of only during the click.
@@ -21969,17 +21952,15 @@ class AdsService {
                 setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_NEXT));
                 return true;
             }
-            const buttons = AdsService.findUnhandledAdButtons();
+            const buttons = findAdButtons();
             if (buttons.length === 0) {
-                const total = findAdButtons().length;
-                logHHAuto("Ads: no new reward ad to click ("
-                    + total + " ad button(s) on the page, "
-                    + AdsService.handledAdKeys.size + " on re-click cooldown).");
+                logHHAuto("Ads: no reward ad on the page.");
                 setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_DONE));
                 return false;
             }
             const target = buttons[0];
             logHHAuto("Ads: clicking reward ad ('Try it now'). " + (buttons.length - 1) + " more waiting.");
+            AdsService.lastAdClickAt = Date.now();
             const handle = yield captureOpenedWindow(unsafeWindow, () => {
                 target.click();
             });
@@ -22001,15 +21982,11 @@ class AdsService {
             const confirmBtn = yield AdsService.waitForConfirmButton();
             if (!handle && !confirmBtn) {
                 // Neither a tab we control nor a reward confirm: popup blocker.
-                // Do NOT retry in a loop -- log, leave the ad unhandled and back
-                // off for a long cooldown.
+                // Do NOT retry in a loop -- log and back off for a long cooldown.
                 logHHAuto("Ads: no ad tab and no reward confirm (popup blocker?). Backing off.");
                 setTimer("nextAdsTime", randomInterval(...AD_COOLDOWN_BLOCKED));
                 return false;
             }
-            // Watched: skip this ad for HANDLED_TTL_MS, even if its button
-            // lingers after the reward is claimed.
-            AdsService.handledAdKeys.set(adKey(target), Date.now());
             if (confirmBtn) {
                 logHHAuto("Ads: reward available, confirming (OK).");
                 confirmBtn.click();
@@ -22019,22 +21996,19 @@ class AdsService {
             }
             // Come back soon if more ads remain, or if the OK has not appeared yet
             // (the pending-confirm check at the top of the next step will catch it).
-            const moreAds = AdsService.findUnhandledAdButtons().length > 0;
+            const moreAds = findAdButtons().length > 0;
             const cooldown = (confirmBtn && !moreAds) ? AD_COOLDOWN_DONE : AD_COOLDOWN_NEXT;
             setTimer("nextAdsTime", randomInterval(...cooldown));
             return true;
         });
     }
 }
-// Ads clicked recently, keyed by adKey() with the click timestamp.
-// Prevents re-clicking an ad whose button lingers after it has been
-// watched -- but only for HANDLED_TTL_MS: reward ads are repeatable
-// after the game's own cooldown, so a permanent per-session skip would
-// wrongly ignore an ad that became available again (or whose reward
-// never got credited on a failed attempt).
-AdsService.handledAdKeys = new Map();
-/** How long a clicked ad is skipped before it may be clicked again. */
-AdsService.HANDLED_TTL_MS = 30 * 60 * 1000;
+// There is deliberately NO own re-click bookkeeping (maintainer
+// decision): the game removes a reward-ad button once it is used and
+// only shows it again when it is clickable -- a visible button is
+// always fair game. Pacing comes solely from the nextAdsTime cooldowns.
+/** Timestamp of our most recent ad click (0 = none this page session). */
+AdsService.lastAdClickAt = 0;
 /** How long after an ad click a stray visible OK is treated as OUR
  *  pending reward confirm. Outside this window the generic confirm
  *  popup on screen belongs to something else and must not be clicked. */
