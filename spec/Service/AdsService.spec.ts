@@ -5,6 +5,7 @@ import {
     captureOpenedWindow,
     findAdButtons,
     findConfirmButton,
+    isElementDisplayed,
     WindowOpener,
 } from "../../src/Service/AdsService";
 import { HHStoredVarPrefixKey } from "../../src/config/HHStoredVars";
@@ -17,12 +18,12 @@ function loadHtmlFixture(name: string): string {
 }
 
 describe("captureOpenedWindow (window.open wrapper)", () => {
-    it("captures the handle the wrapped open returns and restores the original", () => {
+    it("captures the handle the wrapped open returns and restores the original", async () => {
         const fakeWin = {} as Window;
         const originalOpen = jest.fn(() => fakeWin);
         const opener: WindowOpener = { open: originalOpen as unknown as WindowOpener["open"] };
 
-        const handle = captureOpenedWindow(opener, () => { opener.open("http://ad.example"); });
+        const handle = await captureOpenedWindow(opener, () => { opener.open("http://ad.example"); });
 
         expect(handle).toBe(fakeWin);
         expect(originalOpen).toHaveBeenCalledWith("http://ad.example");
@@ -30,17 +31,52 @@ describe("captureOpenedWindow (window.open wrapper)", () => {
         expect(opener.open).toBe(originalOpen);
     });
 
-    it("returns null when the click does not open a window (popup blocker)", () => {
+    it("captures a handle from an open that happens AFTER the click returns", async () => {
+        // The game's redirect fires a tracking request first and opens the ad
+        // tab asynchronously; the wrapper must stay armed past the click.
+        const fakeWin = {} as Window;
+        const originalOpen = jest.fn(() => fakeWin);
+        const opener: WindowOpener = { open: originalOpen as unknown as WindowOpener["open"] };
+
+        const p = captureOpenedWindow(opener, () => {
+            setTimeout(() => { opener.open("http://ad.example"); }, 500);
+        }, 3000, 50);
+        const handle = await p;
+
+        expect(handle).toBe(fakeWin);
+        expect(opener.open).toBe(originalOpen);
+    });
+
+    it("returns null when nothing opens within the timeout (popup blocker)", async () => {
         const opener: WindowOpener = { open: jest.fn(() => null) as unknown as WindowOpener["open"] };
-        const handle = captureOpenedWindow(opener, () => { /* no open call */ });
+        const handle = await captureOpenedWindow(opener, () => { /* no open call */ }, 200, 50);
         expect(handle).toBeNull();
     });
 
-    it("restores the original open even when the click throws", () => {
+    it("restores the original open even when the click throws", async () => {
         const originalOpen = jest.fn(() => ({} as Window));
         const opener: WindowOpener = { open: originalOpen as unknown as WindowOpener["open"] };
-        expect(() => captureOpenedWindow(opener, () => { throw new Error("boom"); })).toThrow("boom");
+        await expect(captureOpenedWindow(opener, () => { throw new Error("boom"); })).rejects.toThrow("boom");
         expect(opener.open).toBe(originalOpen);
+    });
+});
+
+describe("isElementDisplayed / visible confirm detection", () => {
+    afterEach(() => { document.body.innerHTML = ""; });
+
+    it("skips a hidden confirm template and returns the visible one", () => {
+        document.body.innerHTML =
+            `<div style="display:none"><button confirm_blue_button="" id="hidden">OK</button></div>`
+            + `<button confirm_blue_button="" id="shown">OK</button>`;
+        expect(isElementDisplayed(document.getElementById("hidden")!)).toBe(false);
+        expect(isElementDisplayed(document.getElementById("shown")!)).toBe(true);
+        expect(findConfirmButton()?.id).toBe("shown");
+    });
+
+    it("returns null when only hidden confirm buttons exist", () => {
+        document.body.innerHTML =
+            `<div style="display:none"><button confirm_blue_button="">OK</button></div>`;
+        expect(findConfirmButton()).toBeNull();
     });
 });
 
@@ -131,14 +167,43 @@ describe("AdsService.runAdCycle", () => {
         expect(checkTimer("nextAdsTime")).toBe(false);
     });
 
-    it("backs off (no retry) when no window handle is captured (popup blocker)", async () => {
+    it("backs off (no retry) when neither a tab handle nor a confirm appears (popup blocker)", async () => {
+        jest.useFakeTimers();
         setStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick, "true");
         document.body.innerHTML = adButtonHtml();
-        // The redirect opens nothing -> captureOpenedWindow returns null.
+        // The redirect opens nothing -> no handle; no OK ever shows up either.
         (unsafeWindow as unknown as { open: jest.Mock }).open = jest.fn(() => null);
-        const acted = await AdsService.runAdCycle();
+        const p = AdsService.runAdCycle();
+        await jest.advanceTimersByTimeAsync(9000);  // 8s handle-capture window
+        await jest.advanceTimersByTimeAsync(61000); // 60s confirm wait times out
+        const acted = await p;
         expect(acted).toBe(false);
         expect(checkTimer("nextAdsTime")).toBe(false); // long cooldown armed
+        expect(AdsService.handledAdKeys.size).toBe(0); // stays retryable later
+    });
+
+    it("still confirms the reward when the tab opened through a path the wrapper cannot see", async () => {
+        jest.useFakeTimers();
+        setStoredValue(HHStoredVarPrefixKey + SK.autoAdsClick, "true");
+        document.body.innerHTML = adButtonHtml();
+        // No handle captured, but the game credits the reward and shows OK.
+        (unsafeWindow as unknown as { open: jest.Mock }).open = jest.fn(() => null);
+        const confirmClick = jest.fn();
+        document.body.addEventListener("click", (e) => {
+            if ((e.target as HTMLElement).id === "okBtn") confirmClick();
+        });
+        setTimeout(() => {
+            document.body.insertAdjacentHTML("beforeend", `<button id="okBtn" confirm_blue_button="">OK</button>`);
+        }, 12000); // appears after the handle window, during the confirm wait
+
+        const p = AdsService.runAdCycle();
+        await jest.advanceTimersByTimeAsync(9000);  // handle window expires
+        await jest.advanceTimersByTimeAsync(5000);  // OK appears + poll tick
+        const acted = await p;
+
+        expect(acted).toBe(true);
+        expect(confirmClick).toHaveBeenCalled();
+        expect(AdsService.handledAdKeys.size).toBe(1); // watched, not re-clicked
     });
 
     it("clicks an ad, closes the tab, then confirms the reward (OK)", async () => {
@@ -187,7 +252,7 @@ describe("AdsService.runAdCycle", () => {
         // Step 1: clicks the first ad; the second stays unhandled.
         const p1 = AdsService.runAdCycle();
         await jest.advanceTimersByTimeAsync(6000);  // 3-5s close delay
-        await jest.advanceTimersByTimeAsync(16000); // 15s confirm wait times out (no OK)
+        await jest.advanceTimersByTimeAsync(61000); // 60s confirm wait times out (no OK)
         await p1;
 
         expect(AdsService.handledAdKeys.size).toBe(1);
@@ -197,7 +262,7 @@ describe("AdsService.runAdCycle", () => {
         clearTimer("nextAdsTime");
         const p2 = AdsService.runAdCycle();
         await jest.advanceTimersByTimeAsync(6000);
-        await jest.advanceTimersByTimeAsync(16000);
+        await jest.advanceTimersByTimeAsync(61000);
         await p2;
 
         expect(AdsService.handledAdKeys.size).toBe(2);
