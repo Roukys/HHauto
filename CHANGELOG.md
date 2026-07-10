@@ -7,6 +7,20 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.4.0 - Penta Drill delay is now user-configurable ("PD Delay")
+
+- New "PD Delay" field in the main menu (left column, under "Show tooltips"):
+  the delay in seconds between Penta Drill actions — going to the opponent
+  page, starting the fight and returning to the arena after the fight.
+- Increase this if you see blank screens in Penta Drill on a slow connection
+  (previously the delays were fixed and could only be changed by a release).
+- Minimum 3 seconds, maximum 20 seconds, default 6 (matches the previous
+  behaviour). The actual wait adds a random variance: a value between X and
+  X+3 seconds is used, as before.
+- The delay can also end early: as soon as the next page has finished
+  loading, the script continues — so on fast connections the effective wait
+  is often shorter than the configured value.
+
 ### v8.3.0 - Auto-equip mythic boosters into free mythic slots
 
 - New "Mythic Slot" text field under Auto-Equip (issue #1781), styled like the

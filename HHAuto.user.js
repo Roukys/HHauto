@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.3.0
+// @version      8.4.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -218,6 +218,7 @@ HHAuto_ToolTips.en['autoPentaDrillCollectAll'] = { version: "7.26.0", elementTex
 HHAuto_ToolTips.en['autoPentaDrillThreshold'] = { version: "7.26.0", elementText: "Threshold", tooltip: "Minimum drill to keep" };
 HHAuto_ToolTips.en['autoPentaDrillRunThreshold'] = { version: "7.26.0", elementText: "Run Threshold", tooltip: "Minimum drill fights before script start spending<br> 0 to spend as soon as energy above threshold" };
 HHAuto_ToolTips.en['autoPentaDrillBoostedOnly'] = { version: "7.26.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in Penta Drill" };
+HHAuto_ToolTips.en['autoPentaDrillDelay'] = { version: "8.4.0", elementText: "PD Delay", tooltip: "Delay in seconds between Penta Drill actions (actual wait is a random value between X and X+3 seconds).<br>Increase this if you see blank screens on a slow connection.<br>Allowed: 3-20, default 6." };
 HHAuto_ToolTips.en['autoQuest'] = { version: "5.6.74", elementText: "Main Quest", tooltip: "if enabled : Automatically do main quest" };
 HHAuto_ToolTips.en['autoSideQuest'] = { version: "5.6.83", elementText: "Side Quests", tooltip: "if enabled : Automatically do next available side quest (Enabled main quest has higher priority than side quests)" };
 HHAuto_ToolTips.en['autoQuestThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 99)<br>Minimum quest energy to keep" };
@@ -1120,6 +1121,7 @@ const SK = {
     autoPentaDrillCollect: "Setting_autoPentaDrillCollect",
     autoPentaDrillCollectAll: "Setting_autoPentaDrillCollectAll",
     autoPentaDrillCollectablesList: "Setting_autoPentaDrillCollectablesList",
+    autoPentaDrillDelay: "Setting_autoPentaDrillDelay",
     // Quest
     autoQuest: "Setting_autoQuest",
     autoQuestThreshold: "Setting_autoQuestThreshold",
@@ -2484,6 +2486,18 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillRunThreshold] =
         getMenu: true,
         setMenu: true,
         menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillDelay] =
+    {
+        default: "6",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        isValid: /^(1[0-9]|20|[3-9])$/,
         kobanUsing: false
     };
 HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillBoostedOnly] =
@@ -6630,6 +6644,7 @@ const HHAuto_inputPattern = {
     autoSeasonRunThreshold: "10|[0-9]",
     autoPentaDrillThreshold: "[0-9]",
     autoPentaDrillRunThreshold: "10|[0-9]",
+    autoPentaDrillDelay: "1[0-9]|20|[3-9]",
     autoPantheonThreshold: "[0-9]",
     autoPantheonRunThreshold: "10|[0-9]",
     bossBangMinTeam: "[1-5]",
@@ -14686,6 +14701,19 @@ class PentaDrill {
     static getEnergyMax() {
         return Number(getHHVars('Hero.energies.drill.max_regen_amount'));
     }
+    /**
+     * Random wait in ms between Penta Drill actions (page loads), based on the
+     * user-configured "PD Delay" seconds (3-20, default 6). Actual wait is a
+     * random value between X and X+3 seconds to keep the timing human-like.
+     * Shared by the arena navigation, the perform click and the post-fight
+     * return in GenericBattle (issue #1593 blank screens on slow connections).
+     */
+    static getActionDelayMs() {
+        const DEFAULT_DELAY_S = 6;
+        const raw = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrillDelay));
+        const delayS = Number.isInteger(raw) && raw >= 3 && raw <= 20 ? raw : DEFAULT_DELAY_S;
+        return randomInterval(delayS * 1000, (delayS + 3) * 1000);
+    }
     static getPinfo() {
         const threshold = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrillThreshold)) || 0;
         const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrillRunThreshold)) || 0;
@@ -14785,7 +14813,7 @@ class PentaDrill {
                     // and log line is removed because safeNavigateHref does that
                     // internally. Issue #1598 race-protection.
                     safeNavigateHref(addNutakuSession(toGoTo));
-                    yield TimeHelper.sleep(randomInterval(5000, 8000));
+                    yield TimeHelper.sleep(PentaDrill.getActionDelayMs());
                     return true;
                 }
             }
@@ -14800,7 +14828,7 @@ class PentaDrill {
                 performButton.trigger('click');
                 setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 logHHAuto("setting autoloop to false");
-                yield TimeHelper.sleep(randomInterval(6000, 9000));
+                yield TimeHelper.sleep(PentaDrill.getActionDelayMs());
                 //setTimer('nextPentaDrillTime',10);
                 return true;
             }
@@ -25603,6 +25631,7 @@ function buildLeftColumn() {
         + `</div>`
         + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
         + hhMenuSwitch('showTooltips')
+        + hhMenuInput('autoPentaDrillDelay', HHAuto_inputPattern.autoPentaDrillDelay, 'text-align:center; width:25px')
         + `</div>`
         + `<div class="optionsColumn">`
         + `<div class="labelAndButton">`
@@ -29639,6 +29668,7 @@ class HaremSalary {
 
 
 
+
 class GenericBattle {
     static doBattle() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle")
@@ -29696,7 +29726,7 @@ class GenericBattle {
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle") && getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrill) === "true") {
                 logHHAuto("Go back to Penta drill arena after fight.");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"), {}, randomInterval(5000, 8000));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"), {}, PentaDrill.getActionDelayMs());
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") && (getStoredValue(HHStoredVarPrefixKey + SK.autoPantheon) === "true" || DailyGoals.isPantheonDailyGoal())) {
                 logHHAuto("Go back to Pantheon arena after Pantheon temple.");
