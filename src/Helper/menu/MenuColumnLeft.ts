@@ -54,6 +54,7 @@ export function buildLeftColumn(): string {
                         +`</div>`
                         + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
                         + hhMenuSwitch('showTooltips')
+                        + hhMenuInput('autoPentaDrillDelay', HHAuto_inputPattern.autoPentaDrillDelay, 'text-align:center; width:25px')
                     +`</div>`
                     +`<div class="optionsColumn">`
                         +`<div class="labelAndButton">`

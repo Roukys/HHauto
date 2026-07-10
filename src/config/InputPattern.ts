@@ -26,6 +26,7 @@ export const HHAuto_inputPattern = {
     autoSeasonRunThreshold:"10|[0-9]",
     autoPentaDrillThreshold:"[0-9]",
     autoPentaDrillRunThreshold:"10|[0-9]",
+    autoPentaDrillDelay:"1[0-9]|20|[3-9]",
     autoPantheonThreshold:"[0-9]",
     autoPantheonRunThreshold:"10|[0-9]",
     bossBangMinTeam:"[1-5]",

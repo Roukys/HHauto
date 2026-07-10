@@ -94,6 +94,7 @@ HHAuto_ToolTips.en['autoPentaDrillCollectAll'] = { version: "7.26.0", elementTex
 HHAuto_ToolTips.en['autoPentaDrillThreshold'] = { version: "7.26.0", elementText: "Threshold", tooltip: "Minimum drill to keep"};
 HHAuto_ToolTips.en['autoPentaDrillRunThreshold'] = { version: "7.26.0", elementText: "Run Threshold", tooltip: "Minimum drill fights before script start spending<br> 0 to spend as soon as energy above threshold"};
 HHAuto_ToolTips.en['autoPentaDrillBoostedOnly'] = { version: "7.26.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in Penta Drill"};
+HHAuto_ToolTips.en['autoPentaDrillDelay'] = { version: "8.4.0", elementText: "PD Delay", tooltip: "Delay in seconds between Penta Drill actions (actual wait is a random value between X and X+3 seconds).<br>Increase this if you see blank screens on a slow connection.<br>Allowed: 3-20, default 6."};
 HHAuto_ToolTips.en['autoQuest'] = { version: "5.6.74", elementText: "Main Quest", tooltip: "if enabled : Automatically do main quest"};
 HHAuto_ToolTips.en['autoSideQuest'] = { version: "5.6.83", elementText: "Side Quests", tooltip: "if enabled : Automatically do next available side quest (Enabled main quest has higher priority than side quests)"};
 HHAuto_ToolTips.en['autoQuestThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 99)<br>Minimum quest energy to keep"};

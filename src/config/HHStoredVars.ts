@@ -913,6 +913,18 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillRunThreshold] =
     menuType: "value",
     kobanUsing: false
 };
+HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillDelay] =
+{
+    default: "6",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Small Integer",
+    getMenu: true,
+    setMenu: true,
+    menuType: "value",
+    isValid: /^(1[0-9]|20|[3-9])$/,
+    kobanUsing: false
+};
 HHStoredVars[HHStoredVarPrefixKey + SK.autoPentaDrillBoostedOnly] =
 {
     default: "false",

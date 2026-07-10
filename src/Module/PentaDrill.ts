@@ -43,6 +43,20 @@ export class PentaDrill {
         return Number(getHHVars('Hero.energies.drill.max_regen_amount'));
     }
 
+    /**
+     * Random wait in ms between Penta Drill actions (page loads), based on the
+     * user-configured "PD Delay" seconds (3-20, default 6). Actual wait is a
+     * random value between X and X+3 seconds to keep the timing human-like.
+     * Shared by the arena navigation, the perform click and the post-fight
+     * return in GenericBattle (issue #1593 blank screens on slow connections).
+     */
+    static getActionDelayMs(): number {
+        const DEFAULT_DELAY_S = 6;
+        const raw = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrillDelay));
+        const delayS = Number.isInteger(raw) && raw >= 3 && raw <= 20 ? raw : DEFAULT_DELAY_S;
+        return randomInterval(delayS * 1000, (delayS + 3) * 1000);
+    }
+
     static getPinfo() {
         const threshold = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrillThreshold)) || 0;
         const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoPentaDrillRunThreshold)) || 0;
@@ -152,7 +166,7 @@ export class PentaDrill {
                 // and log line is removed because safeNavigateHref does that
                 // internally. Issue #1598 race-protection.
                 safeNavigateHref(addNutakuSession(toGoTo) as string);
-                await TimeHelper.sleep(randomInterval(5000, 8000));
+                await TimeHelper.sleep(PentaDrill.getActionDelayMs());
                 return true;
             }
         }
@@ -168,7 +182,7 @@ export class PentaDrill {
             performButton.trigger('click');
             setStoredValue(HHStoredVarPrefixKey+TK.autoLoop, "false");
             logHHAuto("setting autoloop to false");
-            await TimeHelper.sleep(randomInterval(6000, 9000));
+            await TimeHelper.sleep(PentaDrill.getActionDelayMs());
             //setTimer('nextPentaDrillTime',10);
             return true;
         }

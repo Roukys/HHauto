@@ -23,6 +23,7 @@ import { EventGirl } from "../model/EventGirl";
 import { LoveRaid } from "../model/LoveRaid";
 import { Troll } from "./Troll";
 import { DailyGoals } from "./DailyGoals";
+import { PentaDrill } from "./PentaDrill";
 import { EventModule } from "./Events/EventModule";
 import { LoveRaidManager } from "./Events/LoveRaidManager";
 
@@ -101,7 +102,7 @@ export class GenericBattle {
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle") && getStoredValue(HHStoredVarPrefixKey +SK.autoPentaDrill) === "true")
             {
                 logHHAuto("Go back to Penta drill arena after fight.");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"),{},randomInterval(5000,8000));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"),{},PentaDrill.getActionDelayMs());
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") && (getStoredValue(HHStoredVarPrefixKey + SK.autoPantheon) === "true" || DailyGoals.isPantheonDailyGoal()))
             {
