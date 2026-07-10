@@ -108,6 +108,7 @@ export const SK = {
     autoPentaDrillCollect: "Setting_autoPentaDrillCollect",
     autoPentaDrillCollectAll: "Setting_autoPentaDrillCollectAll",
     autoPentaDrillCollectablesList: "Setting_autoPentaDrillCollectablesList",
+    autoPentaDrillDelay: "Setting_autoPentaDrillDelay",
 
     // Quest
     autoQuest: "Setting_autoQuest",
