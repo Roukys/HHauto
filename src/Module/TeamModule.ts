@@ -447,10 +447,11 @@ export class TeamModule {
      * setTopTeamV2 so the mapping is unit-testable in isolation (the rest
      * of setTopTeamV2 is DOM/UI). Pure: no side effects, no DOM access.
      *
-     * can_be_blessed / can_be_blessed_pvp4 are passed through as untyped
-     * bonus properties so BlessingService.detectActiveBlessings has an
-     * authoritative blessed-or-not flag (issue 1679 phase 2); the static
-     * type stays GirlData.
+     * The game flags can_be_blessed / can_be_blessed_pvp4 are mapped to
+     * the speaking names can_be_blessed_league / can_be_blessed_labyrinth
+     * so BlessingService has an authoritative blessed-or-not flag per
+     * context (league = pvp_v3 blessings, labyrinth = pvp_v4 incl. the
+     * weekly Role blessing).
      */
     static mapAvailableGirl(g: any): GirlData {
         return ({
@@ -477,8 +478,8 @@ export class TeamModule {
             eyeColor: g.eye_color1 || undefined,
             position: g.position_img ? String(g.position_img).replace('.png', '') : undefined,
             blessingBonuses: g.blessing_bonuses || undefined,
-            ...(typeof g.can_be_blessed === 'boolean' ? { can_be_blessed: g.can_be_blessed } : {}),
-            ...(typeof g.can_be_blessed_pvp4 === 'boolean' ? { can_be_blessed_pvp4: g.can_be_blessed_pvp4 } : {}),
+            ...(typeof g.can_be_blessed === 'boolean' ? { can_be_blessed_league: g.can_be_blessed } : {}),
+            ...(typeof g.can_be_blessed_pvp4 === 'boolean' ? { can_be_blessed_labyrinth: g.can_be_blessed_pvp4 } : {}),
         }) as GirlData;
     }
 

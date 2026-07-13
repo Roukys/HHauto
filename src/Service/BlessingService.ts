@@ -14,6 +14,22 @@ import { TK } from "../config/StorageKeys";
 
 const CACHE_DURATION_MS = 12 * 60 * 60 * 1000; // 12 hours
 
+/**
+ * Which battle mode a blessing lookup is for. The game maintains two
+ * parallel blessing sets per girl (verified 2026-07-13 against the
+ * hh-bless-cluster fixtures and a live dump):
+ *   - 'league'    -> blessing_bonuses.pvp_v3: the two weekly league
+ *                    blessings only. Mirrored by the game flag
+ *                    can_be_blessed (GirlData: can_be_blessed_league).
+ *   - 'labyrinth' -> blessing_bonuses.pvp_v4: the league blessings PLUS
+ *                    the weekly Role blessing, which applies only in the
+ *                    Love Labyrinth. Mirrored by can_be_blessed_pvp4
+ *                    (GirlData: can_be_blessed_labyrinth).
+ * There is deliberately NO fallback from one set to the other: a girl
+ * carrying only the Role blessing is unblessed for league purposes.
+ */
+export type BlessingContext = 'league' | 'labyrinth';
+
 export interface BlessingData {
     timestamp: number;
     raw: any;
@@ -76,15 +92,32 @@ export class BlessingService {
     }
 
     /**
+     * Context-specific percent list (carac1) from the girl's
+     * blessing_bonuses. 'league' reads pvp_v3, 'labyrinth' reads pvp_v4;
+     * never falls back across contexts (see BlessingContext). Accepts
+     * raw API girls (blessing_bonuses) and GirlData (blessingBonuses).
+     */
+    private static getContextPercentList(
+        girl: { blessing_bonuses?: any; blessingBonuses?: any },
+        context: BlessingContext,
+    ): number[] {
+        const bb = (girl as any).blessing_bonuses ?? girl.blessingBonuses;
+        if (!bb || typeof bb !== 'object' || Array.isArray(bb)) return [];
+        const v = context === 'labyrinth' ? bb.pvp_v4 : bb.pvp_v3;
+        if (!v || typeof v !== 'object') return [];
+        const pcs = v.carac1;
+        if (!Array.isArray(pcs)) return [];
+        return pcs.map((p: any) => Number(p)).filter((n: number) => Number.isFinite(n) && n > 0);
+    }
+
+    /**
      * Authoritative per-girl blessing multiplier from the game's
      * blessing_bonuses field. This is the single source of truth for
-     * 'is this girl currently blessed and by how much'.
+     * 'is this girl currently blessed in this context and by how much'.
      *
-     * The game writes the active per-class blessing percentages into
-     * blessing_bonuses.pvp_v3 (current league) and pvp_v4 (next league
-     * version). Each is shaped { caracN: number[] }; the list contains
-     * one entry per active blessing affecting the girl, applied
-     * multiplicatively. Examples:
+     * Each set is shaped { caracN: number[] }; the list contains one
+     * entry per active blessing affecting the girl, applied
+     * multiplicatively. Examples (league):
      *   pvp_v3.carac1 = []         -> no blessing -> multiplier 1.0
      *   pvp_v3.carac1 = [25]       -> +25%        -> multiplier 1.25
      *   pvp_v3.carac1 = [40, 25]   -> +40% AND +25% -> multiplier 1.75
@@ -92,40 +125,28 @@ export class BlessingService {
      * The girl's caracs sub-object already contains the multiplied stat,
      * so the team builder does not need to multiply again. This helper
      * is for diagnostics: 'is girl X blessed?' and 'how much'.
-     *
-     * Falls back from pvp_v4 to pvp_v3 (forwards-compatible with a future
-     * league version cutover).
      */
-    static getEffectiveMultiplier(girl: { blessing_bonuses?: any; blessingBonuses?: any }): number {
-        const bb = (girl as any).blessing_bonuses ?? girl.blessingBonuses;
-        if (!bb || typeof bb !== 'object' || Array.isArray(bb)) return 1;
-        const v = bb.pvp_v4 ?? bb.pvp_v3;
-        if (!v || typeof v !== 'object') return 1;
-        const pcs = v.carac1;
-        if (!Array.isArray(pcs) || pcs.length === 0) return 1;
+    static getEffectiveMultiplier(
+        girl: { blessing_bonuses?: any; blessingBonuses?: any },
+        context: BlessingContext = 'league',
+    ): number {
         let mult = 1;
-        for (const p of pcs) {
-            const n = Number(p);
-            if (Number.isFinite(n) && n > 0) {
-                mult *= 1 + n / 100;
-            }
+        for (const n of BlessingService.getContextPercentList(girl, context)) {
+            mult *= 1 + n / 100;
         }
         return mult;
     }
 
     /**
-     * List the blessing percentages currently active on this girl, in
-     * the order the game returned them. Useful for UI annotations like
-     * '(+25% blessing)' or '(+40%, +25% blessing)'.
+     * List the blessing percentages currently active on this girl for
+     * the given context, in the order the game returned them. Useful for
+     * UI annotations like '(+25% blessing)' or '(+40%, +25% blessing)'.
      */
-    static getActivePercents(girl: { blessing_bonuses?: any; blessingBonuses?: any }): number[] {
-        const bb = (girl as any).blessing_bonuses ?? girl.blessingBonuses;
-        if (!bb || typeof bb !== 'object' || Array.isArray(bb)) return [];
-        const v = bb.pvp_v4 ?? bb.pvp_v3;
-        if (!v || typeof v !== 'object') return [];
-        const pcs = v.carac1;
-        if (!Array.isArray(pcs)) return [];
-        return pcs.filter((p: any) => Number.isFinite(Number(p)) && Number(p) > 0).map((p: any) => Number(p));
+    static getActivePercents(
+        girl: { blessing_bonuses?: any; blessingBonuses?: any },
+        context: BlessingContext = 'league',
+    ): number[] {
+        return BlessingService.getContextPercentList(girl, context);
     }
 
     private static parseTraits(response: any): string[] {
@@ -359,24 +380,26 @@ export class BlessingService {
      * dependent: 'eye color' / 'couleur des yeux' / 'augenfarbe' ...).
      *
      * The game's blessing_bonuses field on each girl is the authoritative
-     * source: a girl with can_be_blessed=true has at least one active
-     * blessing applied to her caracs. By cross-referencing the can-be-
-     * blessed girls with their fields (element, rarity, eye_color1,
-     * hair_color1, zodiac, position_img), we identify what each blessing
-     * targets WITHOUT reading any localized description.
+     * source. The `context` picks the blessing set (league -> pvp_v3,
+     * labyrinth -> pvp_v4 incl. the weekly Role blessing; see
+     * BlessingContext). By cross-referencing the blessed girls with their
+     * fields (element, rarity, eye_color1, hair_color1, zodiac,
+     * position_img), we identify what each blessing targets WITHOUT
+     * reading any localized description.
      *
      * Returns an array of detected blessings sorted by priority:
      *   1. blessings with the highest bonus percent (e.g. 40% > 25%)
      *   2. blessings with the largest blessed pool
      *
-     * The percent comes from the pvp_v3.carac1 list on a representative
+     * The percent comes from the context's carac1 list on a representative
      * blessed girl. When two blessings stack on the same girl, that girl's
      * carac1 list has multiple entries; we extract individual percents per
      * field (element/rarity/trait) by finding the field whose value is
      * uniformly shared by girls carrying a particular percent.
      */
     static detectActiveBlessings(
-        girls: Array<any>
+        girls: Array<any>,
+        context: BlessingContext = 'league',
     ): Array<{
         kind: 'eyeColor' | 'hairColor' | 'zodiac' | 'position' | 'element' | 'rarity';
         value: string;
@@ -387,30 +410,34 @@ export class BlessingService {
         // (snake_case: eye_color1, hair_color1, position_img,
         // blessing_bonuses, can_be_blessed) or GirlData objects (camelCase:
         // eyeColor, hairColor, position, blessingBonuses). For 'blessed'
-        // status: prefer the explicit can_be_blessed flag, otherwise
-        // derive it from blessing_bonuses / blessingBonuses being a
-        // populated dict.
-        const bbOf  = (g: any) => g.blessing_bonuses ?? g.blessingBonuses;
+        // status: prefer the context's explicit game flag (league:
+        // can_be_blessed, labyrinth: can_be_blessed_pvp4 -- mapped to
+        // can_be_blessed_league / can_be_blessed_labyrinth in GirlData).
+        // The flag is authoritative in both directions: a girl carrying
+        // only the labyrinth Role blessing has can_be_blessed === false
+        // and must NOT count as league-blessed. Only when the flag is
+        // absent is blessed-ness derived from the context's percent list.
+        const flagOf = (g: any): boolean | undefined => {
+            const flag = context === 'labyrinth'
+                ? (g.can_be_blessed_labyrinth ?? g.can_be_blessed_pvp4)
+                : (g.can_be_blessed_league ?? g.can_be_blessed);
+            return typeof flag === 'boolean' ? flag : undefined;
+        };
         const isBlessed = (g: any): boolean => {
-            if (g.can_be_blessed === true) return true;
-            const bb = bbOf(g);
-            return !!(bb && typeof bb === 'object' && !Array.isArray(bb)
-                && (bb.pvp_v3 || bb.pvp_v4));
+            const flag = flagOf(g);
+            if (flag !== undefined) return flag;
+            return BlessingService.getContextPercentList(g, context).length > 0;
         };
 
-        const blessed = girls.filter(g => isBlessed(g) && bbOf(g)
-            && typeof bbOf(g) === 'object' && !Array.isArray(bbOf(g)));
+        const blessed = girls.filter(g => isBlessed(g)
+            && BlessingService.getContextPercentList(g, context).length > 0);
         if (blessed.length === 0) return [];
 
         // Collect distinct percents seen across the blessed pool.
         const percents = new Set<number>();
         for (const g of blessed) {
-            const bb = bbOf(g);
-            const v = bb.pvp_v3 ?? bb.pvp_v4;
-            if (!v || !Array.isArray(v.carac1)) continue;
-            for (const p of v.carac1) {
-                const n = Number(p);
-                if (Number.isFinite(n) && n > 0) percents.add(n);
+            for (const n of BlessingService.getContextPercentList(g, context)) {
+                percents.add(n);
             }
         }
 
@@ -439,11 +466,8 @@ export class BlessingService {
         //      to be legendary" doesn't mean rarity=legendary IS the
         //      blessing condition).
         for (const percent of percents) {
-            const carrying = blessed.filter(g => {
-                const bb = bbOf(g);
-                const v = bb.pvp_v3 ?? bb.pvp_v4;
-                return Array.isArray(v?.carac1) && v.carac1.includes(percent);
-            });
+            const carrying = blessed.filter(g =>
+                BlessingService.getContextPercentList(g, context).includes(percent));
             if (carrying.length === 0) continue;
 
             for (const kind of kinds) {

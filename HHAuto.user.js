@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.5.0
+// @version      8.5.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -16453,15 +16453,32 @@ class BlessingService {
         return cached !== null && (Date.now() - cached.timestamp) < CACHE_DURATION_MS;
     }
     /**
+     * Context-specific percent list (carac1) from the girl's
+     * blessing_bonuses. 'league' reads pvp_v3, 'labyrinth' reads pvp_v4;
+     * never falls back across contexts (see BlessingContext). Accepts
+     * raw API girls (blessing_bonuses) and GirlData (blessingBonuses).
+     */
+    static getContextPercentList(girl, context) {
+        var _a;
+        const bb = (_a = girl.blessing_bonuses) !== null && _a !== void 0 ? _a : girl.blessingBonuses;
+        if (!bb || typeof bb !== 'object' || Array.isArray(bb))
+            return [];
+        const v = context === 'labyrinth' ? bb.pvp_v4 : bb.pvp_v3;
+        if (!v || typeof v !== 'object')
+            return [];
+        const pcs = v.carac1;
+        if (!Array.isArray(pcs))
+            return [];
+        return pcs.map((p) => Number(p)).filter((n) => Number.isFinite(n) && n > 0);
+    }
+    /**
      * Authoritative per-girl blessing multiplier from the game's
      * blessing_bonuses field. This is the single source of truth for
-     * 'is this girl currently blessed and by how much'.
+     * 'is this girl currently blessed in this context and by how much'.
      *
-     * The game writes the active per-class blessing percentages into
-     * blessing_bonuses.pvp_v3 (current league) and pvp_v4 (next league
-     * version). Each is shaped { caracN: number[] }; the list contains
-     * one entry per active blessing affecting the girl, applied
-     * multiplicatively. Examples:
+     * Each set is shaped { caracN: number[] }; the list contains one
+     * entry per active blessing affecting the girl, applied
+     * multiplicatively. Examples (league):
      *   pvp_v3.carac1 = []         -> no blessing -> multiplier 1.0
      *   pvp_v3.carac1 = [25]       -> +25%        -> multiplier 1.25
      *   pvp_v3.carac1 = [40, 25]   -> +40% AND +25% -> multiplier 1.75
@@ -16469,47 +16486,21 @@ class BlessingService {
      * The girl's caracs sub-object already contains the multiplied stat,
      * so the team builder does not need to multiply again. This helper
      * is for diagnostics: 'is girl X blessed?' and 'how much'.
-     *
-     * Falls back from pvp_v4 to pvp_v3 (forwards-compatible with a future
-     * league version cutover).
      */
-    static getEffectiveMultiplier(girl) {
-        var _a, _b;
-        const bb = (_a = girl.blessing_bonuses) !== null && _a !== void 0 ? _a : girl.blessingBonuses;
-        if (!bb || typeof bb !== 'object' || Array.isArray(bb))
-            return 1;
-        const v = (_b = bb.pvp_v4) !== null && _b !== void 0 ? _b : bb.pvp_v3;
-        if (!v || typeof v !== 'object')
-            return 1;
-        const pcs = v.carac1;
-        if (!Array.isArray(pcs) || pcs.length === 0)
-            return 1;
+    static getEffectiveMultiplier(girl, context = 'league') {
         let mult = 1;
-        for (const p of pcs) {
-            const n = Number(p);
-            if (Number.isFinite(n) && n > 0) {
-                mult *= 1 + n / 100;
-            }
+        for (const n of BlessingService.getContextPercentList(girl, context)) {
+            mult *= 1 + n / 100;
         }
         return mult;
     }
     /**
-     * List the blessing percentages currently active on this girl, in
-     * the order the game returned them. Useful for UI annotations like
-     * '(+25% blessing)' or '(+40%, +25% blessing)'.
+     * List the blessing percentages currently active on this girl for
+     * the given context, in the order the game returned them. Useful for
+     * UI annotations like '(+25% blessing)' or '(+40%, +25% blessing)'.
      */
-    static getActivePercents(girl) {
-        var _a, _b;
-        const bb = (_a = girl.blessing_bonuses) !== null && _a !== void 0 ? _a : girl.blessingBonuses;
-        if (!bb || typeof bb !== 'object' || Array.isArray(bb))
-            return [];
-        const v = (_b = bb.pvp_v4) !== null && _b !== void 0 ? _b : bb.pvp_v3;
-        if (!v || typeof v !== 'object')
-            return [];
-        const pcs = v.carac1;
-        if (!Array.isArray(pcs))
-            return [];
-        return pcs.filter((p) => Number.isFinite(Number(p)) && Number(p) > 0).map((p) => Number(p));
+    static getActivePercents(girl, context = 'league') {
+        return BlessingService.getContextPercentList(girl, context);
     }
     static parseTraits(response) {
         const traits = [];
@@ -16739,54 +16730,57 @@ class BlessingService {
      * dependent: 'eye color' / 'couleur des yeux' / 'augenfarbe' ...).
      *
      * The game's blessing_bonuses field on each girl is the authoritative
-     * source: a girl with can_be_blessed=true has at least one active
-     * blessing applied to her caracs. By cross-referencing the can-be-
-     * blessed girls with their fields (element, rarity, eye_color1,
-     * hair_color1, zodiac, position_img), we identify what each blessing
-     * targets WITHOUT reading any localized description.
+     * source. The `context` picks the blessing set (league -> pvp_v3,
+     * labyrinth -> pvp_v4 incl. the weekly Role blessing; see
+     * BlessingContext). By cross-referencing the blessed girls with their
+     * fields (element, rarity, eye_color1, hair_color1, zodiac,
+     * position_img), we identify what each blessing targets WITHOUT
+     * reading any localized description.
      *
      * Returns an array of detected blessings sorted by priority:
      *   1. blessings with the highest bonus percent (e.g. 40% > 25%)
      *   2. blessings with the largest blessed pool
      *
-     * The percent comes from the pvp_v3.carac1 list on a representative
+     * The percent comes from the context's carac1 list on a representative
      * blessed girl. When two blessings stack on the same girl, that girl's
      * carac1 list has multiple entries; we extract individual percents per
      * field (element/rarity/trait) by finding the field whose value is
      * uniformly shared by girls carrying a particular percent.
      */
-    static detectActiveBlessings(girls) {
-        var _a;
+    static detectActiveBlessings(girls, context = 'league') {
         // Read fields tolerantly: callers pass either raw API girls
         // (snake_case: eye_color1, hair_color1, position_img,
         // blessing_bonuses, can_be_blessed) or GirlData objects (camelCase:
         // eyeColor, hairColor, position, blessingBonuses). For 'blessed'
-        // status: prefer the explicit can_be_blessed flag, otherwise
-        // derive it from blessing_bonuses / blessingBonuses being a
-        // populated dict.
-        const bbOf = (g) => { var _a; return (_a = g.blessing_bonuses) !== null && _a !== void 0 ? _a : g.blessingBonuses; };
-        const isBlessed = (g) => {
-            if (g.can_be_blessed === true)
-                return true;
-            const bb = bbOf(g);
-            return !!(bb && typeof bb === 'object' && !Array.isArray(bb)
-                && (bb.pvp_v3 || bb.pvp_v4));
+        // status: prefer the context's explicit game flag (league:
+        // can_be_blessed, labyrinth: can_be_blessed_pvp4 -- mapped to
+        // can_be_blessed_league / can_be_blessed_labyrinth in GirlData).
+        // The flag is authoritative in both directions: a girl carrying
+        // only the labyrinth Role blessing has can_be_blessed === false
+        // and must NOT count as league-blessed. Only when the flag is
+        // absent is blessed-ness derived from the context's percent list.
+        const flagOf = (g) => {
+            var _a, _b;
+            const flag = context === 'labyrinth'
+                ? ((_a = g.can_be_blessed_labyrinth) !== null && _a !== void 0 ? _a : g.can_be_blessed_pvp4)
+                : ((_b = g.can_be_blessed_league) !== null && _b !== void 0 ? _b : g.can_be_blessed);
+            return typeof flag === 'boolean' ? flag : undefined;
         };
-        const blessed = girls.filter(g => isBlessed(g) && bbOf(g)
-            && typeof bbOf(g) === 'object' && !Array.isArray(bbOf(g)));
+        const isBlessed = (g) => {
+            const flag = flagOf(g);
+            if (flag !== undefined)
+                return flag;
+            return BlessingService.getContextPercentList(g, context).length > 0;
+        };
+        const blessed = girls.filter(g => isBlessed(g)
+            && BlessingService.getContextPercentList(g, context).length > 0);
         if (blessed.length === 0)
             return [];
         // Collect distinct percents seen across the blessed pool.
         const percents = new Set();
         for (const g of blessed) {
-            const bb = bbOf(g);
-            const v = (_a = bb.pvp_v3) !== null && _a !== void 0 ? _a : bb.pvp_v4;
-            if (!v || !Array.isArray(v.carac1))
-                continue;
-            for (const p of v.carac1) {
-                const n = Number(p);
-                if (Number.isFinite(n) && n > 0)
-                    percents.add(n);
+            for (const n of BlessingService.getContextPercentList(g, context)) {
+                percents.add(n);
             }
         }
         const candidates = [];
@@ -16803,12 +16797,7 @@ class BlessingService {
         //      to be legendary" doesn't mean rarity=legendary IS the
         //      blessing condition).
         for (const percent of percents) {
-            const carrying = blessed.filter(g => {
-                var _a;
-                const bb = bbOf(g);
-                const v = (_a = bb.pvp_v3) !== null && _a !== void 0 ? _a : bb.pvp_v4;
-                return Array.isArray(v === null || v === void 0 ? void 0 : v.carac1) && v.carac1.includes(percent);
-            });
+            const carrying = blessed.filter(g => BlessingService.getContextPercentList(g, context).includes(percent));
             if (carrying.length === 0)
                 continue;
             for (const kind of kinds) {
@@ -21773,10 +21762,11 @@ class TeamModule {
      * setTopTeamV2 so the mapping is unit-testable in isolation (the rest
      * of setTopTeamV2 is DOM/UI). Pure: no side effects, no DOM access.
      *
-     * can_be_blessed / can_be_blessed_pvp4 are passed through as untyped
-     * bonus properties so BlessingService.detectActiveBlessings has an
-     * authoritative blessed-or-not flag (issue 1679 phase 2); the static
-     * type stays GirlData.
+     * The game flags can_be_blessed / can_be_blessed_pvp4 are mapped to
+     * the speaking names can_be_blessed_league / can_be_blessed_labyrinth
+     * so BlessingService has an authoritative blessed-or-not flag per
+     * context (league = pvp_v3 blessings, labyrinth = pvp_v4 incl. the
+     * weekly Role blessing).
      */
     static mapAvailableGirl(g) {
         var _a;
@@ -21786,7 +21776,7 @@ class TeamModule {
                 carac3: Number(g.caracs.carac3 || 0),
             } : undefined, skill_tiers_info: g.skill_tiers_info, 
             // Keep raw zodiac glyph; TraitMappings.resolveZodiac strips it for display
-            zodiac: g.zodiac || undefined, hairColor: g.hair_color1 || undefined, eyeColor: g.eye_color1 || undefined, position: g.position_img ? String(g.position_img).replace('.png', '') : undefined, blessingBonuses: g.blessing_bonuses || undefined }, (typeof g.can_be_blessed === 'boolean' ? { can_be_blessed: g.can_be_blessed } : {})), (typeof g.can_be_blessed_pvp4 === 'boolean' ? { can_be_blessed_pvp4: g.can_be_blessed_pvp4 } : {})));
+            zodiac: g.zodiac || undefined, hairColor: g.hair_color1 || undefined, eyeColor: g.eye_color1 || undefined, position: g.position_img ? String(g.position_img).replace('.png', '') : undefined, blessingBonuses: g.blessing_bonuses || undefined }, (typeof g.can_be_blessed === 'boolean' ? { can_be_blessed_league: g.can_be_blessed } : {})), (typeof g.can_be_blessed_pvp4 === 'boolean' ? { can_be_blessed_labyrinth: g.can_be_blessed_pvp4 } : {})));
     }
     static setTopTeamV2(mode, availableGirls) {
         const playerLevel = Number(HeroHelper.getLevel());
