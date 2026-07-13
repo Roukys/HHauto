@@ -87,7 +87,7 @@ export const SK = {
     autoSeasonCollect: "Setting_autoSeasonCollect",
     autoSeasonCollectAll: "Setting_autoSeasonCollectAll",
     autoSeasonCollectablesList: "Setting_autoSeasonCollectablesList",
-    autoSeasonIgnoreNoGirls: "Setting_autoSeasonIgnoreNoGirls",
+    autoSeasonFocus: "Setting_autoSeasonIgnoreNoGirls", // now stores a focus mode (off|girl|girlAndSkin) instead of boolean
     autoSeasonPassReds: "Setting_autoSeasonPassReds",
     autoSeasonSkipLowMojo: "Setting_autoSeasonSkipLowMojo",
     seasonDisplayPowerCalc: "Setting_seasonDisplayPowerCalc",

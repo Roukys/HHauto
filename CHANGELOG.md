@@ -7,6 +7,22 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.5.0 - Season focus: choose between all fights, event girl only, or girl + skin
+
+- The Season switch "Ignore if no event girls" is now a three-way "Season
+  focus" selector (issue #1793): "All fights" (no restriction), "Event girl"
+  (only fight while the girl's shards are incomplete) and "Girl + skin"
+  (fight while the girl or her skin can still be won).
+- "Event girl" is the new mode: opponents whose girl reward is already fully
+  owned (i.e. only her skin is left to win) are skipped. Skin detection uses
+  the love-raid data parsed from the raids screen; when no raid data is
+  available the reward is treated as a girl, so fights never get stuck on
+  stale data.
+- Existing settings are migrated automatically: enabled becomes "Girl +
+  skin" (the previous behaviour), disabled becomes "All fights". The max
+  tier interaction is unchanged — below the configured max tier fights are
+  always performed.
+
 ### v8.4.0 - Penta Drill delay is now user-configurable ("PD Delay")
 
 - New "PD Delay" field in the main menu (left column, under "Show tooltips"):

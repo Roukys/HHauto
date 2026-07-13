@@ -2,7 +2,9 @@ import { getSecondsLeft, setTimer } from "../../../src/Helper/TimerHelper";
 import { Booster } from '../../../src/Module/Booster';
 import { Season } from '../../../src/Module/Events/Season';
 import { ParanoiaService } from "../../../src/Service/ParanoiaService";
+import * as PageNavigationService from "../../../src/Service/PageNavigationService";
 import { HHStoredVarPrefixKey } from "../../../src/config/HHStoredVars";
+import { SK, TK } from "../../../src/config/StorageKeys";
 import { BDSMSimu } from '../../../src/model/BDSMSimu';
 import { SeasonOpponent } from '../../../src/model/SeasonOpponent';
 import { MockHelper } from "../../testHelpers/MockHelpers";
@@ -405,6 +407,179 @@ describe("Season event", function () {
             expect(left).toBeLessThanOrEqual(11);
 
             jest.restoreAllMocks();
+        });
+    });
+
+    describe("isRewardSkinOnly", function () {
+        const LOVE_RAIDS_KEY = HHStoredVarPrefixKey + TK.loveRaids;
+
+        function storeSeasonRaid(id_girl: number, girl_shards: number) {
+            sessionStorage.setItem(LOVE_RAIDS_KEY, JSON.stringify([
+                { id_girl, girl_shards, raid_module_type: 'season' },
+                { id_girl: 111, girl_shards: 0, trollId: 4, raid_module_type: 'troll' }
+            ]));
+        }
+
+        beforeEach(() => {
+            sessionStorage.removeItem(LOVE_RAIDS_KEY);
+        });
+
+        it("returns false when no data-rewards are given", function () {
+            storeSeasonRaid(4444, 100);
+            expect(Season.isRewardSkinOnly([])).toBe(false);
+        });
+
+        it("returns false for malformed data-rewards", function () {
+            storeSeasonRaid(4444, 100);
+            expect(Season.isRewardSkinOnly(['not json'])).toBe(false);
+        });
+
+        it("returns false when no season raid data is stored", function () {
+            expect(Season.isRewardSkinOnly(['[{"id_girl":4444}]'])).toBe(false);
+        });
+
+        it("returns false while the raid girl still misses shards", function () {
+            storeSeasonRaid(4444, 50);
+            expect(Season.isRewardSkinOnly(['[{"id_girl":4444}]'])).toBe(false);
+        });
+
+        it("returns false for a reward girl unknown to the raid data", function () {
+            storeSeasonRaid(4444, 100);
+            expect(Season.isRewardSkinOnly(['[{"id_girl":5555}]'])).toBe(false);
+        });
+
+        it("returns true when the reward girl is fully owned", function () {
+            storeSeasonRaid(4444, 100);
+            expect(Season.isRewardSkinOnly(['[{"id_girl":4444}]'])).toBe(true);
+        });
+
+        it("returns false when only one of two reward girls is fully owned", function () {
+            sessionStorage.setItem(LOVE_RAIDS_KEY, JSON.stringify([
+                { id_girl: 4444, girl_shards: 100, raid_module_type: 'season' },
+                { id_girl: 5555, girl_shards: 20, raid_module_type: 'season' }
+            ]));
+            expect(Season.isRewardSkinOnly(['[{"id_girl":4444}]', '[{"id_girl":5555}]'])).toBe(false);
+        });
+    });
+
+    describe("run season focus (issue #1793)", function () {
+        const FOCUS_KEY = HHStoredVarPrefixKey + SK.autoSeasonFocus;
+        const LOVE_RAIDS_KEY = HHStoredVarPrefixKey + TK.loveRaids;
+        const CHOSEN_ID = 123;
+
+        function opponentHtml(girlRewardSlot: string) {
+            return '<div class="season_arena_opponent_container" data-opponent="' + CHOSEN_ID + '">'
+                + girlRewardSlot
+                + '<div class="opponent_perform_button_container"><a href="/season-battle.html?id_opponent=' + CHOSEN_ID + '">Fight</a></div>'
+                + '<div class="personal_info"><div class="player-name">OPPO_A</div></div>'
+                + '</div>';
+        }
+        const GIRL_SLOT = '<div class="slot girl_ico" data-rewards=\'[{"id_girl":4444}]\'></div>';
+
+        function mockArena(girlRewardSlot: string) {
+            MockHelper.mockPage('season_arena', '<div id="tier_indicator">1</div>' + opponentHtml(girlRewardSlot));
+        }
+
+        let navSpy: jest.SpyInstance;
+
+        beforeEach(() => {
+            MockHelper.mockHeroLevel(500);
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTier", "false");
+            sessionStorage.removeItem(LOVE_RAIDS_KEY);
+            localStorage.removeItem(FOCUS_KEY);
+            setTimer('nextSeasonTime', -1);
+            jest.spyOn(Season, 'stylesBattle').mockImplementation(() => {});
+            jest.spyOn(Season, 'moduleSimSeasonBattle').mockResolvedValue(CHOSEN_ID as any);
+            navSpy = jest.spyOn(PageNavigationService, 'safeNavigateHref').mockImplementation(() => true);
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        it("focus off fights an opponent without girl reward", async () => {
+            localStorage.setItem(FOCUS_KEY, "off");
+            mockArena('');
+
+            const result = await Season.run();
+
+            expect(result).toBe(true);
+            expect(navSpy).toHaveBeenCalled();
+        });
+
+        it("girl focus skips an opponent without girl reward", async () => {
+            localStorage.setItem(FOCUS_KEY, "girl");
+            mockArena('');
+
+            const result = await Season.run();
+
+            expect(result).toBe(false);
+            expect(navSpy).not.toHaveBeenCalled();
+            const left = getSecondsLeft('nextSeasonTime');
+            expect(left).toBeGreaterThan(29 * 60);
+        });
+
+        it("girl focus fights while the girl is not fully owned", async () => {
+            localStorage.setItem(FOCUS_KEY, "girl");
+            sessionStorage.setItem(LOVE_RAIDS_KEY, JSON.stringify([
+                { id_girl: 4444, girl_shards: 50, raid_module_type: 'season' }
+            ]));
+            mockArena(GIRL_SLOT);
+
+            const result = await Season.run();
+
+            expect(result).toBe(true);
+            expect(navSpy).toHaveBeenCalled();
+        });
+
+        it("girl focus skips a skin-only reward (girl fully owned)", async () => {
+            localStorage.setItem(FOCUS_KEY, "girl");
+            sessionStorage.setItem(LOVE_RAIDS_KEY, JSON.stringify([
+                { id_girl: 4444, girl_shards: 100, raid_module_type: 'season' }
+            ]));
+            mockArena(GIRL_SLOT);
+
+            const result = await Season.run();
+
+            expect(result).toBe(false);
+            expect(navSpy).not.toHaveBeenCalled();
+            const left = getSecondsLeft('nextSeasonTime');
+            expect(left).toBeGreaterThan(29 * 60);
+        });
+
+        it("girl focus fights when no raid data is stored (fallback)", async () => {
+            localStorage.setItem(FOCUS_KEY, "girl");
+            mockArena(GIRL_SLOT);
+
+            const result = await Season.run();
+
+            expect(result).toBe(true);
+            expect(navSpy).toHaveBeenCalled();
+        });
+
+        it("girlAndSkin focus fights a skin-only reward", async () => {
+            localStorage.setItem(FOCUS_KEY, "girlAndSkin");
+            sessionStorage.setItem(LOVE_RAIDS_KEY, JSON.stringify([
+                { id_girl: 4444, girl_shards: 100, raid_module_type: 'season' }
+            ]));
+            mockArena(GIRL_SLOT);
+
+            const result = await Season.run();
+
+            expect(result).toBe(true);
+            expect(navSpy).toHaveBeenCalled();
+        });
+
+        it("focus off stops at max tier without fighting", async () => {
+            localStorage.setItem(FOCUS_KEY, "off");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTier", "true");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTierNb", "1");
+            mockArena(GIRL_SLOT);
+
+            const result = await Season.run();
+
+            expect(result).toBe(true);
+            expect(navSpy).not.toHaveBeenCalled();
         });
     });
 });

@@ -421,7 +421,7 @@ Code-Referenzen unten sind Datei-Pfade ohne src/-Praefix. Lange Listen auf 4 Ein
 | SK.autoSeasonCollect | Setting_autoSeasonCollect | (no description) | - | Module/Events/Season.ts, Service/AutoLoopActions.ts | - |
 | SK.autoSeasonCollectAll | Setting_autoSeasonCollectAll | (no description) | - | Module/Events/Season.ts, Service/AutoLoopActions.ts | - |
 | SK.autoSeasonCollectablesList | Setting_autoSeasonCollectablesList | (no description) | - | Module/Events/Season.ts | - |
-| SK.autoSeasonIgnoreNoGirls | Setting_autoSeasonIgnoreNoGirls | (no description) | - | Module/Events/Season.ts, Service/ParanoiaService.ts | - |
+| SK.autoSeasonFocus | Setting_autoSeasonIgnoreNoGirls | (no description) | - | Module/Events/Season.ts, Service/ParanoiaService.ts | - |
 | SK.autoSeasonPassReds | Setting_autoSeasonPassReds | (no description) | - | Module/Events/Season.ts | - |
 | SK.autoSeasonSkipLowMojo | Setting_autoSeasonSkipLowMojo | (no description) | - | Module/Events/Season.ts | - |
 | SK.seasonDisplayPowerCalc | Setting_seasonDisplayPowerCalc | (no description) | - | Module/Events/Season.ts | - |

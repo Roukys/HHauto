@@ -203,6 +203,13 @@ export class HHMenu {
         raidStarsOptions.add(this._createHtmlOption('exact5', getTextForUI("raidStarsExact5", "elementText")));
     }
 
+    fillSeasonFocusMenu() {
+        var focusOptions = <HTMLSelectElement>document.getElementById("seasonFocusSelector");
+        focusOptions.add(this._createHtmlOption('off', getTextForUI("seasonFocusAll", "elementText")));
+        focusOptions.add(this._createHtmlOption('girl', getTextForUI("seasonFocusGirl", "elementText")));
+        focusOptions.add(this._createHtmlOption('girlAndSkin', getTextForUI("seasonFocusGirlSkin", "elementText")));
+    }
+
     fillLabyDifficultyMenu() {
         var sortsOptions = <HTMLSelectElement>document.getElementById("autoLabyDifficulty");
         sortsOptions.add(this._createHtmlOption(LABY_DIFFICULTY.EASY, getTextForUI("autoLabyDifficultyEasy", "elementText")));

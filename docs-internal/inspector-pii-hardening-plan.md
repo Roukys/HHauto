@@ -198,7 +198,7 @@ relevant for the recurring bug categories. Replace the
   ``autoLeaguesSelectedIndex``, ``autoLeaguesSortIndex``,
   ``autoLeaguesThreshold``, ``autoLeaguesSecurityThreshold``
 - Season: ``autoSeason``, ``autoSeasonCollect``,
-  ``autoSeasonCollectAll``, ``autoSeasonIgnoreNoGirls``,
+  ``autoSeasonCollectAll``, ``autoSeasonFocus``,
   ``autoSeasonPassReds``, ``autoSeasonThreshold``,
   ``autoSeasonRunThreshold``, ``autoSeasonMaxTier``,
   ``autoSeasonMaxTierNb``, ``autoSeasonBoostedOnly``,

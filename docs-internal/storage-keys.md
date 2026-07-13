@@ -164,7 +164,7 @@ Die Spalte "Storage" zeigt den Wert aus der Registry. `--` heisst: nicht in `HHS
 | `autoSeasonCollect` | `Setting_autoSeasonCollect` | `Storage()` | `Setting` | Rewards sammeln |
 | `autoSeasonCollectAll` | `Setting_autoSeasonCollectAll` | `Storage()` | `Setting` | Alle Rewards |
 | `autoSeasonCollectablesList` | `Setting_autoSeasonCollectablesList` | `Storage()` | `Setting` | Sammelbare Items |
-| `autoSeasonIgnoreNoGirls` | `Setting_autoSeasonIgnoreNoGirls` | `Storage()` | `Setting` | Ignoriere ohne Girls |
+| `autoSeasonFocus` | `Setting_autoSeasonIgnoreNoGirls` | `Storage()` | `Setting` | Season-Fokus (off/girl/girlAndSkin) |
 | `autoSeasonPassReds` | `Setting_autoSeasonPassReds` | `Storage()` | `Setting` | Rote ueberspringen |
 | `autoSeasonSkipLowMojo` | `Setting_autoSeasonSkipLowMojo` | `Storage()` | `Setting` | Niedrige Mojo ueberspringen |
 | `seasonDisplayPowerCalc` | `Setting_seasonDisplayPowerCalc` | `Storage()` | `Setting` | Power-Anzeige |
