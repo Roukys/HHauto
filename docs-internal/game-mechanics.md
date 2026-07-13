@@ -1,6 +1,6 @@
 ---
-last-verified: 2026-05-06
-verified-against-version: HentaiHeroes BDSM (release 2021-07-21), v7.35.21 HHAuto
+last-verified: 2026-07-13
+verified-against-version: HentaiHeroes BDSM (release 2021-07-21), v8.5.1 HHAuto
 status: current
 sources:
   - INPUT/Your Performance Handbook!*.pdf (Slynia, 2021-11-20+)
