@@ -380,6 +380,21 @@ export function start() {
         }
     }
 
+    // Migrate Season focus stored value to string-based selection (runs every load).
+    // Handles the old boolean "Ignore if no event girls" switch: "true" kept
+    // fighting for girls AND skins, so it maps to "girlAndSkin".
+    const seasonFocusVal = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonFocus);
+    if (seasonFocusVal !== undefined && seasonFocusVal !== null) {
+        const focusMap: Record<string, string> = {
+            "true": "girlAndSkin", "false": "off"
+            // "off","girl","girlAndSkin" are already valid
+        };
+        if (focusMap[seasonFocusVal] !== undefined) {
+            setStoredValue(HHStoredVarPrefixKey + SK.autoSeasonFocus, focusMap[seasonFocusVal]);
+            logHHAuto("Migrated Season focus value '" + seasonFocusVal + "' → '" + focusMap[seasonFocusVal] + "'");
+        }
+    }
+
     setDefaults();
 
     if (getStoredValue(HHStoredVarPrefixKey+SK.mousePause) === "true") {
@@ -436,6 +451,7 @@ export function start() {
     hhAutoMenu.fillTrollSelectMenu(lastTrollIdAvailable);
     hhAutoMenu.fillLoveRaidSelectMenu();
     hhAutoMenu.fillRaidStarsMenu();
+    hhAutoMenu.fillSeasonFocusMenu();
 
     // Add league options
     hhAutoMenu.fillLeagueSelectMenu();

@@ -734,16 +734,18 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonCollectAll] =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonFocus] =
     {
-    default:"false",
+    default:"off",
     storage:"Storage()",
     HHType:"Setting",
-    valueType:"Boolean",
+    valueType:"String",
+    customMenuID:"seasonFocusSelector",
     getMenu:true,
     setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
+    menuType:"value",
+    kobanUsing:false,
+    isValid: /^(off|girl|girlAndSkin)$/
 };
 HHStoredVars[HHStoredVarPrefixKey + SK.seasonDisplayPowerCalc] =
 {
