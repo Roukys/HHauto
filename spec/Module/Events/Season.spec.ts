@@ -485,6 +485,8 @@ describe("Season event", function () {
         beforeEach(() => {
             MockHelper.mockHeroLevel(500);
             localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTier", "false");
+            localStorage.removeItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTierNb");
+            localStorage.removeItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTierHard");
             sessionStorage.removeItem(LOVE_RAIDS_KEY);
             localStorage.removeItem(FOCUS_KEY);
             setTimer('nextSeasonTime', -1);
@@ -579,6 +581,77 @@ describe("Season event", function () {
             const result = await Season.run();
 
             expect(result).toBe(true);
+            expect(navSpy).not.toHaveBeenCalled();
+        });
+
+        it("girl focus with MT hard stops at max tier even when a girl can be won", async () => {
+            localStorage.setItem(FOCUS_KEY, "girl");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTier", "true");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTierNb", "1");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTierHard", "true");
+            sessionStorage.setItem(LOVE_RAIDS_KEY, JSON.stringify([
+                { id_girl: 4444, girl_shards: 50, raid_module_type: 'season' }
+            ]));
+            mockArena(GIRL_SLOT);
+
+            const result = await Season.run();
+
+            expect(result).toBe(true);
+            expect(navSpy).not.toHaveBeenCalled();
+        });
+
+        it("girl focus without MT hard keeps fighting past max tier for a girl", async () => {
+            localStorage.setItem(FOCUS_KEY, "girl");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTier", "true");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTierNb", "1");
+            sessionStorage.setItem(LOVE_RAIDS_KEY, JSON.stringify([
+                { id_girl: 4444, girl_shards: 50, raid_module_type: 'season' }
+            ]));
+            mockArena(GIRL_SLOT);
+
+            const result = await Season.run();
+
+            expect(result).toBe(true);
+            expect(navSpy).toHaveBeenCalled();
+        });
+
+        it("girl focus without MT hard skips past max tier when only the skin remains", async () => {
+            localStorage.setItem(FOCUS_KEY, "girl");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTier", "true");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTierNb", "1");
+            sessionStorage.setItem(LOVE_RAIDS_KEY, JSON.stringify([
+                { id_girl: 4444, girl_shards: 100, raid_module_type: 'season' }
+            ]));
+            mockArena(GIRL_SLOT);
+
+            const result = await Season.run();
+
+            expect(result).toBe(false);
+            expect(navSpy).not.toHaveBeenCalled();
+        });
+
+        it("girl focus without MT hard climbs below max tier without a girl reward", async () => {
+            localStorage.setItem(FOCUS_KEY, "girl");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTier", "true");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTierNb", "50");
+            mockArena('');
+
+            const result = await Season.run();
+
+            expect(result).toBe(true);
+            expect(navSpy).toHaveBeenCalled();
+        });
+
+        it("girl focus with MT hard skips below max tier without a girl reward", async () => {
+            localStorage.setItem(FOCUS_KEY, "girl");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTier", "true");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTierNb", "50");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonMaxTierHard", "true");
+            mockArena('');
+
+            const result = await Season.run();
+
+            expect(result).toBe(false);
             expect(navSpy).not.toHaveBeenCalled();
         });
     });

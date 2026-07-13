@@ -19,9 +19,13 @@ Older entries below were migrated 1:1 from `README.md`.
   available the reward is treated as a girl, so fights never get stuck on
   stale data.
 - Existing settings are migrated automatically: enabled becomes "Girl +
-  skin" (the previous behaviour), disabled becomes "All fights". The max
-  tier interaction is unchanged — below the configured max tier fights are
-  always performed.
+  skin" (the previous behaviour), disabled becomes "All fights".
+- New "MT hard" switch next to Max Tier: when enabled, Max Tier is a hard
+  limit — no season fight past it regardless of the Season focus, and the
+  focus filter applies to every fight below it. When disabled (default,
+  previous behaviour) fights run unfiltered while climbing below Max Tier
+  and a girl focus keeps fighting past Max Tier while wanted girl rewards
+  are available.
 
 ### v8.4.0 - Penta Drill delay is now user-configurable ("PD Delay")
 
