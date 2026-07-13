@@ -403,7 +403,7 @@ Wichtige Eigenschaften:
 | Thema | HHAuto-Doku |
 |-------|-------------|
 | Battle-Simulation und Crit-Berechnung | bdsm-battle-simulator.md |
-| Team-Auswahl-Algorithmus (League) | REVIEW_TeamSelection.md |
+| Team-Auswahl-Algorithmus (League) | Code: `TeamBuilderService.ts` / `TeamScoringService.ts` |
 | availableGirls-Felder, Blessing-API | data-sources-team.md |
 | Storage-Keys fuer Settings (Boost-Filter, Threshold) | storage-keys.md |
 

@@ -438,7 +438,7 @@ Die Spalte "Storage" zeigt den Wert aus der Registry. `--` heisst: nicht in `HHS
 | `haremTeam` | `Temp_haremTeam` | `sessionStorage` | `Temp` | Team-Daten (JSON) |
 | `haremTeamScrolls` | `Temp_haremTeamScrolls` | `sessionStorage` | `Temp` | Team-Scrolls |
 | `haremTeamSettings` | `Temp_haremTeamSettings` | `sessionStorage` | `Temp` | Team-Einstellungen |
-| `blessingsCache` | `Temp_blessingsCache` | `localStorage` | `Temp` | *(neu, noch keine Beschreibung)* |
+| `blessingsCache` | `Temp_blessingsCache` | `localStorage` | `Temp` | Blessing-API-Cache (`BlessingData` JSON), 12 h Lebensdauer, gesetzt in `BlessingService.fetchAndCache` |
 
 ### Resources
 
