@@ -427,6 +427,7 @@ Code-Referenzen unten sind Datei-Pfade ohne src/-Praefix. Lange Listen auf 4 Ein
 | SK.seasonDisplayPowerCalc | Setting_seasonDisplayPowerCalc | (no description) | - | Module/Events/Season.ts | - |
 | SK.autoSeasonMaxTier | Setting_autoSeasonMaxTier | (no description) | - | Module/Events/Season.ts | - |
 | SK.autoSeasonMaxTierNb | Setting_autoSeasonMaxTierNb | (no description) | - | Module/Events/Season.ts | - |
+| SK.autoSeasonMaxTierHard | Setting_autoSeasonMaxTierHard | (no description) | - | Module/Events/Season.ts | - |
 | SK.autoPantheon | Setting_autoPantheon | (no description) | Module/Pantheon.ts | Module/GenericBattle.ts, Service/AutoLoopActions.ts, Service/InfoService.ts, Service/ParanoiaService.ts | - |
 | SK.autoPantheonThreshold | Setting_autoPantheonThreshold | (no description) | - | Module/Pantheon.ts | - |
 | SK.autoPantheonRunThreshold | Setting_autoPantheonRunThreshold | (no description) | - | Module/Pantheon.ts | - |

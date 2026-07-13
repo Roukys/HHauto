@@ -141,6 +141,7 @@ export function buildMiddleColumn(debugEnabled: boolean): string {
                                     +`<input style="text-align:center; width:20px" id="autoSeasonMaxTierNb" required pattern="${HHAuto_inputPattern.autoSeasonMaxTierNb}" type="text">`
                                 +`</div>`
                             +`</div>`
+                            + hhMenuSwitch('autoSeasonMaxTierHard')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:30px', 'pictures/design/ic_kiss.png', 'numeric' )

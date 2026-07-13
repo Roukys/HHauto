@@ -820,6 +820,17 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonMaxTierNb] =
     menuType: "value",
     kobanUsing: false
 };
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonMaxTierHard] =
+{
+    default: "false",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Boolean",
+    getMenu: true,
+    setMenu: true,
+    menuType: "checked",
+    kobanUsing: false
+};
 HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonBoostedOnly] =
     {
     default:"false",
