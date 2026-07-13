@@ -7,9 +7,12 @@ status: current
 # API Reference: Team Selection Inputs
 
 Reference for the game-side data structures the team builder consumes.
-Algorithm and behaviour live in ``REVIEW_TeamSelection.md``; this file
-documents only the inputs (game API field shapes) so they can be looked
-up without diffing the live game.
+The algorithm itself lives in the code -- ``TeamBuilderService.ts``
+(candidate matrix, leader rule, cluster/Pos-2-7 fill) over
+``TeamScoringService.ts`` (scoring, Tier-3/Tier-5, element coeff) and
+``BlessingService.ts`` (blessing detection). This file documents only the
+inputs (game API field shapes) so they can be looked up without diffing
+the live game.
 
 ---
 
