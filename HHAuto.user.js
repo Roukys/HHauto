@@ -204,12 +204,13 @@ HHAuto_ToolTips.en['autoSeasonTitle'] = { version: "5.6.24", elementText: "Seaso
 HHAuto_ToolTips.en['autoSeason'] = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)" };
 HHAuto_ToolTips.en['autoSeasonCollect'] = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)" };
 HHAuto_ToolTips.en['autoSeasonCollectAll'] = { version: "5.7.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of season (configured with Collect all timer)" };
-HHAuto_ToolTips.en['seasonFocusSelector'] = { version: "8.5.0", elementText: "Season focus", tooltip: "Choose what the season fights should focus on (useful for love raids):<br>• All fights: no restriction, always fight.<br>• Event girl: only fight while the girl's shards are incomplete; skip opponents that only award skin shards.<br>• Girl + skin: fight while the girl or her skin can still be won.<br>Below the configured max tier fights are always performed. Skin detection uses the love-raid data parsed from the raids screen.<br>This does not take into account the season reward, ie tier" };
+HHAuto_ToolTips.en['seasonFocusSelector'] = { version: "8.5.0", elementText: "Season focus", tooltip: "Choose what the season fights should focus on (useful for love raids):<br>• All fights: no restriction, always fight.<br>• Event girl: only fight while the girl's shards are incomplete; skip opponents that only award skin shards.<br>• Girl + skin: fight while the girl or her skin can still be won.<br>Interaction with Max Tier is controlled by the MT hard switch. Skin detection uses the love-raid data parsed from the raids screen." };
 HHAuto_ToolTips.en['seasonFocusAll'] = { version: "8.5.0", elementText: "All fights" };
 HHAuto_ToolTips.en['seasonFocusGirl'] = { version: "8.5.0", elementText: "Event girl" };
 HHAuto_ToolTips.en['seasonFocusGirlSkin'] = { version: "8.5.0", elementText: "Girl + skin" };
 HHAuto_ToolTips.en['autoSeasonThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum kiss to keep" };
-HHAuto_ToolTips.en['autoSeasonMaxTier'] = { version: "8.5.0", elementText: "Max Tier", tooltip: "Maximum tier to stop at in season. <br>Will not have effect if Season focus is set to a girl mode" };
+HHAuto_ToolTips.en['autoSeasonMaxTier'] = { version: "8.5.0", elementText: "Max Tier", tooltip: "Maximum tier to stop at in season.<br>With MT hard off, a girl Season focus keeps fighting past it while wanted girl rewards are available" };
+HHAuto_ToolTips.en['autoSeasonMaxTierHard'] = { version: "8.5.0", elementText: "MT hard", tooltip: "Only relevant while Max Tier is enabled:<br>ON: Max Tier is a hard limit — no season fight past it, whatever the Season focus; below it the Season focus filter applies to every fight.<br>OFF (legacy): fights run unfiltered while climbing below Max Tier, and a girl Season focus keeps fighting past Max Tier while wanted girl rewards are available" };
 HHAuto_ToolTips.en['autoSeasonRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum kiss fights before script start spending<br> 0 to spend as soon as energy above threshold" };
 HHAuto_ToolTips.en['autoSeasonBoostedOnly'] = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in season" };
 HHAuto_ToolTips.en['autoSeasonSkipLowMojo'] = { version: "7.10.0", elementText: "Skip low Mojo", tooltip: "If enabled : Not fight when mojo reward is less than 8 and season level is less than 63. Will still fight to not loose kiss." };
@@ -705,10 +706,11 @@ HHAuto_ToolTips.de['autoArenaCheckbox'] = { version: "5.6.24", elementText: "Aut
 HHAuto_ToolTips.de['autoSeason'] = { version: "5.6.24", elementText: "AutoSeason", tooltip: "Wenn aktiv : Kämpft automatisch in der Season (Gegner werden wie im Kraftrechner einstellt gewählt)" };
 HHAuto_ToolTips.de['autoSeasonCollect'] = { version: "5.6.24", elementText: "Einsammeln", tooltip: "Wenn aktiv : Sammelt automatisch Seasongewinne ein (bei mehr als einem, wird eines pro Küssnutzung eingesammelt)" };
 HHAuto_ToolTips.de['autoSeasonThreshold'] = { version: "5.6.24", elementText: "Schwellwert", tooltip: "Minimum Küsse die behalten bleiben" };
-HHAuto_ToolTips.de['seasonFocusSelector'] = { version: "8.5.0", elementText: "Season-Fokus", tooltip: "Wähle, worauf die Season-Kämpfe ausgerichtet werden (nützlich für Love Raids):<br>• Alle Kämpfe: keine Einschränkung, es wird immer gekämpft.<br>• Event-Girl: nur kämpfen, solange die Shards des Girls unvollständig sind; Gegner, die nur Skin-Shards geben, werden übersprungen.<br>• Girl + Skin: kämpfen, solange das Girl oder sein Skin noch zu gewinnen ist.<br>Unterhalb des eingestellten Max-Tiers wird immer gekämpft. Die Skin-Erkennung nutzt die Love-Raid-Daten der Raid-Seite.<br>Die Season-Belohnungen (Tier) werden nicht berücksichtigt" };
+HHAuto_ToolTips.de['seasonFocusSelector'] = { version: "8.5.0", elementText: "Season-Fokus", tooltip: "Wähle, worauf die Season-Kämpfe ausgerichtet werden (nützlich für Love Raids):<br>• Alle Kämpfe: keine Einschränkung, es wird immer gekämpft.<br>• Event-Girl: nur kämpfen, solange die Shards des Girls unvollständig sind; Gegner, die nur Skin-Shards geben, werden übersprungen.<br>• Girl + Skin: kämpfen, solange das Girl oder sein Skin noch zu gewinnen ist.<br>Das Zusammenspiel mit Max Tier steuert der Schalter MT hart. Die Skin-Erkennung nutzt die Love-Raid-Daten der Raid-Seite." };
 HHAuto_ToolTips.de['seasonFocusAll'] = { version: "8.5.0", elementText: "Alle Kämpfe" };
 HHAuto_ToolTips.de['seasonFocusGirl'] = { version: "8.5.0", elementText: "Event-Girl" };
 HHAuto_ToolTips.de['seasonFocusGirlSkin'] = { version: "8.5.0", elementText: "Girl + Skin" };
+HHAuto_ToolTips.de['autoSeasonMaxTierHard'] = { version: "8.5.0", elementText: "MT hart", tooltip: "Nur relevant, wenn Max Tier aktiv ist:<br>AN: Max Tier ist eine harte Grenze — ab Erreichen kein Season-Kampf mehr, egal welcher Season-Fokus; darunter filtert der Season-Fokus jeden Kampf.<br>AUS (bisheriges Verhalten): unterhalb Max Tier wird ungefiltert geklettert, und ein Girl-Fokus kämpft über Max Tier hinaus weiter, solange gewünschte Girl-Belohnungen verfügbar sind" };
 HHAuto_ToolTips.de['autoQuest'] = { version: "5.6.24", elementText: "AutoQuest", tooltip: "Wenn aktiv : Macht automatisch Quests" };
 HHAuto_ToolTips.de['autoQuestThreshold'] = { version: "5.6.24", elementText: "Schwellwert", tooltip: "Minimum an Energie die behalten bleibt" };
 HHAuto_ToolTips.de['autoContest'] = { version: "5.6.24", elementText: "AutoAufgabe", tooltip: "Wenn aktiv : Sammelt abgeschlossene Aufgabenbelohnungen ein" };
@@ -1115,6 +1117,7 @@ const SK = {
     seasonDisplayPowerCalc: "Setting_seasonDisplayPowerCalc",
     autoSeasonMaxTier: "Setting_autoSeasonMaxTier",
     autoSeasonMaxTierNb: "Setting_autoSeasonMaxTierNb",
+    autoSeasonMaxTierHard: "Setting_autoSeasonMaxTierHard",
     // Pantheon
     autoPantheon: "Setting_autoPantheon",
     autoPantheonThreshold: "Setting_autoPantheonThreshold",
@@ -2400,6 +2403,17 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonMaxTierNb] =
         getMenu: true,
         setMenu: true,
         menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonMaxTierHard] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
         kobanUsing: false
     };
 HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonBoostedOnly] =
@@ -11822,14 +11836,19 @@ class Season {
                 const maxTier = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonMaxTierNb) || Season.LAST_SEASON_LEVEL;
                 const seasonFocus = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonFocus) || "off";
                 const focusOnGirls = seasonFocus === "girl" || seasonFocus === "girlAndSkin";
+                // "MT hard" on: max tier is a hard cap, no fight past it ever.
+                // Off (legacy): a girl Season focus may keep fighting past max
+                // tier while wanted girl rewards are available, and fights run
+                // unfiltered while climbing below max tier.
+                const maxTierHard = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonMaxTierHard) === "true";
                 const maxTierReached = isMaxTierSet && Season.getTierLevel() >= maxTier;
-                if (maxTierReached && !focusOnGirls) {
+                if (maxTierReached && (maxTierHard || !focusOnGirls)) {
                     logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}), not fighting anymore in season.`);
                     setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
                     return true;
                 }
                 if (maxTierReached && focusOnGirls) {
-                    logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}) but Season focus "${seasonFocus}" enabled, will check for event girls.`);
+                    logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}) but Season focus "${seasonFocus}" enabled and MT hard off, will check for event girls.`);
                 }
                 var chosenID = yield Season.moduleSimSeasonBattle(true);
                 if (chosenID === undefined || chosenID === null) {
@@ -11883,13 +11902,13 @@ class Season {
                         }
                     }
                     if (focusOnGirls && !hasWantedGirlReward) {
-                        if (!isMaxTierSet || maxTierReached) {
+                        if (maxTierHard || !isMaxTierSet || maxTierReached) {
                             logHHAuto("Ignoring season fights as no girl to win on fight reward");
                             setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
                             return false;
                         }
                         else {
-                            logHHAuto("Below max tier, fighting regardless of event girls.");
+                            logHHAuto("Below max tier (MT hard off), fighting regardless of event girls.");
                         }
                     }
                     if (runThreshold > 0) {
@@ -25906,6 +25925,7 @@ function buildMiddleColumn(debugEnabled) {
         + `<input style="text-align:center; width:20px" id="autoSeasonMaxTierNb" required pattern="${HHAuto_inputPattern.autoSeasonMaxTierNb}" type="text">`
         + `</div>`
         + `</div>`
+        + hhMenuSwitch('autoSeasonMaxTierHard')
         + `</div>`
         + `<div class="internalOptionsRow">`
         + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:30px', 'pictures/design/ic_kiss.png', 'numeric')

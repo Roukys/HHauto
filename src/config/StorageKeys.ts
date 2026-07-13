@@ -93,6 +93,7 @@ export const SK = {
     seasonDisplayPowerCalc: "Setting_seasonDisplayPowerCalc",
     autoSeasonMaxTier: "Setting_autoSeasonMaxTier",
     autoSeasonMaxTierNb: "Setting_autoSeasonMaxTierNb",
+    autoSeasonMaxTierHard: "Setting_autoSeasonMaxTierHard",
 
     // Pantheon
     autoPantheon: "Setting_autoPantheon",

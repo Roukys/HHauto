@@ -366,14 +366,19 @@ export class Season {
             const maxTier = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonMaxTierNb) || Season.LAST_SEASON_LEVEL;
             const seasonFocus = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonFocus) || "off";
             const focusOnGirls = seasonFocus === "girl" || seasonFocus === "girlAndSkin";
+            // "MT hard" on: max tier is a hard cap, no fight past it ever.
+            // Off (legacy): a girl Season focus may keep fighting past max
+            // tier while wanted girl rewards are available, and fights run
+            // unfiltered while climbing below max tier.
+            const maxTierHard = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonMaxTierHard) === "true";
             const maxTierReached = isMaxTierSet && Season.getTierLevel() >= maxTier;
-            if (maxTierReached && !focusOnGirls) {
+            if (maxTierReached && (maxTierHard || !focusOnGirls)) {
                 logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}), not fighting anymore in season.`);
                 setTimer('nextSeasonTime', randomInterval(30*60, 35*60));
                 return true;
             }
             if (maxTierReached && focusOnGirls) {
-                logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}) but Season focus "${seasonFocus}" enabled, will check for event girls.`);
+                logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}) but Season focus "${seasonFocus}" enabled and MT hard off, will check for event girls.`);
             }
 
             var chosenID = await Season.moduleSimSeasonBattle(true);
@@ -434,12 +439,12 @@ export class Season {
                     }
                 }
                 if (focusOnGirls && !hasWantedGirlReward) {
-                    if (!isMaxTierSet || maxTierReached) {
+                    if (maxTierHard || !isMaxTierSet || maxTierReached) {
                         logHHAuto("Ignoring season fights as no girl to win on fight reward");
                         setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
                         return false;
                     } else {
-                        logHHAuto("Below max tier, fighting regardless of event girls.");
+                        logHHAuto("Below max tier (MT hard off), fighting regardless of event girls.");
                     }
                 }
 

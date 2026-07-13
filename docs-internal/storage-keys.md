@@ -170,6 +170,7 @@ Die Spalte "Storage" zeigt den Wert aus der Registry. `--` heisst: nicht in `HHS
 | `seasonDisplayPowerCalc` | `Setting_seasonDisplayPowerCalc` | `Storage()` | `Setting` | Power-Anzeige |
 | `autoSeasonMaxTier` | `Setting_autoSeasonMaxTier` | `Storage()` | `Setting` | Max Tier |
 | `autoSeasonMaxTierNb` | `Setting_autoSeasonMaxTierNb` | `Storage()` | `Setting` | Max Tier Anzahl |
+| `autoSeasonMaxTierHard` | `Setting_autoSeasonMaxTierHard` | `Storage()` | `Setting` | Max Tier harte Grenze |
 
 ### Pantheon
 
