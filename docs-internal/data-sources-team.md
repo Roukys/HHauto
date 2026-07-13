@@ -69,31 +69,44 @@ The team builder reads ``caracs`` directly. No unequip needed before scoring.
 | Field | Type | Notes |
 |---|---|---|
 | ``blessing_bonuses`` | object | Per-girl blessing percent lists, see structure below |
-| ``can_be_blessed`` | boolean | Is this girl eligible for blessings at all |
-| ``can_be_blessed_pvp4`` | boolean | PvP4-mode blessing eligibility |
+| ``can_be_blessed`` | boolean | League-blessed flag: true iff ``pvp_v3`` percents present. GirlData name: ``can_be_blessed_league`` |
+| ``can_be_blessed_pvp4`` | boolean | Labyrinth-blessed flag: true iff ``pvp_v4`` percents present. GirlData name: ``can_be_blessed_labyrinth`` |
 | ``blessed_attributes`` | object | Tooltip-side mirror |
 
 #### ``blessing_bonuses`` structure
 
 ```jsonc
 {
-  "pvp_v3": {
+  "pvp_v3": {                    // LEAGUE: the two weekly league blessings
     "carac1": [20, 30],
     "carac2": [20, 30],
     "carac3": [20, 30]
   },
-  "pvp_v4": {
-    "carac1": [20, 30],
-    "carac2": [20, 30],
-    "carac3": [20, 30]
+  "pvp_v4": {                    // LABYRINTH: league blessings + weekly Role blessing
+    "carac1": [20, 30, 25],
+    "carac2": [20, 30, 25],
+    "carac3": [20, 30, 25]
   }
 }
 ```
 
-- Empty list ``[]`` -- girl matches no active blessing.
+- Empty list ``[]`` / key absent -- girl matches no active blessing in that mode.
 - ``[20]`` -- one blessing match.
 - ``[20, 30]`` -- both active blessings match.
 - Multipliers stack multiplicatively: ``(1 + 0.20) * (1 + 0.30) = 1.56``.
+
+Context semantics (verified 2026-07-13 against the hh-bless-cluster
+fixtures and a live dump; role blessing that week: "Week of the Bugger"
++25%):
+
+- ``pvp_v3`` holds ONLY the two league-relevant blessings (slots 1+2).
+- ``pvp_v4`` == ``pvp_v3`` plus the slot-3 Role blessing, which applies
+  only in the Love Labyrinth. A girl with a ``pvp_v4``-only entry is
+  role-blessed and counts as UNBLESSED for league team building
+  (``can_be_blessed`` is ``false`` for her).
+- ``BlessingService`` therefore takes a ``context`` parameter
+  (``'league'`` -> ``pvp_v3``, ``'labyrinth'`` -> ``pvp_v4``) and never
+  falls back across contexts.
 
 ### Element data
 

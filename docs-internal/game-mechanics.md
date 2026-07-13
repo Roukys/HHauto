@@ -338,8 +338,14 @@ Blessing-Typen:
 | Typ | Bedeutung |
 |-----|-----------|
 | Common-Blessing | Standard wird gewuerfelt |
-| Element-Blessing (PvP3 / pvp_v3) | Element-spezifischer Bonus, Array [20, 30] = 20% Element + 30% Trait |
-| PvP4-Blessing | League-spezifischer Bonus |
+| League-Blessings (``pvp_v3``) | Die zwei woechentlichen League-Blessings, Array [20, 30] = 20% + 30% |
+| Labyrinth-Set (``pvp_v4``) | == ``pvp_v3`` PLUS die Slot-3-Role-Blessing (gilt nur im Love Labyrinth) |
+
+Verifiziert 2026-07-13 (Fixture-Diff + Live-Dump): ``pvp_v4`` ist kein
+eigenes League-Format, sondern das Labyrinth-Set. Fuer League-Teams gilt
+ausschliesslich ``pvp_v3``; ``can_be_blessed`` ist das League-Flag,
+``can_be_blessed_pvp4`` das Labyrinth-Flag. Details:
+``data-sources-team.md``.
 
 lessing_bonuses Struktur in vailableGirls:
 
@@ -353,7 +359,7 @@ Blessing-Typen:
 }
 `
 
-HHAuto-Skript bevorzugt blessed Trait-Kategorien beim Cluster-Score (BLESSED_CATEGORY_BOOST = 1.5 in TeamScoringService).
+HHAuto baut Bless-bewusste Kandidaten-Teams pro erkannter Blessing (Kandidaten-Matrix in TeamBuilderService, seit v7.35.61); der frueher hier erwaehnte ``BLESSED_CATEGORY_BOOST`` existiert seit dem v7.35.39-Rewrite nicht mehr.
 
 ---
 

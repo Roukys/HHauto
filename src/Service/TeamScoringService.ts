@@ -48,6 +48,11 @@ export interface GirlData {
     position?: string;
     // Blessing data (game API). The team builder reads it via BlessingService.
     blessingBonuses?: any;
+    // Per-context blessed flags, mapped from the game fields
+    // can_be_blessed (league / pvp_v3) and can_be_blessed_pvp4
+    // (labyrinth / pvp_v4 incl. the weekly Role blessing).
+    can_be_blessed_league?: boolean;
+    can_be_blessed_labyrinth?: boolean;
 }
 
 // Tier-5 mapping. Priority controls the leader pick (Shield > Stun > Execute > Reflect).
