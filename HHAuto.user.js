@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.4.0
+// @version      8.5.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -204,9 +204,12 @@ HHAuto_ToolTips.en['autoSeasonTitle'] = { version: "5.6.24", elementText: "Seaso
 HHAuto_ToolTips.en['autoSeason'] = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)" };
 HHAuto_ToolTips.en['autoSeasonCollect'] = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)" };
 HHAuto_ToolTips.en['autoSeasonCollectAll'] = { version: "5.7.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of season (configured with Collect all timer)" };
-HHAuto_ToolTips.en['autoSeasonIgnoreNoGirls'] = { version: "7.31.0", elementText: "Ignore if no event girls", tooltip: "if enabled : Do not perform any fight in season if no girls nor skin to win on season fight reward (useful for love raids)<br>This do not take into account the season reward, ie tier" };
+HHAuto_ToolTips.en['seasonFocusSelector'] = { version: "8.5.0", elementText: "Season focus", tooltip: "Choose what the season fights should focus on (useful for love raids):<br>• All fights: no restriction, always fight.<br>• Event girl: only fight while the girl's shards are incomplete; skip opponents that only award skin shards.<br>• Girl + skin: fight while the girl or her skin can still be won.<br>Below the configured max tier fights are always performed. Skin detection uses the love-raid data parsed from the raids screen.<br>This does not take into account the season reward, ie tier" };
+HHAuto_ToolTips.en['seasonFocusAll'] = { version: "8.5.0", elementText: "All fights" };
+HHAuto_ToolTips.en['seasonFocusGirl'] = { version: "8.5.0", elementText: "Event girl" };
+HHAuto_ToolTips.en['seasonFocusGirlSkin'] = { version: "8.5.0", elementText: "Girl + skin" };
 HHAuto_ToolTips.en['autoSeasonThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum kiss to keep" };
-HHAuto_ToolTips.en['autoSeasonMaxTier'] = { version: "7.31.0", elementText: "Max Tier", tooltip: "Maximum tier to stop at in season. <br>Will not have effect if Ignore no girl is checked" };
+HHAuto_ToolTips.en['autoSeasonMaxTier'] = { version: "8.5.0", elementText: "Max Tier", tooltip: "Maximum tier to stop at in season. <br>Will not have effect if Season focus is set to a girl mode" };
 HHAuto_ToolTips.en['autoSeasonRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum kiss fights before script start spending<br> 0 to spend as soon as energy above threshold" };
 HHAuto_ToolTips.en['autoSeasonBoostedOnly'] = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in season" };
 HHAuto_ToolTips.en['autoSeasonSkipLowMojo'] = { version: "7.10.0", elementText: "Skip low Mojo", tooltip: "If enabled : Not fight when mojo reward is less than 8 and season level is less than 63. Will still fight to not loose kiss." };
@@ -702,6 +705,10 @@ HHAuto_ToolTips.de['autoArenaCheckbox'] = { version: "5.6.24", elementText: "Aut
 HHAuto_ToolTips.de['autoSeason'] = { version: "5.6.24", elementText: "AutoSeason", tooltip: "Wenn aktiv : Kämpft automatisch in der Season (Gegner werden wie im Kraftrechner einstellt gewählt)" };
 HHAuto_ToolTips.de['autoSeasonCollect'] = { version: "5.6.24", elementText: "Einsammeln", tooltip: "Wenn aktiv : Sammelt automatisch Seasongewinne ein (bei mehr als einem, wird eines pro Küssnutzung eingesammelt)" };
 HHAuto_ToolTips.de['autoSeasonThreshold'] = { version: "5.6.24", elementText: "Schwellwert", tooltip: "Minimum Küsse die behalten bleiben" };
+HHAuto_ToolTips.de['seasonFocusSelector'] = { version: "8.5.0", elementText: "Season-Fokus", tooltip: "Wähle, worauf die Season-Kämpfe ausgerichtet werden (nützlich für Love Raids):<br>• Alle Kämpfe: keine Einschränkung, es wird immer gekämpft.<br>• Event-Girl: nur kämpfen, solange die Shards des Girls unvollständig sind; Gegner, die nur Skin-Shards geben, werden übersprungen.<br>• Girl + Skin: kämpfen, solange das Girl oder sein Skin noch zu gewinnen ist.<br>Unterhalb des eingestellten Max-Tiers wird immer gekämpft. Die Skin-Erkennung nutzt die Love-Raid-Daten der Raid-Seite.<br>Die Season-Belohnungen (Tier) werden nicht berücksichtigt" };
+HHAuto_ToolTips.de['seasonFocusAll'] = { version: "8.5.0", elementText: "Alle Kämpfe" };
+HHAuto_ToolTips.de['seasonFocusGirl'] = { version: "8.5.0", elementText: "Event-Girl" };
+HHAuto_ToolTips.de['seasonFocusGirlSkin'] = { version: "8.5.0", elementText: "Girl + Skin" };
 HHAuto_ToolTips.de['autoQuest'] = { version: "5.6.24", elementText: "AutoQuest", tooltip: "Wenn aktiv : Macht automatisch Quests" };
 HHAuto_ToolTips.de['autoQuestThreshold'] = { version: "5.6.24", elementText: "Schwellwert", tooltip: "Minimum an Energie die behalten bleibt" };
 HHAuto_ToolTips.de['autoContest'] = { version: "5.6.24", elementText: "AutoAufgabe", tooltip: "Wenn aktiv : Sammelt abgeschlossene Aufgabenbelohnungen ein" };
@@ -1102,7 +1109,7 @@ const SK = {
     autoSeasonCollect: "Setting_autoSeasonCollect",
     autoSeasonCollectAll: "Setting_autoSeasonCollectAll",
     autoSeasonCollectablesList: "Setting_autoSeasonCollectablesList",
-    autoSeasonIgnoreNoGirls: "Setting_autoSeasonIgnoreNoGirls",
+    autoSeasonFocus: "Setting_autoSeasonIgnoreNoGirls", // now stores a focus mode (off|girl|girlAndSkin) instead of boolean
     autoSeasonPassReds: "Setting_autoSeasonPassReds",
     autoSeasonSkipLowMojo: "Setting_autoSeasonSkipLowMojo",
     seasonDisplayPowerCalc: "Setting_seasonDisplayPowerCalc",
@@ -2309,16 +2316,18 @@ HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonCollectAll] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls] =
+HHStoredVars[HHStoredVarPrefixKey + SK.autoSeasonFocus] =
     {
-        default: "false",
+        default: "off",
         storage: "Storage()",
         HHType: "Setting",
-        valueType: "Boolean",
+        valueType: "String",
+        customMenuID: "seasonFocusSelector",
         getMenu: true,
         setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
+        menuType: "value",
+        kobanUsing: false,
+        isValid: /^(off|girl|girlAndSkin)$/
     };
 HHStoredVars[HHStoredVarPrefixKey + SK.seasonDisplayPowerCalc] =
     {
@@ -11519,6 +11528,7 @@ var Season_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _a
 
 
 
+
 class Season {
     static getRemainingTime() {
         const seasonTimer = unsafeWindow.season_sec_untill_event_end;
@@ -11778,6 +11788,27 @@ class Season {
         }
         return { numberOfReds, chosenIndex };
     }
+    /**
+     * True when every girl in the opponent's fight rewards is already fully
+     * owned according to the parsed love-raid data, i.e. the displayed
+     * girl reward can only be a skin. Falls back to false (treat the reward
+     * as a girl) when the reward format or a girl is unknown or no season
+     * raid data is stored, so stale raid data never blocks fights.
+     */
+    static isRewardSkinOnly(dataRewardsList) {
+        const rewardGirls = [];
+        for (const dataRewards of dataRewardsList) {
+            const parsed = safeJsonParse(dataRewards, []);
+            if (Array.isArray(parsed))
+                rewardGirls.push(...parsed);
+        }
+        if (rewardGirls.length === 0)
+            return false;
+        const seasonRaids = LoveRaidManager.getSeasonRaids();
+        if (seasonRaids.length === 0)
+            return false;
+        return rewardGirls.every(rewardGirl => seasonRaids.some(raid => Number(raid.id_girl) === Number(rewardGirl === null || rewardGirl === void 0 ? void 0 : rewardGirl.id_girl) && raid.girl_shards >= 100));
+    }
     static run() {
         return Season_awaiter(this, void 0, void 0, function* () {
             logHHAuto("Performing auto Season.");
@@ -11789,15 +11820,16 @@ class Season {
                 Season.stylesBattle();
                 const isMaxTierSet = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonMaxTier) === "true";
                 const maxTier = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonMaxTierNb) || Season.LAST_SEASON_LEVEL;
-                const stopIfNoEventGirl = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls) === "true";
+                const seasonFocus = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonFocus) || "off";
+                const focusOnGirls = seasonFocus === "girl" || seasonFocus === "girlAndSkin";
                 const maxTierReached = isMaxTierSet && Season.getTierLevel() >= maxTier;
-                if (maxTierReached && !stopIfNoEventGirl) {
+                if (maxTierReached && !focusOnGirls) {
                     logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}), not fighting anymore in season.`);
                     setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
                     return true;
                 }
-                if (maxTierReached && stopIfNoEventGirl) {
-                    logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}) but "Stop if no event girl" enabled, will check for event girls.`);
+                if (maxTierReached && focusOnGirls) {
+                    logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}) but Season focus "${seasonFocus}" enabled, will check for event girls.`);
                 }
                 var chosenID = yield Season.moduleSimSeasonBattle(true);
                 if (chosenID === undefined || chosenID === null) {
@@ -11842,7 +11874,15 @@ class Season {
                     if (girlShardsReward.length > 0) {
                         logHHAuto("Girl shard reward found for chosen opponent");
                     }
-                    if (stopIfNoEventGirl && girlShardsReward.length <= 0) {
+                    let hasWantedGirlReward = girlShardsReward.length > 0;
+                    if (hasWantedGirlReward && seasonFocus === "girl") {
+                        const dataRewardsList = girlShardsReward.map((_index, slot) => $(slot).attr('data-rewards') || '').get();
+                        if (Season.isRewardSkinOnly(dataRewardsList)) {
+                            logHHAuto("Season focus 'girl': girl already won, remaining fight reward is her skin.");
+                            hasWantedGirlReward = false;
+                        }
+                    }
+                    if (focusOnGirls && !hasWantedGirlReward) {
                         if (!isMaxTierSet || maxTierReached) {
                             logHHAuto("Ignoring season fights as no girl to win on fight reward");
                             setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
@@ -14474,8 +14514,9 @@ class ParanoiaService {
             }
             //if autoSeason is on
             if (ConfigHelper.getHHScriptVars('isEnabledSeason', false) && getStoredValue(HHStoredVarPrefixKey + SK.autoSeason) === "true") {
-                if (getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls) === "true") {
-                    logHHAuto('Season auto is on but ignore fights when no girls to win, no spending kisses.');
+                const seasonFocus = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonFocus);
+                if (seasonFocus === "girl" || seasonFocus === "girlAndSkin") {
+                    logHHAuto('Season auto is on but Season focus restricts fights, no spending kisses.');
                 }
                 else {
                     maxPointsDuringParanoia = Math.ceil((toNextSwitch - Number(getHHVars('Hero.energies.kiss.next_refresh_ts'))) / Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
@@ -25845,7 +25886,7 @@ function buildMiddleColumn(debugEnabled) {
         + hhMenuSwitch('autoSeason')
         + hhMenuSwitch('autoSeasonCollect')
         + hhMenuSwitch('autoSeasonCollectAll')
-        + hhMenuSwitch('autoSeasonIgnoreNoGirls')
+        + hhMenuSelect('seasonFocusSelector', 'width:85px;')
         + `</div>`
         + `<div class="internalOptionsRow">`
         + `<div style="${debugEnabled ? '' : 'display:none;'}">` // #1533 hidden: 0% usage in survey (168 responses). Remove div wrapper to restore.
@@ -26360,6 +26401,12 @@ class HHMenu {
         raidStarsOptions.add(this._createHtmlOption('exact3', getTextForUI("raidStarsExact3", "elementText")));
         raidStarsOptions.add(this._createHtmlOption('min3', getTextForUI("raidStarsMin3", "elementText")));
         raidStarsOptions.add(this._createHtmlOption('exact5', getTextForUI("raidStarsExact5", "elementText")));
+    }
+    fillSeasonFocusMenu() {
+        var focusOptions = document.getElementById("seasonFocusSelector");
+        focusOptions.add(this._createHtmlOption('off', getTextForUI("seasonFocusAll", "elementText")));
+        focusOptions.add(this._createHtmlOption('girl', getTextForUI("seasonFocusGirl", "elementText")));
+        focusOptions.add(this._createHtmlOption('girlAndSkin', getTextForUI("seasonFocusGirlSkin", "elementText")));
     }
     fillLabyDifficultyMenu() {
         var sortsOptions = document.getElementById("autoLabyDifficulty");
@@ -28473,6 +28520,20 @@ function start() {
             logHHAuto("Migrated +Raid Stars value '" + raidStarsVal + "' → '" + selectionMap[raidStarsVal] + "'");
         }
     }
+    // Migrate Season focus stored value to string-based selection (runs every load).
+    // Handles the old boolean "Ignore if no event girls" switch: "true" kept
+    // fighting for girls AND skins, so it maps to "girlAndSkin".
+    const seasonFocusVal = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonFocus);
+    if (seasonFocusVal !== undefined && seasonFocusVal !== null) {
+        const focusMap = {
+            "true": "girlAndSkin", "false": "off"
+            // "off","girl","girlAndSkin" are already valid
+        };
+        if (focusMap[seasonFocusVal] !== undefined) {
+            setStoredValue(HHStoredVarPrefixKey + SK.autoSeasonFocus, focusMap[seasonFocusVal]);
+            logHHAuto("Migrated Season focus value '" + seasonFocusVal + "' → '" + focusMap[seasonFocusVal] + "'");
+        }
+    }
     StartService_setDefaults();
     if (getStoredValue(HHStoredVarPrefixKey + SK.mousePause) === "true") {
         bindMouseEvents();
@@ -28515,6 +28576,7 @@ function start() {
     hhAutoMenu.fillTrollSelectMenu(lastTrollIdAvailable);
     hhAutoMenu.fillLoveRaidSelectMenu();
     hhAutoMenu.fillRaidStarsMenu();
+    hhAutoMenu.fillSeasonFocusMenu();
     // Add league options
     hhAutoMenu.fillLeagueSelectMenu();
     hhAutoMenu.fillLeaguSortMenu();

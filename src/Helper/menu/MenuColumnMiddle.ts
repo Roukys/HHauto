@@ -121,7 +121,7 @@ export function buildMiddleColumn(debugEnabled: boolean): string {
                             + hhMenuSwitch('autoSeason')
                             + hhMenuSwitch('autoSeasonCollect')
                             + hhMenuSwitch('autoSeasonCollectAll')
-                            + hhMenuSwitch('autoSeasonIgnoreNoGirls')
+                            + hhMenuSelect('seasonFocusSelector', 'width:85px;')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + `<div style="${debugEnabled ? '' : 'display:none;'}">` // #1533 hidden: 0% usage in survey (168 responses). Remove div wrapper to restore.

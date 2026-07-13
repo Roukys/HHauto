@@ -24,12 +24,13 @@ import { checkTimer, getSecondsLeft, getTimeLeft, setTimer } from "../../Helper/
 import { addNutakuSession, gotoPage, safeNavigateHref, safeReload } from "../../Service/PageNavigationService";
 import { ParanoiaService } from "../../Service/ParanoiaService";
 import { logHHAuto } from "../../Utils/LogUtils";
-import { getHHAjax } from "../../Utils/Utils";
+import { getHHAjax, safeJsonParse } from "../../Utils/Utils";
 import { HHStoredVarPrefixKey } from "../../config/HHStoredVars";
 import { SK, TK } from "../../config/StorageKeys";
 import { SeasonOpponent } from "../../model/SeasonOpponent";
 import { Booster } from "../Booster";
 import { EventModule } from "./EventModule";
+import { LoveRaidManager } from "./LoveRaidManager";
 
 export class Season {
     static LAST_SEASON_LEVEL = 63;
@@ -331,6 +332,26 @@ export class Season {
         return { numberOfReds, chosenIndex };
     }
 
+    /**
+     * True when every girl in the opponent's fight rewards is already fully
+     * owned according to the parsed love-raid data, i.e. the displayed
+     * girl reward can only be a skin. Falls back to false (treat the reward
+     * as a girl) when the reward format or a girl is unknown or no season
+     * raid data is stored, so stale raid data never blocks fights.
+     */
+    static isRewardSkinOnly(dataRewardsList: string[]): boolean {
+        const rewardGirls: { id_girl?: number | string }[] = [];
+        for (const dataRewards of dataRewardsList) {
+            const parsed = safeJsonParse<{ id_girl?: number | string }[]>(dataRewards, []);
+            if (Array.isArray(parsed)) rewardGirls.push(...parsed);
+        }
+        if (rewardGirls.length === 0) return false;
+        const seasonRaids = LoveRaidManager.getSeasonRaids();
+        if (seasonRaids.length === 0) return false;
+        return rewardGirls.every(rewardGirl => seasonRaids.some(raid =>
+            Number(raid.id_girl) === Number(rewardGirl?.id_girl) && raid.girl_shards >= 100));
+    }
+
     static async run(): Promise<any>{
         logHHAuto("Performing auto Season.");
         // Confirm if on correct screen.
@@ -343,15 +364,16 @@ export class Season {
 
             const isMaxTierSet = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonMaxTier) === "true";
             const maxTier = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonMaxTierNb) || Season.LAST_SEASON_LEVEL;
-            const stopIfNoEventGirl = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls) === "true";
+            const seasonFocus = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonFocus) || "off";
+            const focusOnGirls = seasonFocus === "girl" || seasonFocus === "girlAndSkin";
             const maxTierReached = isMaxTierSet && Season.getTierLevel() >= maxTier;
-            if (maxTierReached && !stopIfNoEventGirl) {
+            if (maxTierReached && !focusOnGirls) {
                 logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}), not fighting anymore in season.`);
                 setTimer('nextSeasonTime', randomInterval(30*60, 35*60));
                 return true;
             }
-            if (maxTierReached && stopIfNoEventGirl) {
-                logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}) but "Stop if no event girl" enabled, will check for event girls.`);
+            if (maxTierReached && focusOnGirls) {
+                logHHAuto(`Max tier reached (${Season.getTierLevel()} >= ${maxTier}) but Season focus "${seasonFocus}" enabled, will check for event girls.`);
             }
 
             var chosenID = await Season.moduleSimSeasonBattle(true);
@@ -403,7 +425,15 @@ export class Season {
 
                 const girlShardsReward = $(".slot.girl_ico[data-rewards]", opponentBlock);
                 if (girlShardsReward.length > 0) { logHHAuto("Girl shard reward found for chosen opponent"); }
-                if (stopIfNoEventGirl && girlShardsReward.length <= 0) {
+                let hasWantedGirlReward = girlShardsReward.length > 0;
+                if (hasWantedGirlReward && seasonFocus === "girl") {
+                    const dataRewardsList = girlShardsReward.map((_index, slot) => $(slot).attr('data-rewards') || '').get();
+                    if (Season.isRewardSkinOnly(dataRewardsList)) {
+                        logHHAuto("Season focus 'girl': girl already won, remaining fight reward is her skin.");
+                        hasWantedGirlReward = false;
+                    }
+                }
+                if (focusOnGirls && !hasWantedGirlReward) {
                     if (!isMaxTierSet || maxTierReached) {
                         logHHAuto("Ignoring season fights as no girl to win on fight reward");
                         setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));

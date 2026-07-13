@@ -176,8 +176,9 @@ export class ParanoiaService {
             }
             //if autoSeason is on
             if (ConfigHelper.getHHScriptVars('isEnabledSeason', false) && getStoredValue(HHStoredVarPrefixKey + SK.autoSeason) === "true") {
-                if (getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonIgnoreNoGirls) === "true") {
-                    logHHAuto('Season auto is on but ignore fights when no girls to win, no spending kisses.')
+                const seasonFocus = getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonFocus);
+                if (seasonFocus === "girl" || seasonFocus === "girlAndSkin") {
+                    logHHAuto('Season auto is on but Season focus restricts fights, no spending kisses.')
                 } else {
                 maxPointsDuringParanoia = Math.ceil((toNextSwitch - Number(getHHVars('Hero.energies.kiss.next_refresh_ts'))) / Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
                 currentEnergy = Season.getEnergy();
