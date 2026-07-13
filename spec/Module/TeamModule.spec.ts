@@ -66,7 +66,7 @@ describe('TeamModule.mapAvailableGirl -- TM-C raw->GirlData mapping', () => {
         expect(g.eyeColor).toBe('00F');
         expect(g.zodiac).toBe('GLYPH Belier');
         expect(g.position).toBe('5'); // .png stripped
-        expect((g as any).can_be_blessed).toBe(true);
+        expect(g.can_be_blessed_league).toBe(true);
     });
 
     it('prefers element_data.type over element, falls back to fire', () => {
@@ -88,6 +88,14 @@ describe('TeamModule.mapAvailableGirl -- TM-C raw->GirlData mapping', () => {
 
     it('omits can_be_blessed flags when not boolean', () => {
         const g = TeamModule.mapAvailableGirl({ id_girl: 9, can_be_blessed: 'yes' as any });
-        expect('can_be_blessed' in (g as any)).toBe(false);
+        expect('can_be_blessed_league' in g).toBe(false);
+    });
+
+    it('maps both game flags to the speaking per-context names', () => {
+        const g = TeamModule.mapAvailableGirl({
+            id_girl: 10, can_be_blessed: false, can_be_blessed_pvp4: true,
+        });
+        expect(g.can_be_blessed_league).toBe(false);
+        expect(g.can_be_blessed_labyrinth).toBe(true);
     });
 });

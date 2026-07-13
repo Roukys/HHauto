@@ -7,6 +7,27 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.5.1 - Team builder no longer counts the labyrinth Role blessing as a league blessing
+
+- The game keeps two blessing sets per girl: `pvp_v3` (the two weekly
+  league blessings) and `pvp_v4` (the same plus the weekly Role blessing,
+  which only applies in the Love Labyrinth). The blessing helpers used to
+  prefer `pvp_v4`, so every girl carrying only the Role blessing counted
+  as blessed for league team building — inflating the "blessed" leader
+  tiebreak, the blessed-girl counts in the info panel / mythic audit, and
+  feeding a phantom percent group into the blessing detection.
+- `BlessingService` now takes an explicit context: league lookups read
+  `pvp_v3` only, labyrinth lookups read `pvp_v4` only, with no fallback
+  across the two. The team builder always uses the league context.
+- The game flags are mapped to speaking names: `can_be_blessed` →
+  `can_be_blessed_league`, `can_be_blessed_pvp4` →
+  `can_be_blessed_labyrinth`. An explicit `false` from the game is now
+  respected instead of being overridden by the other set's data.
+- Verified against anonymized account dumps (fixtures) and a live dump:
+  the `pvp_v3`↔`pvp_v4` delta is exactly the weekly Role blessing.
+  Detected league blessings and the built teams stay identical in the
+  fixture weeks; only the blessed counts and diagnostics become accurate.
+
 ### v8.5.0 - Season focus: choose between all fights, event girl only, or girl + skin
 
 - The Season switch "Ignore if no event girls" is now a three-way "Season
