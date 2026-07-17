@@ -443,6 +443,35 @@ describe("Troll module", function () {
             expect(TTF).toBe(4);
         });
 
+        it("rebuilds trollWithGirls from the current harem, ignoring a stale cache (issue #1780)", function () {
+            localStorage.setItem(HHStoredVarPrefixKey + SK.autoTrollBattle, 'true');
+            localStorage.setItem(HHStoredVarPrefixKey + SK.autoTrollSelectedIndex, '99'); // last troll with girl
+            // Stale snapshot from earlier in the session: every troll still flagged
+            // as having unfinished girls.
+            sessionStorage.setItem(HHStoredVarPrefixKey + TK.trollWithGirls, JSON.stringify([1, 1, 1, 1, 1]));
+            // Current harem: all troll girls owned -> fresh snapshot is all zeros.
+            jest.spyOn(Troll, 'getTrollWithGirls').mockReturnValue([0, 0, 0, 0, 0]);
+
+            const TTF = Troll.getTrollIdToFight(false);
+
+            // Fresh snapshot wins over the stale cache: no troll target left, so
+            // the caller (e.g. Love Raids) gets its turn instead of re-fighting a
+            // fully-farmed troll.
+            expect(TTF).toBe(0);
+        });
+
+        it("uses the freshly rebuilt trollWithGirls to pick the last troll that still has a girl", function () {
+            localStorage.setItem(HHStoredVarPrefixKey + SK.autoTrollBattle, 'true');
+            localStorage.setItem(HHStoredVarPrefixKey + SK.autoTrollSelectedIndex, '99'); // last troll with girl
+            sessionStorage.setItem(HHStoredVarPrefixKey + TK.trollWithGirls, JSON.stringify([0, 0, 0, 0, 0]));
+            // Fresh harem: only troll 3 still has an unfinished girl.
+            jest.spyOn(Troll, 'getTrollWithGirls').mockReturnValue([0, 0, 1, 0, 0]);
+
+            const TTF = Troll.getTrollIdToFight(false);
+
+            expect(TTF).toBe(3);
+        });
+
         it("returns custom troll index when autoTrollSelectedIndex set (1-97)", function () {
             localStorage.setItem(HHStoredVarPrefixKey + SK.autoTrollBattle, 'true');
             localStorage.setItem(HHStoredVarPrefixKey + SK.autoTrollSelectedIndex, '3');

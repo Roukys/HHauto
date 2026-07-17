@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.5.3
+// @version      8.5.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -24933,21 +24933,28 @@ class Troll {
             TTF = Troll.getTrollIdFromEvent(eventGirl);
         }
         else if (getStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle) === "true" && (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99)) {
-            if (trollWithGirls === undefined || trollWithGirls.length === 0) {
-                if (logging)
-                    LogUtils_logHHAuto("No troll with girls from storage, parsing game info ...");
-                trollWithGirls = Troll.getTrollWithGirls();
-                if (trollWithGirls.length === 0) {
-                    if (logging)
-                        LogUtils_logHHAuto("Need girls list, going to Waifu page to get them");
-                    if (!allowSideEffects)
-                        return 0;
-                    setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
-                    return -1;
-                }
+            // Rebuild the "troll with girls" snapshot from the current harem
+            // whenever the girl list is available, instead of caching it once for
+            // the whole browser-tab lifetime. The old code only built it when the
+            // cache was empty, so girls completed later were never reflected: a
+            // fully-farmed troll kept being selected and Love Raids never got a
+            // turn (issue #1780). getTrollWithGirls() returns a non-empty array
+            // only when the girl list is loaded; otherwise fall back to the cached
+            // snapshot, or fetch the list from the Waifu page.
+            const freshTrollWithGirls = Troll.getTrollWithGirls();
+            if (freshTrollWithGirls.length > 0) {
+                trollWithGirls = freshTrollWithGirls;
                 if (allowSideEffects)
                     setStoredValue(HHStoredVarPrefixKey + TK.trollWithGirls, JSON.stringify(trollWithGirls));
+            }
+            else if (trollWithGirls === undefined || trollWithGirls.length === 0) {
+                if (logging)
+                    LogUtils_logHHAuto("Need girls list, going to Waifu page to get them");
+                if (!allowSideEffects)
+                    return 0;
+                setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
+                return -1;
             }
             if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
                 if (autoTrollSelectedIndex === 98) {
