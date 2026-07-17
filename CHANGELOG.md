@@ -7,6 +7,18 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.5.2 - Main and side quest no longer switch themselves off at the newest quest
+
+- When you had reached the newest available main quest, the bot could
+  navigate onto that final quest screen, fail to find a proceed button,
+  and switch both the main-quest and side-quest auto-settings off - even
+  right after you re-enabled them. This is the same self-disable that was
+  addressed once before; it returned as soon as the game added quests
+  beyond the last quest id the script knew about.
+- The bot now recognizes when you are at or beyond the newest known quest
+  and waits for new content instead of treating that screen as an error,
+  so both auto-settings stay on. Other games already behaved this way.
+
 ### v8.5.1 - Team builder no longer counts the labyrinth Role blessing as a league blessing
 
 - The game keeps two blessing sets per girl: `pvp_v3` (the two weekly

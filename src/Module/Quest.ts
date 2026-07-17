@@ -55,8 +55,16 @@ export class QuestHelper {
         const lastQuestId:number = ConfigHelper.getHHScriptVars("lastQuestId",false);
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
 
-        if (id_world < (trollz.length) || lastQuestId > 0 && id_quest != lastQuestId) {
-            // Fix when KK quest url is world url
+        // Fix when KK quest url is world url: force the direct /quest/<id>
+        // URL only while the player still has a known next main quest ahead.
+        // Use `<` (not `!=`) against lastQuestId: once id_quest reaches or
+        // passes our last-known quest id, trust the game's current_url (a world
+        // url at end-of-content) instead of forcing navigation into the newest
+        // quest screen. A stale lastQuestId (game added quests we do not know
+        // about yet) otherwise force-navigates onto that end-of-content screen,
+        // where the unrecognized button trips the unknownQuestButton path and
+        // switches auto main/side quest off (regression of the issue #1773 fix).
+        if (id_world < (trollz.length) || (lastQuestId > 0 && id_quest < lastQuestId)) {
             mainQuestUrl = "/quest/" + id_quest;
         }
         return mainQuestUrl;
