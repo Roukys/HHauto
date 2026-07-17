@@ -1656,22 +1656,62 @@ const handleBossBangFight: HandlerConfig = {
   precondition: (ctx) => {
     if (ctx.busy) return false;
     if (ConfigHelper.getHHScriptVars('isEnabledBossBangEvent', false) !== true) return false;
-    if (getStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent) !== 'true') return false;
     if (getStoredValue(HHStoredVarPrefixKey + TK.autoLoop) !== 'true') return false;
     if (ctx.lastActionPerformed !== 'none' && ctx.lastActionPerformed !== 'bossBang') return false;
-    if (!checkTimer('nextBossBangTime')) return false;
     const onEvent = ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDEvent');
+    const onBattlePage = ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDBossBang');
+    // Reward phase (issue #1455): boss bang is build -> fight -> rewards. The
+    // tiered milestone rewards become claimable on the event page once the boss
+    // is defeated -- which is AFTER BossBang.parse auto-disables the fight
+    // setting. So claiming is gated on the FEATURE, not on the fight setting,
+    // and NOT on the fight back-off timer (goToFightPage arms nextBossBangTime
+    // on a finished event); otherwise the rewards are never collected.
+    if (onEvent && $(BossBang.PROGRESS_REWARD_SELECTOR).length > 0) return true;
+    // Fight phase: needs the user setting on and the fight back-off timer elapsed.
+    if (getStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent) !== 'true') return false;
+    if (!checkTimer('nextBossBangTime')) return false;
     const hasIncompleteOnPage = onEvent && $('#contains_all #events #boss_bang .completed-event').length === 0;
     const hasFightTarget = ctx.bossBangEventIDs.length > 0 && !onEvent;
-    return hasFightTarget || hasIncompleteOnPage;
+    // onBattlePage keeps the held run alive on the boss-bang-battle page so the
+    // scheduler's gate-hold-return precondition re-check does not release the
+    // slot mid-sequence.
+    return hasFightTarget || hasIncompleteOnPage || onBattlePage;
   },
   steps: [{
     name: 'fightBossBang',
     fn: async (ctx) => {
       try {
-        logHHAuto('Going to fight boss bang.');
-        ctx.busy = await BossBang.goToFightPage(ctx.bossBangEventIDs[0]);
-        ctx.lastActionPerformed = 'bossBang';
+        const onBattlePage = ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDBossBang');
+        if (onBattlePage) {
+          // Own the battle page as part of the held run (issue #1455): drive the
+          // skip/claim best-effort and keep the slot on repeat so no other block
+          // navigates away between fights. The game itself returns to the event
+          // page after each fight; termination happens there -- BossBang.parse
+          // disables the setting once the event shows completed (or arms the
+          // back-off timer when no attempt is left), which flips this block's
+          // precondition false and releases the slot. autoLoop stays 'true'
+          // (skipFightPage no longer flips it), otherwise BlockScheduler.tick
+          // would discard the held run.
+          await BossBang.skipFightPage();
+          ctx.lastActionPerformed = 'bossBang';
+          ctx.busy = true; // applySlotHold: busy -> repeat -> keep the slot
+          return { ok: true };
+        }
+        // Reward phase: on the event page, collect the milestone/progress rewards
+        // the simple way. BossBang.collectProgressRewards clicks each claim button
+        // then returns home (like the other collectors); it sets autoLoop=false
+        // and drives the clicks + go-home itself, so we just release here.
+        if (ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDEvent') && BossBang.collectProgressRewards()) {
+          ctx.lastActionPerformed = 'bossBang';
+          return { ok: true };
+        }
+        // Fight phase only while the user setting is on; when it is off we are here
+        // purely to finish claiming rewards, so release once none remain.
+        if (getStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent) === 'true') {
+          logHHAuto('Going to fight boss bang.');
+          ctx.busy = await BossBang.goToFightPage(ctx.bossBangEventIDs[0]);
+          ctx.lastActionPerformed = 'bossBang';
+        }
         return { ok: true };
       } catch (err) {
         return { ok: false, reason: String(err), retryable: true };

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.5.2
+// @version      8.5.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9489,8 +9489,17 @@ class BossBang {
             // setTimer('nextBossBangTime', randomInterval(30, 60) * 60); // 30 to 60 minutes
         }
         else if (eventList[eventID]["isCompleted"]) {
-            LogUtils_logHHAuto("Boss bang completed, disabled boss bang event setting");
-            setStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent, false);
+            // Keep the setting on while milestone rewards are still claimable, so
+            // handleBossBangFight stays eligible to claim them after the boss is
+            // defeated (issue #1455). Disable only once nothing is left to claim.
+            const unclaimedRewards = $(BossBang.PROGRESS_REWARD_SELECTOR).length;
+            if (unclaimedRewards > 0) {
+                LogUtils_logHHAuto("Boss bang completed, " + unclaimedRewards + " progress reward(s) still to claim before disabling.");
+            }
+            else {
+                LogUtils_logHHAuto("Boss bang completed, disabled boss bang event setting");
+                setStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent, false);
+            }
         }
         else {
             LogUtils_logHHAuto(`No eligible team found for boss bang event, need team ${firstTeamToStartWith} or higher`);
@@ -9499,23 +9508,23 @@ class BossBang {
             setStoredValue(HHStoredVarPrefixKey + TK.bossBangTeam, -1);
         }
     }
+    // Drives one step of the boss-bang battle sequence: claim a pending reward
+    // popup or click the next skip button. Returns true while the sequence is
+    // still in progress (an action was taken, or a POST is deferred and should
+    // be retried), false when neither button is present after AJAX idle -- i.e.
+    // the sequence is finished. The handleBossBangFight pipeline block re-enters
+    // this each tick and holds the scheduler slot on repeat (issue #1455), so
+    // this no longer sets autoLoop=false or self-reschedules via setTimeout.
     static skipFightPage() {
         return BossBang_awaiter(this, void 0, void 0, function* () {
             const rewardsButton = $('#rewards_popup .blue_button_L:not([disabled]):visible');
             const skipFightButton = $('#battle #new-battle-skip-btn:not([disabled]):visible');
             if (rewardsButton.length > 0) {
-                // >>> ADR-003 / issue #1598 - bossbang:rewards begin
-                // CLEANUP-MODE (when stable): remove only the two marker comment lines.
-                // REVERT-MODE (if unstable): replace this whole block, including the markers,
-                // with the pre-fix code:
-                //     logHHAuto("Click get rewards bang fight");
-                //     rewardsButton.trigger('click');
-                //     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                // and (if no other ADR-003 block remains) drop the imports/markers above.
+                // ADR-003 / issue #1598: serialize the claim POST via the global mutex
+                // and wait for AJAX idle + server settle before yielding the tick.
                 if (!acquirePostMutex('bossbang:rewards')) {
                     LogUtils_logHHAuto('BossBang: another POST in flight, deferring rewards click');
-                    setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                    return;
+                    return true;
                 }
                 LogUtils_logHHAuto("Click get rewards bang fight");
                 const claimStart = Date.now();
@@ -9523,27 +9532,18 @@ class BossBang {
                 const idle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
                 const claimDuration = Date.now() - claimStart;
                 releasePostMutex();
-                setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 if (idle)
                     yield awaitServerSettleAfterPost(claimDuration);
                 else
                     LogUtils_logHHAuto('BossBang: rewards AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
-                // <<< ADR-003 / issue #1598 - bossbang:rewards end
+                return true;
             }
             else if (skipFightButton.length > 0) {
-                // >>> ADR-003 / issue #1598 - bossbang:skipFight begin
-                // CLEANUP-MODE (when stable): remove only the two marker comment lines.
-                // REVERT-MODE (if unstable): replace this whole block, including the markers,
-                // with the pre-fix code:
-                //     logHHAuto("Click skip boss bang fight");
-                //     skipFightButton.trigger('click');
-                //     setTimeout(BossBang.skipFightPage, randomInterval(1300, 1900));
-                //     setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                // and (if no other ADR-003 block remains) drop the imports/markers above.
+                // ADR-003 / issue #1598: serialize the skip POST via the global mutex
+                // and wait for AJAX idle + server settle before yielding the tick.
                 if (!acquirePostMutex('bossbang:skipFight')) {
                     LogUtils_logHHAuto('BossBang: another POST in flight, deferring skip click');
-                    setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                    return;
+                    return true;
                 }
                 LogUtils_logHHAuto("Click skip boss bang fight");
                 const claimStart = Date.now();
@@ -9551,15 +9551,41 @@ class BossBang {
                 const idle = yield waitForAjaxIdle(AJAX_IDLE_TIMEOUT_MS, AJAX_IDLE_SETTLE_MS);
                 const claimDuration = Date.now() - claimStart;
                 releasePostMutex();
-                setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
                 if (idle)
                     yield awaitServerSettleAfterPost(claimDuration);
                 else
                     LogUtils_logHHAuto('BossBang: skip AJAX still busy after ' + AJAX_IDLE_TIMEOUT_MS + 'ms, skipping settle');
-                setTimeout(BossBang.skipFightPage, randomInterval(1300, 1900));
-                // <<< ADR-003 / issue #1598 - bossbang:skipFight end
+                return true;
             }
+            return false;
         });
+    }
+    // Collects the boss-bang milestone/progress-bar rewards the same simple way
+    // the other collectors do (PathOfValue / DailyGoals): click each claim
+    // button in turn with a small delay, then go home. No slot-hold and no POST
+    // mutex -- a plain click, like every other reward button (issue #1455).
+    // Sets autoLoop=false while collecting (the scheduler pauses); the final
+    // gotoPage(home) restores it. Returns true if a collection run was started.
+    static collectProgressRewards() {
+        const buttons = $(BossBang.PROGRESS_REWARD_SELECTOR).toArray();
+        if (buttons.length === 0)
+            return false;
+        LogUtils_logHHAuto("Collecting boss bang progress rewards, " + buttons.length + " tier(s) available.");
+        setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
+        function collect() {
+            var _a;
+            if (buttons.length > 0) {
+                const button = buttons.shift();
+                LogUtils_logHHAuto("Collecting boss bang reward tier " + ((_a = button.getAttribute("tier")) !== null && _a !== void 0 ? _a : "?"));
+                button.click();
+                setTimeout(collect, randomInterval(300, 500));
+            }
+            else {
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+            }
+        }
+        collect();
+        return true;
     }
     static goToFightPage(bossbangEventID) {
         return BossBang_awaiter(this, void 0, void 0, function* () {
@@ -9599,6 +9625,11 @@ class BossBang {
         });
     }
 }
+// Milestone/progress-bar reward claim buttons on the boss-bang event
+// page (tiered "Claim" buttons that unlock as the club deals damage,
+// issue #1455). Kept as a shared constant so handleBossBangFight can
+// gate on their presence with the exact same selector.
+BossBang.PROGRESS_REWARD_SELECTOR = 'button[rel="claim"].progress-bar-claim-reward:not([disabled]):visible';
 
 ;// CONCATENATED MODULE: ./src/Module/Events/CumbackContests.ts
 // CumbackContests.ts -- Cumback Contest event handling and auto-collection.
@@ -22536,8 +22567,6 @@ var AutoLoopPageHandlers_awaiter = (undefined && undefined.__awaiter) || functio
 
 
 
-
-
 // Tracks whether the read-only Season-arena power-calc preview has already
 // been rendered on the current page load. Reset implicitly on every page
 // navigation (full reload re-initialises the module). Used instead of
@@ -22608,10 +22637,6 @@ function handlePageSpecific(ctx) {
                         EventModule.moduleDisplayEventPriority();
                         EventModule.hideOwnedGilrs();
                     }
-                    if (getStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent) === "true" && EventModule.getEvent(eventID).isBossBangEvent) {
-                        EventModule.parseEventPage(eventID);
-                        setTimeout(BossBang.goToFightPage, randomInterval(500, 1500));
-                    }
                     if (EventModule.getEvent(eventID).isPoa) {
                         PathOfAttraction.styles();
                         if (getStoredValue(HHStoredVarPrefixKey + SK.showClubButtonInPoa) === "true") {
@@ -22630,9 +22655,10 @@ function handlePageSpecific(ctx) {
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDBossBang"):
-                if (getStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent) === "true") {
-                    setTimeout(BossBang.skipFightPage, randomInterval(500, 1500));
-                }
+                // The boss-bang fight loop is driven by the handleBossBangFight
+                // pipeline block, which holds the scheduler slot on this page so no
+                // other block navigates away mid-sequence (issue #1455). No
+                // page-specific driver here.
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDPoA"):
                 if (getStoredValue(HHStoredVarPrefixKey + SK.AllMaskRewards) === "true") {
@@ -31526,26 +31552,67 @@ const handleBossBangFight = {
             return false;
         if (ConfigHelper.getHHScriptVars('isEnabledBossBangEvent', false) !== true)
             return false;
-        if (getStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent) !== 'true')
-            return false;
         if (getStoredValue(HHStoredVarPrefixKey + TK.autoLoop) !== 'true')
             return false;
         if (ctx.lastActionPerformed !== 'none' && ctx.lastActionPerformed !== 'bossBang')
             return false;
+        const onEvent = ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDEvent');
+        const onBattlePage = ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDBossBang');
+        // Reward phase (issue #1455): boss bang is build -> fight -> rewards. The
+        // tiered milestone rewards become claimable on the event page once the boss
+        // is defeated -- which is AFTER BossBang.parse auto-disables the fight
+        // setting. So claiming is gated on the FEATURE, not on the fight setting,
+        // and NOT on the fight back-off timer (goToFightPage arms nextBossBangTime
+        // on a finished event); otherwise the rewards are never collected.
+        if (onEvent && $(BossBang.PROGRESS_REWARD_SELECTOR).length > 0)
+            return true;
+        // Fight phase: needs the user setting on and the fight back-off timer elapsed.
+        if (getStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent) !== 'true')
+            return false;
         if (!checkTimer('nextBossBangTime'))
             return false;
-        const onEvent = ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDEvent');
         const hasIncompleteOnPage = onEvent && $('#contains_all #events #boss_bang .completed-event').length === 0;
         const hasFightTarget = ctx.bossBangEventIDs.length > 0 && !onEvent;
-        return hasFightTarget || hasIncompleteOnPage;
+        // onBattlePage keeps the held run alive on the boss-bang-battle page so the
+        // scheduler's gate-hold-return precondition re-check does not release the
+        // slot mid-sequence.
+        return hasFightTarget || hasIncompleteOnPage || onBattlePage;
     },
     steps: [{
             name: 'fightBossBang',
             fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
                 try {
-                    LogUtils_logHHAuto('Going to fight boss bang.');
-                    ctx.busy = yield BossBang.goToFightPage(ctx.bossBangEventIDs[0]);
-                    ctx.lastActionPerformed = 'bossBang';
+                    const onBattlePage = ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDBossBang');
+                    if (onBattlePage) {
+                        // Own the battle page as part of the held run (issue #1455): drive the
+                        // skip/claim best-effort and keep the slot on repeat so no other block
+                        // navigates away between fights. The game itself returns to the event
+                        // page after each fight; termination happens there -- BossBang.parse
+                        // disables the setting once the event shows completed (or arms the
+                        // back-off timer when no attempt is left), which flips this block's
+                        // precondition false and releases the slot. autoLoop stays 'true'
+                        // (skipFightPage no longer flips it), otherwise BlockScheduler.tick
+                        // would discard the held run.
+                        yield BossBang.skipFightPage();
+                        ctx.lastActionPerformed = 'bossBang';
+                        ctx.busy = true; // applySlotHold: busy -> repeat -> keep the slot
+                        return { ok: true };
+                    }
+                    // Reward phase: on the event page, collect the milestone/progress rewards
+                    // the simple way. BossBang.collectProgressRewards clicks each claim button
+                    // then returns home (like the other collectors); it sets autoLoop=false
+                    // and drives the clicks + go-home itself, so we just release here.
+                    if (ctx.currentPage === ConfigHelper.getHHScriptVars('pagesIDEvent') && BossBang.collectProgressRewards()) {
+                        ctx.lastActionPerformed = 'bossBang';
+                        return { ok: true };
+                    }
+                    // Fight phase only while the user setting is on; when it is off we are here
+                    // purely to finish claiming rewards, so release once none remain.
+                    if (getStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent) === 'true') {
+                        LogUtils_logHHAuto('Going to fight boss bang.');
+                        ctx.busy = yield BossBang.goToFightPage(ctx.bossBangEventIDs[0]);
+                        ctx.lastActionPerformed = 'bossBang';
+                    }
                     return { ok: true };
                 }
                 catch (err) {
