@@ -7,6 +7,15 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.5.4 - "First/last troll with girl" no longer sticks on a finished troll
+
+- With the troll target set to "First troll with girl" or "Last troll with
+  girl", the bot could keep fighting a troll whose girls you had already
+  finished, and Love Raids never got their turn. The list of which trolls still
+  have girls was built once and kept for the whole browser session, so girls you
+  completed afterwards were not taken into account. That list is now rebuilt from
+  your current harem, so a finished troll is dropped and the bot moves on.
+
 ### v8.5.3 - Boss Bang runs all fights, collects rewards, and stays off when disabled
 
 - When the bot entered the Boss Bang battle screen, another due timer could
