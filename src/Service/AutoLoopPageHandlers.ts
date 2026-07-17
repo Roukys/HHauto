@@ -18,7 +18,6 @@ import { AutoLoopContext } from './AutoLoopContext';
 import { ConfigHelper } from "../Helper/ConfigHelper";
 import { RewardHelper } from "../Helper/RewardHelper";
 import { getStoredValue } from "../Helper/StorageHelper";
-import { randomInterval } from "../Helper/TimeHelper";
 import { checkTimer, getTimer } from "../Helper/TimerHelper";
 import { PentaDrill } from '../Module/PentaDrill';
 import { Spreadsheet } from '../Module/Spreadsheet';
@@ -29,7 +28,6 @@ import { Club } from "../Module/Club";
 import { ClubChampion } from "../Module/ClubChampion";
 import { Contest } from "../Module/Contest";
 import { DailyGoals, DailyGoalsIcon } from "../Module/DailyGoals";
-import { BossBang } from "../Module/Events/BossBang";
 import { DoublePenetration } from "../Module/Events/DoublePenetration";
 import { EventModule } from "../Module/Events/EventModule";
 import { LivelyScene } from "../Module/Events/LivelyScene";
@@ -130,12 +128,6 @@ export async function handlePageSpecific(ctx: AutoLoopContext): Promise<void> {
                     EventModule.hideOwnedGilrs();
                 }
 
-                if (getStoredValue(HHStoredVarPrefixKey+SK.bossBangEvent) === "true" && EventModule.getEvent(eventID).isBossBangEvent)
-                {
-                    EventModule.parseEventPage(eventID);
-                    setTimeout(BossBang.goToFightPage, randomInterval(500,1500));
-                }
-
                 if (EventModule.getEvent(eventID).isPoa)
                 {
                     PathOfAttraction.styles();
@@ -160,10 +152,10 @@ export async function handlePageSpecific(ctx: AutoLoopContext): Promise<void> {
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDBossBang"):
-            if (getStoredValue(HHStoredVarPrefixKey+SK.bossBangEvent) === "true")
-            {
-                setTimeout(BossBang.skipFightPage, randomInterval(500,1500));
-            }
+            // The boss-bang fight loop is driven by the handleBossBangFight
+            // pipeline block, which holds the scheduler slot on this page so no
+            // other block navigates away mid-sequence (issue #1455). No
+            // page-specific driver here.
             break;
         case ConfigHelper.getHHScriptVars("pagesIDPoA"):
             if (getStoredValue(HHStoredVarPrefixKey +SK.AllMaskRewards) === "true")
