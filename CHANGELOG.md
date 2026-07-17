@@ -7,6 +7,24 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.5.3 - Boss Bang runs all fights, collects rewards, and stays off when disabled
+
+- When the bot entered the Boss Bang battle screen, another due timer could
+  take over between fights and navigate away, so the battle screen vanished
+  and the bot never came back to finish the run. The bot now holds the Boss
+  Bang screens for the whole sequence and lets the game return to the event
+  page after each fight, ending only once the event is completed.
+- Boss Bang no longer starts a fight while the script is disabled. Opening the
+  Boss Bang event page kicked off a fight from a page-display handler that did
+  not check whether automation was on; that handler was removed, so the fight
+  only runs through the normal (gated) automation.
+- Boss Bang now collects the tiered milestone rewards from the event's progress
+  bar. Boss Bang has three phases -- team build, fight, rewards -- and the
+  rewards unlock once the boss is defeated, so reward collection runs as its own
+  phase, independent of the fight setting and the fight cooldown. Rewards are
+  collected with a plain button click like every other reward, then the bot
+  returns home.
+
 ### v8.5.2 - Main and side quest no longer switch themselves off at the newest quest
 
 - When you had reached the newest available main quest, the bot could
