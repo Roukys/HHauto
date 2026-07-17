@@ -201,17 +201,24 @@ export class Troll {
             TTF = Troll.getTrollIdFromEvent(eventGirl);
         }
         else if (getStoredValue(HHStoredVarPrefixKey + SK.autoTrollBattle) === "true" && (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99)) {
-            if (trollWithGirls === undefined || trollWithGirls.length === 0) {
-                if (logging) logHHAuto("No troll with girls from storage, parsing game info ...");
-                trollWithGirls = Troll.getTrollWithGirls();
-                if (trollWithGirls.length === 0) {
-                    if (logging) logHHAuto("Need girls list, going to Waifu page to get them");
-                    if (!allowSideEffects) return 0;
-                    setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
-                    return -1;
-                }
+            // Rebuild the "troll with girls" snapshot from the current harem
+            // whenever the girl list is available, instead of caching it once for
+            // the whole browser-tab lifetime. The old code only built it when the
+            // cache was empty, so girls completed later were never reflected: a
+            // fully-farmed troll kept being selected and Love Raids never got a
+            // turn (issue #1780). getTrollWithGirls() returns a non-empty array
+            // only when the girl list is loaded; otherwise fall back to the cached
+            // snapshot, or fetch the list from the Waifu page.
+            const freshTrollWithGirls = Troll.getTrollWithGirls();
+            if (freshTrollWithGirls.length > 0) {
+                trollWithGirls = freshTrollWithGirls;
                 if (allowSideEffects) setStoredValue(HHStoredVarPrefixKey+TK.trollWithGirls, JSON.stringify(trollWithGirls));
+            } else if (trollWithGirls === undefined || trollWithGirls.length === 0) {
+                if (logging) logHHAuto("Need girls list, going to Waifu page to get them");
+                if (!allowSideEffects) return 0;
+                setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
+                return -1;
             }
 
             if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
