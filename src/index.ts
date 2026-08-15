@@ -97,7 +97,6 @@ declare global {
         mega_event_active: boolean;
         mega_event_time_remaining: number;
         server_now_ts?: number;
-        id_girl?: number | string;
         girl_squad?: { remaining_ego_percent: number; [key: string]: unknown }[];
         teams_data: Record<string, {
             girls_ids: number[];
