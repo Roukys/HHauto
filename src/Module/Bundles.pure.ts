@@ -5,13 +5,19 @@
 //
 // The impure adapter Bundles.getExpiryTime scrapes the popup timer(s)
 // from the DOM and falls back to maxCollectionDelay + jitter when no
-// timer is found or the value claims to be more than a day in the
-// future (which happens with stale or malformed DOM state). This
-// module also exposes the pure helpers used to reduce several scraped
-// timers to one value (minScrapedSeconds) and to strip the locale
-// prose ("Expires in ") off the scraped text before it reaches
-// convertTimeToInt (extractTimerText). The fallback value itself is
-// computed by the adapter and passed in.
+// timer is found, or when the scraped value is at or above the
+// 24-hour cap. That cap is NOT a "this looks like garbage" check --
+// live measurement (2026-08) confirmed values well past 24h are
+// ordinary bundle durations (a period_deal timer read 1454400s, ~16.8
+// days, in one run). The cap exists so the next free-bundle check
+// still happens within maxCollectionDelay instead of waiting out the
+// full bundle duration; classifyExpiryTime lets the caller log that
+// case as routine rather than as an error. This module also exposes
+// the pure helpers used to reduce several scraped timers to one value
+// (minScrapedSeconds) and to strip the locale prose ("Expires in ")
+// off the scraped text before it reaches convertTimeToInt
+// (extractTimerText). The fallback value itself is computed by the
+// adapter and passed in.
 
 export type ExpiryTimeState = {
     /**
@@ -44,6 +50,27 @@ export function decideExpiryTime(state: ExpiryTimeState): number {
     if (state.scrapedSeconds === null) return state.fallbackSeconds;
     if (state.scrapedSeconds >= 24 * 3600) return state.fallbackSeconds;
     return state.scrapedSeconds;
+}
+
+/**
+ * Classifies why decideExpiryTime fell back to fallbackSeconds, so the
+ * caller can log the two cases differently:
+ *
+ *   'missing' -- no timer was scraped at all, i.e. an actual read
+ *                failure (selector drift, popup not open, ...).
+ *   'capped'  -- a timer WAS read successfully, it's just a routine
+ *                long-running bundle (>= 24h) that gets capped so the
+ *                next check still happens within maxCollectionDelay.
+ *   'scraped' -- the scraped value was used as-is, no fallback.
+ *
+ * Only 'missing' warrants an ERROR log; 'capped' is normal operation.
+ */
+export type ExpiryTimeOutcome = 'missing' | 'capped' | 'scraped';
+
+export function classifyExpiryTime(scrapedSeconds: number | null): ExpiryTimeOutcome {
+    if (scrapedSeconds === null) return 'missing';
+    if (scrapedSeconds >= 24 * 3600) return 'capped';
+    return 'scraped';
 }
 
 /**
