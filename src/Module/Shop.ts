@@ -11,7 +11,7 @@ import { ConfigHelper } from "../Helper/ConfigHelper";
 import { HeroHelper } from "../Helper/HeroHelper";
 import { getTextForUI } from "../Helper/LanguageHelper";
 import { getPage } from "../Helper/PageHelper";
-import { getStoredValue, getStoredJSON, setStoredValue } from "../Helper/StorageHelper";
+import { getStoredValue, getStoredJSON, setStoredValue, getHHStoredVarDefault } from "../Helper/StorageHelper";
 import { convertTimeToInt, randomInterval } from "../Helper/TimeHelper";
 import { checkTimer, setTimer } from "../Helper/TimerHelper";
 import { gotoPage } from "../Service/PageNavigationService";
@@ -21,13 +21,26 @@ import { HHStoredVarPrefixKey } from "../config/HHStoredVars";
 import { HHAuto_inputPattern } from "../config/InputPattern";
 import { SK, TK } from "../config/StorageKeys";
 import { Booster } from "./Booster";
+import { decideCheckShop } from "./Shop.pure";
 
 export class Shop {
 
     static isTimeToCheckShop() {
-        const updateMarket = getStoredValue(HHStoredVarPrefixKey+SK.updateMarket)  === "true";
-        const needBoosterStatus = Booster.needBoosterStatusFromStore();
-        return (updateMarket || needBoosterStatus) && ( getStoredValue(HHStoredVarPrefixKey+SK.paranoia) !== "true" || !checkTimer("paranoiaSwitch") )
+        return decideCheckShop({
+            updateMarket: getStoredValue(HHStoredVarPrefixKey+SK.updateMarket) === "true",
+            needBoosterStatus: Booster.needBoosterStatusFromStore(),
+            // Buying boosters needs the merchant assortment (storeContents),
+            // which is only cached while standing on the market page. Without
+            // this leg a user with only autoBuyBoosters enabled never got there
+            // and Market.doShopping bailed out on its storeContents guard.
+            autoBuyBoosters: getStoredValue(HHStoredVarPrefixKey+SK.autoBuyBoosters) === "true",
+            // ?? not ||: an explicitly emptied filter means "buy nothing" and
+            // must not silently fall back to the registered default.
+            autoBuyBoostersFilter: getStoredValue(HHStoredVarPrefixKey+SK.autoBuyBoostersFilter)
+                ?? getHHStoredVarDefault(HHStoredVarPrefixKey+SK.autoBuyBoostersFilter),
+            paranoia: getStoredValue(HHStoredVarPrefixKey+SK.paranoia) === "true",
+            paranoiaSwitchReady: checkTimer("paranoiaSwitch"),
+        });
     }
 
     static updateShop()

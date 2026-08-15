@@ -180,6 +180,42 @@ describe("Shop.updateShop", function () {
         });
     });
 });
+describe("Shop.isTimeToCheckShop", function () {
+    afterEach(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+    });
+
+    it("is false when no market consumer is enabled", function () {
+        expect(Shop.isTimeToCheckShop()).toBe(false);
+    });
+
+    it("is true when only autoBuyBoosters is enabled", function () {
+        // autoBuyBoosters is koban-gated: getStoredValue resolves it to
+        // "false" unless the spendKobans0 master switch is on.
+        localStorage.setItem(HHStoredVarPrefixKey + "Setting_spendKobans0", "true");
+        localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoBuyBoosters", "true");
+        expect(Shop.isTimeToCheckShop()).toBe(true);
+    });
+
+    it("stays false when autoBuyBoosters is on but kobans may not be spent", function () {
+        localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoBuyBoosters", "true");
+        expect(Shop.isTimeToCheckShop()).toBe(false);
+    });
+
+    it("stays false when autoBuyBoosters is on but the filter is empty", function () {
+        localStorage.setItem(HHStoredVarPrefixKey + "Setting_spendKobans0", "true");
+        localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoBuyBoosters", "true");
+        localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoBuyBoostersFilter", "");
+        expect(Shop.isTimeToCheckShop()).toBe(false);
+    });
+
+    it("is true when only updateMarket is enabled", function () {
+        localStorage.setItem(HHStoredVarPrefixKey + "Setting_updateMarket", "true");
+        expect(Shop.isTimeToCheckShop()).toBe(true);
+    });
+});
+
 describe("Shop sell-menu filter builders", function () {
     // Pure selector builders extracted from moduleShopActions (Shop review I4).
     // Accessed via cast because they are private static helpers.
