@@ -387,6 +387,53 @@ describe("Season event", function () {
         });
     });
 
+    describe("isBlockedOnlyByMissingBooster", function () {
+        beforeEach(() => {
+            MockHelper.mockHeroLevel(500);
+            MockHelper.mockEnergiesKiss(9, 10);
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonThreshold", "1");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonRunThreshold", "8");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonBoostedOnly", "true");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoEquipBoosters", "true");
+            jest.spyOn(Booster, "haveBoosterEquiped").mockReturnValue(false);
+            setTimer('nextSeasonTime', -1); // timer expired
+        });
+
+        it("is true when a booster is required, missing, energy is ready and auto-equip is on", function () {
+            expect(Season.isBlockedOnlyByMissingBooster()).toBeTruthy();
+        });
+
+        it("is false once a booster is equipped", function () {
+            jest.spyOn(Booster, "haveBoosterEquiped").mockReturnValue(true);
+
+            expect(Season.isBlockedOnlyByMissingBooster()).toBeFalsy();
+        });
+
+        it("is false when auto-equip is off (missing booster would never fix itself)", function () {
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoEquipBoosters", "false");
+
+            expect(Season.isBlockedOnlyByMissingBooster()).toBeFalsy();
+        });
+
+        it("is false when boosters are not required in the first place", function () {
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonBoostedOnly", "false");
+
+            expect(Season.isBlockedOnlyByMissingBooster()).toBeFalsy();
+        });
+
+        it("is false when energy is below the run threshold", function () {
+            MockHelper.mockEnergiesKiss(5, 10);
+
+            expect(Season.isBlockedOnlyByMissingBooster()).toBeFalsy();
+        });
+
+        it("is false while the season timer is still running", function () {
+            setTimer('nextSeasonTime', 600);
+
+            expect(Season.isBlockedOnlyByMissingBooster()).toBeFalsy();
+        });
+    });
+
     describe("run defensive wall (issue #1722)", function () {
         beforeEach(() => {
             MockHelper.mockHeroLevel(500);

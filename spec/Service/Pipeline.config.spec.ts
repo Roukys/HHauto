@@ -1148,6 +1148,37 @@ describe('Pipeline.config', () => {
       expect(seasonHandler.precondition(ctx)).toBe(false);
     });
 
+    it('handleSeason arms a short retry timer when blocked only by a missing booster', async () => {
+      // Regression: season blocked purely by a missing booster used to get
+      // the same 15-17 min "wait for energy" timer as every other reason to
+      // wait, even though handleAutoEquipBoosters typically fixes a missing
+      // booster within seconds. Expect a short (60-120s) retry instead.
+      jest.spyOn(Season, 'isTimeToFight').mockReturnValue(false);
+      jest.spyOn(Season, 'isBlockedOnlyByMissingBooster').mockReturnValue(true);
+      TimerMock.getSecondsLeft.mockReturnValue(-1); // not in the inter-fight pause
+      TimerMock.checkTimer.mockReturnValue(true); // nextSeasonTime expired
+      const result = await seasonHandler.steps[0].fn(makeCtx());
+      expect(result).toEqual({ ok: true });
+      expect(TimerMock.setTimer).toHaveBeenCalledWith('nextSeasonTime', expect.any(Number));
+      const armedSeconds = TimerMock.setTimer.mock.calls.find(call => call[0] === 'nextSeasonTime')![1];
+      expect(armedSeconds).toBeGreaterThanOrEqual(60);
+      expect(armedSeconds).toBeLessThanOrEqual(120);
+    });
+
+    it('handleSeason keeps the long timer when not blocked only by a missing booster', async () => {
+      jest.spyOn(Season, 'isTimeToFight').mockReturnValue(false);
+      jest.spyOn(Season, 'isBlockedOnlyByMissingBooster').mockReturnValue(false);
+      TimerMock.getSecondsLeft.mockReturnValue(-1);
+      TimerMock.checkTimer.mockReturnValue(true);
+      const HHHelperMock = jest.requireMock('../../src/Helper/HHHelper') as { getHHVars: jest.Mock };
+      HHHelperMock.getHHVars.mockReturnValue(0); // next_refresh_ts === 0 branch
+      const result = await seasonHandler.steps[0].fn(makeCtx());
+      expect(result).toEqual({ ok: true });
+      const armedSeconds = TimerMock.setTimer.mock.calls.find(call => call[0] === 'nextSeasonTime')![1];
+      expect(armedSeconds).toBeGreaterThanOrEqual(15 * 60);
+      expect(armedSeconds).toBeLessThanOrEqual(17 * 60);
+    });
+
     it('handleLeague repeats while no stop timer was armed', async () => {
       LeagueMock.isTimeToFight.mockReturnValue(true);
       TimerMock.checkTimer.mockReturnValue(true); // no pending nextLeaguesTime
