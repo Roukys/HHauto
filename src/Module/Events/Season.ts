@@ -31,6 +31,7 @@ import { SeasonOpponent } from "../../model/SeasonOpponent";
 import { Booster } from "../Booster";
 import { EventModule } from "./EventModule";
 import { LoveRaidManager } from "./LoveRaidManager";
+import { isBlockedOnlyByMissingBooster } from "./Season.pure";
 
 export class Season {
     static LAST_SEASON_LEVEL = 63;
@@ -116,6 +117,34 @@ export class Season {
         }
 
         return (checkTimer('nextSeasonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
+    }
+
+    /**
+     * True when isTimeToFight() is false for exactly one reason: a booster
+     * is required (autoSeasonBoostedOnly) and none is equipped, while auto-
+     * equip (Setting_autoEquipBoosters) is on to fix that shortly on its
+     * own. Pipeline.config.ts uses this to arm a short retry timer instead
+     * of the long "wait for energy" one in that specific case (issue:
+     * season waited ~16 min for a booster that auto-equip supplied ~2 min
+     * later).
+     */
+    static isBlockedOnlyByMissingBooster() {
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonThreshold)) || 0;
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + SK.autoSeasonRunThreshold)) || 0;
+        const humanLikeRun = getStoredValue(HHStoredVarPrefixKey+TK.SeasonHumanLikeRun) === "true";
+
+        const energyAboveThreshold = humanLikeRun && Season.getEnergy() > threshold || Season.getEnergy() > Math.max(threshold, runThreshold-1);
+        const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey+SK.autoSeasonBoostedOnly) === "true";
+        const haveBoosterEquipped = Booster.haveBoosterEquiped();
+        const autoEquipBoostersEnabled = getStoredValue(HHStoredVarPrefixKey+SK.autoEquipBoosters) === "true";
+
+        return isBlockedOnlyByMissingBooster({
+            timerExpired: checkTimer('nextSeasonTime'),
+            energyAboveThreshold,
+            needBoosterToFight,
+            haveBoosterEquipped,
+            autoEquipBoostersEnabled,
+        });
     }
 
     static async moduleSimSeasonBattle(autoRun=false)
