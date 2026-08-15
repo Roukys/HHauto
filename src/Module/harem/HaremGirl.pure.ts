@@ -115,19 +115,3 @@ export function isBetter(
     if (sc.caracSum === se.caracSum && sc.resonanceMatches > se.resonanceMatches) return true;
     return false;
 }
-
-/**
- * Extracts a navigable girl ID from the game's current-girl object
- * (window.girl on /girl/* pages). The game used to also expose a top-level
- * window.id_girl global; that global is gone, so callers must read
- * girl.id_girl instead and this returns null when even that isn't
- * available -- e.g. window.girl itself is missing -- so callers can bail
- * out instead of navigating to `/girl/undefined`.
- */
-export function extractCurrentGirlId(
-    girl: { id_girl?: number | string | null } | null | undefined,
-): number | string | null {
-    const id = girl?.id_girl;
-    if (id === undefined || id === null || id === '') return null;
-    return id;
-}
