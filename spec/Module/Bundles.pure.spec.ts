@@ -1,6 +1,8 @@
 import {
     ExpiryTimeState,
     decideExpiryTime,
+    extractTimerText,
+    minScrapedSeconds,
 } from "../../src/Module/Bundles.pure";
 
 /**
@@ -66,5 +68,53 @@ describe("decideExpiryTime", () => {
                 buildState({ scrapedSeconds: 3600, fallbackSeconds: 1234 }),
             ),
         ).toBe(3600);
+    });
+});
+
+/**
+ * minScrapedSeconds reduces the per-tile countdowns scraped from a
+ * visible payment-popup tab to the single soonest value, since that's
+ * the one that should drive the next free-bundle check.
+ */
+describe("minScrapedSeconds", () => {
+    it("returns null when nothing was scraped", () => {
+        expect(minScrapedSeconds([])).toBeNull();
+    });
+
+    it("returns the only value for a single scraped timer", () => {
+        expect(minScrapedSeconds([3600])).toBe(3600);
+    });
+
+    it("returns the smallest of several scraped timers, regardless of order", () => {
+        expect(minScrapedSeconds([9 * 86400, 3 * 86400, 4 * 86400])).toBe(3 * 86400);
+        expect(minScrapedSeconds([3 * 86400, 9 * 86400, 4 * 86400])).toBe(3 * 86400);
+    });
+
+    it("treats a zero timer as the minimum (bundle expiring right now)", () => {
+        expect(minScrapedSeconds([0, 3600, 7200])).toBe(0);
+    });
+});
+
+/**
+ * extractTimerText strips the locale prose ("Expires in ") the game
+ * puts ahead of the actual duration, since convertTimeToInt only
+ * understands duration tokens like "4d" / "21h" and would otherwise
+ * log a spurious "Timer symbol not recognized" for each word.
+ */
+describe("extractTimerText", () => {
+    it("drops leading words and keeps the duration tokens", () => {
+        expect(extractTimerText("Expires in 4d 21h")).toBe("4d 21h");
+    });
+
+    it("is a no-op when the text is already just the duration", () => {
+        expect(extractTimerText("11d 17h")).toBe("11d 17h");
+    });
+
+    it("keeps a single duration token", () => {
+        expect(extractTimerText("Expires in 45m")).toBe("45m");
+    });
+
+    it("returns an empty string when there is no duration token", () => {
+        expect(extractTimerText("Expires soon")).toBe("");
     });
 });

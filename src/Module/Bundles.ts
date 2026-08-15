@@ -17,15 +17,25 @@ import { gotoPage } from "../Service/PageNavigationService";
 import { logHHAuto } from "../Utils/LogUtils";
 import { HHStoredVarPrefixKey } from "../config/HHStoredVars";
 import { SK, TK } from "../config/StorageKeys";
-import { decideExpiryTime } from './Bundles.pure';
+import { decideExpiryTime, extractTimerText, minScrapedSeconds } from './Bundles.pure';
 
 export class Bundles {
     static getExpiryTime(){
-        const timerRequest = `#popup-payment-container .period_deal .shop-timer span[rel=expires]`
+        // `.period_deal` names a *tab* in the payment-tabs bar, not an
+        // ancestor of the timer -- the timer lives under whichever
+        // `.content-container` is currently shown for the active tab
+        // (mirrors the `:visible` pattern Labyrinth.getResetTime uses
+        // for its own reset timer).
+        const timerRequest = `#popup-payment-container .content-container:visible .shop-timer span[rel=expires]`
 
         let scrapedSeconds: number | null = null;
-        if ($(timerRequest).length > 0) {
-            scrapedSeconds = Number(convertTimeToInt($(timerRequest).text()));
+        const timerNodes = $(timerRequest);
+        if (timerNodes.length > 0) {
+            // The visible tab can show several bundle tiles at once
+            // (each with its own countdown), so reduce every scraped
+            // value to the soonest one.
+            const scrapedValues = timerNodes.map((_i, el) => Number(convertTimeToInt(extractTimerText($(el).text())))).get();
+            scrapedSeconds = minScrapedSeconds(scrapedValues);
             logHHAuto('freeBundleTimer', scrapedSeconds);
         }
         const fallbackSeconds = ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
