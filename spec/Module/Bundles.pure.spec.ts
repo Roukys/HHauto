@@ -1,5 +1,6 @@
 import {
     ExpiryTimeState,
+    classifyExpiryTime,
     decideExpiryTime,
     extractTimerText,
     minScrapedSeconds,
@@ -68,6 +69,39 @@ describe("decideExpiryTime", () => {
                 buildState({ scrapedSeconds: 3600, fallbackSeconds: 1234 }),
             ),
         ).toBe(3600);
+    });
+});
+
+/**
+ * classifyExpiryTime separates the two ways decideExpiryTime can end
+ * up returning fallbackSeconds, so the caller can log them
+ * differently: a missing timer is a real read failure, while a
+ * capped timer means a real bundle timer WAS read -- live measurement
+ * found period_deal timers routinely exceeding 24h (up to ~16.8 days
+ * observed), which is ordinary, not "stale or malformed DOM state".
+ */
+describe("classifyExpiryTime", () => {
+    it("classifies a null scrape as missing (real read failure)", () => {
+        expect(classifyExpiryTime(null)).toBe('missing');
+    });
+
+    it("classifies a value below the 24h cap as scraped (used as-is)", () => {
+        expect(classifyExpiryTime(23 * 3600 + 59 * 60)).toBe('scraped');
+    });
+
+    it("classifies exactly 24h as capped (strict < boundary, matches decideExpiryTime)", () => {
+        expect(classifyExpiryTime(24 * 3600)).toBe('capped');
+    });
+
+    it("classifies a multi-day scraped value as capped, not missing", () => {
+        // Live-verified case: a period_deal timer read 1454400s (~16.8
+        // days) in a real run. That is a legitimate bundle duration,
+        // not a sign the scrape failed.
+        expect(classifyExpiryTime(1454400)).toBe('capped');
+    });
+
+    it("classifies zero as scraped (bundle expiring right now, not missing)", () => {
+        expect(classifyExpiryTime(0)).toBe('scraped');
     });
 });
 

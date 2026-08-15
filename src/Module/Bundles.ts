@@ -17,7 +17,7 @@ import { gotoPage } from "../Service/PageNavigationService";
 import { logHHAuto } from "../Utils/LogUtils";
 import { HHStoredVarPrefixKey } from "../config/HHStoredVars";
 import { SK, TK } from "../config/StorageKeys";
-import { decideExpiryTime, extractTimerText, minScrapedSeconds } from './Bundles.pure';
+import { classifyExpiryTime, decideExpiryTime, extractTimerText, minScrapedSeconds } from './Bundles.pure';
 
 export class Bundles {
     static getExpiryTime(){
@@ -40,8 +40,16 @@ export class Bundles {
         }
         const fallbackSeconds = ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
         const decision = decideExpiryTime({ scrapedSeconds, fallbackSeconds });
-        if (scrapedSeconds === null || scrapedSeconds >= 24 * 3600) {
-            logHHAuto('ERROR: can\'t get bundle expiry time, default to maxCollectionDelay');
+        switch (classifyExpiryTime(scrapedSeconds)) {
+            case 'missing':
+                logHHAuto('ERROR: can\'t get bundle expiry time, default to maxCollectionDelay');
+                break;
+            case 'capped':
+                // Not an error: a real bundle timer was read, it's just
+                // a long-running one (>= 24h). Cap to maxCollectionDelay
+                // so the next check doesn't wait out the full duration.
+                logHHAuto('Bundle timer ' + scrapedSeconds + 's is >= 24h, capping to maxCollectionDelay.');
+                break;
         }
         return decision;
     }
