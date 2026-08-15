@@ -7,6 +7,58 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.5.5 - Selector and gating fixes found by live-testing against the game
+
+Each fix below was reproduced against the running game before and after the
+change, not just unit-tested. Two further suspicions were investigated and
+dropped as measurement errors -- `optimizeEquipmentSlots` and the `id_girl`
+global both work; they had been measured on the wrong page state.
+
+- **Shop:** `isTimeToCheckShop()` only knew about the market's *readers*
+  (`updateMarket`, `autoEquipBoosters`), never the *buyer*. With only
+  `autoBuyBoosters` enabled the `handleShop` pipeline block never started,
+  so the store contents were never cached and no booster was ever bought.
+  Buying now triggers the market visit as well, gated on a non-empty
+  booster filter so an emptied filter still means "buy nothing".
+- **League:** the game dropped `#leagues-tabs` and `#leagues_middle`, so
+  the script header (Hide beaten opponents, power-calc controls) and the
+  opponent-parsing popup were injected into nothing and never appeared.
+  Both are re-anchored to `#leagues .league_content` / `#leagues`. The
+  guard against double injection and against the HH-OCD script's own
+  button is unchanged.
+- **Market:** `doShopping()` reported `Could not parse store content.` on
+  every page load until the shop had been visited once -- the check sat
+  inside a branch that had already established the value was `undefined`,
+  so it always fired. "Not cached yet" is a normal state and is no longer
+  logged; the JSON check moved to where a stored value is actually read,
+  where a genuinely corrupt value still surfaces as an error.
+- **Bundles:** the expiry timer was scraped through `.period_deal`, which
+  is a tab and not an ancestor of the timer, so the scrape always failed
+  and fell back to `maxCollectionDelay`. It now reads the visible content
+  container. Timers longer than 24h are still capped -- that cap is
+  intentional so the next free-bundle check is not deferred for days --
+  but the cap is no longer reported as a read error.
+- **Seasonal:** `goAndCollectFreeCard()` read `mega_event_data.cards`
+  before checking which page it was on. Off the Seasonal page that global
+  does not exist, so it logged `HH var not found` and skipped the
+  "already collected" shortcut, navigating to the event needlessly. The
+  page check now runs first.
+- **Sultry Mysteries:** the event's remaining time was scraped from a DOM
+  timer that only exists on the shop tab, while `parse()` runs with the
+  grid tab active. `convertTimeToInt('')` then returned a random 15-17
+  minutes, so `seconds_before_end` was wrong on every poll. It now reads
+  `sm_event_data.seconds_until_event_end`, falling back to the DOM scrape
+  and then to one hour, with the timer and the event list entry fed from
+  the same resolved value.
+- **Season:** when `autoSeasonBoostedOnly` is on and no booster is
+  equipped, the `handleSeason` fallback could not tell that reason apart
+  from "not enough energy" and applied its generic 15-17 minute wait.
+  Observed in a real run: the fight was deferred by 16m31s while
+  auto-equip put four boosters on under two minutes later. That case now
+  retries after 60-120s, guarded on `autoEquipBoosters` being enabled so
+  the short retry does not become pointless polling when no booster can
+  ever arrive.
+
 ### v8.5.4 - "First/last troll with girl" no longer sticks on a finished troll
 
 - With the troll target set to "First troll with girl" or "Last troll with
