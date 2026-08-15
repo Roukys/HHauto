@@ -420,8 +420,15 @@ export class LeagueHelper {
         )
         {
             if($(".leagues_middle_header_script").length == 0) {
-                $('#leagues-tabs').append('<div class="leagues_middle_header_script"></div>');
-                
+                // #leagues-tabs was removed in the 2026-08 League DOM
+                // rework. .league_content is the wrapper that already
+                // anchors every other league selector in this file (see
+                // styles() above and the .data-list selectors below), and
+                // it is the direct parent of .league_table, so prepending
+                // here puts the header right above the opponent list
+                // instead of inside the scrollable table itself.
+                $('#leagues .league_content').prepend('<div class="leagues_middle_header_script"></div>');
+
                 GM_addStyle('.leagues_middle_header_script {'
                     + 'display: flow-root;'
                     + 'margin-top: 4px;}'
@@ -942,7 +949,11 @@ export class LeagueHelper {
 
     static LeagueDisplayGetOpponentPopup(numberDone: number | string, remainingTime: number | string)
     {
-        $("#leagues #leagues_middle").prepend('<div id="popup_message_league" class="HHpopup_message" name="popup_message_league" ><a id="popup_message_league_close" class="close">&times;</a>'+getTextForUI("OpponentListBuilding","elementText")+' : <br>'+numberDone+' '+getTextForUI("OpponentParsed","elementText")+' ('+remainingTime+')</div>');
+        // #leagues_middle no longer exists (2026-08 League DOM rework);
+        // #leagues itself is the stable League page container, and the
+        // popup is positioned absolute so its exact DOM parent doesn't
+        // affect layout.
+        $("#leagues").prepend('<div id="popup_message_league" class="HHpopup_message" name="popup_message_league" ><a id="popup_message_league_close" class="close">&times;</a>'+getTextForUI("OpponentListBuilding","elementText")+' : <br>'+numberDone+' '+getTextForUI("OpponentParsed","elementText")+' ('+remainingTime+')</div>');
         $("#popup_message_league_close").on("click", () => { safeReload(); });
     }
 
