@@ -24,7 +24,7 @@ import { HHAuto_inputPattern } from "../../config/InputPattern";
 import { SK, TK } from "../../config/StorageKeys";
 import { KKHaremGirl } from "../../model/KK/KKHaremGirl";
 import { TeamData } from "../../model/TeamData";
-import { isBetter, scoreItem } from "./HaremGirl.pure";
+import { extractCurrentGirlId, isBetter, scoreItem } from "./HaremGirl.pure";
 
 
 export class HaremGirl {
@@ -241,7 +241,13 @@ export class HaremGirl {
             const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey + TK.haremGirlPayLast) === 'true';
             if (haremGirlPayLast) {
                 // back
-                gotoPage('/girl/' + unsafeWindow.id_girl, { resource: 'affection' }, randomInterval(1500, 2500));
+                const currentGirlId = extractCurrentGirlId(unsafeWindow.girl);
+                if (currentGirlId === null) {
+                    logHHAuto("ERROR No current girl id found (window.girl missing), stopping.");
+                    Harem.clearHaremToolVariables();
+                    return false;
+                }
+                gotoPage('/girl/' + currentGirlId, { resource: 'affection' }, randomInterval(1500, 2500));
                 return true;
             } else {
                 logHHAuto("ERROR No pay button found stopping.");
