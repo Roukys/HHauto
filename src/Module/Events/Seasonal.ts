@@ -394,47 +394,54 @@ export class SeasonalEvent {
     }
     static async goAndCollectFreeCard():Promise<boolean> {
 
-        var cardsOwned = getHHVars('mega_event_data.cards');
-        if (cardsOwned && cardsOwned.indexOf('1')>=0) {
-            logHHAuto(`Free cards already collected (${cardsOwned}), wait for next seasonal event`);
-            setTimer('nextSeasonalCardCollectTime', getSecondsLeft("SeasonalEventRemainingTime") + randomInterval(3600, 4000));
-        } else {
-            if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"))
-            {
-                const cardTabs = $('#mega-event-tabs #cards_tab');
-                if(cardTabs.length > 0) {
-                    logHHAuto('Collect free cards from Seasonal Event');
-                    // switch tabs
-                    cardTabs.trigger("click");
-                    await TimeHelper.sleep(randomInterval(400, 600));
+        // mega_event_data only exists on the SeasonalEvent page itself (live
+        // verified: undefined on /home.html, defined on /seasonal.html), so
+        // the "already collected" shortcut can only be evaluated once we're
+        // actually there -- checking it before the page test made getHHVars
+        // log a spurious "not found" and silently disabled the shortcut for
+        // every call that started from another page.
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"))
+        {
+            const cardsOwned = getHHVars('mega_event_data.cards');
+            if (cardsOwned && cardsOwned.indexOf('1')>=0) {
+                logHHAuto(`Free cards already collected (${cardsOwned}), wait for next seasonal event`);
+                setTimer('nextSeasonalCardCollectTime', getSecondsLeft("SeasonalEventRemainingTime") + randomInterval(3600, 4000));
+                return false;
+            }
 
-                    const freeCardClaimButton = $('#cards_tab_container .free-card:not([disabled])');
-                    if (freeCardClaimButton.length > 0) freeCardClaimButton.trigger("click");
+            const cardTabs = $('#mega-event-tabs #cards_tab');
+            if(cardTabs.length > 0) {
+                logHHAuto('Collect free cards from Seasonal Event');
+                // switch tabs
+                cardTabs.trigger("click");
+                await TimeHelper.sleep(randomInterval(400, 600));
+
+                const freeCardClaimButton = $('#cards_tab_container .free-card:not([disabled])');
+                if (freeCardClaimButton.length > 0) freeCardClaimButton.trigger("click");
+                await TimeHelper.sleep(randomInterval(400, 600));
+                RewardHelper.closeRewardPopupIfAny(); // Close card popup
+                await TimeHelper.sleep(randomInterval(400, 600));
+                RewardHelper.closeRewardPopupIfAny(); // Close card reward popup
+                if (freeCardClaimButton.length > 1) {
+                    logHHAuto('There is still free cards to collect, try again');
+                    freeCardClaimButton.trigger("click");
                     await TimeHelper.sleep(randomInterval(400, 600));
-                    RewardHelper.closeRewardPopupIfAny(); // Close card popup
-                    await TimeHelper.sleep(randomInterval(400, 600));
-                    RewardHelper.closeRewardPopupIfAny(); // Close card reward popup
-                    if (freeCardClaimButton.length > 1) {
-                        logHHAuto('There is still free cards to collect, try again');
-                        freeCardClaimButton.trigger("click");
-                        await TimeHelper.sleep(randomInterval(400, 600));
-                        RewardHelper.closeRewardPopupIfAny();
-                    }
+                    RewardHelper.closeRewardPopupIfAny();
                 }
+            }
 
-                setTimer('nextSeasonalCardCollectTime', getSecondsLeft("SeasonalEventRemainingTime") + randomInterval(3600,4000));
-            }
-            else if (SeasonalEvent.isActiveEvent())
-            {
-                logHHAuto("Switching to SeasonalEvent screen.");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
-                return Promise.resolve(true);
-            }
-            else
-            {
-                logHHAuto("No SeasonalEvent active.");
-                setTimer('nextSeasonalCardCollectTime', 604800); // 1 week delay
-            }
+            setTimer('nextSeasonalCardCollectTime', getSecondsLeft("SeasonalEventRemainingTime") + randomInterval(3600,4000));
+        }
+        else if (SeasonalEvent.isActiveEvent())
+        {
+            logHHAuto("Switching to SeasonalEvent screen.");
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
+            return Promise.resolve(true);
+        }
+        else
+        {
+            logHHAuto("No SeasonalEvent active.");
+            setTimer('nextSeasonalCardCollectTime', 604800); // 1 week delay
         }
         return Promise.resolve(false);
     }
