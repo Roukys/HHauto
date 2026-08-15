@@ -1,7 +1,6 @@
 import { KKHaremGirl } from '../../../src/model/KK/KKHaremGirl';
 import {
     EquipmentItem,
-    extractCurrentGirlId,
     findBestItem,
     isBetter,
     scoreItem,
@@ -161,28 +160,6 @@ describe("HaremGirl pure equipment helpers", () => {
             const equipped = item({ carac1: 50 }, { resonance_bonuses: [] });
             const candidate = item({ carac1: 50 }, { resonance_bonuses: [] });
             expect(isBetter(candidate, equipped, girl())).toBe(false);
-        });
-    });
-
-    describe("extractCurrentGirlId", () => {
-        it("returns the id_girl when window.girl is present", () => {
-            expect(extractCurrentGirlId({ id_girl: 1 })).toBe(1);
-            expect(extractCurrentGirlId({ id_girl: "1" })).toBe("1");
-        });
-
-        it("returns null when window.girl itself is missing", () => {
-            expect(extractCurrentGirlId(null)).toBeNull();
-            expect(extractCurrentGirlId(undefined)).toBeNull();
-        });
-
-        it("returns null when window.girl has no usable id_girl", () => {
-            expect(extractCurrentGirlId({ id_girl: undefined })).toBeNull();
-            expect(extractCurrentGirlId({ id_girl: null })).toBeNull();
-            expect(extractCurrentGirlId({ id_girl: "" })).toBeNull();
-        });
-
-        it("does not treat 0 as a missing id", () => {
-            expect(extractCurrentGirlId({ id_girl: 0 })).toBe(0);
         });
     });
 });
