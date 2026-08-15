@@ -32,10 +32,9 @@ export class Market {
 
             if (getStoredValue(HHStoredVarPrefixKey+TK.storeContents) === undefined )
             {
-                if (! isJSON(getStoredValue(HHStoredVarPrefixKey+TK.storeContents)) )
-                {
-                    logHHAuto("Catched error : Could not parse store content.");
-                }
+                // Nothing cached yet -- normal until the market has been
+                // visited once (see Shop.pure.ts). Not a parse error, so
+                // stay silent here rather than log on every page load.
                 setStoredValue(HHStoredVarPrefixKey+TK.charLevel,0);
                 return;
             }
@@ -44,6 +43,10 @@ export class Market {
             {
                 setStoredValue(HHStoredVarPrefixKey+TK.charLevel, 0);
                 return;
+            }
+            if (! isJSON(getStoredValue(HHStoredVarPrefixKey+TK.storeContents)) )
+            {
+                logHHAuto("Catched error : Could not parse store content.");
             }
             var shop=getStoredJSON<any>(HHStoredVarPrefixKey+TK.storeContents, {});
 
