@@ -1259,7 +1259,14 @@ const handleSeason: HandlerConfig = {
           if (getStoredValue(HHStoredVarPrefixKey + TK.SeasonHumanLikeRun) === 'true') {
             setStoredValue(HHStoredVarPrefixKey + TK.SeasonHumanLikeRun, 'false');
           }
-          if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0) {
+          if (Season.isBlockedOnlyByMissingBooster()) {
+            // handleAutoEquipBoosters typically fixes a missing booster
+            // within seconds (observed live: ~2 min), so arming the same
+            // 15-17 min "wait for energy" timer here just throws away
+            // fight time. Retry soon instead.
+            logHHAuto('Season blocked only by missing booster, retrying shortly.');
+            setTimer('nextSeasonTime', randomInterval(60, 120));
+          } else if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0) {
             setTimer('nextSeasonTime', randomInterval(15 * 60, 17 * 60));
           } else {
             const next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts');
