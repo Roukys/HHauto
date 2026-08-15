@@ -9,11 +9,13 @@
 // Used by: EventModule.ts (called when Sultry Mysteries event is active)
 //
 import { ConfigHelper } from "../../Helper/ConfigHelper";
+import { getHHVars } from "../../Helper/HHHelper";
 import { HeroHelper } from "../../Helper/HeroHelper";
 import { convertTimeToInt, randomInterval } from "../../Helper/TimeHelper";
 import { checkTimer, setTimer } from "../../Helper/TimerHelper";
 import { logHHAuto } from "../../Utils/LogUtils";
 import { HHEvent, HHEventData, HHEventList } from "../../model/HHEvent";
+import { resolveSultryMysteriesSecondsLeft } from "./SultryMysteries.pure";
 
 export class SultryMysteries {
     static isEnabled(){
@@ -24,15 +26,22 @@ export class SultryMysteries {
         const eventID = hhEvent.eventId;
         let refreshTimer = randomInterval(3600, 4000);
 
+        // Grid tab (shown by default on /event.html) doesn't render this
+        // timer -- it only appears after switching to the shop tab -- so
+        // sm_event_data.seconds_until_event_end (available on either tab)
+        // is tried first; the DOM reading is a fallback for when that
+        // global isn't there.
         let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
-        if (timeLeft !== undefined && timeLeft.length) {
-            setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
-        } else setTimer('eventSultryMysteryGoing', 3600);
+        const domSecondsLeft = timeLeft !== undefined && timeLeft.length ? Number(convertTimeToInt(timeLeft)) : null;
+        const hhVarSecondsLeft = getHHVars('sm_event_data.seconds_until_event_end', false);
+        const secondsLeft = resolveSultryMysteriesSecondsLeft(hhVarSecondsLeft, domSecondsLeft, 3600);
+
+        setTimer('eventSultryMysteryGoing', secondsLeft);
 
         eventList[eventID] = {};
         eventList[eventID]["id"] = eventID;
         eventList[eventID]["type"] = hhEvent.eventType;
-        eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + secondsLeft * 1000;
         eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
         eventList[eventID]["isCompleted"] = false;
 
