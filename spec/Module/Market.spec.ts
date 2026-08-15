@@ -3,6 +3,7 @@ import { getStoredJSON, getStoredValue, setStoredValue } from "../../src/Helper/
 import { HHStoredVarPrefixKey } from "../../src/config/HHStoredVars";
 import { SK, TK } from "../../src/config/StorageKeys";
 import { loadFixture } from "../testHelpers/Fixtures";
+import { logHHAuto } from "../../src/Utils/LogUtils";
 
 // PageNavigationService is mocked so the referer juggling in doShopping does
 // not touch window.location. All four commonly-used exports are stubbed
@@ -12,6 +13,12 @@ jest.mock("../../src/Service/PageNavigationService", () => ({
     safeReload: jest.fn(),
     safeNavigateHref: jest.fn(),
     addNutakuSession: jest.fn((x: unknown) => x),
+}));
+
+// LogUtils is mocked so the "no store contents cached yet" / "could not
+// parse" distinction can be asserted without scraping the real log store.
+jest.mock("../../src/Utils/LogUtils", () => ({
+    logHHAuto: jest.fn(),
 }));
 
 // Anonymised market snapshot: shop[1] = koban boosters, shop[2] = gifts
@@ -61,6 +68,7 @@ describe("Market.doShopping", () => {
         jest.useFakeTimers();
         mockHero(10000, 10000);
         setBaseline();
+        (logHHAuto as jest.Mock).mockClear();
     });
 
     afterEach(() => {
@@ -69,13 +77,22 @@ describe("Market.doShopping", () => {
     });
 
     describe("precondition guards", () => {
-        it("resets the shop scan when no store contents are cached", () => {
+        it("resets the shop scan silently when no store contents are cached yet", () => {
+            // Never-visited-the-market is a normal startup state (see
+            // Shop.pure.ts), not a parse error -- it must not be logged as one.
             setStoredValue(HHStoredVarPrefixKey + TK.storeContents, undefined);
             localStorage.removeItem(HHStoredVarPrefixKey + TK.storeContents);
             sessionStorage.removeItem(HHStoredVarPrefixKey + TK.storeContents);
             Market.doShopping();
             expect(Number(charLevel())).toBe(0);
             expect(ajaxSpy).not.toHaveBeenCalled();
+            expect(logHHAuto).not.toHaveBeenCalled();
+        });
+
+        it("logs a parse error when store contents are cached but not valid JSON", () => {
+            setStoredValue(HHStoredVarPrefixKey + TK.storeContents, "not json {{{");
+            Market.doShopping();
+            expect(logHHAuto).toHaveBeenCalledWith("Catched error : Could not parse store content.");
         });
 
         it("resets the shop scan when the inventory counters are missing", () => {
