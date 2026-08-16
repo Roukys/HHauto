@@ -292,6 +292,13 @@ export const TK = {
     haremTeamSettings: "Temp_haremTeamSettings",
     blessingsCache: "Temp_blessingsCache",
     teamInfoCollapsed: "Temp_teamInfoCollapsed",
+    // Theme of the team that was last built, for the gear optimiser on the
+    // market page -- the team is not available there.
+    teamTheme: "Temp_teamTheme",
+    // Inventory ids of the items the gear optimiser took off, so a rollback
+    // stays possible. The id changes on every unequip, so it can only come
+    // from the equip response.
+    gearSwapLog: "Temp_gearSwapLog",
 
     // Resources
     haveAff: "Temp_haveAff",

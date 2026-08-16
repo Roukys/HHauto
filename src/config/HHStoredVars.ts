@@ -2315,6 +2315,21 @@ HHStoredVars[HHStoredVarPrefixKey + TK.teamInfoCollapsed] =
     storage:"localStorage",
     HHType:"Temp"
 };
+// Written by TeamModule when a team is fielded, read by EquipmentGear on the
+// market page. localStorage, not session: team and market are separate visits
+// and the theme has to survive the trip.
+HHStoredVars[HHStoredVarPrefixKey + TK.teamTheme] =
+    {
+    default:"",
+    storage:"localStorage",
+    HHType:"Temp"
+};
+HHStoredVars[HHStoredVarPrefixKey + TK.gearSwapLog] =
+    {
+    default:"[]",
+    storage:"localStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey + TK.loveRaids] =
     {
     storage:"sessionStorage",
