@@ -106,6 +106,21 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'event_cash' : "Event cash",
                                                 'rejuvenation_stone': "Rejuvenation Stones"};
 
+// Reward types a Sultry Mysteries grid square can hide. The keys are the
+// literal `type` values of sm_event_data.event_data.rewards_list entries,
+// so the auto-open goal check can compare against them directly. This is a
+// separate list from possibleRewardsList because the grid uses its own
+// currency (sultry_coins) and its own key progression, and never drops most
+// of the generic reward types.
+HHEnvVariables["global"].sultryMysteriesRewardsList = {'hard_currency' : "Kobans",
+                                                      'gems' : "Gems",
+                                                      'energy_fight' : "Fists",
+                                                      'energy_kiss' : "Kisses",
+                                                      'orbs' : "Orbs",
+                                                      'item' : "Items",
+                                                      'sultry_coins' : "Coins",
+                                                      'progressions' : "Keys"};
+
 HHEnvVariables["global"].trollzList = HentaiHeroes.getTrolls(getLanguageCode());
 HHEnvVariables["global"].sideTrollzList = [];
 

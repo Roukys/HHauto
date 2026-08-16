@@ -58,7 +58,7 @@ export class EventModule {
                 ||
                 (eventList[prop]["type"] === 'bossBang' && getStoredValue(HHStoredVarPrefixKey+SK.bossBangEvent) !=="true")
                 ||
-                (eventList[prop]["type"] === 'sultryMysteries' && getStoredValue(HHStoredVarPrefixKey+SK.sultryMysteriesEventRefreshShop) !=="true")
+                (eventList[prop]["type"] === 'sultryMysteries' && getStoredValue(HHStoredVarPrefixKey+SK.sultryMysteriesEventRefreshShop) !=="true" && getStoredValue(HHStoredVarPrefixKey+SK.sultryMysteriesAutoOpen) !=="true")
             )
             {
                 delete eventList[prop];
@@ -433,7 +433,7 @@ export class EventModule {
         const isPlusEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('eventIDReg')) && getStoredValue(HHStoredVarPrefixKey+SK.plusEvent) ==="true";
         const isPlusEventMythic = inEventID.startsWith(ConfigHelper.getHHScriptVars('mythicEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+SK.plusEventMythic) ==="true";
         const isBossBangEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('bossBangEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+SK.bossBangEvent) ==="true";
-        const isSultryMysteriesEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+SK.sultryMysteriesEventRefreshShop) === "true" && SultryMysteries.isEnabled();
+        const isSultryMysteriesEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg')) && (getStoredValue(HHStoredVarPrefixKey+SK.sultryMysteriesEventRefreshShop) === "true" || getStoredValue(HHStoredVarPrefixKey+SK.sultryMysteriesAutoOpen) === "true") && SultryMysteries.isEnabled();
         const isDPEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'));
         const isPoa = inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'));
         const isLivelyScene = inEventID.startsWith(ConfigHelper.getHHScriptVars('livelySceneEventIDReg'));
@@ -507,6 +507,8 @@ export class EventModule {
                     (hhEvent.isPlusEventMythic && checkTimerMustExist('eventMythicNextWave'))
                     ||
                     (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryShopRefresh'))
+                    ||
+                    (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryAutoOpen'))
                     ||
                     (hhEvent.isDPEvent && checkTimerMustExist('nextDpEventCollectTime'))
                     ||
@@ -777,6 +779,12 @@ export class EventModule {
             {
                 // event is over
                 clearTimer("eventSultryMysteryShopRefresh");
+            }
+            if ($(sultryMysteriesEventQuery).length <= 0 && getTimer("eventSultryMysteryAutoOpen") !== -1)
+            {
+                // event is over -- keys are reset at the end of a Sultry
+                // Mysteries event, so a pending key check is meaningless
+                clearTimer("eventSultryMysteryAutoOpen");
             }
             parseForEventId(dpEventQuery,eventIDs);
 
