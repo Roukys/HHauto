@@ -53,11 +53,11 @@ Field list verified against a HentaiHeroes live dump (2026-05-05).
 | ``id_role`` | number | |
 | ``id_places_of_power`` | number | |
 
-### Stats (blessings included, equipment excluded)
+### Stats (blessings AND equipment included)
 
 | Field | Type | Notes |
 |---|---|---|
-| ``caracs`` | object | ``{carac1, carac2, carac3}`` -- already blessed, equipment-free |
+| ``caracs`` | object | ``{carac1, carac2, carac3}`` -- blessed AND equipped, see below |
 | ``carac1`` | number | Mirror of ``caracs.carac1`` |
 | ``carac2`` | number | Mirror of ``caracs.carac2`` |
 | ``carac3`` | number | Mirror of ``caracs.carac3`` |
@@ -65,7 +65,35 @@ Field list verified against a HentaiHeroes live dump (2026-05-05).
 | ``orgasm`` | number | |
 
 Verified by dump diff: ``teamGirls.blessed_caracs == availableGirls.caracs``.
-The team builder reads ``caracs`` directly. No unequip needed before scoring.
+
+**``caracs`` contains the girl's equipment.** This page previously claimed the
+opposite ("equipment-free, no unequip needed before scoring"); measured on
+2026-08-17 that is wrong. Two dumps of the same account, taken before and after
+a Stuff Team run that moved gear between girls, with level, awakening and
+blessing unchanged:
+
+| Girl | Items | ``caracs_sum`` | Delta / (item caracs x blessing) |
+|---|---|---|---|
+| Undercover Valentina | 6 -> 0 | 39,448 -> 31,762 | 1.017 |
+| Draconic Stacy | 6 -> 0 | 39,463 -> 31,777 | 1.017 |
+| Oni Princess Yura | 0 -> 6 | 29,988 -> 39,463 | 1.253 |
+| High Mage Arcana | 0 -> 6 | 29,988 -> 39,448 | 1.251 |
+
+The same six-item set is worth ~23% more on some girls than on others -- that
+is the mythic-equipment resonance bonus (``resonance_bonuses``: class, theme
+and figure match), and it lands inside ``caracs`` too.
+
+Consequences for team building:
+
+- ``caracs_sum`` -- and therefore the "Total Power" the game prints -- ranks
+  girls partly by who is currently wearing the good gear, not by who is the
+  better girl.
+- **Unequip All before building a team**, otherwise the current team wins the
+  ranking simply for holding the equipment. Stuff Team afterwards moves the
+  gear onto whoever was picked. Skipping the unequip creates a feedback loop:
+  build -> stuff -> build again can yield a different team each round.
+- ``action=team_calculate_caracs`` (TeamEvaluationService) reads the same
+  equipped stats, so the same rule applies to the candidate ranking.
 
 ### Blessing data
 
