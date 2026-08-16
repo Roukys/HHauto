@@ -291,6 +291,7 @@ export const TK = {
     haremTeamScrolls: "Temp_haremTeamScrolls",
     haremTeamSettings: "Temp_haremTeamSettings",
     blessingsCache: "Temp_blessingsCache",
+    teamInfoCollapsed: "Temp_teamInfoCollapsed",
 
     // Resources
     haveAff: "Temp_haveAff",

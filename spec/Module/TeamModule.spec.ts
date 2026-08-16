@@ -212,3 +212,79 @@ describe('TeamModule -- edit-team workflow (unequip -> pick -> assign -> stuff)'
         expect(() => TeamModule.saveTeamInPlace()).not.toThrow();
     });
 });
+
+describe('TeamModule -- collapsible team summary', () => {
+    const KEY = 'HHAuto_Temp_teamInfoCollapsed';
+
+    function teamResult(): any {
+        const girl = (i: number) => ({
+            id_girl: i, name: 'Girl_' + i, element: 'stone', rarity: 'mythic',
+            level: 750, graded: 6, nb_grades: 6, carac1: 1, carac2: 1, carac3: 1,
+        });
+        const girls = [1, 2, 3, 4, 5, 6, 7].map(girl);
+        return {
+            girls, elements: girls.map(g => g.element), statScores: girls.map(() => 1),
+            mainSum: 282488, projectedSum: 282488,
+            leaderTier5: { id: 12, name: 'Shield', priority: 4 },
+            leaderInCluster: true, traitCategory: 'zodiac', traitValue: 'Taurus',
+            tier3Bonus: 0.036, traitMatchCount: 2, activeBlessings: [],
+            poolUsed: 'default-flat', blessedGirlCount: 0, playerClass: 3,
+            mythicAudit: [], slotInfo: [],
+            poolStats: { eligible: 263, ownClass: 89, otherClass: {}, ownClassMythics: 20, ownClassMythicsAtCap: 20, ownClassMythicsBlessed: 2 },
+            currentModeName: 'Current Best',
+        };
+    }
+
+    const render = () => (TeamModule as any).renderTeamInfoPanel(teamResult());
+
+    beforeEach(() => {
+        document.body.innerHTML = '<div id="contains_all"><section></section></div>';
+        localStorage.clear();
+    });
+    afterEach(() => { document.body.innerHTML = ''; localStorage.clear(); });
+
+    it('renders the summary expanded by default, with a clickable header', () => {
+        render();
+        expect(document.querySelectorAll('.hhTeamSynergyInfo').length).toBe(1);
+        expect(document.querySelectorAll('.hhTeamSynergyInfoHeader').length).toBe(1);
+        expect($('.hhTeamSynergyInfoBody').css('display')).not.toBe('none');
+    });
+
+    it('keeps the mode and the stat sum visible in the header', () => {
+        render();
+        const header = document.querySelector('.hhTeamSynergyInfoHeader') as HTMLElement;
+        expect(header.textContent).toContain('Current Best');
+        expect(header.textContent).toContain('282');
+    });
+
+    it('collapses on click and remembers it', () => {
+        render();
+        $('.hhTeamSynergyInfoHeader').trigger('click');
+        expect($('.hhTeamSynergyInfoBody').css('display')).toBe('none');
+        expect(localStorage.getItem(KEY)).toBe('true');
+    });
+
+    it('expands again on a second click and clears the flag', () => {
+        render();
+        $('.hhTeamSynergyInfoHeader').trigger('click');
+        $('.hhTeamSynergyInfoHeader').trigger('click');
+        expect($('.hhTeamSynergyInfoBody').css('display')).toBe('block');
+        expect(localStorage.getItem(KEY)).toBe('false');
+    });
+
+    it('renders collapsed when the stored state says so', () => {
+        localStorage.setItem(KEY, 'true');
+        render();
+        expect($('.hhTeamSynergyInfoBody').css('display')).toBe('none');
+        // The header stays visible so it can be opened again.
+        expect(document.querySelectorAll('.hhTeamSynergyInfoHeader').length).toBe(1);
+    });
+
+    it('does not swallow clicks meant for the buttons underneath', () => {
+        render();
+        const panel = document.querySelector('.hhTeamSynergyInfo') as HTMLElement;
+        const header = document.querySelector('.hhTeamSynergyInfoHeader') as HTMLElement;
+        expect(panel.style.pointerEvents).toBe('none');
+        expect(header.style.pointerEvents).toBe('auto');
+    });
+});

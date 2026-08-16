@@ -2306,6 +2306,15 @@ HHStoredVars[HHStoredVarPrefixKey + TK.blessingsCache] =
     storage:"localStorage",
     HHType:"Temp"
 };
+// Collapsed state of the team-selection summary on the edit-team page.
+// localStorage: "1 Unequip All" reloads the page, and the player should not
+// have to fold the panel away again on every pass through the workflow.
+HHStoredVars[HHStoredVarPrefixKey + TK.teamInfoCollapsed] =
+    {
+    default:"false",
+    storage:"localStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey + TK.loveRaids] =
     {
     storage:"sessionStorage",
