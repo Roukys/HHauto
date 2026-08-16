@@ -20,6 +20,9 @@ The new `handleSultryMysteries` block navigates to the event page itself, so
 the event no longer has to be marked "due" for the whole time the key-check
 timer sits expired. Behaviour of the grid run is unchanged.
 
+The "What's New" popup is active for this release and introduces Auto-Mystery
+(off by default, no settings are reset).
+
 ### v8.6.0 - Auto-Mystery: automated Sultry Mysteries grid
 
 New **Auto-Mystery** switch next to *Refresh Shop*. Enabling it opens a

@@ -27776,36 +27776,26 @@ const FEATURE_POPUP_CLOSE_LABEL = "OK";
  * Set to a specific version (e.g. "7.34.2") to activate the feature popup
  * for that version. Set to "0" to deactivate (default).
  */
-const FEATURE_POPUP_VERSION = "8.0.0";
+const FEATURE_POPUP_VERSION = "8.6.1";
 /**
  * Title shown in the popup header.
  */
-const FEATURE_POPUP_TITLE = "HHAuto v8.0.0";
+const FEATURE_POPUP_TITLE = "HHAuto v8.6.1";
 /**
  * HTML content for the feature popup.
  * Update this each time you activate the popup for a new version.
  */
 const FEATURE_POPUP_CONTENT = `
   <div style="padding:10px; max-width:520px; color:#333;">
-    <p style="font-size:15px; font-weight:bold; margin-bottom:10px; color:#090;">Welcome to v8.0.0</p>
-    <p style="margin-bottom:6px;">First big release since v7.29.19. The headlines:</p>
+    <p style="font-size:15px; font-weight:bold; margin-bottom:10px; color:#090;">New: Auto-Mystery</p>
+    <p style="margin-bottom:6px;">The Sultry Mysteries grid can now play itself. The switch sits next to <b>Refresh Shop</b>, and turning it on asks you which rewards matter to you: Kobans, Gems, Fists, Kisses, Orbs, Items, Coins and Keys.</p>
     <ul style="margin-bottom:10px; font-size:12px;">
-      <li><b>Complete internal refactoring of the script</b> &mdash; large parts of the codebase rebuilt for stability:
-        <ul style="margin:4px 0 0 0;">
-          <li>Strict <b>TypeScript</b> type-checking across the whole codebase (zero type errors)</li>
-          <li><b>ESLint</b> integrated into the dev workflow to catch problems early</li>
-          <li>Automated <b>test suite</b> expanded to 1000+ tests, run on every build</li>
-          <li>Old <b>dependency cycles</b> (the import-loop tangle behind many crashes) broken up</li>
-          <li><b>Centralized navigation</b> and an <b>AJAX-mutex</b> to prevent race conditions</li>
-          <li>New <b>block-based run pipeline</b> so each task finishes its turn instead of ping-ponging</li>
-        </ul>
-      </li>
-      <li><b>Much more stable</b> &mdash; fewer navigation loops, "Forbidden" errors and stuck-script situations.</li>
-      <li><b>Smarter team building</b> &mdash; blessing- and synergy-aware League / Edit Team selection.</li>
-      <li><b>Better equipment</b> &mdash; optimized "Stuff Team", auto-equip boosters and smarter Sandalwood.</li>
-      <li><b>More fight control</b> &mdash; independent Troll / Event / Raid clusters and a "+Raid Stars" filter.</li>
+      <li>Squares are opened in a <b>checkerboard</b>, so the first 15 spread over the whole board &mdash; exactly the number the game needs before <i>Generate new grid</i> unlocks.</li>
+      <li>A new grid is generated only once <b>both</b> hold: at least 15 squares open <b>and</b> every reward type you ticked found. Tick nothing and it rerolls right at 15.</li>
+      <li><b>Keys are never bought with kobans.</b> Keys found in the grid itself are used right away; when they run out the script waits an hour before checking again (shown in the info panel as <i>Auto-Mystery</i>).</li>
+      <li>Auto-Mystery is a <b>block of its own</b>, so you can move it wherever you like in <b>Block Order</b>.</li>
     </ul>
-    <p style="margin-bottom:0; font-size:11px; color:#888;">Nothing was removed and no settings are reset. Full list in the CHANGELOG.</p>
+    <p style="margin-bottom:0; font-size:11px; color:#888;">Off by default. Nothing was removed and no settings are reset. Full details in the CHANGELOG.</p>
   </div>
 `;
 class FeaturePopupService {
