@@ -37,12 +37,12 @@ const FEATURE_POPUP_CLOSE_LABEL: string = "OK";
  * Set to a specific version (e.g. "7.34.2") to activate the feature popup
  * for that version. Set to "0" to deactivate (default).
  */
-const FEATURE_POPUP_VERSION: string = "8.6.1";
+const FEATURE_POPUP_VERSION: string = "8.7.0";
 
 /**
  * Title shown in the popup header.
  */
-const FEATURE_POPUP_TITLE = "HHAuto v8.6.1";
+const FEATURE_POPUP_TITLE = "HHAuto v8.7.0";
 
 /**
  * HTML content for the feature popup.
@@ -50,15 +50,15 @@ const FEATURE_POPUP_TITLE = "HHAuto v8.6.1";
  */
 const FEATURE_POPUP_CONTENT = `
   <div style="padding:10px; max-width:520px; color:#333;">
-    <p style="font-size:15px; font-weight:bold; margin-bottom:10px; color:#090;">New: Auto-Mystery</p>
-    <p style="margin-bottom:6px;">The Sultry Mysteries grid can now play itself. The switch sits next to <b>Refresh Shop</b>, and turning it on asks you which rewards matter to you: Kobans, Gems, Fists, Kisses, Orbs, Items, Coins and Keys.</p>
+    <p style="font-size:15px; font-weight:bold; margin-bottom:6px; color:#090;">Better team selection</p>
+    <p style="margin-bottom:6px;">The picker no longer chases the <b>Total Power</b> the game prints &mdash; that number ignores element synergies. It now has the game calculate each candidate team and fields the one that actually wins fights. Measured on one account: <b>88.9% &rarr; 92.2%</b> average win chance at identical Total Power.</p>
     <ul style="margin-bottom:10px; font-size:12px;">
-      <li>Squares are opened in a <b>checkerboard</b>, so the first 15 spread over the whole board &mdash; exactly the number the game needs before <i>Generate new grid</i> unlocks.</li>
-      <li>A new grid is generated only once <b>both</b> hold: at least 15 squares open <b>and</b> every reward type you ticked found. Tick nothing and it rerolls right at 15.</li>
-      <li><b>Keys are never bought with kobans.</b> Keys found in the grid itself are used right away; when they run out the script waits an hour before checking again (shown in the info panel as <i>Auto-Mystery</i>).</li>
-      <li>Auto-Mystery is a <b>block of its own</b>, so you can move it wherever you like in <b>Block Order</b>.</li>
+      <li>Equipment counts towards a girl&rsquo;s stats, so press <b>1 Unequip All</b> first &mdash; otherwise the team already wearing the gear wins the selection for its items.</li>
+      <li>The edit-team buttons are now a numbered workflow (<b>1</b> Unequip &rarr; <b>2</b> pick &rarr; <b>3</b> Stuff Team), Stuff Team works right there, and the summary folds away with a click on its header.</li>
     </ul>
-    <p style="margin-bottom:0; font-size:11px; color:#888;">Off by default. Nothing was removed and no settings are reset. Full details in the CHANGELOG.</p>
+    <p style="font-size:15px; font-weight:bold; margin-bottom:6px; color:#090;">Auto-Mystery (new in 8.6.1)</p>
+    <p style="margin-bottom:10px;">The Sultry Mysteries grid plays itself: the switch sits next to <b>Refresh Shop</b> and asks which rewards matter to you. Squares open in a checkerboard, a new grid is generated once 15 are open and your rewards are found, and <b>keys are never bought with kobans</b>. It is a block of its own in <b>Block Order</b>.</p>
+    <p style="margin-bottom:0; font-size:11px; color:#888;">Both are off by default where a switch exists. Nothing was removed and no settings are reset. Full details in the CHANGELOG.</p>
   </div>
 `;
 
