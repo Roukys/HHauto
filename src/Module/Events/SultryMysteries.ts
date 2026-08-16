@@ -37,6 +37,13 @@ import {
 const SM_NO_KEYS_RETRY_SECONDS = 3600;
 
 export class SultryMysteries {
+    /**
+     * True while a grid run is clicking its way through the board. Guards
+     * against the pipeline starting a second, parallel run on the same page
+     * load (see autoOpenGrid). Reset by every page load.
+     */
+    static autoOpenRunning = false;
+
     static isEnabled(){
         return HeroHelper.getLevel()>=ConfigHelper.getHHScriptVars("LEVEL_MIN_EVENT_SM");
     }
@@ -150,6 +157,7 @@ export class SultryMysteries {
     static closeSquareRewardPopup(): boolean {
         const rewardQuery = 'div#rewards_popup button.blue_button_L:not([disabled]):visible';
         if ($(rewardQuery).length > 0) {
+            logHHAuto("Sultry Mysteries: closing square reward popup.");
             $(rewardQuery).trigger('click');
             return true;
         }
@@ -182,6 +190,13 @@ export class SultryMysteries {
      * square simply extends the current run.
      */
     static autoOpenGrid(eventID: string): boolean {
+        // parseEventPage is re-entered on every pipeline tick for as long as
+        // the auto-open timer sits expired, and every entry used to start its
+        // own click chain: squares were opened in parallel with requests
+        // still in flight, "Generate new grid" fired six times in a row, and
+        // the retry timer was written three times. One run at a time.
+        if (SultryMysteries.autoOpenRunning) return true;
+
         if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDEvent")) {
             logHHAuto("Switching to Sultry Mysteries screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"), { tab: eventID });
@@ -202,6 +217,15 @@ export class SultryMysteries {
         const rewardsList = SultryMysteries.getRewardsList();
         const selectedTypes = SultryMysteries.getSelectedRewardTypes();
         SultryMysteries.logProgress(SultryMysteries.getGrid(), rewardsList, selectedTypes);
+        SultryMysteries.autoOpenRunning = true;
+
+        // End the run and hand the page back. Not called on the regenerate
+        // path: there the reload discards the flag along with the page.
+        function stopRun(reason: string) {
+            SultryMysteries.autoOpenRunning = false;
+            SultryMysteries.scheduleKeyCheck(reason);
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+        }
 
         function step() {
             const grid = SultryMysteries.getGrid();
@@ -214,8 +238,7 @@ export class SultryMysteries {
             });
 
             if (action.kind === 'wait') {
-                SultryMysteries.scheduleKeyCheck(action.reason === 'no_keys' ? 'out of keys' : 'grid fully opened');
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                stopRun(action.reason === 'no_keys' ? 'out of keys' : 'grid fully opened');
                 return;
             }
 
@@ -242,8 +265,7 @@ export class SultryMysteries {
                         return;
                     }
                     logHHAuto("Sultry Mysteries: the grid was not regenerated, stopping.");
-                    SultryMysteries.scheduleKeyCheck("grid not regenerated");
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                    stopRun("grid not regenerated");
                 }
                 setTimeout(afterRegenerate, randomInterval(800, 1200));
                 return;
@@ -253,8 +275,7 @@ export class SultryMysteries {
             const squareQuery = `#contains_all #events .grid-slots .grid-slot.locked[id_square="${idSquare}"]`;
             if ($(squareQuery).length <= 0) {
                 logHHAuto(`Sultry Mysteries: square ${idSquare} is no longer clickable, stopping.`);
-                SultryMysteries.scheduleKeyCheck("square not clickable");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                stopRun("square not clickable");
                 return;
             }
 
@@ -274,8 +295,7 @@ export class SultryMysteries {
                 }
                 if (stillLocked) {
                     logHHAuto(`Sultry Mysteries: square ${idSquare} did not open, stopping.`);
-                    SultryMysteries.scheduleKeyCheck("square did not open");
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                    stopRun("square did not open");
                     return;
                 }
                 SultryMysteries.closeSquareRewardPopup();
