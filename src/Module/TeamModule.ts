@@ -61,18 +61,33 @@ export class TeamModule {
         {
             return;
         }
-        const buttonStyles = 'position: absolute;left: 60%;width:60px;z-index:10';
-        const UnequipAll = hhButton('UnequipAll', 'UnequipAll', buttonStyles + ';top: 110px', 'font-size:small', '1 ');
-        const ChangeTeamButton = hhButton('ChangeTeamButton', 'ChangeTeamButton', buttonStyles + ';top: 160px', 'font-size:small', '2a ');
-        const ChangeTeamButton2 = hhButton('ChangeTeamButton2', 'ChangeTeamButton2', buttonStyles + ';top: 210px', 'font-size:small', '2b ');
-        const StuffTeam = hhButton('StuffTeam', 'StuffTeam', buttonStyles + ';top: 260px', 'font-size:small', '3 ');
+        // One flow-laid-out column instead of four absolutely positioned
+        // buttons: stacking them by hand meant every label that wrapped grew
+        // past its 50px slot and slid under the next one. Flex + a fixed box
+        // per button cannot overlap, whatever the labels or the language.
+        GM_addStyle('.topNumber{top: 2px;left: 12px;width: 100%;position: absolute;text-shadow: 1px 1px 1px black, -1px -1px 1px black;}'
+            + '#hhTeamWorkflow{position:absolute;left:60%;top:100px;z-index:10;'
+            + 'display:flex;flex-direction:column;align-items:stretch;gap:6px;width:92px;}'
+            + '#hhTeamWorkflow .tooltipHH{width:100%;margin:0;padding:0;}'
+            // 44px holds three wrapped lines at this size, which is one more
+            // than the longest translated label needs (fr "2c Assigner les 7
+            // premieres" wraps to two). overflow:hidden is the last resort so
+            // a longer label can never push the column apart again.
+            + '#hhTeamWorkflow .myButton{display:flex;align-items:center;justify-content:center;'
+            + 'box-sizing:border-box;width:100%;height:44px;margin:0;padding:2px 4px;'
+            + 'font-size:11px;line-height:13px;text-align:center;overflow:hidden;}'
+            + '#hhAssignSlot{width:100%;}'
+            + '#hhAssignSlot:empty{display:none;}');
 
-        GM_addStyle('.topNumber{top: 2px;left: 12px;width: 100%;position: absolute;text-shadow: 1px 1px 1px black, -1px -1px 1px black;}');
-
-        $("#contains_all section").append(UnequipAll);
-        $("#contains_all section").append(ChangeTeamButton);
-        $("#contains_all section").append(ChangeTeamButton2);
-        $("#contains_all section").append(StuffTeam);
+        // 2c (Assign first 7) only exists after a team was picked, so it gets
+        // a slot here and is filled in by ensureAssignTopTeamButton.
+        $("#contains_all section").append('<div id="hhTeamWorkflow">'
+            + hhButton('UnequipAll', 'UnequipAll', '', '', '1 ')
+            + hhButton('ChangeTeamButton', 'ChangeTeamButton', '', '', '2a ')
+            + hhButton('ChangeTeamButton2', 'ChangeTeamButton2', '', '', '2b ')
+            + '<div id="hhAssignSlot"></div>'
+            + hhButton('StuffTeam', 'StuffTeam', '', '', '3 ')
+            + '</div>');
 
         $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
         $("#ChangeTeamButton" ).on("click", () => { TeamModule.setTopTeam(1) });
@@ -917,13 +932,22 @@ export class TeamModule {
      */
     private static ensureAssignTopTeamButton(): void {
         if (document.getElementById('AssignTopTeam') !== null) return;
-        const btnHtml = '<div style="position: absolute;top: 92px;width:100px;z-index:10;margin-left:90px" class="tooltipHH">'
-            + '<span class="tooltipHHtext">' + getTextForUI('AssignTopTeam', 'tooltip') + '</span>'
-            + '<label style="font-size:small" class="myButton" id="AssignTopTeam">'
-            // Numbered like the workflow column: it is the step between
-            // picking a team (2a/2b) and stuffing it (3).
-            + '2c ' + getTextForUI('AssignTopTeam', 'elementText') + '</label></div>';
-        $("#contains_all section " + ConfigHelper.getHHScriptVars('IDpanelEditTeam') + ' .harem-panel .panel-body').append(btnHtml);
+        const tooltip = '<span class="tooltipHHtext">' + getTextForUI('AssignTopTeam', 'tooltip') + '</span>';
+        // Step 2c sits in the workflow column between "pick a team" and
+        // "stuff it", so it inherits the same box as every other step. The
+        // old spot next to the harem panel stays as a fallback for the case
+        // where the column is missing (module order, partial DOM).
+        const slot = $('#hhAssignSlot');
+        if (slot.length > 0) {
+            slot.html('<div class="tooltipHH">' + tooltip
+                + '<label class="myButton" id="AssignTopTeam">2c '
+                + getTextForUI('AssignTopTeam', 'elementText') + '</label></div>');
+        } else {
+            $("#contains_all section " + ConfigHelper.getHHScriptVars('IDpanelEditTeam') + ' .harem-panel .panel-body')
+                .append('<div style="position: absolute;top: 92px;width:100px;z-index:10;margin-left:90px" class="tooltipHH">'
+                    + tooltip + '<label style="font-size:small" class="myButton" id="AssignTopTeam">2c '
+                    + getTextForUI('AssignTopTeam', 'elementText') + '</label></div>');
+        }
         $('#AssignTopTeam').on('click', TeamModule.assignTopTeam);
     }
 
