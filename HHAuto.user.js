@@ -20755,14 +20755,53 @@ const ELEMENT_PAIRS_BY_CATEGORY = {
 };
 // Trait hierarchy used in cluster selection (Cluster-Wahl-Regel).
 const TRAIT_HIERARCHY = ['eyeColor', 'hairColor', 'zodiac', 'position'];
+// Element counts that turn on a team "theme". Measured against the live
+// game (2026-08-16): the per-girl element synergy is linear from the FIRST
+// girl, but the theme -- and with it the league domination bonus -- needs
+// three girls of one element. Four is the next step worth trying; beyond
+// that the stat loss outgrows the synergy in every measured case.
+const THEME_SIZES = [3, 4];
+// A candidate this far below the best stat sum cannot be rescued by any
+// synergy: the largest reachable swing is the fire crit-damage track at
+// roughly +9% expected damage, and that already costs far more than 10%.
+const CANDIDATE_SCORE_WINDOW = 0.10;
+// Upper bound on how many candidates the caller may hand to the game-side
+// evaluation -- each one costs an ajax round trip.
+const MAX_RANKED_CANDIDATES = 8;
+// Cluster-neutral sentinel: an empty element set and an impossible trait
+// value, so Leaderauswahl-Regel keys 3 (element-pair match) and 4 (trait
+// match) can never fire. Used wherever a leader must be picked without a
+// cluster to match against.
+const NEUTRAL_CLUSTER = {
+    category: 'eyeColor',
+    value: '\u0000__none__',
+    elements: [],
+};
 class TeamBuilderService {
     /**
-     * Spec entry point.
+     * Spec entry point: the single stat-sum winner.
      */
-    static buildTeam(allGirls, mode, _playerLevel, playerClass) {
+    static buildTeam(allGirls, mode, playerLevel, playerClass) {
+        const built = TeamBuilderService.buildTeamCandidates(allGirls, mode, playerLevel, playerClass, 1);
+        return built.length > 0 ? built[0] : null;
+    }
+    /**
+     * Build the candidate teams, strongest stat sum first.
+     *
+     * The first entry is exactly what buildTeam returns, so a caller that
+     * cannot rank them further just takes it. Callers that CAN rank them --
+     * TeamEvaluationService asks the game to calculate each team's real
+     * stats -- get the alternatives the stat sum alone cannot separate:
+     * teams that trade a little caracs_sum for an element stack (see
+     * THEME_SIZES), which measurably wins fights the stat-sum pick loses.
+     *
+     * Candidates further than CANDIDATE_SCORE_WINDOW below the best stat
+     * sum are dropped: no synergy can make up that much.
+     */
+    static buildTeamCandidates(allGirls, mode, _playerLevel, playerClass, limit = MAX_RANKED_CANDIDATES) {
         const eligible = TeamScoringService.filterEligible(allGirls, playerClass);
         if (eligible.length === 0)
-            return null;
+            return [];
         const scoreFn = (g) => mode === 1
             ? TeamScoringService.scoreCurrentBest(g, playerClass)
             : TeamScoringService.scoreBestPossible(g, playerClass);
@@ -20771,24 +20810,52 @@ class TeamBuilderService {
             scoreMap.set(g.id_girl, scoreFn(g));
         // Pool too small for any cluster to form: emergency fallback.
         if (eligible.length < TEAM_SIZE) {
-            return TeamBuilderService.buildFallback(eligible, scoreMap, playerClass, 'Eligible pool has fewer than 7 girls.');
+            return [TeamBuilderService.buildFallback(eligible, scoreMap, playerClass, 'Eligible pool has fewer than 7 girls.')];
         }
         const blessings = BlessingService.detectActiveBlessings(allGirls);
         const summaries = blessings.map(b => ({
             kind: b.kind, value: b.value, percent: b.percent, pool_size: b.pool_size,
         }));
-        // ---- Candidate matrix --------------------------------------
-        //
-        // For each pool (bless1, bless2, full eligible) we build a SET of
-        // candidate teams: one clustered candidate per trait category that
-        // forms a >= TEAM_SIZE element-pair group, plus one flat candidate
-        // (no cluster constraint). Every candidate is a fully-formed 7-girl
-        // team. The strongest by mode-aware stat-sum wins; on a near-tie
-        // (<= LEADER_TIEBREAK_MARGIN) the higher Tier-5 leader skill wins,
-        // so a Shield leader is never silently traded away for a marginal
-        // stat gain. Spreading the cluster axis into explicit candidates
-        // means the builder never has to guess whether to cluster on the
-        // blessed axis -- it simply tries them all and compares.
+        const candidates = TeamBuilderService.collectCandidates(eligible, scoreMap, blessings);
+        if (candidates.length === 0) {
+            return [TeamBuilderService.buildFallback(eligible, scoreMap, playerClass, 'No candidate pool produced 7 girls; fell back to caracs_sum picks.')];
+        }
+        // Winner by the existing rule (stat sum + Tier-5 leader tie-break),
+        // then the remaining candidates by stat sum. Same-roster candidates
+        // collapse into one -- the game calculates identical stats for them.
+        const best = TeamBuilderService.selectBestCandidate(candidates);
+        const ordered = [best, ...candidates.filter(c => c !== best).sort((a, b) => b.score - a.score)];
+        const seen = new Set();
+        const picked = [];
+        for (const c of ordered) {
+            if ((best.score - c.score) / (Math.abs(best.score) || 1) > CANDIDATE_SCORE_WINDOW)
+                continue;
+            const key = c.team.map(g => g.id_girl).sort((x, y) => x - y).join(',');
+            if (seen.has(key))
+                continue;
+            seen.add(key);
+            picked.push(c);
+            if (picked.length >= Math.max(1, limit))
+                break;
+        }
+        return picked.map(c => TeamBuilderService.buildResult(c.team, scoreMap, eligible, playerClass, c.cluster, summaries, c.poolUsed, undefined, c.themeElement));
+    }
+    /**
+     * ---- Candidate matrix --------------------------------------
+     *
+     * For each pool (bless1, bless2, full eligible) we build a SET of
+     * candidate teams: one clustered candidate per trait category that
+     * forms a >= TEAM_SIZE element-pair group, plus one flat candidate
+     * (no cluster constraint). Every candidate is a fully-formed 7-girl
+     * team. Spreading the cluster axis into explicit candidates means the
+     * builder never has to guess whether to cluster on the blessed axis --
+     * it simply tries them all and compares.
+     *
+     * On top of that come the theme candidates: the flat pick with three
+     * or four girls of one element, which no stat-sum-ranked candidate can
+     * ever produce (constraining a pool can only lower its stat sum).
+     */
+    static collectCandidates(eligible, scoreMap, blessings) {
         const candidates = [];
         const bless1 = blessings[0];
         const bless2 = blessings[1];
@@ -20815,15 +20882,72 @@ class TeamBuilderService {
             addCandidatesForPool(eligible.filter(g => TeamBuilderService.matchesBlessing(g, bless2)), 'bless2');
         }
         addCandidatesForPool(eligible, 'default');
+        for (const themed of TeamBuilderService.buildThemeCandidates(eligible, scoreMap)) {
+            candidates.push(themed);
+        }
         // Score each candidate by mode-aware sum across all 7 picks.
         for (const c of candidates) {
             c.score = c.team.reduce((s, g) => { var _a; return s + ((_a = scoreMap.get(g.id_girl)) !== null && _a !== void 0 ? _a : TeamScoringService.caracsSum(g)); }, 0);
         }
-        if (candidates.length === 0) {
-            return TeamBuilderService.buildFallback(eligible, scoreMap, playerClass, 'No candidate pool produced 7 girls; fell back to caracs_sum picks.');
+        return candidates;
+    }
+    // ---- Theme candidates ----------------------------------------------
+    /**
+     * One candidate per (element, size) pair: the flat leader, then `size`
+     * girls of that element, then the strongest remaining girls. These are
+     * the only candidates that can beat the flat pick in a real fight --
+     * every stat-sum-constrained candidate is a subset of the flat pool and
+     * therefore scores at most as high, whereas an element stack multiplies
+     * the whole stat (hero base included).
+     */
+    static buildThemeCandidates(eligible, scoreMap) {
+        var _a;
+        const out = [];
+        const scoreOf = (g) => { var _a; return (_a = scoreMap.get(g.id_girl)) !== null && _a !== void 0 ? _a : TeamScoringService.caracsSum(g); };
+        const byScore = (a, b) => {
+            const d = scoreOf(b) - scoreOf(a);
+            if (d !== 0)
+                return d;
+            return TeamScoringService.getElementPowerCoeff(b.element)
+                - TeamScoringService.getElementPowerCoeff(a.element);
+        };
+        const leader = TeamBuilderService.pickLeader(eligible, NEUTRAL_CLUSTER, scoreMap);
+        if (!leader)
+            return out;
+        const ranked = [...eligible].filter(g => g.id_girl !== leader.id_girl).sort(byScore);
+        const elements = new Set(eligible.map(g => g.element));
+        for (const element of elements) {
+            for (const size of THEME_SIZES) {
+                const alreadyThemed = leader.element === element ? 1 : 0;
+                const needed = size - alreadyThemed;
+                if (needed <= 0)
+                    continue;
+                const themeGirls = ranked.filter(g => g.element === element).slice(0, needed);
+                if (themeGirls.length < needed)
+                    continue;
+                const used = new Set(themeGirls.map(g => g.id_girl));
+                const positions = [...themeGirls];
+                for (const g of ranked) {
+                    if (positions.length >= POS_2_TO_7)
+                        break;
+                    if (used.has(g.id_girl))
+                        continue;
+                    positions.push(g);
+                    used.add(g.id_girl);
+                }
+                if (positions.length < POS_2_TO_7)
+                    continue;
+                const team = [leader, ...positions];
+                out.push({
+                    team,
+                    cluster: (_a = TeamBuilderService.chooseTeamCluster(team)) !== null && _a !== void 0 ? _a : NEUTRAL_CLUSTER,
+                    poolUsed: 'theme',
+                    score: 0,
+                    themeElement: element,
+                });
+            }
         }
-        const best = TeamBuilderService.selectBestCandidate(candidates);
-        return TeamBuilderService.buildResult(best.team, scoreMap, eligible, playerClass, best.cluster, summaries, best.poolUsed);
+        return out;
     }
     // ---- Bless classification ------------------------------------------
     /**
@@ -20890,12 +21014,6 @@ class TeamBuilderService {
         if (pool.length < TEAM_SIZE)
             return null;
         const scoreOf = (g) => { var _a; return (_a = scoreMap.get(g.id_girl)) !== null && _a !== void 0 ? _a : TeamScoringService.caracsSum(g); };
-        // Cluster-neutral sentinel: keys 3+4 of the leader rule cannot match.
-        const NEUTRAL_CLUSTER = {
-            category: 'eyeColor',
-            value: '\u0000__none__',
-            elements: [],
-        };
         // Leader from the full eligible pool (spec rule: a strong Mythic
         // Shield can lead even from outside the pool). Cluster-neutral, so
         // blessed-vs-unblessed (key 5) breaks Shield-vs-Shield ties in
@@ -21256,7 +21374,7 @@ class TeamBuilderService {
         return TeamBuilderService.buildResult(team, scoreMap, eligible, playerClass, fallbackCluster, [], 'fallback', reason);
     }
     // ---- Result composition --------------------------------------------
-    static buildResult(team, scoreMap, eligible, playerClass, cluster, summaries, poolUsed, fallbackReason) {
+    static buildResult(team, scoreMap, eligible, playerClass, cluster, summaries, poolUsed, fallbackReason, themeElement) {
         var _a, _b, _c, _d;
         const leader = team[0];
         const elements = team.map(g => g.element);
@@ -21309,6 +21427,7 @@ class TeamBuilderService {
             traitMatchCount,
             activeBlessings: summaries,
             poolUsed,
+            themeElement,
             blessedGirlCount,
             fallbackReason,
             playerClass,
@@ -21423,6 +21542,216 @@ class TeamBuilderService {
         return [...counts.entries()]
             .map(([element, count]) => ({ element, count }))
             .sort((a, b) => b.count - a.count);
+    }
+}
+
+;// ./src/Service/TeamEvaluationService.ts
+// TeamEvaluationService.ts -- Ranks candidate teams by effective battle
+// power instead of by the raw stat sum.
+//
+// Why this exists
+// ---------------
+// The team builder ranks candidates by caracs_sum, which is exactly the
+// "Total Power" the game prints on the edit-team screen. Measured against
+// the live game (2026-08-16), that number is literally the sum of the seven
+// girls' caracs -- it contains none of the mechanics that decide a fight:
+//
+//   * Element synergies scale the WHOLE stat (hero base included), and they
+//     are linear from the first girl of an element -- not from the third.
+//     Live values from the game's own `synergies` payload:
+//       darkness +2%/girl damage      nature  +3%/girl ego
+//       light    +2%/girl defense     psychic +2%/girl harmony
+//       fire    +10%/girl crit dmg    stone   +2%/girl crit chance
+//       sun      +2%/girl def-reduce  water   +3%/girl heal-on-hit
+//     Each capped at seven girls; the harem-wide share comes on top.
+//   * Because the multiplier applies to hero base + girls, trading a little
+//     caracs_sum for one more girl of the right element is usually a net win.
+//
+// How it ranks
+// ------------
+// The game exposes its own calculation as `action=team_calculate_caracs`
+// (the edit-team screen fires it on every girl swap). We ask it for each
+// candidate team and get back the authoritative {ego, damage, defense,
+// chance}. Those measured stats are folded into one scalar:
+//
+//   effective = damage * (1 - critChance + critChance * critMultiplier)
+//                      * (1 + sunSynergy)
+//             * ego    * (1 + waterSynergy)
+//
+// i.e. expected damage per hit times how long the team survives -- the
+// time-to-kill product. Against 135 teams measured on the live account and
+// scored with HHauto's own battle simulator over 101 real league opponents,
+// this scalar ranks Spearman 0.96 against simulated points and picks the
+// true best team; caracs_sum alone ranks 0.85 and picks the 9th best.
+//
+// Everything network-facing is optional: without hh_ajax the caller keeps
+// the caracs_sum winner.
+var TeamEvaluationService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+/** Team-side synergy bonus per girl of that element (game payload). */
+const SYNERGY_PER_GIRL = {
+    darkness: 0.02, light: 0.02, psychic: 0.02, stone: 0.02, sun: 0.02,
+    fire: 0.10, nature: 0.03, water: 0.03,
+};
+/** Cap on the team-side share (= seven girls of that element). */
+const SYNERGY_MAX = {
+    darkness: 0.14, light: 0.14, psychic: 0.14, stone: 0.14, sun: 0.14,
+    fire: 0.70, nature: 0.21, water: 0.21,
+};
+// Harem-wide share, fully built (100+ girls of that element). Used only
+// when the live `synergies` payload is unavailable; it is a per-account
+// value that the page normally hands us.
+const HAREM_SYNERGY_FALLBACK = {
+    darkness: 0.07, light: 0.07, psychic: 0.07, stone: 0.07, sun: 0.07,
+    fire: 0.35, nature: 0.10, water: 0.10,
+};
+// Crit chance is a share of a fixed 30% pool split with the opponent, so a
+// neutral opponent of equal harmony leaves 15%. The game caps the stat at
+// 29%; the stone synergy adds on top of the share.
+const NEUTRAL_CRIT_SHARE = 0.15;
+const CRIT_CHANCE_CAP = 0.29;
+// A critical hit deals double damage plus the fire (crit damage) synergy.
+const CRIT_BASE_MULTIPLIER = 2;
+const MEASURE_DELAY_MS = 350;
+class TeamEvaluationService {
+    /**
+     * Harem-wide synergy share per element, read from the game's own
+     * `synergies` payload on the edit-team page. Falls back to the
+     * fully-built harem values when the page does not expose it.
+     */
+    static getHaremSynergies() {
+        var _a;
+        const out = Object.assign({}, HAREM_SYNERGY_FALLBACK);
+        const live = getHHVars('synergies', false);
+        if (!Array.isArray(live))
+            return out;
+        for (const entry of live) {
+            const type = (_a = entry === null || entry === void 0 ? void 0 : entry.element) === null || _a === void 0 ? void 0 : _a.type;
+            if (!type || !(type in out))
+                continue;
+            const harem = Number(entry.harem_bonus_multiplier);
+            if (Number.isFinite(harem))
+                out[type] = harem;
+        }
+        return out;
+    }
+    /** Team + harem synergy share for one element, capped like the game does. */
+    static getSynergy(counts, element, harem = HAREM_SYNERGY_FALLBACK) {
+        var _a;
+        const teamShare = Math.min((counts[element] || 0) * SYNERGY_PER_GIRL[element], SYNERGY_MAX[element]);
+        return teamShare + ((_a = harem[element]) !== null && _a !== void 0 ? _a : 0);
+    }
+    /** Element histogram of a team. */
+    static countElements(elements) {
+        const counts = {};
+        for (const e of elements)
+            counts[e] = (counts[e] || 0) + 1;
+        return counts;
+    }
+    /**
+     * Time-to-kill scalar: expected damage per hit times survivability.
+     * Pure -- takes the measured stats and the team's element histogram.
+     */
+    static computeEffectivePower(caracs, counts, harem = HAREM_SYNERGY_FALLBACK) {
+        const syn = (e) => TeamEvaluationService.getSynergy(counts, e, harem);
+        const critChance = Math.min(CRIT_CHANCE_CAP, NEUTRAL_CRIT_SHARE + syn('stone'));
+        const critMultiplier = CRIT_BASE_MULTIPLIER + syn('fire');
+        const expectedHit = 1 - critChance + critChance * critMultiplier;
+        const offence = (Number(caracs.damage) || 0) * expectedHit * (1 + syn('sun'));
+        const defence = (Number(caracs.ego) || 0) * (1 + syn('water'));
+        return offence * defence;
+    }
+    /** Which battle type the current edit-team screen belongs to. */
+    static getBattleType() {
+        const fromPage = getHHVars('battle_type', false);
+        if (typeof fromPage === 'string' && fromPage.length > 0)
+            return fromPage;
+        const fromUrl = new URLSearchParams(window.location.search).get('battle_type');
+        return fromUrl || 'leagues';
+    }
+    /**
+     * Ask the game to calculate one team's stats. Resolves null when hh_ajax
+     * is missing or the call fails, so the caller can fall back.
+     */
+    static measureTeam(girlIds, battleType) {
+        const ajax = getHHAjax();
+        if (!ajax)
+            return Promise.resolve(null);
+        return new Promise((resolve) => {
+            let settled = false;
+            const done = (value) => {
+                if (settled)
+                    return;
+                settled = true;
+                resolve(value);
+            };
+            setTimeout(() => done(null), 15000);
+            try {
+                ajax({
+                    action: 'team_calculate_caracs',
+                    girls: girlIds.map(String),
+                    battle_type: battleType,
+                }, (data) => {
+                    if (!data || !data.caracs)
+                        return done(null);
+                    done({
+                        caracs: {
+                            ego: Number(data.caracs.ego) || 0,
+                            damage: Number(data.caracs.damage) || 0,
+                            defense: Number(data.caracs.defense) || 0,
+                            chance: Number(data.caracs.chance) || 0,
+                        },
+                        totalPower: Number(data.total_power) || 0,
+                    });
+                });
+            }
+            catch (err) {
+                logHHAuto('TeamEvaluationService: team_calculate_caracs failed: ' + err);
+                done(null);
+            }
+        });
+    }
+    /**
+     * Measure every candidate and return them ranked by effective power.
+     * Returns an empty array when the game calculation is unavailable --
+     * the caller then keeps its caracs_sum ranking.
+     */
+    static rankCandidates(candidates, girlIdsOf, elementsOf) {
+        return TeamEvaluationService_awaiter(this, void 0, void 0, function* () {
+            if (candidates.length === 0 || !getHHAjax())
+                return [];
+            const battleType = TeamEvaluationService.getBattleType();
+            const harem = TeamEvaluationService.getHaremSynergies();
+            const measured = [];
+            for (const candidate of candidates) {
+                const ids = girlIdsOf(candidate);
+                const result = yield TeamEvaluationService.measureTeam(ids, battleType);
+                if (!result) {
+                    logHHAuto('TeamEvaluationService: no game calculation for a candidate, keeping stat-sum ranking');
+                    return [];
+                }
+                const counts = TeamEvaluationService.countElements(elementsOf(candidate));
+                measured.push({
+                    candidate,
+                    caracs: result.caracs,
+                    totalPower: result.totalPower,
+                    effectivePower: TeamEvaluationService.computeEffectivePower(result.caracs, counts, harem),
+                });
+                yield new Promise(r => setTimeout(r, MEASURE_DELAY_MS));
+            }
+            measured.sort((a, b) => b.effectivePower - a.effectivePower);
+            return measured;
+        });
     }
 }
 
@@ -21574,6 +21903,15 @@ class TeamData {
 }
 
 ;// ./src/Module/TeamModule.ts
+var TeamModule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 // TeamModule.ts -- Team management: auto-selects optimal teams for different
 // battle modes.
 //
@@ -21584,6 +21922,7 @@ class TeamData {
 //
 // Used by: League.ts, Troll.ts, Labyrinth.ts, Season.ts, and other fight modules
 //
+
 
 
 
@@ -21998,19 +22337,21 @@ class TeamModule {
         const playerClass = (rawClass === 1 || rawClass === 2 || rawClass === 3) ? rawClass : 1;
         // Map availableGirls (raw game data) to the GirlData interface.
         const girls = availableGirls.map(g => TeamModule.mapAvailableGirl(g));
-        // Build BOTH modes so we can detect when "Best Possible" produces
-        // the same team as "Current Best" — this happens when the top 7
-        // girls are already at full development potential (max level + max
-        // grades). We then surface that fact in the info box instead of
-        // letting the user think the buttons are broken (issue #1603).
-        const resultMode1 = TeamBuilderService.buildTeam(girls, 1, playerLevel, playerClass);
-        const resultMode2 = TeamBuilderService.buildTeam(girls, 2, playerLevel, playerClass);
-        const result = mode === 1 ? resultMode1 : resultMode2;
+        // Candidates for the clicked mode, strongest stat sum first. The
+        // first one is the classic pick; the rest differ mostly in how many
+        // girls of one element they stack, which the stat sum cannot judge.
+        const candidates = TeamBuilderService.buildTeamCandidates(girls, mode, playerLevel, playerClass);
+        // The other mode only needs its winner (mode-diff detection below).
+        const otherMode = mode === 1 ? 2 : 1;
+        const resultOther = TeamBuilderService.buildTeam(girls, otherMode, playerLevel, playerClass);
+        const result = candidates[0];
         if (!result) {
             logHHAuto('Not enough girls for team selection v2 (mode ' + mode + '), falling back to legacy');
             TeamModule.setTopTeamLegacy(mode);
             return;
         }
+        const resultMode1 = mode === 1 ? result : resultOther;
+        const resultMode2 = mode === 1 ? resultOther : result;
         // Mode-diff detection: identical top-7 (any order) means the pool
         // is already maximised and Best Possible cannot improve on Current
         // Best. We set this flag on BOTH results so the UI can show it
@@ -22035,6 +22376,77 @@ class TeamModule {
         result.otherModeName = mode === 1 ? 'Best Possible' : 'Current Best';
         // poolStats is built by TeamBuilderService and exposed on the
         // result. Read it for the info box (no recomputation here).
+        // Render the stat-sum pick right away so the click feels immediate,
+        // then let the game calculate the candidates and re-render if a
+        // different one turns out stronger in a fight.
+        //
+        // Mode 2 is deliberately excluded: the game calculates the stats the
+        // girls have TODAY, while "Best Possible" ranks them by what they
+        // will be worth at level 750 with max grades. Measuring those picks
+        // would just throw the under-levelled development targets out and
+        // turn mode 2 into mode 1.
+        TeamModule.applyTeamResult(result, mode);
+        if (mode === 1 && candidates.length > 1) {
+            TeamModule.refineWithGameCalculation(candidates, mode)
+                .catch(err => logHHAuto('Team evaluation failed, keeping stat-sum pick: ' + err));
+        }
+    }
+    /**
+     * Ask the game to calculate every candidate team's real stats and field
+     * the one with the highest effective power (see TeamEvaluationService).
+     * Silently keeps the stat-sum pick when the calculation is unavailable.
+     */
+    static refineWithGameCalculation(candidates, mode) {
+        return TeamModule_awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
+            const statSumPick = candidates[0];
+            const ranked = yield TeamEvaluationService.rankCandidates(candidates, c => c.girls.map(g => g.id_girl), c => c.elements);
+            if (ranked.length === 0)
+                return;
+            const winner = ranked[0];
+            const statSumMeasured = ranked.find(r => r.candidate === statSumPick);
+            const changedPick = winner.candidate !== statSumPick;
+            logHHAuto(`Team evaluation: ${ranked.length} candidates measured by the game. `
+                + ranked.map(r => {
+                    const dist = TeamBuilderService.getElementDistribution(r.candidate)
+                        .map(d => `${d.count}${d.element.charAt(0)}`).join('');
+                    return `[${r.candidate.poolUsed}${r.candidate.themeElement ? ':' + r.candidate.themeElement : ''} ${dist}`
+                        + ` power=${Math.round(r.totalPower).toLocaleString()}`
+                        + ` dmg=${Math.round(r.caracs.damage).toLocaleString()}`
+                        + ` ego=${Math.round(r.caracs.ego).toLocaleString()}`
+                        + ` eff=${r.effectivePower.toExponential(3)}]`;
+                }).join(' '));
+            if (!changedPick) {
+                logHHAuto('Team evaluation: stat-sum pick is also the strongest in a fight.');
+            }
+            else {
+                const gain = statSumMeasured
+                    ? ((winner.effectivePower / statSumMeasured.effectivePower - 1) * 100).toFixed(2)
+                    : '?';
+                logHHAuto(`Team evaluation: fielding the ${winner.candidate.themeElement || winner.candidate.poolUsed} candidate instead`
+                    + ` (+${gain}% effective power, ${Math.round(winner.totalPower - ((_a = statSumMeasured === null || statSumMeasured === void 0 ? void 0 : statSumMeasured.totalPower) !== null && _a !== void 0 ? _a : 0)).toLocaleString()} total power).`);
+            }
+            // Carry the display context over to the team we actually field.
+            winner.candidate.modesIdentical = statSumPick.modesIdentical;
+            winner.candidate.previousMainSumSameMode = statSumPick.previousMainSumSameMode;
+            winner.candidate.previousMainSumOtherMode = statSumPick.previousMainSumOtherMode;
+            winner.candidate.currentModeName = statSumPick.currentModeName;
+            winner.candidate.otherModeName = statSumPick.otherModeName;
+            winner.candidate.evaluation = {
+                candidatesMeasured: ranked.length,
+                caracs: winner.caracs,
+                effectivePower: winner.effectivePower,
+                statSumPickEffectivePower: (_b = statSumMeasured === null || statSumMeasured === void 0 ? void 0 : statSumMeasured.effectivePower) !== null && _b !== void 0 ? _b : 0,
+                statSumPickTotalPower: (_c = statSumMeasured === null || statSumMeasured === void 0 ? void 0 : statSumMeasured.totalPower) !== null && _c !== void 0 ? _c : 0,
+                changedPick,
+            };
+            TeamModule.lastMainSum[mode] = winner.candidate.mainSum;
+            TeamModule.applyTeamResult(winner.candidate, mode);
+        });
+    }
+    /** Log the picked team and push it into the edit-team UI. */
+    static applyTeamResult(result, mode) {
+        const modesIdentical = result.modesIdentical === true;
         const deckID = result.girls.map(g => g.id_girl);
         const modeName = mode === 1 ? 'Current Best' : 'Best Possible';
         const dist = TeamBuilderService.getElementDistribution(result);
@@ -22288,6 +22700,31 @@ class TeamModule {
             ? `<div style="color:#aaa; font-size:10px; margin-top:2px;"><b>Top excluded:</b><br/>${auditTopExcluded}${auditMoreLine}</div>`
             : '';
         const leaderClassName = TeamModule.CLASS_NAME[teamResult.girls[0].element] || teamResult.girls[0].element;
+        // Game-side evaluation: the stats the game itself calculated for the
+        // fielded team, plus what it cost/gained against the pure stat-sum
+        // pick. Absent while the calculation is still running or unavailable.
+        const evalInfo = teamResult.evaluation;
+        let evaluationHtml = '';
+        if (evalInfo) {
+            const effDelta = evalInfo.statSumPickEffectivePower > 0
+                ? ((evalInfo.effectivePower / evalInfo.statSumPickEffectivePower - 1) * 100)
+                : 0;
+            const powerDelta = Math.round(teamResult.mainSum - evalInfo.statSumPickTotalPower);
+            const verdict = evalInfo.changedPick
+                ? `<span style="color:#7f7;">+${effDelta.toFixed(2)}% effective power</span>`
+                    + ` for ${powerDelta.toLocaleString()} total power`
+                    + (teamResult.themeElement ? ` (${teamResult.themeElement} theme)` : '')
+                : 'strongest team is also the highest stat sum';
+            evaluationHtml = `
+            <hr style="border-color:#555; margin:4px 0"/>
+            <div style="color:#ffb827; font-weight:bold;">Game calculation (${evalInfo.candidatesMeasured} candidates)</div>
+            <div><b>Damage:</b> ${Math.round(evalInfo.caracs.damage).toLocaleString()}
+                 &nbsp;<b>Ego:</b> ${Math.round(evalInfo.caracs.ego).toLocaleString()}</div>
+            <div><b>Defense:</b> ${Math.round(evalInfo.caracs.defense).toLocaleString()}
+                 &nbsp;<b>Harmony:</b> ${Math.round(evalInfo.caracs.chance).toLocaleString()}</div>
+            <div style="font-size:10px;">${verdict}</div>
+            <div style="color:#aaa; font-size:10px;">Ranked by expected damage per hit x survivability, including element synergies.</div>`;
+        }
         const fallbackPanel = teamResult.poolUsed === 'fallback' && teamResult.fallbackReason
             ? `<div style="color:#fc6; font-size:10px; margin-top:4px;"><b>Fallback applied:</b> ${teamResult.fallbackReason}</div>`
             : '';
@@ -22295,6 +22732,7 @@ class TeamModule {
             position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 320px; z-index: 10;
             background: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px;
             border-radius: 4px; font-size: 11px; line-height: 1.5;
+            pointer-events: none;
         ">
             ${poolNoticeHtml}
 
@@ -22320,6 +22758,8 @@ class TeamModule {
             <div><b>Main Sum (${mainCaracLabel}):</b> ${((_c = teamResult.mainSum) === null || _c === void 0 ? void 0 : _c.toLocaleString()) || 'N/A'}${mainSumDeltaHtml}</div>
             <div><b>Projected Sum:</b> ${((_d = teamResult.projectedSum) === null || _d === void 0 ? void 0 : _d.toLocaleString()) || 'N/A'} <span style="color:#aaa; font-size:10px;">(if all girls were at level 750 with max grades)</span></div>
             `}
+
+            ${evaluationHtml}
 
             <hr style="border-color:#555; margin:4px 0"/>
             <div style="color:#ffb827; font-weight:bold;">Mythic Audit</div>
