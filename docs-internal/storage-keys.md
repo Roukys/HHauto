@@ -370,6 +370,12 @@ Die Spalte "Storage" zeigt den Wert aus der Registry. `--` heisst: nicht in `HHS
 | Konstante | Storage Key | Storage | HHType | Beschreibung |
 |-----------|-------------|---------|--------|--------------|
 | `sultryMysteriesEventRefreshShop` | `Setting_sultryMysteriesEventRefreshShop` | `Storage()` | `Setting` | Sultry Mysteries Shop |
+| `sultryMysteriesAutoOpen` | `Setting_sultryMysteriesAutoOpen` | `Storage()` | `Setting` | Auto-Mystery: Grid-Felder oeffnen (v8.6.0) |
+| `sultryMysteriesAutoOpenCollectablesList` | `Setting_sultryMysteriesAutoOpenCollectablesList` | `Storage()` | `Setting` (Array) | Belohnungs-Typen, die vor einem Reroll gefunden sein muessen (v8.6.0) |
+
+Timer: `eventSultryMysteryGoing` (Event-Restlaufzeit), `eventSultryMysteryShopRefresh`
+(naechster Shop-Restock), `eventSultryMysteryAutoOpen` (naechste Key-Pruefung,
+1 h nachdem die Keys leer waren -- im Info-Panel als "Auto-Mystery").
 
 ### Display / UI
 

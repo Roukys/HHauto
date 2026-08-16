@@ -109,12 +109,25 @@ State-Maschine pro Handler:
 IDLE -> RUNNING -> COMPLETED|FAILED|INTERRUPTED -> IDLE
 ```
 
-Aktuell migrierte Handler:
+Inzwischen laufen **alle** Action-Handler ueber die Pipeline; die Liste oben
+beschreibt den historischen klassischen Loop. Die aktuelle Reihenfolge steht als
+`pipeline`-Array am Ende von `src/Service/Pipeline.config.ts` -- dort und nicht
+hier nachsehen, diese Datei laeuft der Realitaet hinterher.
 
-| Priority | Name | Atomicity | Notiz |
-|----------|------|-----------|-------|
-| 1 | handleEventParsing | non-atomic | laeuft fast jeden Tick, `minIntervalMs: 2000` |
-| 13 | handleLeague | atomic | Fight-Sequenz darf nicht unterbrochen werden, `minIntervalMs: 60000`, `totalTimeoutMs: 30000` |
+Zwei Beispiele fuer die Extremfaelle:
+
+| Name | Atomicity | Notiz |
+|------|-----------|-------|
+| handleEventParsing | non-atomic | laeuft fast jeden Tick, `minIntervalMs: 2000`, in `INFRA_BLOCKS` gepinnt |
+| handleLeague | atomic | Fight-Sequenz darf nicht unterbrochen werden, `minIntervalMs: 60000`, `totalTimeoutMs: 30000` |
+
+`BlockPipeline.buildRegistryAndOrder()` leitet Registry und Default-Reihenfolge
+direkt aus diesem Array ab. Jeder Block ist damit automatisch in der
+Block-Order-UI sichtbar und verschiebbar, ausser er steht in `INFRA_BLOCKS`
+(`handleEventParsing`, `handleGoHome`) oder hat harte Constraints in
+`BLOCK_CONSTRAINTS`. Ein neues Feature, das eigenstaendig navigiert, gehoert
+deshalb als eigener Block in die Pipeline -- nicht als Tail-Call in einen
+fremden Handler, sonst taucht es in der UI nicht auf (Auto-Mystery, v8.6.1).
 
 ### Pipeline-vs-Klassische-Handler: lastActionPerformed-Guard
 
@@ -217,7 +230,8 @@ src/
       CumbackContests.ts             -- Cumback-Contests
       DoublePenetration.ts           -- DP-Event
       LivelyScene.ts                 -- Lively-Scene-Event
-      SultryMysteries.ts             -- Sultry-Mysteries-Event
+      SultryMysteries.ts             -- Sultry-Mysteries-Event (Shop-Refresh + Auto-Mystery-Grid)
+      SultryMysteries.pure.ts        -- Restlaufzeit + Grid-Entscheidungslogik (DOM-frei)
 
   Helper/                            -- 17 Dateien
     index.ts
