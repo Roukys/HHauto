@@ -179,7 +179,10 @@ src/
     SurveyService.ts                 -- User-Surveys
     BlessingService.ts               -- Blessing-Daten-Abruf + 12h-Cache (TK.blessingsCache)
     TeamScoringService.ts            -- Team-Scoring (main_carac, Tier-3, Synergien, Tier-5, Klassen-Filter)
-    TeamBuilderService.ts            -- Team-Builder (Cluster-Vergleich, Slot-Fill, Alternativen)
+    TeamBuilderService.ts            -- Team-Builder (Kandidatenliste: Cluster, Bless-Pools, Theme-Stacks)
+    TeamEvaluationService.ts         -- Kandidaten-Ranking ueber die Spiel-Rechnung
+                                        (action=team_calculate_caracs) nach erwartetem
+                                        Schaden pro Treffer x Ueberlebensdauer
     TraitMappings.ts                 -- Hex/Position/Zodiac -> Klar-Namen via window.GT.design + Fallback
 
   Module/                            -- 25 Root-Dateien (24 Module + index.ts)
