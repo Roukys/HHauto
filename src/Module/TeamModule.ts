@@ -17,6 +17,7 @@ import { getPage } from "../Helper/PageHelper";
 import { getStoredValue, setStoredValue } from "../Helper/StorageHelper";
 import { randomInterval } from "../Helper/TimeHelper";
 import { addNutakuSession, gotoPage, safeReload } from '../Service/PageNavigationService';
+import { themeFromElementCounts } from '../Service/EquipmentOptimizerService';
 import { TeamBuilderService, ScoringMode, TeamResult } from '../Service/TeamBuilderService';
 import { TeamEvaluationService } from '../Service/TeamEvaluationService';
 import { GirlData, ElementType, RarityType, PlayerClass } from '../Service/TeamScoringService';
@@ -735,6 +736,15 @@ export class TeamModule {
         const modeName = mode === 1 ? 'Current Best' : 'Best Possible';
         const dist = TeamBuilderService.getElementDistribution(result);
         const distStr = dist.map(d => `${d.count}x ${d.element}`).join(', ');
+
+        // Hand the theme to the gear optimiser: the market page has no team
+        // data, and resonance depends on the theme of the team that is
+        // actually fielded (docs-internal/equipment-resonance.md, section 5 --
+        // team first, items after).
+        const elementCounts: Record<string, number> = {};
+        for (const d of dist) elementCounts[d.element] = d.count;
+        const gearTheme = themeFromElementCounts(elementCounts);
+        setStoredValue(HHStoredVarPrefixKey + TK.teamTheme, gearTheme);
         const inClusterStr = result.leaderInCluster ? 'in-cluster' : 'cross-cluster';
         const identStr = modesIdentical ? ', modes identical' : '';
         const playerClassNameLog = TeamModule.PLAYER_CLASS_NAME[result.playerClass] || ('class ' + result.playerClass);

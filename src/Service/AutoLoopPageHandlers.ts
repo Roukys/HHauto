@@ -28,6 +28,7 @@ import { Club } from "../Module/Club";
 import { ClubChampion } from "../Module/ClubChampion";
 import { Contest } from "../Module/Contest";
 import { DailyGoals, DailyGoalsIcon } from "../Module/DailyGoals";
+import { EquipmentGear } from "../Module/EquipmentGear";
 import { DoublePenetration } from "../Module/Events/DoublePenetration";
 import { EventModule } from "../Module/Events/EventModule";
 import { LivelyScene } from "../Module/Events/LivelyScene";
@@ -178,6 +179,9 @@ export async function handlePageSpecific(ctx: AutoLoopContext): Promise<void> {
             if (getStoredValue(HHStoredVarPrefixKey+SK.showMarketTools) === "true")
             {
                 Shop.moduleShopActions();
+                // Same gate as the sell tools: both live on the armor tab of
+                // the market and are manual, player-triggered actions.
+                EquipmentGear.moduleGearActions();
             }
             if(Booster.needBoosterStatusFromStore()) {
                 Booster.collectBoostersFromMarket = callItOnce(Booster.collectBoostersFromMarket);

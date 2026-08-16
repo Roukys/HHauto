@@ -7,6 +7,38 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.8.0 - Gear buttons for the hero's own equipment
+
+Two buttons next to the armor inventory on the market page, built to mirror
+the team workflow so there is one mental model instead of two:
+
+- **Current Best Gear** picks, per slot, the item with the highest value
+  *today*. Raw stats decide and resonance only breaks ties -- a resonance
+  bonus is worth at most 2 percentage points (4 on the chance track) while a
+  level-1 item gives up ~1900 raw points per carac against a level-20 one.
+  A consequence worth knowing: a mythic below roughly level 15 loses to a
+  legendary at player level, and that is the right answer. This button never
+  makes the hero weaker.
+- **Possible Best Gear** picks the item that will be strongest once it is
+  levelled to the max, ranked mythic-with-class-and-theme, then
+  mythic-with-class-only, then whatever is strongest raw. Like "Best
+  Possible" on the team page it deliberately equips items that are weaker
+  today -- so it prints, per slot and in total, exactly how many carac points
+  that costs now and what it is worth once the items are maxed.
+
+Both show a full preview before anything is touched, log one line per planned
+swap, abort without acting when `hh_ajax` is unavailable, and record the
+inventory id of every item they take off (the id changes on every unequip, so
+it can only come from the equip response) to keep a rollback possible.
+
+The resonance theme comes from the team: `TeamModule` now stores the theme of
+the team it fielded, because the market page has no team data. With no theme
+available the buttons do nothing and say so -- gear picked on a guessed theme
+is six wrong items.
+
+Mechanics, data model and the measurement traps behind all of this:
+`docs-internal/equipment-resonance.md`.
+
 ### v8.7.0 - Team selection ranked by battle power, and a workflow to go with it
 
 **Team selection.** The picker ranked teams by `caracs_sum`, which is exactly
