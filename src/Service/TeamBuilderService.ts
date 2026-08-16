@@ -88,7 +88,9 @@ export interface TeamResult {
     tier3Bonus: number;
     traitMatchCount: number;
     activeBlessings: BlessingSummary[];
-    poolUsed: 'bless1' | 'bless2' | 'bless1-flat' | 'bless2-flat' | 'default' | 'default-flat' | 'fallback';
+    poolUsed: 'bless1' | 'bless2' | 'bless1-flat' | 'bless2-flat' | 'default' | 'default-flat' | 'theme' | 'fallback';
+    /** Element the candidate deliberately stacked (theme candidates only). */
+    themeElement?: ElementType;
     blessedGirlCount: number;
     fallbackReason?: string;
     playerClass: PlayerClass;
@@ -101,6 +103,24 @@ export interface TeamResult {
     previousMainSumOtherMode?: number;
     currentModeName?: string;
     otherModeName?: string;
+    // Filled by TeamModule when the game-side evaluation ranked the
+    // candidates (see TeamEvaluationService).
+    evaluation?: TeamEvaluationInfo;
+}
+
+/** What the game-side evaluation said about the fielded team. */
+export interface TeamEvaluationInfo {
+    /** Number of candidate teams the game calculated stats for. */
+    candidatesMeasured: number;
+    /** Measured stats of the winning team. */
+    caracs: { ego: number; damage: number; defense: number; chance: number };
+    effectivePower: number;
+    /** Effective power of the pure stat-sum pick, for the delta display. */
+    statSumPickEffectivePower: number;
+    /** Total power of the pure stat-sum pick. */
+    statSumPickTotalPower: number;
+    /** True when effective power picked a different team than caracs_sum. */
+    changedPick: boolean;
 }
 
 const TEAM_SIZE = 7;
@@ -131,23 +151,74 @@ interface TeamCluster {
 interface CandidateTeam {
     team: GirlData[];
     cluster: TeamCluster;
-    poolUsed: 'bless1' | 'bless2' | 'bless1-flat' | 'bless2-flat' | 'default' | 'default-flat';
+    poolUsed: 'bless1' | 'bless2' | 'bless1-flat' | 'bless2-flat' | 'default' | 'default-flat' | 'theme';
     score: number; // mode-aware caracs_sum across all 7 picks
+    themeElement?: ElementType;
 }
+
+// Element counts that turn on a team "theme". Measured against the live
+// game (2026-08-16): the per-girl element synergy is linear from the FIRST
+// girl, but the theme -- and with it the league domination bonus -- needs
+// three girls of one element. Four is the next step worth trying; beyond
+// that the stat loss outgrows the synergy in every measured case.
+const THEME_SIZES = [3, 4];
+
+// A candidate this far below the best stat sum cannot be rescued by any
+// synergy: the largest reachable swing is the fire crit-damage track at
+// roughly +9% expected damage, and that already costs far more than 10%.
+const CANDIDATE_SCORE_WINDOW = 0.10;
+
+// Upper bound on how many candidates the caller may hand to the game-side
+// evaluation -- each one costs an ajax round trip.
+const MAX_RANKED_CANDIDATES = 8;
+
+// Cluster-neutral sentinel: an empty element set and an impossible trait
+// value, so Leaderauswahl-Regel keys 3 (element-pair match) and 4 (trait
+// match) can never fire. Used wherever a leader must be picked without a
+// cluster to match against.
+const NEUTRAL_CLUSTER: TeamCluster = {
+    category: 'eyeColor',
+    value: '\u0000__none__',
+    elements: [],
+};
 
 export class TeamBuilderService {
 
     /**
-     * Spec entry point.
+     * Spec entry point: the single stat-sum winner.
      */
     static buildTeam(
         allGirls: GirlData[],
         mode: ScoringMode,
-        _playerLevel: number,
+        playerLevel: number,
         playerClass: PlayerClass,
     ): TeamResult | null {
+        const built = TeamBuilderService.buildTeamCandidates(allGirls, mode, playerLevel, playerClass, 1);
+        return built.length > 0 ? built[0] : null;
+    }
+
+    /**
+     * Build the candidate teams, strongest stat sum first.
+     *
+     * The first entry is exactly what buildTeam returns, so a caller that
+     * cannot rank them further just takes it. Callers that CAN rank them --
+     * TeamEvaluationService asks the game to calculate each team's real
+     * stats -- get the alternatives the stat sum alone cannot separate:
+     * teams that trade a little caracs_sum for an element stack (see
+     * THEME_SIZES), which measurably wins fights the stat-sum pick loses.
+     *
+     * Candidates further than CANDIDATE_SCORE_WINDOW below the best stat
+     * sum are dropped: no synergy can make up that much.
+     */
+    static buildTeamCandidates(
+        allGirls: GirlData[],
+        mode: ScoringMode,
+        _playerLevel: number,
+        playerClass: PlayerClass,
+        limit: number = MAX_RANKED_CANDIDATES,
+    ): TeamResult[] {
         const eligible = TeamScoringService.filterEligible(allGirls, playerClass);
-        if (eligible.length === 0) return null;
+        if (eligible.length === 0) return [];
 
         const scoreFn = (g: GirlData) => mode === 1
             ? TeamScoringService.scoreCurrentBest(g, playerClass)
@@ -157,10 +228,10 @@ export class TeamBuilderService {
 
         // Pool too small for any cluster to form: emergency fallback.
         if (eligible.length < TEAM_SIZE) {
-            return TeamBuilderService.buildFallback(
+            return [TeamBuilderService.buildFallback(
                 eligible, scoreMap, playerClass,
                 'Eligible pool has fewer than 7 girls.',
-            );
+            )];
         }
 
         const blessings = BlessingService.detectActiveBlessings(allGirls);
@@ -168,18 +239,57 @@ export class TeamBuilderService {
             kind: b.kind, value: b.value, percent: b.percent, pool_size: b.pool_size,
         }));
 
-        // ---- Candidate matrix --------------------------------------
-        //
-        // For each pool (bless1, bless2, full eligible) we build a SET of
-        // candidate teams: one clustered candidate per trait category that
-        // forms a >= TEAM_SIZE element-pair group, plus one flat candidate
-        // (no cluster constraint). Every candidate is a fully-formed 7-girl
-        // team. The strongest by mode-aware stat-sum wins; on a near-tie
-        // (<= LEADER_TIEBREAK_MARGIN) the higher Tier-5 leader skill wins,
-        // so a Shield leader is never silently traded away for a marginal
-        // stat gain. Spreading the cluster axis into explicit candidates
-        // means the builder never has to guess whether to cluster on the
-        // blessed axis -- it simply tries them all and compares.
+        const candidates = TeamBuilderService.collectCandidates(eligible, scoreMap, blessings);
+        if (candidates.length === 0) {
+            return [TeamBuilderService.buildFallback(
+                eligible, scoreMap, playerClass,
+                'No candidate pool produced 7 girls; fell back to caracs_sum picks.',
+            )];
+        }
+
+        // Winner by the existing rule (stat sum + Tier-5 leader tie-break),
+        // then the remaining candidates by stat sum. Same-roster candidates
+        // collapse into one -- the game calculates identical stats for them.
+        const best = TeamBuilderService.selectBestCandidate(candidates);
+        const ordered = [best, ...candidates.filter(c => c !== best).sort((a, b) => b.score - a.score)];
+
+        const seen = new Set<string>();
+        const picked: CandidateTeam[] = [];
+        for (const c of ordered) {
+            if ((best.score - c.score) / (Math.abs(best.score) || 1) > CANDIDATE_SCORE_WINDOW) continue;
+            const key = c.team.map(g => g.id_girl).sort((x, y) => x - y).join(',');
+            if (seen.has(key)) continue;
+            seen.add(key);
+            picked.push(c);
+            if (picked.length >= Math.max(1, limit)) break;
+        }
+
+        return picked.map(c => TeamBuilderService.buildResult(
+            c.team, scoreMap, eligible, playerClass,
+            c.cluster, summaries, c.poolUsed, undefined, c.themeElement,
+        ));
+    }
+
+    /**
+     * ---- Candidate matrix --------------------------------------
+     *
+     * For each pool (bless1, bless2, full eligible) we build a SET of
+     * candidate teams: one clustered candidate per trait category that
+     * forms a >= TEAM_SIZE element-pair group, plus one flat candidate
+     * (no cluster constraint). Every candidate is a fully-formed 7-girl
+     * team. Spreading the cluster axis into explicit candidates means the
+     * builder never has to guess whether to cluster on the blessed axis --
+     * it simply tries them all and compares.
+     *
+     * On top of that come the theme candidates: the flat pick with three
+     * or four girls of one element, which no stat-sum-ranked candidate can
+     * ever produce (constraining a pool can only lower its stat sum).
+     */
+    private static collectCandidates(
+        eligible: GirlData[],
+        scoreMap: Map<number, number>,
+        blessings: BlessingSummary[],
+    ): CandidateTeam[] {
         const candidates: CandidateTeam[] = [];
         const bless1 = blessings[0];
         const bless2 = blessings[1];
@@ -210,6 +320,10 @@ export class TeamBuilderService {
         }
         addCandidatesForPool(eligible, 'default');
 
+        for (const themed of TeamBuilderService.buildThemeCandidates(eligible, scoreMap)) {
+            candidates.push(themed);
+        }
+
         // Score each candidate by mode-aware sum across all 7 picks.
         for (const c of candidates) {
             c.score = c.team.reduce(
@@ -217,20 +331,68 @@ export class TeamBuilderService {
                 0,
             );
         }
+        return candidates;
+    }
 
-        if (candidates.length === 0) {
-            return TeamBuilderService.buildFallback(
-                eligible, scoreMap, playerClass,
-                'No candidate pool produced 7 girls; fell back to caracs_sum picks.',
-            );
+    // ---- Theme candidates ----------------------------------------------
+
+    /**
+     * One candidate per (element, size) pair: the flat leader, then `size`
+     * girls of that element, then the strongest remaining girls. These are
+     * the only candidates that can beat the flat pick in a real fight --
+     * every stat-sum-constrained candidate is a subset of the flat pool and
+     * therefore scores at most as high, whereas an element stack multiplies
+     * the whole stat (hero base included).
+     */
+    private static buildThemeCandidates(
+        eligible: GirlData[],
+        scoreMap: Map<number, number>,
+    ): CandidateTeam[] {
+        const out: CandidateTeam[] = [];
+        const scoreOf = (g: GirlData): number =>
+            scoreMap.get(g.id_girl) ?? TeamScoringService.caracsSum(g);
+        const byScore = (a: GirlData, b: GirlData) => {
+            const d = scoreOf(b) - scoreOf(a);
+            if (d !== 0) return d;
+            return TeamScoringService.getElementPowerCoeff(b.element)
+                 - TeamScoringService.getElementPowerCoeff(a.element);
+        };
+
+        const leader = TeamBuilderService.pickLeader(eligible, NEUTRAL_CLUSTER, scoreMap);
+        if (!leader) return out;
+
+        const ranked = [...eligible].filter(g => g.id_girl !== leader.id_girl).sort(byScore);
+        const elements = new Set<ElementType>(eligible.map(g => g.element));
+
+        for (const element of elements) {
+            for (const size of THEME_SIZES) {
+                const alreadyThemed = leader.element === element ? 1 : 0;
+                const needed = size - alreadyThemed;
+                if (needed <= 0) continue;
+                const themeGirls = ranked.filter(g => g.element === element).slice(0, needed);
+                if (themeGirls.length < needed) continue;
+
+                const used = new Set<number>(themeGirls.map(g => g.id_girl));
+                const positions = [...themeGirls];
+                for (const g of ranked) {
+                    if (positions.length >= POS_2_TO_7) break;
+                    if (used.has(g.id_girl)) continue;
+                    positions.push(g);
+                    used.add(g.id_girl);
+                }
+                if (positions.length < POS_2_TO_7) continue;
+
+                const team = [leader, ...positions];
+                out.push({
+                    team,
+                    cluster: TeamBuilderService.chooseTeamCluster(team) ?? NEUTRAL_CLUSTER,
+                    poolUsed: 'theme',
+                    score: 0,
+                    themeElement: element,
+                });
+            }
         }
-
-        const best = TeamBuilderService.selectBestCandidate(candidates);
-
-        return TeamBuilderService.buildResult(
-            best.team, scoreMap, eligible, playerClass,
-            best.cluster, summaries, best.poolUsed,
-        );
+        return out;
     }
 
     // ---- Bless classification ------------------------------------------
@@ -311,13 +473,6 @@ export class TeamBuilderService {
 
         const scoreOf = (g: GirlData): number =>
             scoreMap.get(g.id_girl) ?? TeamScoringService.caracsSum(g);
-
-        // Cluster-neutral sentinel: keys 3+4 of the leader rule cannot match.
-        const NEUTRAL_CLUSTER: TeamCluster = {
-            category: 'eyeColor',
-            value: '\u0000__none__',
-            elements: [],
-        };
 
         // Leader from the full eligible pool (spec rule: a strong Mythic
         // Shield can lead even from outside the pool). Cluster-neutral, so
@@ -708,6 +863,7 @@ export class TeamBuilderService {
         summaries: BlessingSummary[],
         poolUsed: TeamResult['poolUsed'],
         fallbackReason?: string,
+        themeElement?: ElementType,
     ): TeamResult {
         const leader = team[0];
         const elements = team.map(g => g.element);
@@ -776,6 +932,7 @@ export class TeamBuilderService {
             traitMatchCount,
             activeBlessings: summaries,
             poolUsed,
+            themeElement,
             blessedGirlCount,
             fallbackReason,
             playerClass,
