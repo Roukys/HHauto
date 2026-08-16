@@ -7,6 +7,19 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.6.1 - Auto-Mystery is its own pipeline block
+
+Auto-Mystery now appears in **Block Order** and can be prioritised like every
+other feature. It used to run as a tail call inside the Sultry Mysteries event
+parsing, which had two consequences: it was invisible to the reorder UI, and
+every tick that re-parsed the event page started another click chain of its
+own -- squares were opened in parallel while an open request was still in
+flight, and *Generate new grid* could fire several times in a row.
+
+The new `handleSultryMysteries` block navigates to the event page itself, so
+the event no longer has to be marked "due" for the whole time the key-check
+timer sits expired. Behaviour of the grid run is unchanged.
+
 ### v8.6.0 - Auto-Mystery: automated Sultry Mysteries grid
 
 New **Auto-Mystery** switch next to *Refresh Shop*. Enabling it opens a

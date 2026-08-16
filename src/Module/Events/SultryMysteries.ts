@@ -75,15 +75,10 @@ export class SultryMysteries {
         eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
         eventList[eventID]["isCompleted"] = false;
 
-        // Auto-Mystery has to wait for the shop refresh to finish its tab
-        // round-trip, otherwise it would start clicking grid squares while
-        // the shop tab is showing.
-        const startAutoOpen = function () {
-            if (SultryMysteries.isAutoOpenEnabled() && checkTimer('eventSultryMysteryAutoOpen')) {
-                SultryMysteries.autoOpenGrid(eventID);
-            }
-        };
-
+        // The grid automation is a pipeline block of its own
+        // (handleSultryMysteries) and is deliberately NOT started from here:
+        // parse runs on every tick that re-parses the event page, which used
+        // to spawn one click chain per tick.
         if (getStoredValue(HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop) === "true" && checkTimer("eventSultryMysteryShopRefresh")) {
             logHHAuto("Refresh sultry mysteries shop content.");
 
@@ -96,14 +91,8 @@ export class SultryMysteries {
                 setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)) + randomInterval(60, 180));
                 eventList[eventID]["next_shop_refresh"] = new Date().getTime() + Number(shopTimeLeft) * 1000;
 
-                setTimeout(function () {
-                    gridButton.trigger('click');
-                    setTimeout(startAutoOpen, randomInterval(600, 1000));
-                }, randomInterval(800, 1200));
+                setTimeout(function () { gridButton.trigger('click'); }, randomInterval(800, 1200));
             }, randomInterval(300, 500));
-        }
-        else {
-            startAutoOpen();
         }
     }
 
