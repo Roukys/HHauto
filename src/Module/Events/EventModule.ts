@@ -506,9 +506,12 @@ export class EventModule {
                     ||
                     (hhEvent.isPlusEventMythic && checkTimerMustExist('eventMythicNextWave'))
                     ||
+                    // No eventSultryMysteryAutoOpen condition here on purpose:
+                    // the grid automation is its own pipeline block and
+                    // navigates itself. Re-parsing the event page for as long
+                    // as that timer sat expired started one click chain per
+                    // tick.
                     (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryShopRefresh'))
-                    ||
-                    (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryAutoOpen'))
                     ||
                     (hhEvent.isDPEvent && checkTimerMustExist('nextDpEventCollectTime'))
                     ||

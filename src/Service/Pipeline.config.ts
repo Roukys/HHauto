@@ -29,6 +29,7 @@ import { Troll } from "../Module/Troll";
 import { Pachinko } from "../Module/Pachinko";
 import { QuestHelper } from "../Module/Quest";
 import { Season } from "../Module/Events/Season";
+import { SultryMysteries } from "../Module/Events/SultryMysteries";
 import { PentaDrill } from "../Module/PentaDrill";
 import { Pantheon } from "../Module/Pantheon";
 import { PathOfValue } from "../Module/Events/PathOfValue";
@@ -1655,6 +1656,50 @@ const handleBossBangParse: HandlerConfig = {
   }],
 };
 
+/**
+ * Auto-Mystery: work the Sultry Mysteries grid.
+ *
+ * Its own block rather than a tail call inside SultryMysteries.parse, so it
+ * shows up in the Block Order UI and can be prioritised like every other
+ * feature. Riding on handleEventParsing also meant a fresh click chain was
+ * started on every tick that re-parsed the event page.
+ *
+ * The event id comes from the event registry that handleEventParsing fills,
+ * so this block runs after it in the default order (and needs it to have run
+ * at least once, which the registry entry expresses on its own).
+ */
+const handleSultryMysteries: HandlerConfig = {
+  name: 'handleSultryMysteries',
+  minIntervalMs: 5_000,
+  atomic: false,
+  interruptible: 'always',
+  precondition: (ctx) => {
+    if (ctx.busy) return false;
+    if (getStoredValue(HHStoredVarPrefixKey + TK.autoLoop) !== 'true') return false;
+    if (!SultryMysteries.isAutoOpenEnabled()) return false;
+    if (ctx.lastActionPerformed !== 'none' && ctx.lastActionPerformed !== 'sultryMysteries') return false;
+    if (!checkTimer('eventSultryMysteryAutoOpen')) return false;
+    // Already working the board: keep the slot so nothing navigates away
+    // between two opened squares.
+    if (SultryMysteries.autoOpenRunning) return true;
+    return EventModule.getEventIDsByType('sultryMysteries').length > 0;
+  },
+  steps: [{
+    name: 'autoMystery',
+    fn: async (ctx) => {
+      try {
+        const eventID = EventModule.getEventIDsByType('sultryMysteries')[0];
+        if (!eventID) return { ok: true, done: true };
+        ctx.busy = SultryMysteries.autoOpenGrid(eventID);
+        ctx.lastActionPerformed = 'sultryMysteries';
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, reason: String(err), retryable: true };
+      }
+    },
+  }],
+};
+
 const handleBossBangFight: HandlerConfig = {
   name: 'handleBossBangFight',
   minIntervalMs: 5_000,
@@ -1824,6 +1869,7 @@ export const pipeline: HandlerConfig[] = [
   handleTrollBattle,
   handleBossBangParse,
   handleBossBangFight,
+  handleSultryMysteries,
   handleLeague,
   handleSeason,
   handleQuest,
