@@ -285,7 +285,21 @@ Cordyceps gibt direkten Damage-Boost und ist meist am wertvollsten.
 
 Empfehlung: Multistat-Default, Mono nur fuer Hauptstat wenn das Mono-Item mindestens 50% des Multistat-Sek-Stat-Verlusts kompensiert. Mehr als 3 Mono-Items reduzieren Harmony zu sehr -> Crit-Anfaelligkeit.
 
-Equipment ist NICHT in vailableGirls.caracs enthalten - dort stehen blessing-applied stats ohne Equipment. Daher: HHAuto's Team-Auswahl arbeitet equipment-frei und der User muss danach "Stuff Team" druecken.
+**Equipment IST in ``availableGirls.caracs`` enthalten** (gemessen 2026-08-17,
+Herleitung in ``data-sources-team.md``). Der frueher hier stehende Satz
+"Equipment ist NICHT enthalten" war falsch.
+
+Praktische Folge: ``caracs_sum`` -- und damit die vom Spiel angezeigte "Total
+Power" -- bewertet ein Girl auch danach, wer gerade die guten Items traegt.
+Vor einem Team-Build gehoert deshalb ein **"Unequip All"**, sonst gewinnt das
+aktuelle Team die Auswahl allein durch seine Ausruestung; "Stuff Team" verteilt
+sie danach auf die neue Auswahl. Ohne das Unequip entsteht eine Rueckkopplung:
+bauen -> stuffen -> erneut bauen kann jedes Mal ein anderes Team liefern.
+
+Derselbe Satz Items ist auf verschiedenen Girls unterschiedlich viel wert
+(gemessen Faktor 1,02 bis 1,25) -- das ist der Resonanz-Bonus mythischer
+Ausruestung (``resonance_bonuses``: Klasse, Theme, Figur), der ebenfalls in
+``caracs`` landet.
 
 ---
 
@@ -350,7 +364,7 @@ Blessings erhoehen Stats von Girls mit bestimmten Traits.
 
 - Aktiv-Blessings sind sichtbar im Top-Right-Popup (UI-Button) und ueber den get_girls_blessings-AJAX-Endpoint.
 - Wechsel: jeden Montag 13:00 UTC+1 (gleicher Zeitpunkt wie Daily-Missions-Reset).
-- Blessing wird in vailableGirls.caracs direkt eingerechnet -> "blessed_caracs == caracs" gilt fuer's HHAuto-Skript.
+- Blessing wird in availableGirls.caracs direkt eingerechnet -> "blessed_caracs == caracs" gilt fuer's HHAuto-Skript.
 
 Blessing-Typen:
 
@@ -366,7 +380,7 @@ ausschliesslich ``pvp_v3``; ``can_be_blessed`` ist das League-Flag,
 ``can_be_blessed_pvp4`` das Labyrinth-Flag. Details:
 ``data-sources-team.md``.
 
-lessing_bonuses Struktur in vailableGirls:
+blessing_bonuses Struktur in availableGirls:
 
 `json
 {
