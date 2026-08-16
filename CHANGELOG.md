@@ -7,6 +7,51 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.7.0 - Team selection ranked by battle power, and a workflow to go with it
+
+**Team selection.** The picker ranked teams by `caracs_sum`, which is exactly
+the "Total Power" the game prints -- measured against the live game, that
+number is the plain sum of the seven girls' caracs and contains none of the
+mechanics that decide a fight. Element synergies scale the whole stat, hero
+base included, and run linear from the *first* girl of an element (three is
+only the threshold for the team theme and its league domination bonus).
+
+The builder now also produces candidates that stack an element to three or
+four girls -- teams a stat-sum ranking can never reach, since constraining a
+pool can only lower its sum. All candidates go to the game's own calculation
+(`action=team_calculate_caracs`, the request the edit screen fires on every
+girl swap) and are ranked by expected damage per hit x survivability. Without
+`hh_ajax`, or when any candidate cannot be calculated, the previous
+`caracs_sum` pick stands. "Best Possible" is excluded on purpose: the game
+calculates today's stats, while that mode ranks girls by their value at level
+750 with max grades.
+
+Measured on one account against the 101 real opponents of its league, scored
+with the script's own battle simulator: 88.89% -> 92.18% average win chance at
+identical Total Power (+6.8% damage, +7.8% ego), better against 26 opponents
+and worse against none. Across 135 candidate teams the new metric correlates
+0.96 with simulated points and picks the actual best team; `caracs_sum` alone
+correlates 0.85 and picks the 9th best.
+
+**Equipment is part of `caracs`.** The internal docs claimed the opposite and
+the info panel repeated it. Moving gear between girls moves their `caracs_sum`
+with it, and the same six-item set can be worth ~23% more on one girl than on
+another (mythic resonance bonus). Building while the sitting team still wears
+the gear therefore ranks that team for its items: hit **Unequip All** first.
+The panel says so now.
+
+**Edit-team workflow.** The buttons are one numbered column -- 1 Unequip All,
+2a Current Best, 2b Possible Best, 2c Assign first 7, 3 Stuff Team. "Stuff
+Team" used to exist only on the team-list page, which was reachable only by
+leaving the edit page, and "Assign first 7" ended by clicking the game's
+Validate button, which saves *and* navigates back -- so the flow was over
+before the girls could be stuffed. Assign now sends the same request Validate
+sends and stays on the page. The buttons sit in a flex column with identical
+boxes so no label length can make them overlap, and the summary panel folds
+away with a click on its header (remembered, because step 1 reloads the page).
+
+Enhancement for #1679.
+
 ### v8.6.1 - Auto-Mystery is its own pipeline block
 
 Auto-Mystery now appears in **Block Order** and can be prioritised like every
