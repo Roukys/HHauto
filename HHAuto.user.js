@@ -20604,8 +20604,11 @@ const TIER3_BONUS_LEGENDARY = 0.008;
 const PROJECTION_LEVEL_CAP = 750;
 class TeamScoringService {
     /**
-     * Sum of all three carac fields. Game-authoritative (caracs sub-object
-     * already includes blessings; equipment is excluded). Falls back to
+     * Sum of all three carac fields. Game-authoritative: the caracs
+     * sub-object already includes blessings AND the girl's equipment
+     * (measured 2026-08-17, see docs-internal/data-sources-team.md). A girl
+     * therefore ranks partly on who currently wears the good gear, which is
+     * why a team should be built after "Unequip All". Falls back to
      * carac1/2/3 when caracs is absent.
      */
     static caracsSum(girl) {
@@ -22767,7 +22770,7 @@ class TeamModule {
             ${auditExcludedHtml}
 
             <hr style="border-color:#555; margin:4px 0"/>
-            <div style="color:#fc6; font-size:10px;"><b>Note:</b> Stats are equipment-free. Hit "Stuff Team" after applying.</div>
+            <div style="color:#fc6; font-size:10px;"><b>Note:</b> Stats include each girl's equipment. Hit "Unequip All" before building, then "Stuff Team" after applying.</div>
             <div style="color:#aaa; font-size:10px; margin-top:2px;">Mode 1 (Current Best) uses today's stats, Mode 2 (Best Possible) projects to max level / grades.</div>
         </div>`);
         $("#contains_all section").append(synergyInfo);

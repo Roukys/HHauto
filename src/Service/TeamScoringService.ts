@@ -104,8 +104,11 @@ const PROJECTION_LEVEL_CAP = 750;
 export class TeamScoringService {
 
     /**
-     * Sum of all three carac fields. Game-authoritative (caracs sub-object
-     * already includes blessings; equipment is excluded). Falls back to
+     * Sum of all three carac fields. Game-authoritative: the caracs
+     * sub-object already includes blessings AND the girl's equipment
+     * (measured 2026-08-17, see docs-internal/data-sources-team.md). A girl
+     * therefore ranks partly on who currently wears the good gear, which is
+     * why a team should be built after "Unequip All". Falls back to
      * carac1/2/3 when caracs is absent.
      */
     static caracsSum(girl: GirlData): number {

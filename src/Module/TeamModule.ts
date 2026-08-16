@@ -967,7 +967,7 @@ export class TeamModule {
             ${auditExcludedHtml}
 
             <hr style="border-color:#555; margin:4px 0"/>
-            <div style="color:#fc6; font-size:10px;"><b>Note:</b> Stats are equipment-free. Hit "Stuff Team" after applying.</div>
+            <div style="color:#fc6; font-size:10px;"><b>Note:</b> Stats include each girl's equipment. Hit "Unequip All" before building, then "Stuff Team" after applying.</div>
             <div style="color:#aaa; font-size:10px; margin-top:2px;">Mode 1 (Current Best) uses today's stats, Mode 2 (Best Possible) projects to max level / grades.</div>
         </div>`);
         $("#contains_all section").append(synergyInfo);
