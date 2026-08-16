@@ -301,6 +301,10 @@ Derselbe Satz Items ist auf verschiedenen Girls unterschiedlich viel wert
 Ausruestung (``resonance_bonuses``: Klasse, Theme, Figur), der ebenfalls in
 ``caracs`` landet.
 
+Die Resonanz-Mechanik (Spieler- und Girl-Ausruestung, Match-Regeln, Skalierung
+mit dem Item-Level, Messfallen und was ein Item-Optimierer braucht) steht in
+[equipment-resonance.md](equipment-resonance.md).
+
 ---
 
 ## 9. Girl-Level und Grade
