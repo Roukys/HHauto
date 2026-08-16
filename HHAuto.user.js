@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.6.0
+// @version      8.6.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -23899,14 +23899,10 @@ class SultryMysteries {
         eventList[eventID]["seconds_before_end"] = new Date().getTime() + secondsLeft * 1000;
         eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
         eventList[eventID]["isCompleted"] = false;
-        // Auto-Mystery has to wait for the shop refresh to finish its tab
-        // round-trip, otherwise it would start clicking grid squares while
-        // the shop tab is showing.
-        const startAutoOpen = function () {
-            if (SultryMysteries.isAutoOpenEnabled() && checkTimer('eventSultryMysteryAutoOpen')) {
-                SultryMysteries.autoOpenGrid(eventID);
-            }
-        };
+        // The grid automation is a pipeline block of its own
+        // (handleSultryMysteries) and is deliberately NOT started from here:
+        // parse runs on every tick that re-parses the event page, which used
+        // to spawn one click chain per tick.
         if (getStoredValue(HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop) === "true" && checkTimer("eventSultryMysteryShopRefresh")) {
             logHHAuto("Refresh sultry mysteries shop content.");
             const shopButton = $('#shop_tab');
@@ -23916,14 +23912,8 @@ class SultryMysteries {
                 let shopTimeLeft = $('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
                 setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)) + randomInterval(60, 180));
                 eventList[eventID]["next_shop_refresh"] = new Date().getTime() + Number(shopTimeLeft) * 1000;
-                setTimeout(function () {
-                    gridButton.trigger('click');
-                    setTimeout(startAutoOpen, randomInterval(600, 1000));
-                }, randomInterval(800, 1200));
+                setTimeout(function () { gridButton.trigger('click'); }, randomInterval(800, 1200));
             }, randomInterval(300, 500));
-        }
-        else {
-            startAutoOpen();
         }
     }
     // -----------------------------------------------------------------
@@ -24555,9 +24545,12 @@ class EventModule {
                     ||
                         (hhEvent.isPlusEventMythic && checkTimerMustExist('eventMythicNextWave'))
                     ||
+                        // No eventSultryMysteryAutoOpen condition here on purpose:
+                        // the grid automation is its own pipeline block and
+                        // navigates itself. Re-parsing the event page for as long
+                        // as that timer sat expired started one click chain per
+                        // tick.
                         (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryShopRefresh'))
-                    ||
-                        (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryAutoOpen'))
                     ||
                         (hhEvent.isDPEvent && checkTimerMustExist('nextDpEventCollectTime'))
                     ||
@@ -30531,6 +30524,7 @@ var Pipeline_config_awaiter = (undefined && undefined.__awaiter) || function (th
 
 
 
+
 /**
  * Build a HandlerConfig from a legacy ModuleHandlerDescriptor. Used to migrate
  * handlers that already wrap a uniform `name + action + isReady + execute`
@@ -32172,6 +32166,57 @@ const handleBossBangParse = {
             }),
         }],
 };
+/**
+ * Auto-Mystery: work the Sultry Mysteries grid.
+ *
+ * Its own block rather than a tail call inside SultryMysteries.parse, so it
+ * shows up in the Block Order UI and can be prioritised like every other
+ * feature. Riding on handleEventParsing also meant a fresh click chain was
+ * started on every tick that re-parsed the event page.
+ *
+ * The event id comes from the event registry that handleEventParsing fills,
+ * so this block runs after it in the default order (and needs it to have run
+ * at least once, which the registry entry expresses on its own).
+ */
+const handleSultryMysteries = {
+    name: 'handleSultryMysteries',
+    minIntervalMs: 5000,
+    atomic: false,
+    interruptible: 'always',
+    precondition: (ctx) => {
+        if (ctx.busy)
+            return false;
+        if (getStoredValue(HHStoredVarPrefixKey + TK.autoLoop) !== 'true')
+            return false;
+        if (!SultryMysteries.isAutoOpenEnabled())
+            return false;
+        if (ctx.lastActionPerformed !== 'none' && ctx.lastActionPerformed !== 'sultryMysteries')
+            return false;
+        if (!checkTimer('eventSultryMysteryAutoOpen'))
+            return false;
+        // Already working the board: keep the slot so nothing navigates away
+        // between two opened squares.
+        if (SultryMysteries.autoOpenRunning)
+            return true;
+        return EventModule.getEventIDsByType('sultryMysteries').length > 0;
+    },
+    steps: [{
+            name: 'autoMystery',
+            fn: (ctx) => Pipeline_config_awaiter(void 0, void 0, void 0, function* () {
+                try {
+                    const eventID = EventModule.getEventIDsByType('sultryMysteries')[0];
+                    if (!eventID)
+                        return { ok: true, done: true };
+                    ctx.busy = SultryMysteries.autoOpenGrid(eventID);
+                    ctx.lastActionPerformed = 'sultryMysteries';
+                    return { ok: true };
+                }
+                catch (err) {
+                    return { ok: false, reason: String(err), retryable: true };
+                }
+            }),
+        }],
+};
 const handleBossBangFight = {
     name: 'handleBossBangFight',
     minIntervalMs: 5000,
@@ -32351,6 +32396,7 @@ const pipeline = [
     handleTrollBattle,
     handleBossBangParse,
     handleBossBangFight,
+    handleSultryMysteries,
     handleLeague,
     handleSeason,
     handleQuest,

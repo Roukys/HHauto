@@ -15,6 +15,15 @@ jest.mock('../../src/Module/League', () => ({
 jest.mock('../../src/Module/Events/EventModule', () => ({
   EventModule: {
     parseEventPage: jest.fn().mockResolvedValue(false),
+    getEventIDsByType: jest.fn().mockReturnValue([]),
+  },
+}));
+
+jest.mock('../../src/Module/Events/SultryMysteries', () => ({
+  SultryMysteries: {
+    isAutoOpenEnabled: jest.fn().mockReturnValue(false),
+    autoOpenGrid: jest.fn().mockReturnValue(false),
+    autoOpenRunning: false,
   },
 }));
 
@@ -1219,6 +1228,95 @@ describe('Pipeline.config', () => {
     it('applySlotHold passes failures through untouched', () => {
       const fail = { ok: false as const, reason: 'x', retryable: true };
       expect(applySlotHold(fail, true)).toBe(fail);
+    });
+  });
+
+  /**
+   * Auto-Mystery owns a block instead of being a tail call inside
+   * SultryMysteries.parse, so it appears in the Block Order UI and no longer
+   * starts a fresh click chain on every tick that re-parses the event page.
+   */
+  describe('handleSultryMysteries', () => {
+    const handler = pipeline.find(h => h.name === 'handleSultryMysteries')!;
+    const TimerHelperMock = jest.requireMock('../../src/Helper/TimerHelper') as { checkTimer: jest.Mock };
+    const EventModuleMock = jest.requireMock('../../src/Module/Events/EventModule') as { EventModule: { getEventIDsByType: jest.Mock } };
+    const SMMock = jest.requireMock('../../src/Module/Events/SultryMysteries') as {
+      SultryMysteries: { isAutoOpenEnabled: jest.Mock; autoOpenGrid: jest.Mock; autoOpenRunning: boolean };
+    };
+
+    beforeEach(() => {
+      getStoredValueMock.mockImplementation((k: string) => k.endsWith('Temp_autoLoop') ? 'true' : undefined);
+      TimerHelperMock.checkTimer.mockReturnValue(true);
+      EventModuleMock.EventModule.getEventIDsByType.mockReturnValue(['sm_event_47']);
+      SMMock.SultryMysteries.isAutoOpenEnabled.mockReturnValue(true);
+      SMMock.SultryMysteries.autoOpenGrid.mockReturnValue(true);
+      SMMock.SultryMysteries.autoOpenRunning = false;
+    });
+
+    afterEach(() => {
+      getStoredValueMock.mockReset();
+      TimerHelperMock.checkTimer.mockReturnValue(false);
+      EventModuleMock.EventModule.getEventIDsByType.mockReturnValue([]);
+      SMMock.SultryMysteries.isAutoOpenEnabled.mockReturnValue(false);
+      SMMock.SultryMysteries.autoOpenGrid.mockReset().mockReturnValue(false);
+      SMMock.SultryMysteries.autoOpenRunning = false;
+    });
+
+    it('exists in pipeline and is reorderable relative to the other blocks', () => {
+      expect(handler).toBeDefined();
+      const idxParsing = pipeline.findIndex(h => h.name === 'handleEventParsing');
+      const idxSM = pipeline.findIndex(h => h.name === 'handleSultryMysteries');
+      const idxHome = pipeline.findIndex(h => h.name === 'handleGoHome');
+      expect(idxParsing).toBeLessThan(idxSM);
+      expect(idxSM).toBeLessThan(idxHome);
+    });
+
+    it('precondition true when the setting, the timer and an active event line up', () => {
+      expect(handler.precondition(makeCtx())).toBe(true);
+    });
+
+    it('precondition false when Auto-Mystery is off', () => {
+      SMMock.SultryMysteries.isAutoOpenEnabled.mockReturnValue(false);
+      expect(handler.precondition(makeCtx())).toBe(false);
+    });
+
+    it('precondition false while the key-check timer is still running', () => {
+      TimerHelperMock.checkTimer.mockReturnValue(false);
+      expect(handler.precondition(makeCtx())).toBe(false);
+    });
+
+    it('precondition false without an active Sultry Mysteries event', () => {
+      EventModuleMock.EventModule.getEventIDsByType.mockReturnValue([]);
+      expect(handler.precondition(makeCtx())).toBe(false);
+    });
+
+    it('keeps the slot while a grid run is in progress, even without a registry entry', () => {
+      // The registry entry can disappear mid-run (event pruning); the running
+      // chain must not have the page pulled out from under it.
+      EventModuleMock.EventModule.getEventIDsByType.mockReturnValue([]);
+      SMMock.SultryMysteries.autoOpenRunning = true;
+      expect(handler.precondition(makeCtx())).toBe(true);
+    });
+
+    it('precondition false when another block already acted this tick', () => {
+      expect(handler.precondition(makeCtx({ lastActionPerformed: 'league' }))).toBe(false);
+      expect(handler.precondition(makeCtx({ lastActionPerformed: 'sultryMysteries' }))).toBe(true);
+    });
+
+    it('step drives the grid for the active event and holds the slot', async () => {
+      const ctx = makeCtx();
+      const result = await handler.steps[0].fn(ctx);
+      expect(SMMock.SultryMysteries.autoOpenGrid).toHaveBeenCalledWith('sm_event_47');
+      expect(ctx.busy).toBe(true);
+      expect(ctx.lastActionPerformed).toBe('sultryMysteries');
+      expect(result).toEqual({ ok: true });
+    });
+
+    it('step ends the run when the event vanished between precondition and step', async () => {
+      EventModuleMock.EventModule.getEventIDsByType.mockReturnValue([]);
+      const ctx = makeCtx();
+      expect(await handler.steps[0].fn(ctx)).toEqual({ ok: true, done: true });
+      expect(SMMock.SultryMysteries.autoOpenGrid).not.toHaveBeenCalled();
     });
   });
 });
