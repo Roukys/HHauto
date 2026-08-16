@@ -136,6 +136,7 @@ export function buildRightColumn(): string {
                                 +`<div class="optionsBox">`
                                     +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                                         + hhMenuSwitch('sultryMysteriesEventRefreshShop')
+                                        + hhMenuSwitch('sultryMysteriesAutoOpen')
                                     +`</div>`
                                 +`</div>`
                             +`</div>`
