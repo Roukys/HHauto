@@ -18,6 +18,7 @@ import { setStoredValue } from "../Helper/StorageHelper";
 import { randomInterval } from "../Helper/TimeHelper";
 import { addNutakuSession, gotoPage, safeReload } from '../Service/PageNavigationService';
 import { TeamBuilderService, ScoringMode, TeamResult } from '../Service/TeamBuilderService';
+import { TeamEvaluationService } from '../Service/TeamEvaluationService';
 import { GirlData, ElementType, RarityType, PlayerClass } from '../Service/TeamScoringService';
 import { TraitMappings } from '../Service/TraitMappings';
 import { fillHHPopUp } from "../Utils/HHPopup";
@@ -491,20 +492,22 @@ export class TeamModule {
         // Map availableGirls (raw game data) to the GirlData interface.
         const girls: GirlData[] = availableGirls.map(g => TeamModule.mapAvailableGirl(g));
 
-        // Build BOTH modes so we can detect when "Best Possible" produces
-        // the same team as "Current Best" — this happens when the top 7
-        // girls are already at full development potential (max level + max
-        // grades). We then surface that fact in the info box instead of
-        // letting the user think the buttons are broken (issue #1603).
-        const resultMode1 = TeamBuilderService.buildTeam(girls, 1, playerLevel, playerClass);
-        const resultMode2 = TeamBuilderService.buildTeam(girls, 2, playerLevel, playerClass);
-        const result = mode === 1 ? resultMode1 : resultMode2;
+        // Candidates for the clicked mode, strongest stat sum first. The
+        // first one is the classic pick; the rest differ mostly in how many
+        // girls of one element they stack, which the stat sum cannot judge.
+        const candidates = TeamBuilderService.buildTeamCandidates(girls, mode, playerLevel, playerClass);
+        // The other mode only needs its winner (mode-diff detection below).
+        const otherMode: ScoringMode = mode === 1 ? 2 : 1;
+        const resultOther = TeamBuilderService.buildTeam(girls, otherMode, playerLevel, playerClass);
+        const result = candidates[0];
 
         if (!result) {
             logHHAuto('Not enough girls for team selection v2 (mode ' + mode + '), falling back to legacy');
             TeamModule.setTopTeamLegacy(mode);
             return;
         }
+        const resultMode1 = mode === 1 ? result : resultOther;
+        const resultMode2 = mode === 1 ? resultOther : result;
 
         // Mode-diff detection: identical top-7 (any order) means the pool
         // is already maximised and Best Possible cannot improve on Current
@@ -533,6 +536,82 @@ export class TeamModule {
         // poolStats is built by TeamBuilderService and exposed on the
         // result. Read it for the info box (no recomputation here).
 
+        // Render the stat-sum pick right away so the click feels immediate,
+        // then let the game calculate the candidates and re-render if a
+        // different one turns out stronger in a fight.
+        //
+        // Mode 2 is deliberately excluded: the game calculates the stats the
+        // girls have TODAY, while "Best Possible" ranks them by what they
+        // will be worth at level 750 with max grades. Measuring those picks
+        // would just throw the under-levelled development targets out and
+        // turn mode 2 into mode 1.
+        TeamModule.applyTeamResult(result, mode);
+        if (mode === 1 && candidates.length > 1) {
+            TeamModule.refineWithGameCalculation(candidates, mode)
+                .catch(err => logHHAuto('Team evaluation failed, keeping stat-sum pick: ' + err));
+        }
+    }
+
+    /**
+     * Ask the game to calculate every candidate team's real stats and field
+     * the one with the highest effective power (see TeamEvaluationService).
+     * Silently keeps the stat-sum pick when the calculation is unavailable.
+     */
+    private static async refineWithGameCalculation(candidates: TeamResult[], mode: ScoringMode): Promise<void> {
+        const statSumPick = candidates[0];
+        const ranked = await TeamEvaluationService.rankCandidates(
+            candidates,
+            c => c.girls.map(g => g.id_girl),
+            c => c.elements,
+        );
+        if (ranked.length === 0) return;
+
+        const winner = ranked[0];
+        const statSumMeasured = ranked.find(r => r.candidate === statSumPick);
+        const changedPick = winner.candidate !== statSumPick;
+
+        logHHAuto(`Team evaluation: ${ranked.length} candidates measured by the game. `
+            + ranked.map(r => {
+                const dist = TeamBuilderService.getElementDistribution(r.candidate)
+                    .map(d => `${d.count}${d.element.charAt(0)}`).join('');
+                return `[${r.candidate.poolUsed}${r.candidate.themeElement ? ':' + r.candidate.themeElement : ''} ${dist}`
+                    + ` power=${Math.round(r.totalPower).toLocaleString()}`
+                    + ` dmg=${Math.round(r.caracs.damage).toLocaleString()}`
+                    + ` ego=${Math.round(r.caracs.ego).toLocaleString()}`
+                    + ` eff=${r.effectivePower.toExponential(3)}]`;
+            }).join(' '));
+
+        if (!changedPick) {
+            logHHAuto('Team evaluation: stat-sum pick is also the strongest in a fight.');
+        } else {
+            const gain = statSumMeasured
+                ? ((winner.effectivePower / statSumMeasured.effectivePower - 1) * 100).toFixed(2)
+                : '?';
+            logHHAuto(`Team evaluation: fielding the ${winner.candidate.themeElement || winner.candidate.poolUsed} candidate instead`
+                + ` (+${gain}% effective power, ${Math.round(winner.totalPower - (statSumMeasured?.totalPower ?? 0)).toLocaleString()} total power).`);
+        }
+
+        // Carry the display context over to the team we actually field.
+        winner.candidate.modesIdentical = statSumPick.modesIdentical;
+        winner.candidate.previousMainSumSameMode = statSumPick.previousMainSumSameMode;
+        winner.candidate.previousMainSumOtherMode = statSumPick.previousMainSumOtherMode;
+        winner.candidate.currentModeName = statSumPick.currentModeName;
+        winner.candidate.otherModeName = statSumPick.otherModeName;
+        winner.candidate.evaluation = {
+            candidatesMeasured: ranked.length,
+            caracs: winner.caracs,
+            effectivePower: winner.effectivePower,
+            statSumPickEffectivePower: statSumMeasured?.effectivePower ?? 0,
+            statSumPickTotalPower: statSumMeasured?.totalPower ?? 0,
+            changedPick,
+        };
+        TeamModule.lastMainSum[mode] = winner.candidate.mainSum;
+        TeamModule.applyTeamResult(winner.candidate, mode);
+    }
+
+    /** Log the picked team and push it into the edit-team UI. */
+    private static applyTeamResult(result: TeamResult, mode: ScoringMode) {
+        const modesIdentical = result.modesIdentical === true;
         const deckID = result.girls.map(g => g.id_girl);
         const modeName = mode === 1 ? 'Current Best' : 'Best Possible';
         const dist = TeamBuilderService.getElementDistribution(result);
@@ -819,6 +898,32 @@ export class TeamModule {
 
         const leaderClassName = TeamModule.CLASS_NAME[teamResult.girls[0].element] || teamResult.girls[0].element;
 
+        // Game-side evaluation: the stats the game itself calculated for the
+        // fielded team, plus what it cost/gained against the pure stat-sum
+        // pick. Absent while the calculation is still running or unavailable.
+        const evalInfo = teamResult.evaluation;
+        let evaluationHtml = '';
+        if (evalInfo) {
+            const effDelta = evalInfo.statSumPickEffectivePower > 0
+                ? ((evalInfo.effectivePower / evalInfo.statSumPickEffectivePower - 1) * 100)
+                : 0;
+            const powerDelta = Math.round(teamResult.mainSum - evalInfo.statSumPickTotalPower);
+            const verdict = evalInfo.changedPick
+                ? `<span style="color:#7f7;">+${effDelta.toFixed(2)}% effective power</span>`
+                  + ` for ${powerDelta.toLocaleString()} total power`
+                  + (teamResult.themeElement ? ` (${teamResult.themeElement} theme)` : '')
+                : 'strongest team is also the highest stat sum';
+            evaluationHtml = `
+            <hr style="border-color:#555; margin:4px 0"/>
+            <div style="color:#ffb827; font-weight:bold;">Game calculation (${evalInfo.candidatesMeasured} candidates)</div>
+            <div><b>Damage:</b> ${Math.round(evalInfo.caracs.damage).toLocaleString()}
+                 &nbsp;<b>Ego:</b> ${Math.round(evalInfo.caracs.ego).toLocaleString()}</div>
+            <div><b>Defense:</b> ${Math.round(evalInfo.caracs.defense).toLocaleString()}
+                 &nbsp;<b>Harmony:</b> ${Math.round(evalInfo.caracs.chance).toLocaleString()}</div>
+            <div style="font-size:10px;">${verdict}</div>
+            <div style="color:#aaa; font-size:10px;">Ranked by expected damage per hit x survivability, including element synergies.</div>`;
+        }
+
         const fallbackPanel = teamResult.poolUsed === 'fallback' && teamResult.fallbackReason
             ? `<div style="color:#fc6; font-size:10px; margin-top:4px;"><b>Fallback applied:</b> ${teamResult.fallbackReason}</div>`
             : '';
@@ -827,6 +932,7 @@ export class TeamModule {
             position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 320px; z-index: 10;
             background: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px;
             border-radius: 4px; font-size: 11px; line-height: 1.5;
+            pointer-events: none;
         ">
             ${poolNoticeHtml}
 
@@ -852,6 +958,8 @@ export class TeamModule {
             <div><b>Main Sum (${mainCaracLabel}):</b> ${teamResult.mainSum?.toLocaleString() || 'N/A'}${mainSumDeltaHtml}</div>
             <div><b>Projected Sum:</b> ${teamResult.projectedSum?.toLocaleString() || 'N/A'} <span style="color:#aaa; font-size:10px;">(if all girls were at level 750 with max grades)</span></div>
             `}
+
+            ${evaluationHtml}
 
             <hr style="border-color:#555; margin:4px 0"/>
             <div style="color:#ffb827; font-weight:bold;">Mythic Audit</div>

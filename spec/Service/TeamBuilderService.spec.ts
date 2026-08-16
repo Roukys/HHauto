@@ -533,3 +533,94 @@ describe('TeamBuilderService -- leader from eligible pool', () => {
         expect(r.leaderTier5.name).toBe('Shield');
     });
 });
+
+describe('TeamBuilderService -- candidate list for the game-side ranking', () => {
+
+    // A pool where the strongest seven girls are spread over many elements,
+    // so no stat-sum candidate ever stacks an element -- exactly the case
+    // where the theme candidates are the only ones that can win a fight.
+    function spreadPool(): GirlData[] {
+        const elements: ElementType[] = ['stone', 'darkness', 'nature', 'fire', 'psychic', 'light', 'water', 'sun'];
+        const pool: GirlData[] = [];
+        let id = 1;
+        // Elements cycle while the stats fall, so the seven strongest girls
+        // are seven different elements: the stat-sum pick cannot stack.
+        for (let round = 0; round < 4; round++) {
+            for (const element of elements) {
+                const stat = 5000 - pool.length * 10;
+                pool.push(girl({
+                    id_girl: id++,
+                    element,
+                    rarity: round === 0 ? 'mythic' : 'legendary',
+                    nb_grades: 5,
+                    graded: 5,
+                    carac1: stat,
+                    carac2: stat,
+                    carac3: stat,
+                }));
+            }
+        }
+        return pool;
+    }
+
+    it('returns the buildTeam winner first', () => {
+        const pool = spreadPool();
+        const single = TeamBuilderService.buildTeam(pool, 1, 100, 3)!;
+        const list = TeamBuilderService.buildTeamCandidates(pool, 1, 100, 3);
+        expect(list.length).toBeGreaterThan(1);
+        expect(list[0].girls.map(g => g.id_girl)).toEqual(single.girls.map(g => g.id_girl));
+    });
+
+    it('offers candidates that stack an element the stat-sum pick does not', () => {
+        const list = TeamBuilderService.buildTeamCandidates(spreadPool(), 1, 100, 3);
+        // Precondition: the stat-sum winner really is unstacked.
+        const statSumCounts = new Map<string, number>();
+        for (const e of list[0].elements) statSumCounts.set(e, (statSumCounts.get(e) || 0) + 1);
+        expect(Math.max(...statSumCounts.values())).toBeLessThan(3);
+
+        const themed = list.filter(r => r.poolUsed === 'theme');
+        expect(themed.length).toBeGreaterThan(0);
+        for (const t of themed) {
+            const counts = new Map<string, number>();
+            for (const e of t.elements) counts.set(e, (counts.get(e) || 0) + 1);
+            expect(Math.max(...counts.values())).toBeGreaterThanOrEqual(3);
+            expect(t.themeElement).toBeDefined();
+            expect(counts.get(t.themeElement!)).toBeGreaterThanOrEqual(3);
+        }
+    });
+
+    it('keeps every candidate a full team with the same leader rule', () => {
+        const list = TeamBuilderService.buildTeamCandidates(spreadPool(), 1, 100, 3);
+        for (const r of list) {
+            expect(r.girls).toHaveLength(7);
+            expect(new Set(r.girls.map(g => g.id_girl)).size).toBe(7);
+            expect(r.girls[0].rarity).toBe('mythic');
+        }
+    });
+
+    it('never returns two candidates with the same roster', () => {
+        const list = TeamBuilderService.buildTeamCandidates(spreadPool(), 1, 100, 3);
+        const keys = list.map(r => r.girls.map(g => g.id_girl).sort((a, b) => a - b).join(','));
+        expect(new Set(keys).size).toBe(keys.length);
+    });
+
+    it('drops candidates that are far below the best stat sum', () => {
+        const list = TeamBuilderService.buildTeamCandidates(spreadPool(), 1, 100, 3);
+        const best = list[0].mainSum;
+        for (const r of list) {
+            expect((best - r.mainSum) / best).toBeLessThanOrEqual(0.10001);
+        }
+    });
+
+    it('honours the candidate limit', () => {
+        const list = TeamBuilderService.buildTeamCandidates(spreadPool(), 1, 100, 3, 3);
+        expect(list.length).toBeLessThanOrEqual(3);
+    });
+
+    it('still yields the fallback team for a pool below seven girls', () => {
+        const pool = Array.from({ length: 4 }, (_, i) => girl({ id_girl: i + 1, rarity: 'mythic' }));
+        const list = TeamBuilderService.buildTeamCandidates(pool, 1, 100, 3);
+        expect(list).toHaveLength(1);
+        expect(list[0].poolUsed).toBe('fallback');
+    });
+});
