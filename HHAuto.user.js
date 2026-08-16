@@ -1295,6 +1295,7 @@ const TK = {
     haremTeamScrolls: "Temp_haremTeamScrolls",
     haremTeamSettings: "Temp_haremTeamSettings",
     blessingsCache: "Temp_blessingsCache",
+    teamInfoCollapsed: "Temp_teamInfoCollapsed",
     // Resources
     haveAff: "Temp_haveAff",
     haveBooster: "Temp_haveBooster",
@@ -3875,6 +3876,15 @@ HHStoredVars[HHStoredVarPrefixKey + TK.haremTeamSettings] =
 HHStoredVars[HHStoredVarPrefixKey + TK.blessingsCache] =
     {
         default: "",
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+// Collapsed state of the team-selection summary on the edit-team page.
+// localStorage: "1 Unequip All" reloads the page, and the player should not
+// have to fold the panel away again on every pass through the workflow.
+HHStoredVars[HHStoredVarPrefixKey + TK.teamInfoCollapsed] =
+    {
+        default: "false",
         storage: "localStorage",
         HHType: "Temp"
     };
@@ -22863,12 +22873,27 @@ class TeamModule {
         const fallbackPanel = teamResult.poolUsed === 'fallback' && teamResult.fallbackReason
             ? `<div style="color:#fc6; font-size:10px; margin-top:4px;"><b>Fallback applied:</b> ${teamResult.fallbackReason}</div>`
             : '';
+        // The panel sits over the workflow buttons, so it folds away. The
+        // state is remembered: "1 Unequip All" reloads the page, and folding
+        // it again on every pass through the workflow would be tiresome.
+        const collapsed = getStoredValue(HHStoredVarPrefixKey + TK.teamInfoCollapsed) === 'true';
+        const headline = teamResult.currentModeName || 'Team selection';
         const synergyInfo = $(`<div class="hhTeamSynergyInfo" style="
             position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 320px; z-index: 10;
             background: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px;
             border-radius: 4px; font-size: 11px; line-height: 1.5;
             pointer-events: none;
         ">
+            <div class="hhTeamSynergyInfoHeader" style="
+                display:flex; align-items:center; gap:6px; cursor:pointer; pointer-events:auto;
+                color:#ffb827; font-weight:bold; user-select:none;
+            " title="Show/hide the team summary">
+                <span class="hhTeamSynergyCaret">${collapsed ? '&#9654;' : '&#9660;'}</span>
+                <span>${headline}</span>
+                <span style="color:#aaa; font-weight:normal; font-size:10px; margin-left:auto;">
+                    ${Math.round(teamResult.mainSum).toLocaleString()}</span>
+            </div>
+            <div class="hhTeamSynergyInfoBody" style="display:${collapsed ? 'none' : 'block'}">
             ${poolNoticeHtml}
 
             <div style="color:#ffb827; font-weight:bold; margin-top:4px;">Active blessings</div>
@@ -22904,7 +22929,15 @@ class TeamModule {
             <hr style="border-color:#555; margin:4px 0"/>
             <div style="color:#fc6; font-size:10px;"><b>Note:</b> Stats include each girl's equipment. Hit "Unequip All" before building, then "Stuff Team" after applying.</div>
             <div style="color:#aaa; font-size:10px; margin-top:2px;">Mode 1 (Current Best) uses today's stats, Mode 2 (Best Possible) projects to max level / grades.</div>
+            </div>
         </div>`);
+        synergyInfo.find('.hhTeamSynergyInfoHeader').on('click', function () {
+            const body = synergyInfo.find('.hhTeamSynergyInfoBody');
+            const nowCollapsed = body.css('display') !== 'none';
+            body.css('display', nowCollapsed ? 'none' : 'block');
+            synergyInfo.find('.hhTeamSynergyCaret').html(nowCollapsed ? '&#9654;' : '&#9660;');
+            setStoredValue(HHStoredVarPrefixKey + TK.teamInfoCollapsed, nowCollapsed ? 'true' : 'false');
+        });
         $("#contains_all section").append(synergyInfo);
     }
 }
