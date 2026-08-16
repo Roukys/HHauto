@@ -12,11 +12,16 @@
 
 import { MenuPorts } from "./MenuPorts";
 
-export function hhButton(textKeyId: string, buttonId: string, mainStyle='', labelSyle=''){
+/**
+ * `labelPrefix` is prepended to the translated label, e.g. "1 " to number a
+ * button inside a step-by-step workflow. Kept out of the translations on
+ * purpose: a step number reads the same in every language.
+ */
+export function hhButton(textKeyId: string, buttonId: string, mainStyle='', labelSyle='', labelPrefix=''){
     const { getTextForUI } = MenuPorts;
     return `<div ${mainStyle ? 'style="' + mainStyle + '"' : '' } class="tooltipHH" >`
                 +`<span class="tooltipHHtext">${getTextForUI(textKeyId,"tooltip")}</span>`
-                + `<label ${labelSyle ? 'style="' + labelSyle + '"' : '' } class="myButton" id="${buttonId}">${getTextForUI(textKeyId,"elementText")}</label>`
+                + `<label ${labelSyle ? 'style="' + labelSyle + '"' : '' } class="myButton" id="${buttonId}">${labelPrefix}${getTextForUI(textKeyId,"elementText")}</label>`
             +`</div>`;
 }
 

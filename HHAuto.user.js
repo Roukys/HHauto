@@ -21952,21 +21952,39 @@ class TeamModule {
     static validateTeam() {
         $('#validate-team').trigger('click');
     }
+    /**
+     * Edit-team page: the four buttons in the order a player needs them.
+     *
+     *   1  Unequip All   -- equipment sits inside availableGirls.caracs, so
+     *                       a build with the old team still wearing the gear
+     *                       ranks that team for its items rather than its
+     *                       girls (see docs-internal/data-sources-team.md).
+     *   2a Current Best  -- pick by today's stats
+     *   2b Possible Best -- pick by stats at full development
+     *   2c Assign first 7-- rendered next to the harem panel by updateTeamUI
+     *   3  Stuff Team    -- equipment + skills for the team that was just
+     *                       assigned. Used to exist only on the battle-teams
+     *                       page, which the player reached only by leaving
+     *                       this one.
+     */
     static moduleChangeTeam() {
         if (document.getElementById("ChangeTeamButton") !== null || document.getElementById("ChangeTeamButton2") !== null) {
             return;
         }
         const buttonStyles = 'position: absolute;left: 60%;width:60px;z-index:10';
-        const ChangeTeamButton = hhButton('ChangeTeamButton', 'ChangeTeamButton', buttonStyles + ';top: 110px', 'font-size:small');
-        const ChangeTeamButton2 = hhButton('ChangeTeamButton2', 'ChangeTeamButton2', buttonStyles + ';top: 160px', 'font-size:small');
-        const UnequipAll = hhButton('UnequipAll', 'UnequipAll', buttonStyles + ';top: 210px', 'font-size:small');
+        const UnequipAll = hhButton('UnequipAll', 'UnequipAll', buttonStyles + ';top: 110px', 'font-size:small', '1 ');
+        const ChangeTeamButton = hhButton('ChangeTeamButton', 'ChangeTeamButton', buttonStyles + ';top: 160px', 'font-size:small', '2a ');
+        const ChangeTeamButton2 = hhButton('ChangeTeamButton2', 'ChangeTeamButton2', buttonStyles + ';top: 210px', 'font-size:small', '2b ');
+        const StuffTeam = hhButton('StuffTeam', 'StuffTeam', buttonStyles + ';top: 260px', 'font-size:small', '3 ');
         GM_addStyle('.topNumber{top: 2px;left: 12px;width: 100%;position: absolute;text-shadow: 1px 1px 1px black, -1px -1px 1px black;}');
+        $("#contains_all section").append(UnequipAll);
         $("#contains_all section").append(ChangeTeamButton);
         $("#contains_all section").append(ChangeTeamButton2);
-        $("#contains_all section").append(UnequipAll);
+        $("#contains_all section").append(StuffTeam);
+        $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
         $("#ChangeTeamButton").on("click", () => { TeamModule.setTopTeam(1); });
         $("#ChangeTeamButton2").on("click", () => { TeamModule.setTopTeam(2); });
-        $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
+        $("#StuffTeam").on("click", TeamModule.buildStuffTeamSelectPopUp);
     }
     static moduleEquipTeam() {
         if (document.getElementById("EquipAll") !== null) {
@@ -22256,6 +22274,13 @@ class TeamModule {
     }
     static getSelectedGirls() {
         const selectedTeam = $('.team-slot-container.selected-team').attr('data-team-index');
+        // No team list on the page but girls in the hexagons -> edit-team
+        // page. teams_data does not exist there, and teamGirls still holds
+        // the team as it was loaded, which goes stale the moment the player
+        // assigns a new one. The hexagons are the current selection.
+        if (selectedTeam === undefined && TeamModule.getEditTeamGirlIds().length > 0) {
+            return TeamModule.getGirlsFromEditTeamHexagons();
+        }
         if (isNaN(Number(selectedTeam))) {
             logHHAuto('Error: can\'t get selected team index, cancel action');
             return [];
@@ -22267,6 +22292,82 @@ class TeamModule {
         }
         logHHAuto('Selected team: ' + selectedTeam + ', Team members to equip: ' + girls.map(girl => girl.girl.name).join(', '));
         return girls;
+    }
+    /**
+     * Girl ids currently sitting in the edit-team hexagons, by position
+     * (index 0 = leader). Same read the game itself does when validating.
+     */
+    static getEditTeamGirlIds() {
+        const ids = [];
+        $('.team-hexagon .team-member-container[data-girl-id]').each(function () {
+            const position = Number($(this).attr('data-team-member-position'));
+            const id = Number($(this).attr('data-girl-id'));
+            if (!isNaN(position) && !isNaN(id))
+                ids[position] = id;
+        });
+        return ids.filter(id => !isNaN(id) && id > 0);
+    }
+    /**
+     * Edit-team equivalent of the teams_data girl objects: the shape the
+     * scroll calculation needs ({ id_girl, skill_tiers_info, girl }).
+     */
+    static getGirlsFromEditTeamHexagons() {
+        const ids = TeamModule.getEditTeamGirlIds();
+        const available = getHHVars('availableGirls', false);
+        if (!Array.isArray(available) || available.length === 0) {
+            logHHAuto('Error: availableGirls not found on the edit team page, cancel action');
+            return [];
+        }
+        const girls = ids.map(id => {
+            const g = available.find((a) => Number(a.id_girl) === id);
+            if (!g)
+                return null;
+            return { id_girl: id, skill_tiers_info: g.skill_tiers_info, girl: g };
+        }).filter((g) => g !== null);
+        if (girls.length != 7) {
+            logHHAuto('Error: can\'t get all team members from the edit team page, cancel action');
+            return [];
+        }
+        logHHAuto('Edit team selection: ' + girls.map(girl => girl.girl.name).join(', '));
+        return girls;
+    }
+    /**
+     * Save the team that is currently in the hexagons WITHOUT leaving the
+     * page. The game's own "Validate" button posts the same request and then
+     * navigates back, which would drop the player out of the workflow before
+     * they can hit "Stuff Team". Same payload the game builds in edit_team.js.
+     */
+    static saveTeamInPlace(onDone = null) {
+        const girls = TeamModule.getEditTeamGirlIds();
+        if (girls.length < 7) {
+            logHHAuto('Not saving team: only ' + girls.length + ' girls in the hexagons.');
+            return;
+        }
+        const ajax = getHHAjax();
+        if (!ajax) {
+            logHHAuto('Can\'t save team: hh_ajax unavailable. Use the game\'s Validate button.');
+            return;
+        }
+        const params = {
+            class: 'Hero',
+            action: 'edit_team',
+            girls: girls.map(String),
+            battle_type: getHHVars('battle_type', false) || 'leagues',
+        };
+        const teamId = Number(getHHVars('teamId', false));
+        if (!isNaN(teamId) && teamId !== 0)
+            params.id_team = teamId;
+        logHHAuto('Saving team in place: ' + girls.join(', '));
+        ajax(params, (data) => {
+            if (data && data.success === false) {
+                logHHAuto('Team save rejected by the game: ' + JSON.stringify(data));
+            }
+            else {
+                logHHAuto('Team saved. Staying on the edit page -- "3 Stuff Team" is ready.');
+            }
+            if (onDone)
+                onDone();
+        });
     }
     static assignTopTeam() {
         setStoredValue(HHStoredVarPrefixKey + TK.autoLoop, "false");
@@ -22285,7 +22386,10 @@ class TeamModule {
                     assignToTeam(1, true);
                 }
                 else {
-                    TeamModule.validateTeam();
+                    // Save without the game's Validate button: that one
+                    // navigates back to the team list and would end the
+                    // workflow before "3 Stuff Team" can be used.
+                    TeamModule.saveTeamInPlace();
                 }
             }
         }
@@ -22628,7 +22732,9 @@ class TeamModule {
         const btnHtml = '<div style="position: absolute;top: 92px;width:100px;z-index:10;margin-left:90px" class="tooltipHH">'
             + '<span class="tooltipHHtext">' + getTextForUI('AssignTopTeam', 'tooltip') + '</span>'
             + '<label style="font-size:small" class="myButton" id="AssignTopTeam">'
-            + getTextForUI('AssignTopTeam', 'elementText') + '</label></div>';
+            // Numbered like the workflow column: it is the step between
+            // picking a team (2a/2b) and stuffing it (3).
+            + '2c ' + getTextForUI('AssignTopTeam', 'elementText') + '</label></div>';
         $("#contains_all section " + ConfigHelper.getHHScriptVars('IDpanelEditTeam') + ' .harem-panel .panel-body').append(btnHtml);
         $('#AssignTopTeam').on('click', TeamModule.assignTopTeam);
     }
@@ -26578,11 +26684,16 @@ class Troll {
 // getTextForUI / config lookups from MenuPorts so this file stays a graph leaf
 // (see MenuPorts.ts).
 
-function hhButton(textKeyId, buttonId, mainStyle = '', labelSyle = '') {
+/**
+ * `labelPrefix` is prepended to the translated label, e.g. "1 " to number a
+ * button inside a step-by-step workflow. Kept out of the translations on
+ * purpose: a step number reads the same in every language.
+ */
+function hhButton(textKeyId, buttonId, mainStyle = '', labelSyle = '', labelPrefix = '') {
     const { getTextForUI } = MenuPorts;
     return `<div ${mainStyle ? 'style="' + mainStyle + '"' : ''} class="tooltipHH" >`
         + `<span class="tooltipHHtext">${getTextForUI(textKeyId, "tooltip")}</span>`
-        + `<label ${labelSyle ? 'style="' + labelSyle + '"' : ''} class="myButton" id="${buttonId}">${getTextForUI(textKeyId, "elementText")}</label>`
+        + `<label ${labelSyle ? 'style="' + labelSyle + '"' : ''} class="myButton" id="${buttonId}">${labelPrefix}${getTextForUI(textKeyId, "elementText")}</label>`
         + `</div>`;
 }
 function hhMenuSwitch(textKeyAndInputId, isEnabledDivId = '', isKobanSwitch = false, isStylingSwitch = false) {
