@@ -21987,7 +21987,7 @@ class TeamModule {
         // per button cannot overlap, whatever the labels or the language.
         GM_addStyle('.topNumber{top: 2px;left: 12px;width: 100%;position: absolute;text-shadow: 1px 1px 1px black, -1px -1px 1px black;}'
             + '#hhTeamWorkflow{position:absolute;left:60%;top:100px;z-index:10;'
-            + 'display:flex;flex-direction:column;align-items:stretch;gap:6px;width:92px;}'
+            + 'display:flex;flex-direction:column;align-items:stretch;gap:6px;width:84px;}'
             + '#hhTeamWorkflow .tooltipHH{width:100%;margin:0;padding:0;}'
             // 44px holds three wrapped lines at this size, which is one more
             // than the longest translated label needs (fr "2c Assigner les 7
