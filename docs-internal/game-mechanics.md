@@ -129,18 +129,34 @@ Maximale Crit-Chance (Team-Komposition):
 
 ### Acht Elemente
 
-| Element | Klassen-Name | Synergie-Bonus pro Girl im Team | Maximaler Harem-Bonus (100+ Girls) |
-|---------|-------------|----------------------------------|-------------------------------------|
-| Fire | Eccentric | +10% Crit Damage | (additiv) |
-| Water | Sensual | +3% Heal on Hit | bis 10% |
-| Nature | Exhibitionist | +3% Ego | bis 10% |
-| Stone | Physical | +2% Crit Chance | bis 7% |
-| Sun | Playful | +2% Defense Reduction | bis 7% |
-| Darkness | Dominatrix | +2% Damage | bis 7% |
-| Psychic | Submissive | +2% Defense | bis 7% |
-| Light | Voyeur | +2% Harmony | bis 7% |
+Verifiziert am 2026-08-16 gegen die `synergies`-Payload der Edit-Team-Seite
+(Feld `bonus_identifier`, `team_bonus_per_girl`, `team_bonus_max_amount`,
+`harem_bonus_multiplier`) -- inklusive der Klassen-Namen aus `ico_url`.
 
-Synergie aktiv ab 3 Girls eines Elements im Team. Maximal 2 Synergien parallel (3+3 Girls). Bei weniger als 3 gleichen Elementen: "Balanced Team" -> keine Synergie aktiv und kein Counter moeglich/empfangbar.
+| Element | Klassen-Name | Synergie-Bonus pro Girl im Team | Team-Maximum (7 Girls) | Maximaler Harem-Bonus (100+ Girls) |
+|---------|-------------|----------------------------------|------------------------|-------------------------------------|
+| Fire | Eccentric | +10% Crit Damage | 70% | bis 35% |
+| Water | Sensual | +3% Heal on Hit | 21% | bis 10% |
+| Nature | Exhibitionist | +3% Ego | 21% | bis 10% |
+| Stone | Physical | +2% Crit Chance | 14% | bis 7% |
+| Sun | Playful | +2% Defense Reduction | 14% | bis 7% |
+| Darkness | Dominatrix | +2% Damage | 14% | bis 7% |
+| Light | Submissive | +2% Defense | 14% | bis 7% |
+| Psychic | Voyeur | +2% Harmony | 14% | bis 7% |
+
+**Die Synergie wirkt linear ab dem ERSTEN Girl** -- nicht erst ab dreien. Zwei
+Darkness-Girls ergeben `team_bonus_multiplier = 0.04`, sieben ergeben 0.14
+(Deckel). Team- und Harem-Anteil sind additiv (`bonus_multiplier`).
+
+Was ab 3 Girls eines Elements greift, ist das **Theme**: erst dann traegt das
+Team ein `theme_element` und kann in der Liga Domination-Boni geben und
+bekommen. Unter 3 gleichen Elementen ist das Team "balanced" -- keine
+Domination in beide Richtungen, die Synergien laufen trotzdem.
+
+Der Multiplikator wirkt auf den GESAMTEN Stat (Hero-Basiswerte eingerechnet),
+waehrend caracs_sum nur den Girl-Anteil bewegt. Deshalb lohnt es sich in der
+Regel, etwas caracs_sum gegen ein drittes Girl des richtigen Elements zu
+tauschen -- genau das macht TeamEvaluationService.
 
 ### Zwei Domination-Cycles (egoDamage + chance)
 
@@ -184,7 +200,10 @@ D-Tier:   Psychic                # garbage-tier
 
 **Wichtige Spielzeitabhaengigkeit:** Sensual (Water) ist nur bei aehnlich starken Gegnern dominant - gegen viel staerkere ist Heal-on-Hit wertlos. Dominatrix (Darkness) ist gegen High-Defense-Gegner staerker, Eccentric (Fire) schwaecher.
 
-Die HHAuto-Team-Auswahl folgt diesen Erkenntnissen NICHT direkt - sie waehlt nach Spieler-Klassen-Hauptstat und Tier-3-Trait-Bonus, nicht nach Element-Tier.
+Die HHAuto-Team-Auswahl folgt diesen Erkenntnissen NICHT direkt - sie stellt
+Kandidaten nach caracs_sum auf (plus je einen Theme-Kandidaten pro Element) und
+laesst die Reihenfolge dann vom Spiel selbst rechnen (`team_calculate_caracs`),
+bewertet nach erwartetem Schaden pro Treffer x Ueberlebensdauer.
 
 ---
 
