@@ -346,7 +346,7 @@ export function debugDeleteTempVars()
 }
 
 
-export function getAndStoreCollectPreferences(inVarName: string, inPopUpText = getTextForUI("menuCollectableText","elementText"))
+export function getAndStoreCollectPreferences(inVarName: string, inPopUpText = getTextForUI("menuCollectableText","elementText"), inRewardsListName = "possibleRewardsList")
 {
     createPopUpCollectables();
     function createPopUpCollectables()
@@ -355,7 +355,9 @@ export function getAndStoreCollectPreferences(inVarName: string, inPopUpText = g
         +    '<p>'+inPopUpText+'</p>'
         +    '<div style="display:flex;">'
         let count = 0;
-        const possibleRewards = ConfigHelper.getHHScriptVars("possibleRewardsList");
+        // Features with their own reward pool (Sultry Mysteries) pass their
+        // own list name instead of the generic one.
+        const possibleRewards = ConfigHelper.getHHScriptVars(inRewardsListName);
         const rewardsToCollect = getStoredJSON<string[]>(inVarName, []);
         for (const currentItem of Object.keys(possibleRewards))
         {

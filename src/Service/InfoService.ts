@@ -219,6 +219,10 @@ export function updateData() {
         {
             Tegzd += '<li>'+getTextForUI("sultryMysteriesEventRefreshShopNext","elementText")+' : '+getTimeLeft('eventSultryMysteryShopRefresh')+'</li>';
         }
+        if (getTimer('eventSultryMysteryAutoOpen') !== -1)
+        {
+            Tegzd += '<li>'+getTextForUI("sultryMysteriesAutoOpenNext","elementText")+' : '+getTimeLeft('eventSultryMysteryAutoOpen')+'</li>';
+        }
         if (getStoredValue(HHStoredVarPrefixKey+TK.haveAff))
         {
             Tegzd += '<li>'+getTextForUI("autoAffW","elementText")+' : '+NumberHelper.add1000sSeparator(getStoredValue(HHStoredVarPrefixKey+TK.haveAff))+'</li>';

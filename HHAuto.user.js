@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.5.5
+// @version      8.6.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -375,6 +375,9 @@ HHAuto_ToolTips.en['autoLivelySceneEventCollect'] = { version: "7.21.0", element
 HHAuto_ToolTips.en['autoLivelySceneEventCollectAll'] = { version: "7.21.0", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of Lively Scene event (configured with Collect all timer)" };
 HHAuto_ToolTips.en['sultryMysteriesEventRefreshShop'] = { version: "5.21.6", elementText: "Refresh Shop", tooltip: "Open Sultry Mysteries shop tab to trigger shop update." };
 HHAuto_ToolTips.en['sultryMysteriesEventRefreshShopNext'] = { version: "5.22.5", elementText: "Sultry Shop" };
+HHAuto_ToolTips.en['sultryMysteriesAutoOpen'] = { version: "8.6.0", elementText: "Auto-Mystery", tooltip: "Open Sultry Mysteries grid squares with available keys, and generate a new grid once at least 15 squares are open and every selected reward has been found. Never buys keys with kobans." };
+HHAuto_ToolTips.en['sultryMysteriesAutoOpenCollectableText'] = { version: "8.6.0", elementText: "Please select the rewards that must be found before a new grid is generated. Selecting nothing means a new grid is generated as soon as 15 squares are open.", tooltip: "" };
+HHAuto_ToolTips.en['sultryMysteriesAutoOpenNext'] = { version: "8.6.0", elementText: "Auto-Mystery" };
 HHAuto_ToolTips.en['collectEventChest'] = { version: "5.28.0", elementText: "Collect event chest", tooltip: "If enabled: collect event chest when active after getting all girls" };
 HHAuto_ToolTips.en['dailyMissionGirlTitle'] = { version: "6.5.2", elementText: "Complete the Daily Missions of to get me!" };
 HHAuto_ToolTips.en['showTooltips'] = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu." };
@@ -630,6 +633,8 @@ HHAuto_ToolTips.fr['bossBangEvent'] = { version: "5.20.3", elementText: "Activer
 HHAuto_ToolTips.fr['bossBangEventTitle'] = { version: "6.15.8", elementText: "Boss Bang" };
 HHAuto_ToolTips.fr['bossBangMinTeam'] = { version: "5.6.137", elementText: "Première équipe", tooltip: "Première équipe à utiliser<br>Si 5, le script commencera par la dernière pour finir par la premiere." };
 HHAuto_ToolTips.fr['sultryMysteriesEventTitle'] = { version: "6.15.8", elementText: "Mystère sensuel" };
+HHAuto_ToolTips.fr['sultryMysteriesAutoOpen'] = { version: "8.6.0", elementText: "Auto-Mystère", tooltip: "Ouvre les cases de la grille Mystère sensuel avec les clés disponibles, et génère une nouvelle grille dès qu'au moins 15 cases sont ouvertes et que toutes les récompenses sélectionnées ont été trouvées. N'achète jamais de clés avec des kobans." };
+HHAuto_ToolTips.fr['sultryMysteriesAutoOpenCollectableText'] = { version: "8.6.0", elementText: "Sélectionnez les récompenses qui doivent être trouvées avant de générer une nouvelle grille. Ne rien sélectionner génère une nouvelle grille dès que 15 cases sont ouvertes.", tooltip: "" };
 HHAuto_ToolTips.fr['eventTitle'] = { version: "6.15.8", elementText: "Evènements" };
 HHAuto_ToolTips.fr['autodpEventCollect'] = { version: "6.15.8", elementText: "Collecter", tooltip: "Permet de collecter les gains de l'évènement double penetration" };
 HHAuto_ToolTips.fr['autodpEventCollectAll'] = { version: "7.1.0", elementText: "Tout collecter", tooltip: "Si activé : Collect Automatiquement toutes les récompense avant la fin de l'évènement double penetration (configuré avec le timer \"Tout collecter\")" };
@@ -1235,6 +1240,8 @@ const SK = {
     autoFreeBundlesCollectablesList: "Setting_autoFreeBundlesCollectablesList",
     // Sultry Mysteries
     sultryMysteriesEventRefreshShop: "Setting_sultryMysteriesEventRefreshShop",
+    sultryMysteriesAutoOpen: "Setting_sultryMysteriesAutoOpen",
+    sultryMysteriesAutoOpenCollectablesList: "Setting_sultryMysteriesAutoOpenCollectablesList",
     // Display / UI
     showInfo: "Setting_showInfo",
     showInfoLeft: "Setting_showInfoLeft",
@@ -3170,6 +3177,31 @@ HHStoredVars[HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop] =
         menuType: "checked",
         kobanUsing: false
     };
+HHStoredVars[HHStoredVarPrefixKey + SK.sultryMysteriesAutoOpen] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + SK.sultryMysteriesAutoOpenCollectablesList, getTextForUI("sultryMysteriesAutoOpenCollectableText", "elementText"), "sultryMysteriesRewardsList");
+                    clearTimer('eventSultryMysteryAutoOpen');
+                }
+            }
+        }
+    };
+HHStoredVars[HHStoredVarPrefixKey + SK.sultryMysteriesAutoOpenCollectablesList] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
 HHStoredVars[HHStoredVarPrefixKey + SK.collectEventChest] =
     {
         default: "false",
@@ -4952,14 +4984,16 @@ function debugDeleteTempVars() {
         setStoredValue(variableName, dataToSave[compoundKey]);
     }
 }
-function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("menuCollectableText", "elementText")) {
+function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("menuCollectableText", "elementText"), inRewardsListName = "possibleRewardsList") {
     createPopUpCollectables();
     function createPopUpCollectables() {
         let menuCollectables = '<div class="HHAutoScriptMenu" style="padding:10px; display:flex;flex-direction:column">'
             + '<p>' + inPopUpText + '</p>'
             + '<div style="display:flex;">';
         let count = 0;
-        const possibleRewards = ConfigHelper.getHHScriptVars("possibleRewardsList");
+        // Features with their own reward pool (Sultry Mysteries) pass their
+        // own list name instead of the generic one.
+        const possibleRewards = ConfigHelper.getHHScriptVars(inRewardsListName);
         const rewardsToCollect = getStoredJSON(inVarName, []);
         for (const currentItem of Object.keys(possibleRewards)) {
             //console.log(currentItem,possibleRewards[currentItem]);
@@ -8983,6 +9017,20 @@ HHEnvVariables["global"].possibleRewardsList = { 'energy_kiss': "Kisses",
     'ticket': "Champions' tickets",
     'event_cash': "Event cash",
     'rejuvenation_stone': "Rejuvenation Stones" };
+// Reward types a Sultry Mysteries grid square can hide. The keys are the
+// literal `type` values of sm_event_data.event_data.rewards_list entries,
+// so the auto-open goal check can compare against them directly. This is a
+// separate list from possibleRewardsList because the grid uses its own
+// currency (sultry_coins) and its own key progression, and never drops most
+// of the generic reward types.
+HHEnvVariables["global"].sultryMysteriesRewardsList = { 'hard_currency': "Kobans",
+    'gems': "Gems",
+    'energy_fight': "Fists",
+    'energy_kiss': "Kisses",
+    'orbs': "Orbs",
+    'item': "Items",
+    'sultry_coins': "Coins",
+    'progressions': "Keys" };
 HHEnvVariables["global"].trollzList = HentaiHeroes.getTrolls(getLanguageCode());
 HHEnvVariables["global"].sideTrollzList = [];
 HHEnvVariables["global"].trollIdMapping = []; // Empty means no specific mapping
@@ -16296,6 +16344,9 @@ function updateData() {
         }
         if (getTimer('eventSultryMysteryShopRefresh') !== -1) {
             Tegzd += '<li>' + getTextForUI("sultryMysteriesEventRefreshShopNext", "elementText") + ' : ' + getTimeLeft('eventSultryMysteryShopRefresh') + '</li>';
+        }
+        if (getTimer('eventSultryMysteryAutoOpen') !== -1) {
+            Tegzd += '<li>' + getTextForUI("sultryMysteriesAutoOpenNext", "elementText") + ' : ' + getTimeLeft('eventSultryMysteryAutoOpen') + '</li>';
         }
         if (getStoredValue(HHStoredVarPrefixKey + TK.haveAff)) {
             Tegzd += '<li>' + getTextForUI("autoAffW", "elementText") + ' : ' + NumberHelper.add1000sSeparator(getStoredValue(HHStoredVarPrefixKey + TK.haveAff)) + '</li>';
@@ -23677,14 +23728,130 @@ function resolveSultryMysteriesSecondsLeft(hhVarSecondsUntilEnd, domSecondsLeft,
     }
     return defaultSeconds;
 }
+// ---------------------------------------------------------------------------
+// Grid automation ("Auto-Mystery")
+//
+// The grid is a 6-column, 5-row board of 30 squares numbered 1..30 in
+// reading order. Opening a square costs one key; after
+// grid_refresh_squares_required (15) squares are opened, "Generate new
+// grid" becomes available and resets the board.
+//
+// Opening order is a checkerboard so the first wave spreads over the whole
+// board instead of clustering in the top rows:
+//
+//     X O X O X O        squares  1  3  5
+//     O X O X O X                 8 10 12
+//     X O X O X O                13 15 17
+//     O X O X O X                20 22 24
+//     X O X O X O                25 27 29
+//
+// That is exactly 15 squares -- the refresh threshold -- so the first wave
+// alone unlocks a regenerate. The remaining "O" squares follow in
+// ascending order when the reward goal has not been met yet.
+const SM_GRID_COLUMNS = 6;
+/** True for the "X" squares of the checkerboard (first wave). */
+function isFirstWaveSquare(idSquare, columns = SM_GRID_COLUMNS) {
+    const row = Math.ceil(idSquare / columns);
+    const column = ((idSquare - 1) % columns) + 1;
+    return (row + column) % 2 === 0;
+}
+/**
+ * Ids of the still-locked squares in the order they should be opened:
+ * checkerboard squares first (ascending), then the rest (ascending).
+ * Already-opened squares are skipped, so a half-played grid is picked up
+ * where it was left.
+ */
+function smOpeningOrder(grid, columns = SM_GRID_COLUMNS) {
+    const locked = (grid || [])
+        .filter((square) => square && !square.is_opened && Number.isFinite(Number(square.id_square)))
+        .map((square) => Number(square.id_square))
+        .sort((a, b) => a - b);
+    return [
+        ...locked.filter((id) => isFirstWaveSquare(id, columns)),
+        ...locked.filter((id) => !isFirstWaveSquare(id, columns)),
+    ];
+}
+/** Reward indexes revealed so far, as numbers. */
+function openedRewardIndexes(grid) {
+    const opened = new Set();
+    for (const square of grid || []) {
+        if (square && square.is_opened) {
+            const index = Number(square.reward_index);
+            if (Number.isFinite(index))
+                opened.add(index);
+        }
+    }
+    return opened;
+}
+/**
+ * Per selected reward type: how many squares of the current grid hold it and
+ * how many of those are already open. Counts come from the live rewards_list
+ * rather than fixed numbers, because a regenerated grid may be composed
+ * differently.
+ */
+function smSelectedTypesProgress(rewardsList, grid, selectedTypes) {
+    const opened = openedRewardIndexes(grid);
+    return (selectedTypes || []).map((type) => {
+        var _a, _b, _c;
+        let total = 0;
+        let found = 0;
+        for (const rewardIndex of Object.keys(rewardsList || {})) {
+            if (((_c = (_b = (_a = rewardsList[rewardIndex]) === null || _a === void 0 ? void 0 : _a.rewards) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.type) !== type)
+                continue;
+            total++;
+            if (opened.has(Number(rewardIndex)))
+                found++;
+        }
+        return { type, total, found };
+    });
+}
+/**
+ * Whether every selected reward type has been fully revealed. An empty
+ * selection is complete by definition -- the user then only gets the
+ * "open 15, regenerate, repeat until out of keys" behaviour.
+ */
+function smSelectionComplete(rewardsList, grid, selectedTypes) {
+    return smSelectedTypesProgress(rewardsList, grid, selectedTypes).every((progress) => progress.found >= progress.total);
+}
+function smOpenedCount(grid) {
+    return (grid || []).filter((square) => square && square.is_opened).length;
+}
+/**
+ * The single next step for the grid.
+ *
+ * Regenerating is checked first and does not require keys: it costs
+ * nothing, and a fresh board is worth more than the leftovers of a board
+ * whose interesting squares are already open.
+ *
+ * Opening is only ever proposed with keys in hand. Clicking a locked
+ * square with zero keys makes the game open its "get more keys" popup
+ * (koban purchase), so the caller must never click on a "no_keys" wait.
+ */
+function smNextAction(state) {
+    const grid = state.grid || [];
+    const canRegenerate = smOpenedCount(grid) >= state.squaresRequiredForRefresh;
+    if (canRegenerate && smSelectionComplete(state.rewardsList, grid, state.selectedTypes)) {
+        return { kind: "regenerate" };
+    }
+    const nextSquare = smOpeningOrder(grid)[0];
+    if (nextSquare === undefined) {
+        // Whole board open but the goal still unmet: nothing left to do here.
+        return canRegenerate ? { kind: "regenerate" } : { kind: "wait", reason: "grid_complete" };
+    }
+    if (!Number.isFinite(state.keys) || state.keys <= 0) {
+        return { kind: "wait", reason: "no_keys" };
+    }
+    return { kind: "open", idSquare: nextSquare };
+}
 
 ;// ./src/Module/Events/SultryMysteries.ts
-// SultryMysteries.ts -- Sultry Mysteries event: shop refresh and auto-buying.
+// SultryMysteries.ts -- Sultry Mysteries event: shop refresh and grid automation.
 //
-// Sultry Mysteries is a time-limited event featuring a special event shop.
-// This module monitors the event shop for refresh timers, detects available
-// items, and automates purchasing when configured. Requires a minimum player
-// level to participate.
+// Sultry Mysteries is a time-limited event featuring a special event shop
+// and a 6x5 grid of 30 squares. Each square hides a reward and costs one
+// key to open; once at least 15 squares are open the grid can be
+// regenerated. This module monitors the event shop for refresh timers and
+// automates opening grid squares ("Auto-Mystery").
 //
 // Depends on: EventModule.ts (event detection and routing)
 // Used by: EventModule.ts (called when Sultry Mysteries event is active)
@@ -23696,9 +23863,22 @@ function resolveSultryMysteriesSecondsLeft(hhVarSecondsUntilEnd, domSecondsLeft,
 
 
 
+
+
+
+
+
+// How long to wait before looking for keys again once the grid ran dry.
+// Keys are not granted passively -- they drop from the last Daily Goals
+// chest and from villains -- so there is no point in checking more often,
+// and the script should not sprint off the moment a single key appears.
+const SM_NO_KEYS_RETRY_SECONDS = 3600;
 class SultryMysteries {
     static isEnabled() {
         return HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_EVENT_SM");
+    }
+    static isAutoOpenEnabled() {
+        return getStoredValue(HHStoredVarPrefixKey + SK.sultryMysteriesAutoOpen) === "true" && SultryMysteries.isEnabled();
     }
     static parse(hhEvent, eventList, hhEventData) {
         const eventID = hhEvent.eventId;
@@ -23719,7 +23899,15 @@ class SultryMysteries {
         eventList[eventID]["seconds_before_end"] = new Date().getTime() + secondsLeft * 1000;
         eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
         eventList[eventID]["isCompleted"] = false;
-        if (checkTimer("eventSultryMysteryShopRefresh")) {
+        // Auto-Mystery has to wait for the shop refresh to finish its tab
+        // round-trip, otherwise it would start clicking grid squares while
+        // the shop tab is showing.
+        const startAutoOpen = function () {
+            if (SultryMysteries.isAutoOpenEnabled() && checkTimer('eventSultryMysteryAutoOpen')) {
+                SultryMysteries.autoOpenGrid(eventID);
+            }
+        };
+        if (getStoredValue(HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop) === "true" && checkTimer("eventSultryMysteryShopRefresh")) {
             logHHAuto("Refresh sultry mysteries shop content.");
             const shopButton = $('#shop_tab');
             const gridButton = $('#grid_tab');
@@ -23728,9 +23916,184 @@ class SultryMysteries {
                 let shopTimeLeft = $('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
                 setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)) + randomInterval(60, 180));
                 eventList[eventID]["next_shop_refresh"] = new Date().getTime() + Number(shopTimeLeft) * 1000;
-                setTimeout(function () { gridButton.trigger('click'); }, randomInterval(800, 1200));
+                setTimeout(function () {
+                    gridButton.trigger('click');
+                    setTimeout(startAutoOpen, randomInterval(600, 1000));
+                }, randomInterval(800, 1200));
             }, randomInterval(300, 500));
         }
+        else {
+            startAutoOpen();
+        }
+    }
+    // -----------------------------------------------------------------
+    // Auto-Mystery
+    // -----------------------------------------------------------------
+    /**
+     * Keys currently in hand.
+     *
+     * sm_event_data.event_data.progression.key_amount goes stale as soon as
+     * a square is opened -- the game keeps the running count in a module
+     * closure and only writes it to the sidebar -- so the sidebar is the
+     * authoritative reading, with the global as a fallback for the very
+     * first pass.
+     */
+    static getKeyAmount() {
+        const sidebarText = $('#contains_all #events .get-more-keys-section > p').text();
+        const fromSidebar = Number((sidebarText || '').trim());
+        if (Number.isFinite(fromSidebar) && sidebarText.trim() !== '')
+            return fromSidebar;
+        const fromVars = Number(getHHVars('sm_event_data.event_data.progression.key_amount', false));
+        return Number.isFinite(fromVars) ? fromVars : 0;
+    }
+    static getGrid() {
+        const grid = getHHVars('sm_event_data.event_data.progression.grid', false);
+        return Array.isArray(grid) ? grid : [];
+    }
+    static getRewardsList() {
+        const rewards = getHHVars('sm_event_data.event_data.rewards_list', false);
+        return rewards && typeof rewards === 'object' ? rewards : {};
+    }
+    static getSquaresRequiredForRefresh() {
+        const required = Number(getHHVars('sm_event_data.event_data.grid_refresh_squares_required', false));
+        return Number.isFinite(required) && required > 0 ? required : 15;
+    }
+    static getSelectedRewardTypes() {
+        return getStoredJSON(HHStoredVarPrefixKey + SK.sultryMysteriesAutoOpenCollectablesList, []);
+    }
+    /**
+     * Close the reward popup the game shows after each opened square.
+     *
+     * Deliberately not RewardHelper.closeRewardPopupIfAny: RewardHelper
+     * imports EventModule, which imports this module, so using it here
+     * would add an import cycle (ARCH-001).
+     */
+    static closeSquareRewardPopup() {
+        const rewardQuery = 'div#rewards_popup button.blue_button_L:not([disabled]):visible';
+        if ($(rewardQuery).length > 0) {
+            $(rewardQuery).trigger('click');
+            return true;
+        }
+        return false;
+    }
+    /** Park the automation until keys can plausibly have been earned again. */
+    static scheduleKeyCheck(reason) {
+        const retryIn = SM_NO_KEYS_RETRY_SECONDS + randomInterval(60, 300);
+        logHHAuto(`Sultry Mysteries auto-open paused (${reason}), checking for keys again later.`);
+        setTimer('eventSultryMysteryAutoOpen', retryIn);
+    }
+    static logProgress(grid, rewardsList, selectedTypes) {
+        const opened = smOpenedCount(grid);
+        const required = SultryMysteries.getSquaresRequiredForRefresh();
+        const progress = smSelectedTypesProgress(rewardsList, grid, selectedTypes)
+            .map((entry) => `${entry.type} ${entry.found}/${entry.total}`)
+            .join(', ');
+        logHHAuto(`Sultry Mysteries grid: ${opened}/${required} squares opened, keys: ${SultryMysteries.getKeyAmount()}${progress ? `, goal: ${progress}` : ', no reward goal set'}.`);
+    }
+    /**
+     * Work the grid: open squares in checkerboard order while keys last,
+     * and regenerate the grid once it is allowed and the selected rewards
+     * have all been found. Returns true while it is busy.
+     *
+     * Keys won from the grid itself are spent right away -- the key count
+     * is re-read from the sidebar before every click, so a `progressions`
+     * square simply extends the current run.
+     */
+    static autoOpenGrid(eventID) {
+        if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDEvent")) {
+            logHHAuto("Switching to Sultry Mysteries screen.");
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"), { tab: eventID });
+            return true;
+        }
+        if ($('#contains_all #events .grid-slots').length <= 0) {
+            // Shop tab is showing (or the page is still building the grid).
+            if ($('#grid_tab').length > 0) {
+                logHHAuto("Switching to Sultry Mysteries grid tab.");
+                $('#grid_tab').trigger('click');
+                return true;
+            }
+            SultryMysteries.scheduleKeyCheck("grid not available");
+            return false;
+        }
+        const rewardsList = SultryMysteries.getRewardsList();
+        const selectedTypes = SultryMysteries.getSelectedRewardTypes();
+        SultryMysteries.logProgress(SultryMysteries.getGrid(), rewardsList, selectedTypes);
+        function step() {
+            const grid = SultryMysteries.getGrid();
+            const action = smNextAction({
+                grid,
+                rewardsList,
+                selectedTypes,
+                keys: SultryMysteries.getKeyAmount(),
+                squaresRequiredForRefresh: SultryMysteries.getSquaresRequiredForRefresh(),
+            });
+            if (action.kind === 'wait') {
+                SultryMysteries.scheduleKeyCheck(action.reason === 'no_keys' ? 'out of keys' : 'grid fully opened');
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                return;
+            }
+            if (action.kind === 'regenerate') {
+                logHHAuto("Sultry Mysteries: generating a new grid.");
+                $('#contains_all #events .generate-new-grid').trigger('click');
+                // The game rebuilds the grid from the ajax response into a
+                // module-local variable and leaves
+                // sm_event_data.event_data.progression.grid pointing at the
+                // old board, so the only way to keep reading a truthful
+                // state is to reload the page. Confirm the board actually
+                // reset first: reloading on a click that did nothing would
+                // land on the same state and ask for a new grid again.
+                let regenAttempts = 0;
+                function afterRegenerate() {
+                    if ($('#contains_all #events .grid-slots .grid-slot.unlocked').length <= 0) {
+                        safeReload();
+                        return;
+                    }
+                    if (regenAttempts < 10) {
+                        regenAttempts++;
+                        setTimeout(afterRegenerate, randomInterval(300, 500));
+                        return;
+                    }
+                    logHHAuto("Sultry Mysteries: the grid was not regenerated, stopping.");
+                    SultryMysteries.scheduleKeyCheck("grid not regenerated");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                }
+                setTimeout(afterRegenerate, randomInterval(800, 1200));
+                return;
+            }
+            const idSquare = action.idSquare;
+            const squareQuery = `#contains_all #events .grid-slots .grid-slot.locked[id_square="${idSquare}"]`;
+            if ($(squareQuery).length <= 0) {
+                logHHAuto(`Sultry Mysteries: square ${idSquare} is no longer clickable, stopping.`);
+                SultryMysteries.scheduleKeyCheck("square not clickable");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                return;
+            }
+            logHHAuto(`Sultry Mysteries: opening square ${idSquare}.`);
+            $(squareQuery).trigger('click');
+            // Wait for the game to swap the square to "unlocked" before the
+            // next click; the open request is in flight until then and the
+            // delegated handler would happily fire twice.
+            let attempts = 0;
+            function afterOpen() {
+                const stillLocked = $(squareQuery).length > 0;
+                if (stillLocked && attempts < 20) {
+                    attempts++;
+                    setTimeout(afterOpen, randomInterval(300, 500));
+                    return;
+                }
+                if (stillLocked) {
+                    logHHAuto(`Sultry Mysteries: square ${idSquare} did not open, stopping.`);
+                    SultryMysteries.scheduleKeyCheck("square did not open");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                    return;
+                }
+                SultryMysteries.closeSquareRewardPopup();
+                setTimeout(step, randomInterval(600, 1000));
+            }
+            setTimeout(afterOpen, randomInterval(500, 800));
+        }
+        step();
+        return true;
     }
 }
 
@@ -23797,7 +24160,7 @@ class EventModule {
                 ||
                     (eventList[prop]["type"] === 'bossBang' && getStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent) !== "true")
                 ||
-                    (eventList[prop]["type"] === 'sultryMysteries' && getStoredValue(HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop) !== "true")) {
+                    (eventList[prop]["type"] === 'sultryMysteries' && getStoredValue(HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop) !== "true" && getStoredValue(HHStoredVarPrefixKey + SK.sultryMysteriesAutoOpen) !== "true")) {
                 delete eventList[prop];
             }
             else {
@@ -24113,7 +24476,7 @@ class EventModule {
         const isPlusEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('eventIDReg')) && getStoredValue(HHStoredVarPrefixKey + SK.plusEvent) === "true";
         const isPlusEventMythic = inEventID.startsWith(ConfigHelper.getHHScriptVars('mythicEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + SK.plusEventMythic) === "true";
         const isBossBangEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('bossBangEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + SK.bossBangEvent) === "true";
-        const isSultryMysteriesEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop) === "true" && SultryMysteries.isEnabled();
+        const isSultryMysteriesEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg')) && (getStoredValue(HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop) === "true" || getStoredValue(HHStoredVarPrefixKey + SK.sultryMysteriesAutoOpen) === "true") && SultryMysteries.isEnabled();
         const isDPEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'));
         const isPoa = inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'));
         const isLivelyScene = inEventID.startsWith(ConfigHelper.getHHScriptVars('livelySceneEventIDReg'));
@@ -24175,6 +24538,8 @@ class EventModule {
                         (hhEvent.isPlusEventMythic && checkTimerMustExist('eventMythicNextWave'))
                     ||
                         (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryShopRefresh'))
+                    ||
+                        (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryAutoOpen'))
                     ||
                         (hhEvent.isDPEvent && checkTimerMustExist('nextDpEventCollectTime'))
                     ||
@@ -24401,6 +24766,11 @@ class EventModule {
             if ($(sultryMysteriesEventQuery).length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1) {
                 // event is over
                 clearTimer("eventSultryMysteryShopRefresh");
+            }
+            if ($(sultryMysteriesEventQuery).length <= 0 && getTimer("eventSultryMysteryAutoOpen") !== -1) {
+                // event is over -- keys are reset at the end of a Sultry
+                // Mysteries event, so a pending key check is meaningless
+                clearTimer("eventSultryMysteryAutoOpen");
             }
             parseForEventId(dpEventQuery, eventIDs);
             if (getStoredValue(HHStoredVarPrefixKey + SK.autodpEventCollect) === "true" && $(dpEventQuery).length === 0) {
@@ -26374,6 +26744,7 @@ function buildRightColumn() {
         + `<div class="optionsBox">`
         + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
         + hhMenuSwitch('sultryMysteriesEventRefreshShop')
+        + hhMenuSwitch('sultryMysteriesAutoOpen')
         + `</div>`
         + `</div>`
         + `</div>`

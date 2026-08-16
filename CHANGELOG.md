@@ -7,6 +7,44 @@ All notable changes to HHauto are documented here. Format loosely follows
 This file replaces the in-README "Latest Updates" section as of v7.35.52.
 Older entries below were migrated 1:1 from `README.md`.
 
+### v8.6.0 - Auto-Mystery: automated Sultry Mysteries grid
+
+New **Auto-Mystery** switch next to *Refresh Shop*. Enabling it opens a
+reward-selection popup (the same one Path of Valor/Glory use for their
+collectables) listing the eight reward types a grid square can hide:
+Kobans, Gems, Fists, Kisses, Orbs, Items, Coins and Keys.
+
+The script opens grid squares with the keys it has, in a checkerboard
+pattern so the first wave spreads across the whole board:
+
+```
+X O X O X O        squares  1  3  5
+O X O X O X                 8 10 12
+X O X O X O                13 15 17
+O X O X O X                20 22 24
+X O X O X O                25 27 29
+```
+
+That is exactly 15 squares -- the game's threshold for *Generate new grid*.
+The remaining squares follow in ascending order when a selected reward is
+still hidden, so the grid is regenerated only once **both** conditions
+hold: at least 15 squares open, and every selected reward type fully
+revealed. Selecting nothing means the grid is regenerated as soon as 15
+squares are open.
+
+- Keys won from the grid itself are spent immediately, within the same
+  pipeline pass.
+- When the keys run out the automation parks for an hour before looking
+  again -- keys only drop from the last Daily Goals chest and from
+  villains, and the script should not sprint off the moment a single key
+  appears. The next check is shown in the info panel as *Auto-Mystery*.
+- Keys are never bought with kobans. Clicking a locked square with zero
+  keys makes the game open its key purchase popup, so the automation only
+  ever clicks with keys in hand.
+- Reward counts per type are read from the live grid rather than
+  hard-coded, so a regenerated board with a different composition is
+  handled correctly.
+
 ### v8.5.5 - Selector and gating fixes found by live-testing against the game
 
 Each fix below was reproduced against the running game before and after the

@@ -1591,6 +1591,33 @@ HHStoredVars[HHStoredVarPrefixKey + SK.sultryMysteriesEventRefreshShop] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey + SK.sultryMysteriesAutoOpen] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function(this: any)
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + SK.sultryMysteriesAutoOpenCollectablesList, getTextForUI("sultryMysteriesAutoOpenCollectableText","elementText"), "sultryMysteriesRewardsList");
+                    clearTimer('eventSultryMysteryAutoOpen');
+                }
+            }
+           }
+};
+HHStoredVars[HHStoredVarPrefixKey + SK.sultryMysteriesAutoOpenCollectablesList] =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
 HHStoredVars[HHStoredVarPrefixKey + SK.collectEventChest] =
     {
     default:"false",

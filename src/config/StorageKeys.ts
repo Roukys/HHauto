@@ -232,6 +232,8 @@ export const SK = {
 
     // Sultry Mysteries
     sultryMysteriesEventRefreshShop: "Setting_sultryMysteriesEventRefreshShop",
+    sultryMysteriesAutoOpen: "Setting_sultryMysteriesAutoOpen",
+    sultryMysteriesAutoOpenCollectablesList: "Setting_sultryMysteriesAutoOpenCollectablesList",
 
     // Display / UI
     showInfo: "Setting_showInfo",
