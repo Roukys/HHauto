@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/OldRon1977/HHauto
-// @version      8.7.0
+// @version      8.8.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -414,6 +414,8 @@ HHAuto_ToolTips.en['ChangeTeamButton2'] = { version: "5.6.24", elementText: "Pos
 HHAuto_ToolTips.en['UnequipAll'] = { version: "7.22.0", elementText: "Unequip All", tooltip: "Unequip all girls equipment" };
 HHAuto_ToolTips.en['EquipAll'] = { version: "7.29.0", elementText: "Equip Teams", tooltip: "Equip team girls equipment with ingame girl equip button" };
 HHAuto_ToolTips.en['StuffTeam'] = { version: "7.30.0", elementText: "Stuff Team", tooltip: "Auto build the team by selecting equipment and skills. Can also remove skills from other girls if needed. Money limit will be considered" };
+HHAuto_ToolTips.en['HHGearCurrentBest'] = { version: "8.8.0", elementText: "Current Best Gear", tooltip: "Equip the strongest armor you own for each of the six hero slots, judged by today's stats. Raw stats decide, resonance breaks ties -- this never makes you weaker." };
+HHAuto_ToolTips.en['HHGearPossibleBest'] = { version: "8.8.0", elementText: "Possible Best Gear", tooltip: "Equip the armor that will be strongest once it is levelled to the max, matching your class and your team's theme. Shows what the switch costs you today." };
 HHAuto_ToolTips.en['stuffTeaEstimatedCost'] = { version: "7.30.0", elementText: "Estimated cost (5M per skill):", tooltip: "Estimated cost of the team stuff operation" };
 HHAuto_ToolTips.en['StuffTeamMoney'] = { version: "7.30.0", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep." };
 HHAuto_ToolTips.en['StuffTeamEquipment'] = { version: "7.30.0", elementText: "Give equipment", tooltip: "Auto select girl equipment." };
@@ -1296,6 +1298,13 @@ const TK = {
     haremTeamSettings: "Temp_haremTeamSettings",
     blessingsCache: "Temp_blessingsCache",
     teamInfoCollapsed: "Temp_teamInfoCollapsed",
+    // Theme of the team that was last built, for the gear optimiser on the
+    // market page -- the team is not available there.
+    teamTheme: "Temp_teamTheme",
+    // Inventory ids of the items the gear optimiser took off, so a rollback
+    // stays possible. The id changes on every unequip, so it can only come
+    // from the equip response.
+    gearSwapLog: "Temp_gearSwapLog",
     // Resources
     haveAff: "Temp_haveAff",
     haveBooster: "Temp_haveBooster",
@@ -3885,6 +3894,21 @@ HHStoredVars[HHStoredVarPrefixKey + TK.blessingsCache] =
 HHStoredVars[HHStoredVarPrefixKey + TK.teamInfoCollapsed] =
     {
         default: "false",
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+// Written by TeamModule when a team is fielded, read by EquipmentGear on the
+// market page. localStorage, not session: team and market are separate visits
+// and the theme has to survive the trip.
+HHStoredVars[HHStoredVarPrefixKey + TK.teamTheme] =
+    {
+        default: "",
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+HHStoredVars[HHStoredVarPrefixKey + TK.gearSwapLog] =
+    {
+        default: "[]",
         storage: "localStorage",
         HHType: "Temp"
     };
@@ -18115,6 +18139,834 @@ class ClubChampion {
     }
 }
 
+;// ./src/Service/EquipmentOptimizerService.ts
+// EquipmentOptimizerService.ts -- Pure ranking logic for the player's own
+// equipment (the six armor slots of the hero, not girl equipment).
+//
+// Mechanics, data model, endpoints and the measurement traps behind all of
+// this: docs-internal/equipment-resonance.md. The two decisions that shape
+// this file and are NOT obvious from the code alone:
+//
+//   1. Raw stats dominate, resonance is the tiebreak. A resonance bonus is
+//      worth at most 2 percentage points (4 on the chance track) while a
+//      level-1 item costs ~1900 raw points per carac against a level-20 one.
+//      So the ordering is lexicographic (raw, then resonance) rather than a
+//      weighted sum -- a weighted sum would need an exchange rate between
+//      "percentage points of a hero stat" and "carac points of an item",
+//      and that rate is not measurable client-side (see section 4 of the
+//      doc: the resonance is applied after the end calculation of stats and
+//      shows up in no client-visible number).
+//
+//   2. Nothing here measures itself. Every value is derived from the
+//      declared `resonance_bonuses` and the item's own `caracs`. The
+//      optimiser must not try a before/after comparison; the doc records
+//      three measurement paths that all read 0.00% even for a
+//      level-20-vs-level-1 swap.
+//
+// Used by: Module/EquipmentGear.ts (UI + ajax). This file stays free of DOM
+// and game globals so it can be unit-tested (ARCH-001: Service must not
+// import Module).
+/** Max level of a mythic player item; also the level "Possible Best"
+ *  projects to. */
+const MYTHIC_MAX_LEVEL = 20;
+const GEAR_SLOTS = [1, 2, 3, 4, 5, 6];
+// Raw stat curves of a mythic player item (measured 2026-08-17). carac1..3
+// are equal to each other, so the per-carac value is a third of the sum the
+// doc records. Only mythics level; everything else is fixed at the value the
+// game hands out.
+const MYTHIC_CARAC_SUM_BASE = 6000;
+const MYTHIC_CARAC_SUM_PER_LEVEL = 300;
+const MYTHIC_ENDURANCE_BASE = 2000;
+const MYTHIC_ENDURANCE_PER_LEVEL = 100;
+const MYTHIC_CHANCE_BASE = 3000;
+const MYTHIC_CHANCE_PER_LEVEL = 100;
+// Resonance grows 0.1 percentage points per item level, doubled on the
+// chance track.
+const RESONANCE_PER_LEVEL = 0.1;
+const RESONANCE_PER_LEVEL_CHANCE = 0.2;
+/** How far a measured carac may drift from the mythic curve before the
+ *  projection is treated as unreliable. Guards against a game rebalance
+ *  silently turning "Possible Best" into nonsense. */
+const PROJECTION_TOLERANCE = 0.05;
+/** Sum of the five stats an armor item carries. The single raw number every
+ *  comparison in this file is built on. */
+function rawScore(caracs) {
+    return caracs.carac1 + caracs.carac2 + caracs.carac3
+        + caracs.endurance + caracs.chance;
+}
+/** Is this item's class axis active for the given hero class? */
+function classMatches(item, playerClass) {
+    const res = item.classResonance;
+    if (!res || res.identifier === null)
+        return false;
+    return String(res.identifier) === String(playerClass);
+}
+/** Is this item's theme axis active for the given team theme?
+ *  `identifier: null` is Balanced, not "no theme". */
+function themeMatches(item, theme) {
+    const res = item.themeResonance;
+    if (!res)
+        return false;
+    if (res.identifier === null)
+        return theme === 'balanced';
+    return res.identifier === theme;
+}
+function resonanceAtLevel(res, level) {
+    const perLevel = res.resonance === 'chance'
+        ? RESONANCE_PER_LEVEL_CHANCE
+        : RESONANCE_PER_LEVEL;
+    return perLevel * level;
+}
+/** Percentage points this item contributes right now: the sum of whichever
+ *  of its two axes currently match. */
+function activeResonance(item, playerClass, theme) {
+    let total = 0;
+    if (classMatches(item, playerClass))
+        total += item.classResonance.bonus;
+    if (themeMatches(item, theme))
+        total += item.themeResonance.bonus;
+    return total;
+}
+/** The same sum, but with both axes scaled to max level. Used by Possible
+ *  Best, which ranks items by what they will be worth, not what they are. */
+function projectedResonance(item, playerClass, theme) {
+    const level = isUpgradable(item) ? MYTHIC_MAX_LEVEL : item.level;
+    let total = 0;
+    if (classMatches(item, playerClass)) {
+        total += resonanceAtLevel(item.classResonance, level);
+    }
+    if (themeMatches(item, theme)) {
+        total += resonanceAtLevel(item.themeResonance, level);
+    }
+    return total;
+}
+/** Only mythics level up; every other rarity is handed out at a fixed value
+ *  tied to the player level. */
+function isUpgradable(item) {
+    return item.rarity === 'mythic' && item.level < MYTHIC_MAX_LEVEL;
+}
+function withinTolerance(measured, expected) {
+    if (expected === 0)
+        return measured === 0;
+    return Math.abs(measured - expected) / expected <= PROJECTION_TOLERANCE;
+}
+/**
+ * Caracs this item would have at max level.
+ *
+ * Non-mythics and already-maxed mythics return their measured caracs
+ * unchanged. For everything else the curve is applied -- but only after
+ * checking it against the item's *current* caracs. If the game ever
+ * rebalances the curve, the check fails and the measured values are
+ * returned instead, with `unreliable` set, so the caller can say so rather
+ * than rank on invented numbers.
+ */
+function projectCaracs(item) {
+    if (!isUpgradable(item)) {
+        return { caracs: item.caracs, unreliable: false };
+    }
+    const lvl = item.level;
+    const expectedCaracSum = MYTHIC_CARAC_SUM_BASE + MYTHIC_CARAC_SUM_PER_LEVEL * lvl;
+    const expectedEndurance = MYTHIC_ENDURANCE_BASE + MYTHIC_ENDURANCE_PER_LEVEL * lvl;
+    const expectedChance = MYTHIC_CHANCE_BASE + MYTHIC_CHANCE_PER_LEVEL * lvl;
+    const measuredCaracSum = item.caracs.carac1 + item.caracs.carac2 + item.caracs.carac3;
+    const curveHolds = withinTolerance(measuredCaracSum, expectedCaracSum)
+        && withinTolerance(item.caracs.endurance, expectedEndurance)
+        && withinTolerance(item.caracs.chance, expectedChance);
+    if (!curveHolds) {
+        return { caracs: item.caracs, unreliable: true };
+    }
+    const maxCaracSum = MYTHIC_CARAC_SUM_BASE + MYTHIC_CARAC_SUM_PER_LEVEL * MYTHIC_MAX_LEVEL;
+    const perCarac = maxCaracSum / 3;
+    return {
+        caracs: {
+            carac1: perCarac,
+            carac2: perCarac,
+            carac3: perCarac,
+            endurance: MYTHIC_ENDURANCE_BASE + MYTHIC_ENDURANCE_PER_LEVEL * MYTHIC_MAX_LEVEL,
+            chance: MYTHIC_CHANCE_BASE + MYTHIC_CHANCE_PER_LEVEL * MYTHIC_MAX_LEVEL,
+        },
+        unreliable: false,
+    };
+}
+/** Possible Best ranking tier -- lower is better. See the doc's ordering:
+ *  a mythic carrying the wrong class is not a hit even if its theme fits. */
+function possibleBestTier(item, playerClass, theme) {
+    if (item.rarity !== 'mythic')
+        return 3;
+    if (!classMatches(item, playerClass))
+        return 3;
+    return themeMatches(item, theme) ? 1 : 2;
+}
+function bySlot(items) {
+    const map = new Map();
+    for (const slot of GEAR_SLOTS)
+        map.set(slot, []);
+    for (const item of items) {
+        const bucket = map.get(item.slot);
+        if (bucket)
+            bucket.push(item);
+    }
+    return map;
+}
+/** Compare two numbers with a tolerance, so equal-by-construction raw sums
+ *  (two mythics of the same slot and level) really do tie and let the
+ *  resonance decide. */
+function cmp(a, b) {
+    if (Math.abs(a - b) < 0.5)
+        return 0;
+    return a < b ? 1 : -1; // descending
+}
+function buildPick(slot, chosen, current, playerClass, theme) {
+    const currentRaw = current ? rawScore(current.caracs) : 0;
+    const currentRes = current ? activeResonance(current, playerClass, theme) : 0;
+    return {
+        slot,
+        chosen,
+        current,
+        changed: chosen !== null && !chosen.equipped,
+        rawDelta: chosen ? rawScore(chosen.caracs) - currentRaw : 0,
+        resonanceDelta: chosen ? activeResonance(chosen, playerClass, theme) - currentRes : 0,
+    };
+}
+function summarise(picks, projected) {
+    const changes = picks.filter(p => p.changed);
+    const plan = {
+        picks,
+        changes,
+        totalRawDelta: changes.reduce((s, p) => s + p.rawDelta, 0),
+        totalResonanceDelta: changes.reduce((s, p) => s + p.resonanceDelta, 0),
+    };
+    if (projected) {
+        plan.totalProjectedRawDelta = changes.reduce((s, p) => { var _a; return s + ((_a = p.projectedRawDelta) !== null && _a !== void 0 ? _a : 0); }, 0);
+        plan.totalProjectedResonanceDelta = changes.reduce((s, p) => { var _a; return s + ((_a = p.projectedResonanceDelta) !== null && _a !== void 0 ? _a : 0); }, 0);
+    }
+    return plan;
+}
+/**
+ * "Current Best Gear": per slot the item with the highest value *today*.
+ *
+ * Ordering is raw stats first, active resonance second. This never makes the
+ * player weaker and never leaves a slot empty -- a mythic below roughly
+ * level 15 loses to a legendary at player level because its raw stats are
+ * lower, and that is the correct answer for this button.
+ */
+function planCurrentBest(items, playerClass, theme) {
+    var _a, _b;
+    const picks = [];
+    for (const [slot, candidates] of bySlot(items)) {
+        const current = (_a = candidates.find(i => i.equipped)) !== null && _a !== void 0 ? _a : null;
+        const ranked = [...candidates].sort((a, b) => {
+            const raw = cmp(rawScore(a.caracs), rawScore(b.caracs));
+            if (raw !== 0)
+                return raw;
+            return cmp(activeResonance(a, playerClass, theme), activeResonance(b, playerClass, theme));
+        });
+        picks.push(buildPick(slot, (_b = ranked[0]) !== null && _b !== void 0 ? _b : null, current, playerClass, theme));
+    }
+    return summarise(picks, false);
+}
+/**
+ * "Possible Best Gear": per slot the item that would be strongest once
+ * everything sits at max level.
+ *
+ * This deliberately equips items that are weaker *today* -- the same
+ * behaviour as "Best Possible" on the team page, which fields a level-1
+ * girl because she is the better target. The cost of that choice is
+ * reported per slot (`rawDelta`) and in the summary, so the player sees the
+ * gap instead of only having it.
+ *
+ * A mythic with the right theme but the wrong class is not a hit and lands
+ * in tier 3, where it competes on raw stats like anything else. It can
+ * still win that tier -- if it is the only mythic for its slot, wearing it
+ * really is the strongest projected option -- and the upgrade step then
+ * simply may not consume it, because it is equipped.
+ */
+function planPossibleBest(items, playerClass, theme) {
+    var _a, _b;
+    const picks = [];
+    for (const [slot, candidates] of bySlot(items)) {
+        const current = (_a = candidates.find(i => i.equipped)) !== null && _a !== void 0 ? _a : null;
+        const projections = new Map();
+        for (const item of candidates)
+            projections.set(item, projectCaracs(item));
+        const ranked = [...candidates].sort((a, b) => {
+            const tier = possibleBestTier(a, playerClass, theme) - possibleBestTier(b, playerClass, theme);
+            if (tier !== 0)
+                return tier;
+            const raw = cmp(rawScore(projections.get(a).caracs), rawScore(projections.get(b).caracs));
+            if (raw !== 0)
+                return raw;
+            return cmp(projectedResonance(a, playerClass, theme), projectedResonance(b, playerClass, theme));
+        });
+        const chosen = (_b = ranked[0]) !== null && _b !== void 0 ? _b : null;
+        const pick = buildPick(slot, chosen, current, playerClass, theme);
+        if (chosen) {
+            const chosenProj = projections.get(chosen);
+            const currentProj = current ? projectCaracs(current) : null;
+            pick.tier = possibleBestTier(chosen, playerClass, theme);
+            pick.projectedRawDelta = rawScore(chosenProj.caracs)
+                - (currentProj ? rawScore(currentProj.caracs) : 0);
+            pick.projectedResonanceDelta = projectedResonance(chosen, playerClass, theme)
+                - (current ? projectedResonance(current, playerClass, theme) : 0);
+            if (chosenProj.unreliable || (currentProj === null || currentProj === void 0 ? void 0 : currentProj.unreliable)) {
+                pick.projectionUnreliable = true;
+            }
+        }
+        picks.push(pick);
+    }
+    return summarise(picks, true);
+}
+/**
+ * Team theme from the element distribution of the fielded team. Three girls
+ * of one element set the theme; anything else is Balanced.
+ *
+ * Caveat recorded in the doc: the 3-girl threshold is measured for
+ * `theme_elements` / the domination bonus and is only *plausible* for the
+ * resonance axis, not confirmed.
+ */
+function themeFromElementCounts(counts) {
+    let best = 'balanced';
+    let bestCount = 0;
+    for (const [element, count] of Object.entries(counts)) {
+        if (count >= 3 && count > bestCount) {
+            best = element;
+            bestCount = count;
+        }
+    }
+    return best;
+}
+/** Narrow an arbitrary stored string back to a theme, or null when it is
+ *  not one. Callers must treat null as "do nothing and log it" -- acting on
+ *  a guessed theme is worse than not acting. */
+function parseTheme(value) {
+    const known = [
+        'balanced', 'fire', 'water', 'nature', 'stone',
+        'sun', 'darkness', 'psychic', 'light',
+    ];
+    return known.includes(value) ? value : null;
+}
+function toResonance(raw) {
+    if (!raw || typeof raw !== 'object')
+        return null;
+    const bonus = Number(raw.bonus);
+    if (!Number.isFinite(bonus))
+        return null;
+    const identifier = raw.identifier === null || raw.identifier === undefined
+        ? null
+        : String(raw.identifier);
+    return { identifier, resonance: raw.resonance, bonus };
+}
+/**
+ * Map one raw game object (`player_inventory.armor` entry, `hero_items`
+ * entry or a parsed `data-d` attribute) onto ArmorItem.
+ *
+ * Returns null for anything that is not a wearable hero armor with a usable
+ * slot -- girl equipment shares the inventory shape, and a silent
+ * mis-classification here would equip the wrong thing.
+ */
+function parseArmorItem(raw) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    if (!raw || typeof raw !== 'object')
+        return null;
+    const slot = Number((_a = raw === null || raw === void 0 ? void 0 : raw.skin) === null || _a === void 0 ? void 0 : _a.subtype);
+    if (!Number.isInteger(slot) || slot < 1 || slot > 6)
+        return null;
+    if (((_b = raw === null || raw === void 0 ? void 0 : raw.skin) === null || _b === void 0 ? void 0 : _b.wearer) && raw.skin.wearer !== 'hero')
+        return null;
+    const id = Number(raw.id_member_armor);
+    if (!Number.isFinite(id))
+        return null;
+    const c = (_c = raw.caracs) !== null && _c !== void 0 ? _c : {};
+    const caracs = {
+        carac1: Number(c.carac1) || 0,
+        carac2: Number(c.carac2) || 0,
+        carac3: Number(c.carac3) || 0,
+        endurance: Number(c.endurance) || 0,
+        chance: Number(c.chance) || 0,
+    };
+    const equippedId = raw.id_member_armor_equipped === null
+        || raw.id_member_armor_equipped === undefined
+        ? null
+        : Number(raw.id_member_armor_equipped);
+    const res = (_d = raw.resonance_bonuses) !== null && _d !== void 0 ? _d : {};
+    return {
+        id_member_armor: id,
+        id_member_armor_equipped: Number.isFinite(equippedId) ? equippedId : null,
+        level: Number(raw.level) || 0,
+        slot,
+        rarity: String((_f = (_e = raw === null || raw === void 0 ? void 0 : raw.item) === null || _e === void 0 ? void 0 : _e.rarity) !== null && _f !== void 0 ? _f : ''),
+        name: String((_h = (_g = raw === null || raw === void 0 ? void 0 : raw.skin) === null || _g === void 0 ? void 0 : _g.name) !== null && _h !== void 0 ? _h : ''),
+        caracs,
+        classResonance: toResonance(res.class),
+        themeResonance: toResonance(res.theme),
+        equipped: equippedId !== null && Number.isFinite(equippedId),
+    };
+}
+
+;// ./src/Module/EquipmentGear.ts
+// EquipmentGear.ts -- The gear buttons on the market page: pick the best
+// armor for the hero's six slots and put it on.
+//
+// Deliberately built like the team workflow so the player needs one mental
+// model, not two:
+//
+//   Team page                Market page
+//   2a Current Best     ->   Current Best Gear
+//   2b Possible Best    ->   Possible Best Gear
+//   3  Stuff Team       ->   Upgrade Gear (not implemented -- the upgrade
+//                            endpoint is still unknown, see below)
+//
+// The ranking itself lives in Service/EquipmentOptimizerService.ts and is
+// pure. This file only does the impure half: read the game's globals and
+// DOM, page through the inventory, show the preview, and fire the equip
+// calls.
+//
+// Background, data model and the measurement traps:
+// docs-internal/equipment-resonance.md.
+//
+// Used by: Service/AutoLoopPageHandlers.ts (shop page)
+var EquipmentGear_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+/** Hard stop for the inventory walk. The test account held 1614 armors; at
+ *  the page sizes the game uses that is well under 100 requests. A cap this
+ *  side of infinity keeps a changed response shape from looping forever. */
+const MAX_INVENTORY_PAGES = 120;
+const SLOT_NAMES = {
+    1: 'Head', 2: 'Body', 3: 'Legs', 4: 'Flag', 5: 'Pet', 6: 'Weapon',
+};
+class EquipmentGear {
+    /**
+     * Inject the two gear buttons next to the armor inventory, or take them
+     * away again when the player is on one of the other market tabs. Called
+     * from the shop page handler and re-entered on every tab switch.
+     */
+    static moduleGearActions() {
+        if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDShop"))
+            return;
+        // Switching to the gift/potion/booster tab leaves the buttons behind
+        // in a panel that is no longer the armor inventory, so they are torn
+        // down and rebuilt with the tab -- the same lifecycle Shop.ts gives
+        // its sell menu.
+        if ($('#player-inventory.armor').length === 0) {
+            $('#HHGearButtons').remove();
+            EquipmentGear.watchTabSwitch();
+            return;
+        }
+        EquipmentGear.watchTabSwitch();
+        if (document.getElementById("HHGearCurrentBest") !== null)
+            return;
+        GM_addStyle('#HHGearButtons{position:absolute;right:300px;top:110px;z-index:10;'
+            + 'display:flex;flex-direction:column;gap:6px;width:140px;}'
+            + '#HHGearButtons .tooltipHH{width:100%;margin:0;padding:0;}'
+            + '#HHGearButtons .myButton{display:flex;align-items:center;justify-content:center;'
+            + 'box-sizing:border-box;width:100%;height:34px;margin:0;padding:2px 4px;'
+            + 'font-size:11px;line-height:13px;text-align:center;overflow:hidden;}'
+            + '#HHGearPreview table{width:100%;border-collapse:collapse;font-size:12px;}'
+            + '#HHGearPreview th,#HHGearPreview td{padding:2px 6px;text-align:left;'
+            + 'border-bottom:1px solid rgba(255,255,255,0.15);}'
+            + '#HHGearPreview td.num{text-align:right;font-variant-numeric:tabular-nums;}');
+        $('#player-inventory.armor').append('<div id="HHGearButtons">'
+            + gearButton('HHGearCurrentBest')
+            + gearButton('HHGearPossibleBest')
+            + '</div>');
+        $("#HHGearCurrentBest").on("click", () => { void EquipmentGear.preview('current'); });
+        $("#HHGearPossibleBest").on("click", () => { void EquipmentGear.preview('possible'); });
+    }
+    /** Re-run the injection after a tab switch. The market swaps the
+     *  inventory panel without a page load, so a one-shot injection from the
+     *  page handler would only ever be right for the tab that happened to be
+     *  open first. */
+    static watchTabSwitch() {
+        if (EquipmentGear.tabWatcherBound)
+            return;
+        EquipmentGear.tabWatcherBound = true;
+        $(document).on('click', '#tabs-switcher .market-menu-switch-tab', () => {
+            setTimeout(() => EquipmentGear.moduleGearActions(), 300);
+        });
+    }
+    // ---------------------------------------------------------------- data
+    /**
+     * The theme the resonance is matched against.
+     *
+     * Primary source is what TeamModule stored when it last fielded a team.
+     * The fallback recomputes it from `teams_data`, which the market page
+     * does not have -- so it usually returns null there, and null means
+     * "do nothing and say so". Acting on a guessed theme would equip the
+     * wrong six items.
+     */
+    static resolveTheme() {
+        var _a;
+        const stored = parseTheme(getStoredValue(HHStoredVarPrefixKey + TK.teamTheme));
+        if (stored)
+            return stored;
+        const teams = unsafeWindow.teams_data;
+        if (teams && typeof teams === 'object') {
+            const first = Object.values(teams)[0];
+            const girls = first === null || first === void 0 ? void 0 : first.girls;
+            if (Array.isArray(girls) && girls.length > 0) {
+                const counts = {};
+                for (const g of girls) {
+                    const element = g === null || g === void 0 ? void 0 : g.element;
+                    if (typeof element === 'string')
+                        counts[element] = ((_a = counts[element]) !== null && _a !== void 0 ? _a : 0) + 1;
+                }
+                if (Object.keys(counts).length > 0)
+                    return themeFromElementCounts(counts);
+            }
+        }
+        return null;
+    }
+    /** The six items the hero is wearing, read from the equipped panel. */
+    static readEquipped() {
+        const items = [];
+        $('#equiped .armor div[id_item]').each(function () {
+            var _a;
+            const raw = safeJsonParse((_a = this.dataset.d) !== null && _a !== void 0 ? _a : '', null);
+            const parsed = raw ? parseArmorItem(raw) : null;
+            if (parsed)
+                items.push(parsed);
+        });
+        return items;
+    }
+    /**
+     * Every armor in the inventory.
+     *
+     * The first page arrives with the document as `player_inventory.armor`;
+     * the rest come from `market_get_armor`, which takes the last id seen.
+     *
+     * The response is `{items: [...], success: true}` with an empty `items`
+     * marking the end of the list -- the same contract Shop.ts's
+     * `checkAjaxComplete` already relies on. Anything else aborts loudly:
+     * an optimiser that silently sees a third of the inventory would
+     * quietly equip the wrong items.
+     */
+    static fetchInventory() {
+        return EquipmentGear_awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const ajax = getHHAjax();
+            if (!ajax) {
+                logHHAuto('Gear: shared.general.hh_ajax is missing, aborting -- nothing was changed.');
+                return null;
+            }
+            const seen = new Set();
+            const items = [];
+            // Returns the last id the page carried -- including entries that
+            // parseArmorItem rejects (girl equipment shares the inventory), so
+            // paging keeps advancing instead of asking for the same page again.
+            const collect = (list) => {
+                let lastSeenId = 0;
+                for (const raw of list) {
+                    const id = Number(raw === null || raw === void 0 ? void 0 : raw.id_member_armor);
+                    if (Number.isFinite(id))
+                        lastSeenId = id;
+                    const parsed = parseArmorItem(raw);
+                    if (!parsed || seen.has(parsed.id_member_armor))
+                        continue;
+                    seen.add(parsed.id_member_armor);
+                    items.push(parsed);
+                }
+                return lastSeenId;
+            };
+            const firstPage = (_a = unsafeWindow.player_inventory) === null || _a === void 0 ? void 0 : _a.armor;
+            if (!Array.isArray(firstPage)) {
+                logHHAuto('Gear: player_inventory.armor is not an array on this page, aborting.');
+                return null;
+            }
+            let lastId = collect(firstPage);
+            let pages = 0;
+            while (pages < MAX_INVENTORY_PAGES) {
+                pages++;
+                const data = yield new Promise(resolve => {
+                    ajax({ action: 'market_get_armor', id_member_armor: lastId }, resolve);
+                }).catch(() => null);
+                if (!data)
+                    break;
+                const list = Array.isArray(data.items) ? data.items : null;
+                if (list === null) {
+                    logHHAuto('Gear: unexpected market_get_armor response, aborting after '
+                        + items.length + ' items. Keys: ' + Object.keys(data).join(','));
+                    return null;
+                }
+                if (list.length === 0)
+                    break;
+                const nextId = collect(list);
+                // The game answers the same page when the cursor stops moving;
+                // without this the loop would only end at the request cap.
+                if (nextId === 0 || nextId === lastId)
+                    break;
+                lastId = nextId;
+            }
+            if (pages >= MAX_INVENTORY_PAGES) {
+                logHHAuto('Gear: stopped paging the inventory at the ' + MAX_INVENTORY_PAGES
+                    + '-request cap; the plan below only covers ' + items.length + ' items.');
+            }
+            logHHAuto('Gear: read ' + items.length + ' armors from the inventory in ' + pages + ' request(s).');
+            return items;
+        });
+    }
+    // ------------------------------------------------------------- preview
+    /** Gather everything, build the plan, and show it. Nothing is changed
+     *  until the player presses the button in the preview. */
+    static preview(mode) {
+        return EquipmentGear_awaiter(this, void 0, void 0, function* () {
+            if (EquipmentGear.running)
+                return;
+            EquipmentGear.running = true;
+            const modeName = mode === 'current' ? 'Current Best Gear' : 'Possible Best Gear';
+            try {
+                const theme = EquipmentGear.resolveTheme();
+                if (!theme) {
+                    const msg = 'No team theme available. Build a team first (Current Best / Possible Best'
+                        + ' on the team page) -- picking gear on a guessed theme would equip the wrong items.';
+                    logHHAuto('Gear: ' + msg + ' Nothing was changed.');
+                    EquipmentGear.showMessage(modeName, msg);
+                    return;
+                }
+                const rawClass = Number(HeroHelper.getClass());
+                if (rawClass !== 1 && rawClass !== 2 && rawClass !== 3) {
+                    logHHAuto('Gear: hero class is ' + rawClass + ', aborting -- nothing was changed.');
+                    EquipmentGear.showMessage(modeName, 'Could not read the hero class.');
+                    return;
+                }
+                const playerClass = rawClass;
+                EquipmentGear.showMessage(modeName, 'Reading the inventory...');
+                const inventory = yield EquipmentGear.fetchInventory();
+                if (inventory === null) {
+                    EquipmentGear.showMessage(modeName, 'Could not read the inventory. Nothing was changed -- see the log.');
+                    return;
+                }
+                const equipped = EquipmentGear.readEquipped();
+                if (equipped.length === 0) {
+                    // Either the hero really wears nothing, or the equipped panel
+                    // moved. Both end with a plan whose "costs you today" column
+                    // is measured against an empty slot, so say so out loud.
+                    logHHAuto('Gear: read 0 equipped items from #equiped .armor div[id_item].'
+                        + ' The per-slot cost below is measured against an empty slot.');
+                }
+                const byId = new Map();
+                for (const item of [...equipped, ...inventory]) {
+                    if (!byId.has(item.id_member_armor))
+                        byId.set(item.id_member_armor, item);
+                }
+                const all = [...byId.values()];
+                const plan = mode === 'current'
+                    ? planCurrentBest(all, playerClass, theme)
+                    : planPossibleBest(all, playerClass, theme);
+                EquipmentGear.logPlan(modeName, theme, plan, mode);
+                EquipmentGear.showPlan(modeName, theme, plan, mode);
+            }
+            catch (err) {
+                logHHAuto('Gear: ' + modeName + ' failed before any change was made: ' + err);
+                EquipmentGear.showMessage(modeName, 'Failed, nothing was changed. See the log.');
+            }
+            finally {
+                EquipmentGear.running = false;
+            }
+        });
+    }
+    /** One log line per planned swap, plus the totals. Written before the
+     *  player can execute, so the log holds the plan even if the run is
+     *  abandoned halfway. */
+    static logPlan(modeName, theme, plan, mode) {
+        var _a, _b, _c, _d;
+        logHHAuto(`Gear [${modeName}]: theme=${theme}, ${plan.changes.length} of 6 slots would change.`);
+        for (const pick of plan.picks) {
+            if (!pick.chosen) {
+                logHHAuto(`  Slot ${pick.slot} (${SLOT_NAMES[pick.slot]}): no item owned.`);
+                continue;
+            }
+            if (!pick.changed) {
+                logHHAuto(`  Slot ${pick.slot} (${SLOT_NAMES[pick.slot]}): keeping ${EquipmentGear.describe(pick.chosen)}.`);
+                continue;
+            }
+            const from = pick.current ? EquipmentGear.describe(pick.current) : 'an empty slot';
+            const projected = mode === 'possible'
+                ? ` After the upgrade: ${fmtSigned((_a = pick.projectedRawDelta) !== null && _a !== void 0 ? _a : 0)} raw,`
+                    + ` ${fmtSignedPct((_b = pick.projectedResonanceDelta) !== null && _b !== void 0 ? _b : 0)} resonance.`
+                : '';
+            const warn = pick.projectionUnreliable
+                ? ' (projection unreliable: the item does not follow the known mythic curve)'
+                : '';
+            logHHAuto(`  Slot ${pick.slot} (${SLOT_NAMES[pick.slot]}): ${EquipmentGear.describe(pick.chosen)}`
+                + ` replaces ${from}, ${fmtSigned(pick.rawDelta)} carac points today,`
+                + ` ${fmtSignedPct(pick.resonanceDelta)} active resonance.${projected}${warn}`);
+        }
+        if (mode === 'possible') {
+            logHHAuto(`  Total: ${fmtSigned(plan.totalRawDelta)} carac points now,`
+                + ` ${fmtSigned((_c = plan.totalProjectedRawDelta) !== null && _c !== void 0 ? _c : 0)} and`
+                + ` ${fmtSignedPct((_d = plan.totalProjectedResonanceDelta) !== null && _d !== void 0 ? _d : 0)} resonance once everything is at max level.`);
+        }
+        else {
+            logHHAuto(`  Total: ${fmtSigned(plan.totalRawDelta)} carac points,`
+                + ` ${fmtSignedPct(plan.totalResonanceDelta)} active resonance.`);
+        }
+    }
+    static describe(item) {
+        return `${item.name} (${item.rarity} lvl${item.level}, id ${item.id_member_armor})`;
+    }
+    static showMessage(title, message) {
+        fillHHPopUp('HHGearPreview', title, `<div id="HHGearPreview" style="padding:10px;max-width:640px;font-size:13px;">${message}</div>`);
+    }
+    static showPlan(modeName, theme, plan, mode) {
+        var _a, _b;
+        const rows = plan.picks.map(pick => {
+            var _a, _b;
+            const slot = `${pick.slot} ${SLOT_NAMES[pick.slot]}`;
+            if (!pick.chosen) {
+                return `<tr><td>${slot}</td><td colspan="4" style="color:#aaa;">no item owned</td></tr>`;
+            }
+            if (!pick.changed) {
+                return `<tr style="color:#aaa;"><td>${slot}</td>`
+                    + `<td>keep ${esc(pick.chosen.name)} (${pick.chosen.rarity} lvl${pick.chosen.level})</td>`
+                    + `<td class="num">&mdash;</td><td class="num">&mdash;</td><td></td></tr>`;
+            }
+            const tier = pick.tier ? ` <span style="color:#aaa;">T${pick.tier}</span>` : '';
+            const warn = pick.projectionUnreliable
+                ? ' <span style="color:#fc6;" title="Item does not follow the known mythic curve">&#9888;</span>'
+                : '';
+            const projected = mode === 'possible'
+                ? `<td class="num">${fmtSigned((_a = pick.projectedRawDelta) !== null && _a !== void 0 ? _a : 0)} / ${fmtSignedPct((_b = pick.projectedResonanceDelta) !== null && _b !== void 0 ? _b : 0)}</td>`
+                : '<td></td>';
+            return `<tr><td>${slot}${tier}</td>`
+                + `<td>${esc(pick.chosen.name)} (${pick.chosen.rarity} lvl${pick.chosen.level})${warn}</td>`
+                + `<td class="num" style="color:${pick.rawDelta < 0 ? '#f88' : '#7f7'};">${fmtSigned(pick.rawDelta)}</td>`
+                + `<td class="num">${fmtSignedPct(pick.resonanceDelta)}</td>`
+                + projected + '</tr>';
+        }).join('');
+        const summary = mode === 'possible'
+            ? `<p><b>Today this costs ${fmtSigned(plan.totalRawDelta)} carac points.</b>`
+                + ` Once every slot sits at max level it is worth ${fmtSigned((_a = plan.totalProjectedRawDelta) !== null && _a !== void 0 ? _a : 0)}`
+                + ` carac points and ${fmtSignedPct((_b = plan.totalProjectedResonanceDelta) !== null && _b !== void 0 ? _b : 0)} resonance.`
+                + ` The gap is deliberate &mdash; these are the better targets, not the better items today.</p>`
+            : `<p><b>${fmtSigned(plan.totalRawDelta)} carac points, ${fmtSignedPct(plan.totalResonanceDelta)} active resonance.</b>`
+                + ` This button never makes you weaker.</p>`;
+        const projectedHead = mode === 'possible' ? '<th>at max level</th>' : '<th></th>';
+        const button = plan.changes.length === 0
+            ? '<p style="color:#7f7;">Nothing to change &mdash; every slot already holds the best item.</p>'
+            : `<label class="myButton" id="HHGearExecute" style="font-size:14px;width:100%;text-align:center;">`
+                + `Equip ${plan.changes.length} item(s)</label>`;
+        fillHHPopUp('HHGearPreview', modeName, `
+        <div id="HHGearPreview" style="padding:10px;max-width:720px;font-size:13px;">
+            <p>Hero class <b>${HeroHelper.getClass()}</b>, team theme <b>${esc(theme)}</b>.
+               Ranking: raw stats first, resonance as the tiebreak
+               (a resonance bonus is never worth giving up raw stats for).</p>
+            <table>
+                <tr><th>Slot</th><th>Item</th><th>caracs now</th><th>resonance now</th>${projectedHead}</tr>
+                ${rows}
+            </table>
+            ${summary}
+            <p id="HHGearStatus" style="color:#ffb827;"></p>
+            ${button}
+        </div>`);
+        $('#HHGearExecute').on('click', function () {
+            $(this).attr('disabled', 'disabled').css('opacity', '0.5');
+            void EquipmentGear.execute(plan);
+        });
+    }
+    // ------------------------------------------------------------- execute
+    /**
+     * Put the planned items on, one call at a time.
+     *
+     * The inventory id of the item that comes off changes the moment it is
+     * unequipped, so the only place a rollback id can come from is the
+     * equip response itself (`unequipped_armor`). It is written to storage
+     * as each swap lands.
+     */
+    static execute(plan) {
+        return EquipmentGear_awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d;
+            const ajax = getHHAjax();
+            if (!ajax) {
+                logHHAuto('Gear: shared.general.hh_ajax disappeared, aborting -- nothing was changed.');
+                $('#HHGearStatus').text('hh_ajax is unavailable. Nothing was changed.');
+                return;
+            }
+            const swapLog = getStoredJSON(HHStoredVarPrefixKey + TK.gearSwapLog, []);
+            let done = 0;
+            for (const pick of plan.changes) {
+                const item = pick.chosen;
+                $('#HHGearStatus').text(`Equipping slot ${pick.slot} (${done + 1}/${plan.changes.length})...`);
+                const data = yield new Promise(resolve => {
+                    ajax({
+                        action: 'market_equip_armor',
+                        id_member_armor: item.id_member_armor,
+                        rarity: item.rarity,
+                    }, resolve);
+                }).catch(err => { logHHAuto('Gear: equip call failed: ' + err); return null; });
+                if (!data || data.success === false) {
+                    logHHAuto(`Gear: slot ${pick.slot} refused by the game, stopping after ${done} swap(s).`);
+                    $('#HHGearStatus').text(`Stopped at slot ${pick.slot}: the game refused the swap.`
+                        + ` ${done} of ${plan.changes.length} done.`);
+                    break;
+                }
+                const removedId = (_b = (_a = data === null || data === void 0 ? void 0 : data.unequipped_armor) === null || _a === void 0 ? void 0 : _a.id_member_armor) !== null && _b !== void 0 ? _b : null;
+                swapLog.push({
+                    ts: Date.now(),
+                    slot: pick.slot,
+                    equipped: item.id_member_armor,
+                    equippedName: item.name,
+                    // The rollback id. Only valid from this response -- it is
+                    // not the id the item had while it was worn.
+                    unequipped: removedId,
+                    unequippedName: (_d = (_c = pick.current) === null || _c === void 0 ? void 0 : _c.name) !== null && _d !== void 0 ? _d : null,
+                });
+                setStoredValue(HHStoredVarPrefixKey + TK.gearSwapLog, JSON.stringify(swapLog.slice(-60)));
+                logHHAuto(`Gear: slot ${pick.slot} now holds ${EquipmentGear.describe(item)};`
+                    + ` the item that came off is back in the inventory as id ${removedId !== null && removedId !== void 0 ? removedId : 'unknown'}.`);
+                done++;
+                if (done < plan.changes.length) {
+                    yield new Promise(resolve => setTimeout(resolve, randomInterval(600, 1200)));
+                }
+            }
+            if (done === plan.changes.length) {
+                $('#HHGearStatus').text(`Done: ${done} slot(s) changed. Reload the page to see the new stats.`);
+                logHHAuto(`Gear: finished, ${done} slot(s) changed.`);
+            }
+        });
+    }
+}
+/** Guards against a second injection when the page handler runs again. */
+EquipmentGear.running = false;
+EquipmentGear.tabWatcherBound = false;
+/** Same markup hhButton produces, built here so this module does not have to
+ *  import HHMenuHelper -- that import closes an AutoLoopPageHandlers cycle
+ *  (ADR-002). Shop.ts inlines its market buttons for the same reason. */
+function gearButton(id) {
+    return `<div class="tooltipHH">`
+        + `<span class="tooltipHHtext">${getTextForUI(id, "tooltip")}</span>`
+        + `<label class="myButton" id="${id}">${getTextForUI(id, "elementText")}</label>`
+        + `</div>`;
+}
+function esc(value) {
+    return String(value).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+function fmtSigned(value) {
+    const rounded = Math.round(value);
+    return (rounded > 0 ? '+' : '') + rounded.toLocaleString();
+}
+function fmtSignedPct(value) {
+    return (value > 0 ? '+' : '') + value.toFixed(1) + 'pp';
+}
+
 ;// ./src/Module/Events/LivelyScene.pure.ts
 // LivelyScene.pure.ts -- Pure decision logic for the Lively Scene event.
 //
@@ -21955,6 +22807,7 @@ var TeamModule_awaiter = (undefined && undefined.__awaiter) || function (thisArg
 
 
 
+
 class TeamModule {
     static resetTeam() {
         $('#clear-team').trigger('click');
@@ -22584,6 +23437,15 @@ class TeamModule {
         const modeName = mode === 1 ? 'Current Best' : 'Best Possible';
         const dist = TeamBuilderService.getElementDistribution(result);
         const distStr = dist.map(d => `${d.count}x ${d.element}`).join(', ');
+        // Hand the theme to the gear optimiser: the market page has no team
+        // data, and resonance depends on the theme of the team that is
+        // actually fielded (docs-internal/equipment-resonance.md, section 5 --
+        // team first, items after).
+        const elementCounts = {};
+        for (const d of dist)
+            elementCounts[d.element] = d.count;
+        const gearTheme = themeFromElementCounts(elementCounts);
+        setStoredValue(HHStoredVarPrefixKey + TK.teamTheme, gearTheme);
         const inClusterStr = result.leaderInCluster ? 'in-cluster' : 'cross-cluster';
         const identStr = modesIdentical ? ', modes identical' : '';
         const playerClassNameLog = TeamModule.PLAYER_CLASS_NAME[result.playerClass] || ('class ' + result.playerClass);
@@ -23351,6 +24213,7 @@ var AutoLoopPageHandlers_awaiter = (undefined && undefined.__awaiter) || functio
 
 
 
+
 // Tracks whether the read-only Season-arena power-calc preview has already
 // been rendered on the current page load. Reset implicitly on every page
 // navigation (full reload re-initialises the module). Used instead of
@@ -23463,6 +24326,9 @@ function handlePageSpecific(ctx) {
             case ConfigHelper.getHHScriptVars("pagesIDShop"):
                 if (getStoredValue(HHStoredVarPrefixKey + SK.showMarketTools) === "true") {
                     Shop.moduleShopActions();
+                    // Same gate as the sell tools: both live on the armor tab of
+                    // the market and are manual, player-triggered actions.
+                    EquipmentGear.moduleGearActions();
                 }
                 if (Booster.needBoosterStatusFromStore()) {
                     Booster.collectBoostersFromMarket = callItOnce(Booster.collectBoostersFromMarket);

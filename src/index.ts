@@ -85,6 +85,9 @@ declare global {
         // Season-arena opponent array; consumers guard with Array.isArray.
         opponents: unknown;
         player_gems_amount?: Record<string, { amount: number } | undefined>;
+        // First page of the market inventory. Only `armor` is read (by
+        // EquipmentGear); the remaining pages come from market_get_armor.
+        player_inventory?: { armor?: unknown[]; [key: string]: unknown };
         season_sec_untill_event_end: number | undefined;
         seasonal_event_active: boolean;
         seasonal_time_remaining: number;

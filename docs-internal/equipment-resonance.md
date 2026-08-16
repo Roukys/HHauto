@@ -218,6 +218,49 @@ liess sich zu 4/6 bedienen (Slot 5 fehlt, Slot 2 nur mit Klassenverlust).
 
 ---
 
+## 5a. Was davon gebaut ist
+
+`Service/EquipmentOptimizerService.ts` (rein, testbar) und
+`Module/EquipmentGear.ts` (UI, Ajax) setzen die ersten beiden Schritte um:
+
+| Button | entspricht | Rangfolge |
+|---|---|---|
+| Current Best Gear | Team 2a | Rohwerte, dann aktive Resonanz |
+| Possible Best Gear | Team 2b | Mythic mit Klasse+Theme > Mythic mit Klasse > staerkstes Item roh; darin projizierte Rohwerte, dann projizierte Resonanz |
+
+Die Rangfolge ist **lexikografisch**, nicht gewichtet: Rohwerte schlagen
+Resonanz immer, Resonanz entscheidet nur bei Gleichstand. Eine Gewichtung
+braeuchte einen Umrechnungskurs zwischen „Prozentpunkten einer Heldenstat"
+und „Carac-Punkten eines Items", und genau der ist nach Abschnitt 4 nicht
+messbar. Damit faellt auch die Gewichtungsfrage aus Abschnitt 1 weg -- die
+Zielgroesse (`damage`/`ego`/`defense`/`chance`) wird pro Item gelesen, aber
+nie gegeneinander verrechnet.
+
+Die Projektion auf Level 20 prueft die Mythic-Kurve erst gegen die
+*aktuellen* Caracs des Items (5 % Toleranz). Passt sie nicht, faellt die
+Projektion auf die gemessenen Werte zurueck und markiert sich als
+unzuverlaessig, statt auf einer veralteten Kurve zu ranken.
+
+Das Team-Theme liefert `TeamModule` beim Teambau nach
+`HHAuto_Temp_teamTheme`; die Markt-Seite liest es dort. Ohne Theme passiert
+nichts.
+
+**Upgrade Gear fehlt noch.** Der Upgrade-Endpunkt ist unbekannt (weder in
+`shop.js` noch in `shared.js`, kein `*equipment-upgrade*`-Bundle). Er muss
+live mitgeschnitten werden, zusammen mit: welche Materialien das Spiel
+akzeptiert, wie viele pro Level, und ob Waehrungskosten anfallen. Erst danach
+laesst sich die Materialauswahl bauen (keine Mythics ausser bei Dopplung oder
+richtigem Theme bei falscher Klasse -- und **nie** ein Item, das gerade
+angelegt ist).
+
+Das Pagineren des Inventars nutzt `{action:'market_get_armor',
+id_member_armor}` und erwartet `{items: [...], success}`; leere `items`
+beenden die Liste. Das ist derselbe Vertrag, auf dem `Shop.ts`
+(`checkAjaxComplete`) schon laeuft, aber fuer den Optimierer nicht eigens
+live nachgemessen.
+
+---
+
 ## 6. Offen
 
 - Wie gross der Effekt praktisch ist -- client-seitig nicht messbar (s.o.).
