@@ -1375,7 +1375,6 @@ const SK = {
     autoTrollRunThreshold: "Setting_autoTrollRunThreshold",
     autoTrollSelectedIndex: "Setting_autoTrollSelectedIndex",
     autoTrollMythicByPassParanoia: "Setting_autoTrollMythicByPassParanoia",
-    autoTrollMythicByPassThreshold: "Setting_autoTrollMythicByPassThreshold",
     eventTrollOrder: "Setting_eventTrollOrder",
     useX10Fights: "Setting_useX10Fights",
     useX10FightsAllowNormalEvent: "Setting_useX10FightsAllowNormalEvent",
@@ -1631,7 +1630,6 @@ const TK = {
     TrollHumanLikeRun: "Temp_TrollHumanLikeRun",
     TrollInvalid: "Temp_TrollInvalid",
     trollPoints: "Temp_trollPoints",
-    trollToFight: "Temp_trollToFight",
     trollWithGirls: "Temp_trollWithGirls",
     autoTrollBattleSaveQuest: "Temp_autoTrollBattleSaveQuest",
     // Quest
@@ -1641,7 +1639,6 @@ const TK = {
     // Battle
     battlePowerRequired: "Temp_battlePowerRequired",
     burst: "Temp_burst",
-    fought: "Temp_fought",
     lastActionPerformed: "Temp_lastActionPerformed",
     // Events
     eventGirl: "Temp_eventGirl",
@@ -1649,7 +1646,6 @@ const TK = {
     eventsGirlz: "Temp_eventsGirlz",
     eventsList: "Temp_eventsList",
     autoChampsEventGirls: "Temp_autoChampsEventGirls",
-    EventFightsBeforeRefresh: "Temp_EventFightsBeforeRefresh",
     loveRaids: "Temp_loveRaids",
     raidGirls: "Temp_raidGirls",
     bossBangTeam: "Temp_bossBangTeam",
@@ -1661,9 +1657,6 @@ const TK = {
     // League
     LeagueHumanLikeRun: "Temp_LeagueHumanLikeRun",
     LeagueOpponentList: "Temp_LeagueOpponentList",
-    LeagueSavedData: "Temp_LeagueSavedData",
-    LeagueTempOpponentList: "Temp_LeagueTempOpponentList",
-    leaguesTarget: "Temp_leaguesTarget",
     hideBeatenOppo: "Temp_hideBeatenOppo",
     // Season
     SeasonEndDate: "Temp_SeasonEndDate",
@@ -1694,7 +1687,6 @@ const TK = {
     sandalwoodMaxUsages: "Temp_sandalwoodMaxUsages",
     mythicEquipConflicts: "Temp_mythicEquipConflicts",
     unknownPagesList: "Temp_unknownPagesList",
-    userLink: "Temp_userLink",
     // Survey
     surveyShown: "Temp_surveyShown",
     surveyDismissCount: "Temp_surveyDismissCount",
@@ -4279,11 +4271,6 @@ HHStoredVars[HHStoredVarPrefixKey + TK.trollWithGirls] =
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars[HHStoredVarPrefixKey + TK.fought] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
 HHStoredVars[HHStoredVarPrefixKey + TK.haveAff] =
     {
         storage: "sessionStorage",
@@ -4403,11 +4390,6 @@ HHStoredVars[HHStoredVarPrefixKey + TK.boosterIdMap] =
 HHStoredVars[HHStoredVarPrefixKey + TK.sandalwoodFailure] =
     {
         default: "0",
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars[HHStoredVarPrefixKey + TK.LeagueSavedData] =
-    {
         storage: "sessionStorage",
         HHType: "Temp"
     };
