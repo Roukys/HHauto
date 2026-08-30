@@ -21716,6 +21716,11 @@ class PoaReward {
         this.slot = slot;
     }
 }
+function isPoACollectAllDue(remainingTime, limitBeforeEnd, collectAllEnabled) {
+    return collectAllEnabled
+        && remainingTime > 0
+        && remainingTime < limitBeforeEnd;
+}
 class PathOfAttraction {
     static getRemainingTime() {
         const poATimerRequest = '#events .nc-panel-header .event-timer span[rel=expires]';
@@ -21770,8 +21775,10 @@ class PathOfAttraction {
                 }
                 const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + TK.poaManualCollectAll) === 'true';
                 const poAEnd = getSecondsLeft("PoARemainingTime");
-                if (getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollect) === "true" || manualCollectAll || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollectAll) === "true") {
-                    yield PathOfAttraction.goAndCollect(manualCollectAll);
+                const needToCollect = getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollect) === "true";
+                const needToCollectAllBeforeEnd = isPoACollectAllDue(poAEnd, getLimitTimeBeforeEnd(), getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollectAll) === "true");
+                if (needToCollect || manualCollectAll || needToCollectAllBeforeEnd) {
+                    yield PathOfAttraction.goAndCollect(manualCollectAll, needToCollectAllBeforeEnd);
                 }
             }
         });
@@ -21857,14 +21864,14 @@ class PathOfAttraction {
         }
     }
     static goAndCollect() {
-        return PathOfAttraction_awaiter(this, arguments, void 0, function* (manualCollectAll = false) {
+        return PathOfAttraction_awaiter(this, arguments, void 0, function* (manualCollectAll = false, needToCollectAllBeforeEnd = false) {
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey + TK.Debug) === 'true';
             const needToCollect = getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollect) === "true";
-            const needToCollectAllBeforeEnd = getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollectAll) === "true";
             if (manualCollectAll)
                 setStoredValue(HHStoredVarPrefixKey + TK.poaManualCollectAll, 'true');
             if (needToCollect || needToCollectAllBeforeEnd || manualCollectAll) {
-                const rewardsToCollect = getStoredJSON(HHStoredVarPrefixKey + SK.autoPoACollectablesList, []);
+                const storedRewardsToCollect = getStoredJSON(HHStoredVarPrefixKey + SK.autoPoACollectablesList, []);
+                const rewardsToCollect = Array.isArray(storedRewardsToCollect) ? storedRewardsToCollect : [];
                 logHHAuto("Checking Path of Attraction for collectable rewards.");
                 const numberTiers = $(PathOfAttraction.rewardPairTierPath).length;
                 const freeClaimableRewards = PathOfAttraction.getFreeClaimableRewards();
@@ -21896,13 +21903,13 @@ class PathOfAttraction {
                     yield TimeHelper.sleep(randomInterval(300, 800));
                     for (let currentTier = 1; currentTier <= numberTiers; currentTier++) {
                         if (freeClaimableTiers.includes('' + currentTier)) {
-                            if (rewardsToCollect.includes(freeClaimableRewards[currentTier].type) || needToCollectAllBeforeEnd || manualCollectAll) {
+                            if (needToCollectAllBeforeEnd || manualCollectAll || rewardsToCollect.includes(freeClaimableRewards[currentTier].type)) {
                                 yield getReward(freeClaimableRewards[currentTier]);
                                 return true;
                             }
                         }
                         if (paidClaimableTiers.includes('' + currentTier)) {
-                            if (rewardsToCollect.includes(paidClaimableRewards[currentTier].type) || needToCollectAllBeforeEnd || manualCollectAll) {
+                            if (needToCollectAllBeforeEnd || manualCollectAll || rewardsToCollect.includes(paidClaimableRewards[currentTier].type)) {
                                 yield getReward(paidClaimableRewards[currentTier]);
                                 return true;
                             }

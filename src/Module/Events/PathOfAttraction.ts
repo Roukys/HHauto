@@ -35,6 +35,16 @@ class PoaReward {
     }
 }
 
+export function isPoACollectAllDue(
+    remainingTime: number,
+    limitBeforeEnd: number,
+    collectAllEnabled: boolean,
+): boolean {
+    return collectAllEnabled
+        && remainingTime > 0
+        && remainingTime < limitBeforeEnd;
+}
+
 export class PathOfAttraction {
 
     static rewardPairTierPath = "#nc-poa-tape-rewards .nc-poa-reward-pair .nc-poa-step-indicator";
@@ -103,8 +113,14 @@ export class PathOfAttraction {
 
             const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + TK.poaManualCollectAll) === 'true';
             const poAEnd = getSecondsLeft("PoARemainingTime");
-            if (getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollect) === "true" || manualCollectAll || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollectAll) === "true") {
-                await PathOfAttraction.goAndCollect(manualCollectAll);
+            const needToCollect = getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollect) === "true";
+            const needToCollectAllBeforeEnd = isPoACollectAllDue(
+                poAEnd,
+                getLimitTimeBeforeEnd(),
+                getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollectAll) === "true",
+            );
+            if (needToCollect || manualCollectAll || needToCollectAllBeforeEnd) {
+                await PathOfAttraction.goAndCollect(manualCollectAll, needToCollectAllBeforeEnd);
             }
         }
     }
@@ -198,16 +214,16 @@ export class PathOfAttraction {
         }
     }
 
-    static async goAndCollect(manualCollectAll = false)
+    static async goAndCollect(manualCollectAll = false, needToCollectAllBeforeEnd = false)
     {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + TK.Debug) === 'true';
         const needToCollect = getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollect) === "true";
-        const needToCollectAllBeforeEnd = getStoredValue(HHStoredVarPrefixKey + SK.autoPoACollectAll) === "true";
         if (manualCollectAll) setStoredValue(HHStoredVarPrefixKey + TK.poaManualCollectAll, 'true');
 
         if (needToCollect || needToCollectAllBeforeEnd || manualCollectAll)
         {
-            const rewardsToCollect = getStoredJSON<string[]>(HHStoredVarPrefixKey+SK.autoPoACollectablesList, []);
+            const storedRewardsToCollect = getStoredJSON<unknown>(HHStoredVarPrefixKey+SK.autoPoACollectablesList, []);
+            const rewardsToCollect = Array.isArray(storedRewardsToCollect) ? storedRewardsToCollect : [];
     
             logHHAuto("Checking Path of Attraction for collectable rewards.");
             
@@ -246,7 +262,7 @@ export class PathOfAttraction {
                 for (let currentTier = 1 ; currentTier <= numberTiers; currentTier++)
                 {
                     if(freeClaimableTiers.includes(''+currentTier)) {
-                        if (rewardsToCollect.includes(freeClaimableRewards[currentTier].type) || needToCollectAllBeforeEnd || manualCollectAll)
+                        if (needToCollectAllBeforeEnd || manualCollectAll || rewardsToCollect.includes(freeClaimableRewards[currentTier].type))
                         {
                             await getReward(freeClaimableRewards[currentTier]);
                             return true;
@@ -254,7 +270,7 @@ export class PathOfAttraction {
                     }
 
                     if(paidClaimableTiers.includes(''+currentTier)) {
-                        if (rewardsToCollect.includes(paidClaimableRewards[currentTier].type) || needToCollectAllBeforeEnd || manualCollectAll)
+                        if (needToCollectAllBeforeEnd || manualCollectAll || rewardsToCollect.includes(paidClaimableRewards[currentTier].type))
                         {
                             await getReward(paidClaimableRewards[currentTier]);
                             return true;
